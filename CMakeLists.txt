@@ -10,6 +10,6 @@ endif()
 
 include_directories("include")
 
-set(SRC src/main.c src/tga.c)
+set(SRC src/main.c src/tga.c src/util.c)
 add_executable(StarSquatters ${SRC})
 target_link_libraries(StarSquatters SDL2 SDL2main glew32 opengl32)

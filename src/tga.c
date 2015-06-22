@@ -1,6 +1,6 @@
 // http://paulbourke.net/dataformats/tga/
 
-#include <stdio.h>
+#include <SDL_rwops.h>
 
 #include "tga.h"
 
@@ -59,95 +59,96 @@ GLuint load_tga(const char *filename)
 	int n=0, i, j;
 	int bytes2read, skipover = 0;
 	unsigned char p[5];
-	FILE *fptr;
 	HEADER header;
 	unsigned char *pixels;
+	SDL_RWops *file;
 
 	/* Open the file */
-	if ((fptr = fopen(filename, "rb")) == NULL) {
-		fprintf(stderr,"File open failed\n");
+	if ((file = SDL_RWFromFile(filename, "rb")) == NULL) {
+		//fprintf(stderr,"File open failed\n");
 		return 0;
 	}
 
 	/* Display the header fields */
-	header.idlength = fgetc(fptr);
-	header.colourmaptype = fgetc(fptr);
-	header.datatypecode = fgetc(fptr);
-	fread(&header.colourmaporigin, 2, 1, fptr);
-	fread(&header.colourmaplength, 2, 1, fptr);
-	header.colourmapdepth = fgetc(fptr);
-	fread(&header.x_origin, 2, 1, fptr);
-	fread(&header.y_origin, 2, 1, fptr);
-	fread(&header.width, 2, 1, fptr);
-	fread(&header.height, 2, 1, fptr);
-	header.bitsperpixel = fgetc(fptr);
-	header.imagedescriptor = fgetc(fptr);
+	header.idlength = SDL_fgetc(file);
+	header.colourmaptype = SDL_fgetc(file);
+	header.datatypecode = SDL_fgetc(file);
+	header.colourmaporigin = SDL_ReadLE16(file);
+	header.colourmaplength = SDL_ReadLE16(file);
+	header.colourmapdepth = SDL_fgetc(file);
+	header.x_origin = SDL_ReadLE16(file);
+	header.y_origin = SDL_ReadLE16(file);
+	header.width = SDL_ReadLE16(file);
+	header.height = SDL_ReadLE16(file);
+	header.bitsperpixel = SDL_fgetc(file);
+	header.imagedescriptor = SDL_fgetc(file);
 
 	/* Allocate space for the image */
 	if ((pixels = malloc(header.width*header.height*4)) == NULL) {
-		fprintf(stderr,"malloc of image failed\n");
-		fclose(fptr);
+		//fprintf(stderr,"malloc of image failed\n");
+		SDL_RWclose(file);
 		return 0;
 	}
 
 	/* What can we handle */
 	if (header.datatypecode != 2 && header.datatypecode != 10) {
-		printf(stderr,"Can only handle image type 2 and 10\n");
-		fclose(fptr);
+		//fprintf(stderr,"Can only handle image type 2 and 10\n");
+		SDL_RWclose(file);
 		return 0;
 	}		
 	if (header.bitsperpixel != 16 && 
 		header.bitsperpixel != 24 && header.bitsperpixel != 32) {
-		fprintf(stderr,"Can only handle pixel depths of 16, 24, and 32\n");
-		fclose(fptr);
+		//fprintf(stderr,"Can only handle pixel depths of 16, 24, and 32\n");
+		SDL_RWclose(file);
 		return 0;
 	}
 	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
-		fprintf(stderr,"Can only handle colour map types of 0 and 1\n");
-		fclose(fptr);
+		//fprintf(stderr,"Can only handle colour map types of 0 and 1\n");
+		SDL_RWclose(file);
 		return 0;
 	}
 
 	/* Skip over unnecessary stuff */
 	skipover += header.idlength;
 	skipover += header.colourmaptype * header.colourmaplength;
-	fseek(fptr,skipover,SEEK_CUR);
+	SDL_RWseek(file, skipover, RW_SEEK_CUR);
 
 	/* Read the image */
 	bytes2read = header.bitsperpixel / 8;
 	while (n < header.width * header.height) {
 		if (header.datatypecode == 2) {                     /* Uncompressed */
-			if (fread(p, 1, bytes2read, fptr) != bytes2read) {
-				fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
+			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
+				//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 				free(pixels);
-				fclose(fptr);
+				SDL_RWclose(file);
 				return 0;
 			}
 			MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 			n++;
 		}
 		else if (header.datatypecode == 10) {             /* Compressed */
-			if (fread(p, 1, bytes2read+1, fptr) != bytes2read+1) {
-				fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
+			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
+				//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 				free(pixels);
-				fclose(fptr);
+				SDL_RWclose(file);
 				return 0;
 			}
 			j = p[0] & 0x7f;
 			MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
 			n++;
 			if (p[0] & 0x80) {         /* RLE chunk */
-				for (i=0;i<j;i++) {
+				for (i = 0; i < j; i++) {
 					MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
 					n++;
 				}
 			}
 			else {                   /* Normal chunk */
 				for (i = 0; i < j; i++) {
-					if (fread(p, 1, bytes2read, fptr) != bytes2read) {
-						fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
+					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
+						//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 						free(pixels);
-						fclose(fptr);
+						SDL_RWclose(file);
+						return 0;
 					}
 					MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 					n++;
@@ -155,7 +156,7 @@ GLuint load_tga(const char *filename)
 			}
 		}
 	}
-	fclose(fptr);
+	SDL_RWclose(file);
 
 	GLuint texture;
 	glGenTextures(1, &texture);
