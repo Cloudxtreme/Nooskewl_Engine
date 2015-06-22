@@ -1,10 +1,4 @@
-#include <windows.h>
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <SDL.h>
-#include <SDL_opengl.h>
-
-#include "image.h"
+#include "starsquatters.h"
 
 int main(int argc, char **argv)
 {
@@ -32,47 +26,19 @@ int main(int argc, char **argv)
 	SDL_RWops *file = SDL_RWFromFile("test.tga", "rb");
 	img->load_tga(file);
 	SDL_RWclose(file);
-	glBindTexture(GL_TEXTURE_2D, img->texture);
-	glActiveTexture(GL_TEXTURE0);
-
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	float vertices[] = {
-        -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // Top-left
-         0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // Top-right
-         0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // Bottom-right
-        -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
-    };
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Create an element array
-    GLuint ebo;
-    glGenBuffers(1, &ebo);
-
-    GLuint elements[] = {
-        0, 1, 2,
-        2, 3, 0
-    };
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
 	const char *vertexSource =
 		"#version 150 core\n"
-		"in vec2 position;"
-		"in vec3 color;"
+		"in vec3 position;"
+		"in vec4 color;"
 		"in vec2 texcoord;"
-		"out vec3 Color;"
+		"out vec4 Color;"
 		"out vec2 Texcoord;"
+		"uniform mat4 proj;"
 		"void main() {"
 		"	Color = color;"
 		"	Texcoord = texcoord;"
-		"	gl_Position = vec4(position, 0.0, 1.0);"
+		"	gl_Position = proj * vec4(position, 1.0);"
 		"}";
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
@@ -87,13 +53,13 @@ int main(int argc, char **argv)
 
 	const char *fragmentSource =
 		"#version 150 core\n"
-		"in vec3 Color;"
+		"in vec4 Color;"
 		"in vec2 Texcoord;"
 		"out vec4 outColor;"
 		"uniform sampler2D tex;"
 		"void main()"
 		"{"
-		"	outColor = texture(tex, Texcoord) * vec4(Color, 1.0);"
+		"	outColor = texture(tex, Texcoord) * Color;"
 		"}";
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
@@ -115,17 +81,21 @@ int main(int argc, char **argv)
 	// Specify the layout of the vertex data
     GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
     glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
 
 	GLint colAttrib = glGetAttribLocation(shaderProgram, "color");
 	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 3, GL_FLOAT, GL_FALSE,
-	                       7*sizeof(float), (void*)(2*sizeof(float)));
+	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9*sizeof(float), (void*)(3*sizeof(float)));
 
 	GLint texcoordAttrib = glGetAttribLocation(shaderProgram, "texcoord");
 	glEnableVertexAttribArray(texcoordAttrib);
-	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE,
-	                       7*sizeof(float), (void*)(5*sizeof(float)));
+	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9*sizeof(float), (void*)(7*sizeof(float)));
+
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	glm::mat4 ortho = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+	GLint uniTrans = glGetUniformLocation(shaderProgram, "proj");
+	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(ortho));
 
 	while (1) {
 		SDL_Event event;
@@ -138,22 +108,16 @@ int main(int argc, char **argv)
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		img->draw(0, 0);
 
 		SDL_GL_SwapWindow(window);
 	}
 
+	delete img;
+
 	glDeleteProgram(shaderProgram);
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);
-
-	//glDeleteBuffers(1, &ebo);
-	glDeleteBuffers(1, &vbo);
-
-	glDeleteVertexArrays(1, &vao);
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);

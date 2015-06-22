@@ -19,6 +19,13 @@ public:
 
 	// Supports: TGA 16/24/32 bit
 	bool load_tga(SDL_RWops *file);
+
+	void draw(float x, float y, float z = 0.0f);
+
+private:
+	GLuint vao;
+	GLuint vbo;
+	float vertices[9*6]; // 6 * x, y, z, r, g, b, a, u, v
 };
 
 #endif IMAGE_H
