@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(StarSquatters C)
+project(StarSquatters CXX)
 
 if(NOT ("${USER_INCLUDE_PATH}" STREQUAL ""))
 	include_directories(${USER_INCLUDE_PATH})
@@ -10,6 +10,12 @@ endif()
 
 include_directories("include")
 
-set(SRC src/main.c src/tga.c src/util.c)
+set(SRC
+	src/image.cpp
+	src/log.cpp
+	src/main.cpp
+	src/util.cpp
+)
+
 add_executable(StarSquatters ${SRC})
 target_link_libraries(StarSquatters SDL2 SDL2main glew32 opengl32)

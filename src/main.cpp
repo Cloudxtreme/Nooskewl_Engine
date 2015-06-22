@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#include "tga.h"
+#include "image.h"
 
 int main(int argc, char **argv)
 {
@@ -21,15 +21,18 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	SDL_GLContext *context = SDL_GL_CreateContext(window);
+	SDL_GLContext context = SDL_GL_CreateContext(window);
 
 	SDL_GL_SetSwapInterval(1);
 
 	glewExperimental = 1;
 	glewInit();
 
-	Image img = load_tga("test.tga");
-	glBindTexture(GL_TEXTURE_2D, img.texture);
+	Image *img = new Image();
+	SDL_RWops *file = SDL_RWFromFile("test.tga", "rb");
+	img->load_tga(file);
+	SDL_RWclose(file);
+	glBindTexture(GL_TEXTURE_2D, img->texture);
 	glActiveTexture(GL_TEXTURE0);
 
 	GLuint vao;
