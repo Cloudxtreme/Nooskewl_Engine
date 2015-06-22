@@ -37,10 +37,10 @@ int main(int argc, char **argv)
 	glBindVertexArray(vao);
 
 	float vertices[] = {
-        -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, 0, 1, // Top-left
-         0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 1, 1, // Top-right
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1, 0, // Bottom-right
-        -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0, 0, // Bottom-left
+        -0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, // Top-left
+         0.5f,  0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, // Top-right
+         0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, // Bottom-right
+        -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, // Bottom-left
     };
 	GLuint vbo;
 	glGenBuffers(1, &vbo);
@@ -134,6 +134,9 @@ int main(int argc, char **argv)
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
