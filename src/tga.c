@@ -31,7 +31,7 @@ void MergeBytes(unsigned char *pixel,unsigned char *p,int bytes)
 		*pixel++ = p[2];
 		*pixel++ = p[1];
 		*pixel++ = p[0];
-		*pixel++ = 0;
+		*pixel++ = 255;
 	}
 	else if (bytes == 2) {
 		*pixel++ = (p[1] & 0x7c) << 1;
@@ -39,6 +39,19 @@ void MergeBytes(unsigned char *pixel,unsigned char *p,int bytes)
 		*pixel++ = (p[0] & 0x1f) << 3;
 		*pixel++ = (p[1] & 0x80);
 	}
+}
+
+// FIXME: MSVC inline
+static __inline unsigned char *pixel_ptr(unsigned char *p, int n, HEADER *h)
+{
+	int flipped = (h->imagedescriptor & 0x20) != 0;
+	if (flipped) {
+		int x = n % h->width;
+		int y = n / h->width;
+		return p + (h->width * 4) * (h->height-1) - (y * h->width * 4) +  x * 4;
+	}
+	else
+		return p + n * 4;
 }
 
 GLuint load_tga(const char *filename)
@@ -110,7 +123,7 @@ GLuint load_tga(const char *filename)
 				fclose(fptr);
 				return 0;
 			}
-			MergeBytes(pixels+n*4, p, bytes2read);
+			MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 			n++;
 		}
 		else if (header.datatypecode == 10) {             /* Compressed */
@@ -121,11 +134,11 @@ GLuint load_tga(const char *filename)
 				return 0;
 			}
 			j = p[0] & 0x7f;
-			MergeBytes(pixels+n*4, &(p[1]), bytes2read);
+			MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
 			n++;
 			if (p[0] & 0x80) {         /* RLE chunk */
 				for (i=0;i<j;i++) {
-					MergeBytes(pixels+n*4, &(p[1]), bytes2read);
+					MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
 					n++;
 				}
 			}
@@ -136,7 +149,7 @@ GLuint load_tga(const char *filename)
 						free(pixels);
 						fclose(fptr);
 					}
-					MergeBytes(pixels+n*4, p, bytes2read);
+					MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 					n++;
 				}
 			}
