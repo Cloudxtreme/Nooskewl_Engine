@@ -54,7 +54,7 @@ static __inline unsigned char *pixel_ptr(unsigned char *p, int n, HEADER *h)
 		return p + n * 4;
 }
 
-GLuint load_tga(const char *filename)
+Image load_tga(const char *filename)
 {
 	int n=0, i, j;
 	int bytes2read, skipover = 0;
@@ -62,11 +62,12 @@ GLuint load_tga(const char *filename)
 	HEADER header;
 	unsigned char *pixels;
 	SDL_RWops *file;
+	Image img = { 0 };
 
 	/* Open the file */
 	if ((file = SDL_RWFromFile(filename, "rb")) == NULL) {
 		//fprintf(stderr,"File open failed\n");
-		return 0;
+		return img;
 	}
 
 	/* Display the header fields */
@@ -87,25 +88,25 @@ GLuint load_tga(const char *filename)
 	if ((pixels = malloc(header.width*header.height*4)) == NULL) {
 		//fprintf(stderr,"malloc of image failed\n");
 		SDL_RWclose(file);
-		return 0;
+		return img;
 	}
 
 	/* What can we handle */
 	if (header.datatypecode != 2 && header.datatypecode != 10) {
 		//fprintf(stderr,"Can only handle image type 2 and 10\n");
 		SDL_RWclose(file);
-		return 0;
+		return img;
 	}		
 	if (header.bitsperpixel != 16 && 
 		header.bitsperpixel != 24 && header.bitsperpixel != 32) {
 		//fprintf(stderr,"Can only handle pixel depths of 16, 24, and 32\n");
 		SDL_RWclose(file);
-		return 0;
+		return img;
 	}
 	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
 		//fprintf(stderr,"Can only handle colour map types of 0 and 1\n");
 		SDL_RWclose(file);
-		return 0;
+		return img;
 	}
 
 	/* Skip over unnecessary stuff */
@@ -121,7 +122,7 @@ GLuint load_tga(const char *filename)
 				//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 				free(pixels);
 				SDL_RWclose(file);
-				return 0;
+				return img;
 			}
 			MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 			n++;
@@ -131,7 +132,7 @@ GLuint load_tga(const char *filename)
 				//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 				free(pixels);
 				SDL_RWclose(file);
-				return 0;
+				return img;
 			}
 			j = p[0] & 0x7f;
 			MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
@@ -148,7 +149,7 @@ GLuint load_tga(const char *filename)
 						//fprintf(stderr,"Unexpected end of file at pixel %d\n",i);
 						free(pixels);
 						SDL_RWclose(file);
-						return 0;
+						return img;
 					}
 					MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
 					n++;
@@ -162,7 +163,7 @@ GLuint load_tga(const char *filename)
 	glGenTextures(1, &texture);
 	if (texture == 0) {
 		free(pixels);
-		return 0;
+		return img;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -173,5 +174,9 @@ GLuint load_tga(const char *filename)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 	free(pixels);
-	return texture;
+
+	img.texture = texture;
+	img.width = header.width;
+	img.height = header.height;
+	return img;
 }

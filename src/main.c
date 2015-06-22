@@ -28,8 +28,8 @@ int main(int argc, char **argv)
 	glewExperimental = 1;
 	glewInit();
 
-	GLuint texture = load_tga("test.tga");
-	glBindTexture(GL_TEXTURE_2D, texture);
+	Image img = load_tga("test.tga");
+	glBindTexture(GL_TEXTURE_2D, img.texture);
 	glActiveTexture(GL_TEXTURE0);
 
 	GLuint vao;
@@ -67,9 +67,9 @@ int main(int argc, char **argv)
 		"out vec3 Color;"
 		"out vec2 Texcoord;"
 		"void main() {"
-		"   Color = color;"
+		"	Color = color;"
 		"	Texcoord = texcoord;"
-		"   gl_Position = vec4(position, 0.0, 1.0);"
+		"	gl_Position = vec4(position, 0.0, 1.0);"
 		"}";
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
