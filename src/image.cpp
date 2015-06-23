@@ -2,6 +2,9 @@
 
 #include "starsquatters.h"
 
+// FIXME:
+extern GLuint current_shader;
+
 typedef struct {
 	char idlength;
 	char colourmaptype;
@@ -70,7 +73,7 @@ Image::~Image()
 	glDeleteVertexArrays(1, &vao);
 }
 
-bool Image::load_tga(SDL_RWops *file)
+bool Image::load_tga(SDL_RWops *file, bool close_file)
 {
 	int n = 0, i, j;
 	int bytes2read, skipover = 0;
@@ -98,21 +101,25 @@ bool Image::load_tga(SDL_RWops *file)
 	/* Allocate space for the image */
 	if ((pixels = new unsigned char[header.width*header.height*4]) == NULL) {
 		logmsg("malloc of image failed\n");
+		if (close_file) SDL_RWclose(file);
 		return false;
 	}
 
 	/* What can we handle */
 	if (header.datatypecode != 2 && header.datatypecode != 10) {
 		logmsg("Can only handle image type 2 and 10\n");
+		if (close_file) SDL_RWclose(file);
 		return false;
 	}		
 	if (header.bitsperpixel != 16 && 
 		header.bitsperpixel != 24 && header.bitsperpixel != 32) {
 		logmsg("Can only handle pixel depths of 16, 24, and 32\n");
+		if (close_file) SDL_RWclose(file);
 		return false;
 	}
 	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
 		logmsg("Can only handle colour map types of 0 and 1\n");
+		if (close_file) SDL_RWclose(file);
 		return false;
 	}
 
@@ -128,6 +135,7 @@ bool Image::load_tga(SDL_RWops *file)
 			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
 				logmsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
+				if (close_file) SDL_RWclose(file);
 				return false;
 			}
 			MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
@@ -137,6 +145,7 @@ bool Image::load_tga(SDL_RWops *file)
 			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
 				logmsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
+				if (close_file) SDL_RWclose(file);
 				return false;
 			}
 			j = p[0] & 0x7f;
@@ -153,6 +162,7 @@ bool Image::load_tga(SDL_RWops *file)
 					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
 						logmsg("Unexpected end of file at pixel %d\n",i);
 						delete[] pixels;
+						if (close_file) SDL_RWclose(file);
 						return false;
 					}
 					MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
@@ -171,10 +181,12 @@ bool Image::load_tga(SDL_RWops *file)
 	glGenTextures(1, &texture);
 	if (texture == 0) {
 		delete[] pixels;
+		if (close_file) SDL_RWclose(file);
 		return false;
 	}
 
 	glBindTexture(GL_TEXTURE_2D, texture);
+	glActiveTexture(GL_TEXTURE0);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
@@ -184,6 +196,8 @@ bool Image::load_tga(SDL_RWops *file)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	delete[] pixels;
+
+	if (close_file) SDL_RWclose(file);
 
 	return true;
 }
@@ -237,10 +251,23 @@ void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float 
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*6, vertices, GL_DYNAMIC_DRAW);
 
+	// Specify the layout of the vertex data
+	GLint posAttrib = glGetAttribLocation(current_shader, "position");
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+
+	GLint colAttrib = glGetAttribLocation(current_shader, "color");
+	glEnableVertexAttribArray(colAttrib);
+	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	GLint texcoordAttrib = glGetAttribLocation(current_shader, "texcoord");
+	glEnableVertexAttribArray(texcoordAttrib);
+	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void Image::draw(float dx, float dy)
 {
-	draw_region(0, 0, width, height, dx, dy);
+	draw_region(0.0f, 0.0f, (float)width, (float)height, dx, dy);
 }

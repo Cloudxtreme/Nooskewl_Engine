@@ -18,7 +18,7 @@ public:
 	~Image();
 
 	// Supports: TGA 16/24/32 bit
-	bool load_tga(SDL_RWops *file);
+	bool load_tga(SDL_RWops *file, bool close_file);
 
 	void bind();
 	void draw_region(float sx, float sy, float sw, float sh, float dx, float dy);

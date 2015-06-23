@@ -10,11 +10,14 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <SDL.h>
+#include <SDL_audio.h>
 #include <SDL_opengl.h>
 #include <SDL_rwops.h>
 
+#include "audio.h"
 #include "image.h"
 #include "log.h"
 #include "util.h"
+#include "video.h"
 
 #endif // STARSQUATTERS_H

@@ -1,7 +1,7 @@
 #include <cstdarg>
 #include <cstdio>
 
-#include "log.h"
+#include "starsquatters.h"
 
 void logmsg(const char *fmt, ...)
 {
