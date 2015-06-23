@@ -14,7 +14,10 @@
 #include <SDL_opengl.h>
 #include <SDL_rwops.h>
 
+#include <SDL_ttf.h>
+
 #include "audio.h"
+#include "font.h"
 #include "image.h"
 #include "log.h"
 #include "util.h"

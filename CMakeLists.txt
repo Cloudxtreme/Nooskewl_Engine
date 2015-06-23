@@ -12,6 +12,7 @@ include_directories("include")
 
 set(SRC
 	src/audio.cpp
+	src/font.cpp
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
@@ -20,4 +21,4 @@ set(SRC
 )
 
 add_executable(StarSquatters ${SRC})
-target_link_libraries(StarSquatters SDL2 SDL2main glew32 opengl32)
+target_link_libraries(StarSquatters SDL2 SDL2main SDL2_ttf glew32 opengl32)
