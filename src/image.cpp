@@ -61,19 +61,6 @@ Image::Image() :
 			vertices[9*i+3+j] = 1.0f; // r, g, b, a
 		}
 	}
-	// texture coordinates
-	vertices[9*0+7] = 0;
-	vertices[9*0+8] = 1;
-	vertices[9*1+7] = 1;
-	vertices[9*1+8] = 1;
-	vertices[9*2+7] = 1;
-	vertices[9*2+8] = 0;
-	vertices[9*3+7] = 0;
-	vertices[9*3+8] = 1;
-	vertices[9*4+7] = 1;
-	vertices[9*4+8] = 0;
-	vertices[9*5+7] = 0;
-	vertices[9*5+8] = 0;
 }
 
 Image::~Image()
@@ -201,36 +188,59 @@ bool Image::load_tga(SDL_RWops *file)
 	return true;
 }
 
-void Image::draw(float x, float y, float z)
+void Image::bind()
 {
-	// Set varying vertex attributes: xy
-	vertices[9*0+0] = x;
-	vertices[9*0+1] = y;
-	vertices[9*1+0] = x+width-1;
-	vertices[9*1+1] = y;
-	vertices[9*2+0] = x+width-1;
-	vertices[9*2+1] = y+height-1;
-	vertices[9*3+0] = x;
-	vertices[9*3+1] = y;
-	vertices[9*4+0] = x+width-1;
-	vertices[9*4+1] = y+height-1;
-	vertices[9*5+0] = x;
-	vertices[9*5+1] = y+height-1;
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBindTexture(GL_TEXTURE_2D, texture);
+}
 
+void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float dy)
+{
+	float dx2 = dx + sw;
+	float dy2 = dy + sh;
+
+	// Set varying vertex attributes: xy
+	vertices[9*0+0] = dx;
+	vertices[9*0+1] = dy;
+	vertices[9*1+0] = dx2;
+	vertices[9*1+1] = dy;
+	vertices[9*2+0] = dx2;
+	vertices[9*2+1] = dy2;
+	vertices[9*3+0] = dx;
+	vertices[9*3+1] = dy;
+	vertices[9*4+0] = dx2;
+	vertices[9*4+1] = dy2;
+	vertices[9*5+0] = dx;
+	vertices[9*5+1] = dy2;
 	for (int i = 0; i < 6; i++) {
-		vertices[9*i+2] = z;
+		vertices[9*i+2] = 0; // z
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	float tu = sx / width;
+	float tv = sy / height;
+	float tu2 = tu + sw / width;
+	float tv2 = tv + sh / height;
+
+	// texture coordinates
+	vertices[9*0+7] = tu;
+	vertices[9*0+8] = tv2;
+	vertices[9*1+7] = tu2;
+	vertices[9*1+8] = tv2;
+	vertices[9*2+7] = tu2;
+	vertices[9*2+8] = tv;
+	vertices[9*3+7] = tu;
+	vertices[9*3+8] = tv2;
+	vertices[9*4+7] = tu2;
+	vertices[9*4+8] = tv;
+	vertices[9*5+7] = tu;
+	vertices[9*5+8] = tv;
+
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*6, vertices, GL_DYNAMIC_DRAW);
 
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glActiveTexture(GL_TEXTURE0);
-
-	glDisable(GL_CULL_FACE);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Image::draw(float dx, float dy)
+{
+	draw_region(0, 0, width, height, dx, dy);
 }

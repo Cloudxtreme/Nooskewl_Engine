@@ -20,7 +20,9 @@ public:
 	// Supports: TGA 16/24/32 bit
 	bool load_tga(SDL_RWops *file);
 
-	void draw(float x, float y, float z = 0.0f);
+	void bind();
+	void draw_region(float sx, float sy, float sw, float sh, float dx, float dy);
+	void draw(float dx, float dy);
 
 private:
 	GLuint vao;

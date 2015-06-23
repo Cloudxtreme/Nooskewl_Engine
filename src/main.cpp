@@ -97,6 +97,11 @@ int main(int argc, char **argv)
 	GLint uniTrans = glGetUniformLocation(shaderProgram, "proj");
 	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(ortho));
 
+	glActiveTexture(GL_TEXTURE0);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	while (1) {
 		SDL_Event event;
 		if (SDL_PollEvent(&event)) {
@@ -108,7 +113,10 @@ int main(int argc, char **argv)
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		img->draw(0, 0);
+		img->bind();
+		img->draw_region(0, 0, 16, 16, 10, 10);
+		img->draw_region(16, 0, 16, 16, 50, 50);
+		img->draw(100, 100);
 
 		SDL_GL_SwapWindow(window);
 	}
