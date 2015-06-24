@@ -42,6 +42,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	Audio music = load_audio("title.mml");
+	play_audio(music, true);
+
 	while (1) {
 		SDL_Event event;
 		if (SDL_PollEvent(&event)) {

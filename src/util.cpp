@@ -1,5 +1,8 @@
 #include <SDL_rwops.h>
 
+// FIXME:
+#include <cstdio>
+
 int SDL_fgetc(SDL_RWops *file)
 {
 	unsigned char c;
@@ -7,4 +10,23 @@ int SDL_fgetc(SDL_RWops *file)
 		return -1;
 	}
 	return c;
+}
+
+char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max)
+{
+	size_t c = 0;
+	while (c < max) {
+		int i = SDL_fgetc(file);
+		if (i == -1) {
+			break;
+		}
+		buf[c] = (char)i;
+		c++;
+		if (i == '\n') {
+			break;
+		}
+	}
+	if (c == 0) return NULL;
+	buf[c] = 0;
+	return buf;
 }
