@@ -41,7 +41,7 @@ public:
 	~Track();
 
 	void play(bool looping);
-	// Must be called regularly (~1.0/60.0 seconds). Returns true if non-looping track is finished.
+	// Must be called regularly (~1.0/60.0 seconds). Returns true if generated any samples.
 	bool update(Int16 *buf, int length);
 
 private:

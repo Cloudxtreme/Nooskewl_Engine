@@ -211,6 +211,10 @@ void Track::play(bool looping)
 
 bool Track::update(Int16 *buf, int length)
 {
+	if (done) {
+		return false;
+	}
+
 	while (buffer_fulfilled < length) {
 		int to_generate = length_in_samples - note_fulfilled;
 		int left_in_buffer = length - buffer_fulfilled;
@@ -248,7 +252,7 @@ bool Track::update(Int16 *buf, int length)
 						tok = "r";
 					}
 					else {
-						memset(buf, 0, sizeof(float) * length);
+						memset(buf, device_spec.silence, sizeof(float) * length);
 						done = true;
 						return true;
 					}
@@ -265,7 +269,7 @@ bool Track::update(Int16 *buf, int length)
 	}
 	buffer_fulfilled = 0;
 
-	return done;
+	return true;
 }
 
 void Track::reset()
@@ -387,7 +391,7 @@ void Track::generate(Int16 *buf, int samples, double t, const char *tok, int oct
 	char c = tok[0];
 	int index = 0;
 	if (c == 'r') {
-		memset(buf, 0, sizeof(Int16)*samples);
+		memset(buf, device_spec.silence, sizeof(Int16)*samples);
 		sample += samples;
 		note_fulfilled += samples;
 		return;
@@ -538,9 +542,10 @@ void update_audio(Uint8 *buf, int stream_length)
 	for (size_t audio = 0; audio < loaded_audio.size(); audio++) {
 		Audio tracks = loaded_audio[audio];
 		for (size_t track = 0; track < tracks->size(); track++) {
-			memset(tmp, device_spec.silence, stream_length);
-			(*tracks)[track]->update((Int16 *)tmp, stream_length/2);
-			SDL_MixAudioFormat(buf, tmp, device_spec.format, stream_length, 16);
+			bool filled = (*tracks)[track]->update((Int16 *)tmp, stream_length/2);
+			if (filled) {
+				SDL_MixAudioFormat(buf, tmp, device_spec.format, stream_length, 16);
+			}
 		}
 	}
 
