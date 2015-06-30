@@ -1,6 +1,9 @@
 // http://paulbourke.net/dataformats/tga/
 
 #include "starsquatters.h"
+#include "image.h"
+#include "log.h"
+#include "util.h"
 
 // FIXME:
 extern GLuint current_shader;
@@ -95,30 +98,30 @@ bool Image::load_tga(SDL_RWops *file)
 	header.bitsperpixel = SDL_fgetc(file);
 	header.imagedescriptor = SDL_fgetc(file);
 
-	width = header.width;
-	height = header.height;
+	w = header.width;
+	h = header.height;
 
 	/* Allocate space for the image */
 	if ((pixels = new unsigned char[header.width*header.height*4]) == NULL) {
-		logmsg("malloc of image failed\n");
+		errormsg("malloc of image failed\n");
 		SDL_RWclose(file);
 		return false;
 	}
 
 	/* What can we handle */
 	if (header.datatypecode != 2 && header.datatypecode != 10) {
-		logmsg("Can only handle image type 2 and 10\n");
+		errormsg("Can only handle image type 2 and 10\n");
 		SDL_RWclose(file);
 		return false;
 	}		
 	if (header.bitsperpixel != 16 && 
 		header.bitsperpixel != 24 && header.bitsperpixel != 32) {
-		logmsg("Can only handle pixel depths of 16, 24, and 32\n");
+		errormsg("Can only handle pixel depths of 16, 24, and 32\n");
 		SDL_RWclose(file);
 		return false;
 	}
 	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
-		logmsg("Can only handle colour map types of 0 and 1\n");
+		errormsg("Can only handle colour map types of 0 and 1\n");
 		SDL_RWclose(file);
 		return false;
 	}
@@ -133,7 +136,7 @@ bool Image::load_tga(SDL_RWops *file)
 	while (n < header.width * header.height) {
 		if (header.datatypecode == 2) {                     /* Uncompressed */
 			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-				logmsg("Unexpected end of file at pixel %d\n",i);
+				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
 				SDL_RWclose(file);
 				return false;
@@ -143,7 +146,7 @@ bool Image::load_tga(SDL_RWops *file)
 		}
 		else if (header.datatypecode == 10) {             /* Compressed */
 			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
-				logmsg("Unexpected end of file at pixel %d\n",i);
+				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
 				SDL_RWclose(file);
 				return false;
@@ -160,7 +163,7 @@ bool Image::load_tga(SDL_RWops *file)
 			else {                   /* Normal chunk */
 				for (i = 0; i < j; i++) {
 					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-						logmsg("Unexpected end of file at pixel %d\n",i);
+						errormsg("Unexpected end of file at pixel %d\n",i);
 						delete[] pixels;
 						SDL_RWclose(file);
 						return false;
@@ -209,8 +212,8 @@ bool Image::from_surface(SDL_Surface *surface)
 		pixels = (unsigned char *)tmp->pixels;
 	}
 
-	width = surface->w;
-	height = surface->h;
+	w = surface->w;
+	h = surface->h;
 
 	bool ret = upload(pixels);
 
@@ -251,10 +254,10 @@ void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float 
 		vertices[9*i+2] = 0; // z
 	}
 
-	float tu = sx / width;
-	float tv = sy / height;
-	float tu2 = tu + sw / width;
-	float tv2 = tv + sh / height;
+	float tu = sx / w;
+	float tv = 1.0f - (sy / h);
+	float tu2 = tu + sw / w;
+	float tv2 = tv - (sh / h);
 
 	if (flags & FLIP_H) {
 		float tmp = tu;
@@ -301,7 +304,7 @@ void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float 
 
 void Image::draw(float dx, float dy, int flags)
 {
-	draw_region(0.0f, 0.0f, (float)width, (float)height, dx, dy, flags);
+	draw_region(0.0f, 0.0f, (float)w, (float)h, dx, dy, flags);
 }
 
 bool Image::upload(unsigned char *pixels)
@@ -320,7 +323,7 @@ bool Image::upload(unsigned char *pixels)
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glActiveTexture(GL_TEXTURE0);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

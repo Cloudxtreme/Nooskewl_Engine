@@ -16,6 +16,8 @@ set(SRC
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
+	src/snprintf.cpp
+	src/tilemap.cpp
 	src/util.cpp
 	src/video.cpp
 )

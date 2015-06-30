@@ -1,10 +1,7 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <string>
-#include <vector>
-
-#include <SDL_audio.h>
+#include "starsquatters.h"
 
 typedef signed short Int16;
 

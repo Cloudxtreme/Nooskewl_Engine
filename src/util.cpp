@@ -1,7 +1,6 @@
-#include <SDL_rwops.h>
-
-// FIXME:
-#include <cstdio>
+#include "starsquatters.h"
+#include "snprintf.h"
+#include "util.h"
 
 int SDL_fgetc(SDL_RWops *file)
 {
@@ -29,4 +28,11 @@ char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max)
 	if (c == 0) return NULL;
 	buf[c] = 0;
 	return buf;
+}
+
+std::string itos(int i)
+{
+	char buf[20];
+	snprintf(buf, 20, "%d", i);
+	return std::string(buf);
 }

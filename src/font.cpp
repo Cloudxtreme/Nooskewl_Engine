@@ -1,4 +1,7 @@
 #include "starsquatters.h"
+#include "font.h"
+#include "image.h"
+#include "log.h"
 
 Font::Font() :
 	font(NULL)
@@ -52,8 +55,8 @@ void Font::draw(std::string text, float x, float y, SDL_Color color)
 		}
 		if (found != NULL) {
 			found->image->bind();
-			found->image->draw(x, y, Image::FLIP_V);
-			x += found->image->width;
+			found->image->draw(x, y, 0);
+			x += found->image->w;
 		}
 
 		p++;
@@ -64,20 +67,20 @@ void Font::cache(int ch, SDL_Color color)
 {
 	Glyph *g = new Glyph;
 	if (g == NULL) {
-		logmsg("Error caching glyph");
+		errormsg("Error caching glyph");
 		return;
 	}
 
 	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, color);
 	if (surface == NULL) {
-		logmsg("Error rendering glyph");
+		errormsg("Error rendering glyph");
 		delete g;
 		return;
 	}
 
 	g->image = new Image();
 	if (g->image == NULL || g->image->from_surface(surface) == false) {
-		logmsg("Error converting glyph from surface to image");
+		errormsg("Error converting glyph from surface to image");
 		SDL_FreeSurface(surface);
 		delete g;
 		return;

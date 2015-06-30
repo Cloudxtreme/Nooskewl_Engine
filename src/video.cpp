@@ -1,4 +1,6 @@
 #include "starsquatters.h"
+#include "log.h"
+#include "video.h"
 
 // FIXME: private
 SDL_Window *window;
@@ -51,7 +53,7 @@ bool init_video()
 	if (status != GL_TRUE) {
 		char buffer[512];
 		glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
-		printf("%s\n", buffer);
+		errormsg("Vertex shader error: %s\n", buffer);
 	}
 
 	const char *fragmentSource =
@@ -71,7 +73,7 @@ bool init_video()
 	if (status != GL_TRUE) {
 		char buffer[512];
 		glGetShaderInfoLog(fragmentShader, 512, NULL, buffer);
-		printf("%s\n", buffer);
+		errormsg("Fragment shader error: %s\n", buffer);
 	}
 
 	current_shader = glCreateProgram();

@@ -1,11 +1,6 @@
-#include <algorithm>
-#include <cctype>
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <vector>
-
 #include "starsquatters.h"
+#include "audio.h"
+#include "util.h"
 
 #define PI M_PI
 #define TWOPI (2.0 * PI)

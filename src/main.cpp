@@ -1,4 +1,10 @@
 #include "starsquatters.h"
+#include "audio.h"
+#include "font.h"
+#include "image.h"
+#include "log.h"
+#include "tilemap.h"
+#include "video.h"
 
 int main(int argc, char **argv)
 {
@@ -7,43 +13,49 @@ int main(int argc, char **argv)
 	}
 
 	if (!init_audio()) {
-		logmsg("Error initializing audio");
+		errormsg("Error initializing audio");
 		return 1;
 	}
 
 	if (!init_video()) {
-		logmsg("Error initializing video");
+		errormsg("Error initializing video");
 		return 1;
 	}
 
 	if (!init_font()) {
-		logmsg("Error initializing fonts");
+		errormsg("Error initializing fonts");
 		return 1;
 	}
 
 	Image *img = new Image();
 	SDL_RWops *file = SDL_RWFromFile("test.tga", "rb");
 	if (file == NULL || img->load_tga(file) == false) {
-		logmsg("Error loading test.tga");
+		errormsg("Error loading test.tga");
 		return 1;
 	}
 
 	Sample *sample = new Sample();
 	file = SDL_RWFromFile("test.wav", "rb");
 	if (file == NULL || sample->load_wav(file) == false) {
-		logmsg("Error loading test.wav");
+		errormsg("Error loading test.wav");
 		return 1;
 	}
 
 	Font *font = new Font();
-	file = SDL_RWFromFile("arial.ttf", "rb");
+	file = SDL_RWFromFile("C:\\Windows\\Fonts\\arial.ttf", "rb");
 	if (file == NULL || font->load_ttf(file, 16) == false) {
-		logmsg("Error loading font");
+		errormsg("Error loading font");
 		return 1;
 	}
 
 	Audio music = load_audio("title.mml");
 	play_audio(music, true);
+
+	Tilemap *tilemap = new Tilemap(16);
+	if (tilemap->load("test", "test.level") == false) {
+		errormsg("Error loading tilemap");
+		return 1;
+	}
 
 	while (1) {
 		SDL_Event event;
@@ -66,6 +78,10 @@ int main(int argc, char **argv)
 
 		SDL_Colour colour = { 255, 255, 255, 255 };
 		font->draw("HELLO, WORLD!", 200, 200, colour);
+
+		for (int i = 0; i < tilemap->get_layer_count(); i++) {
+			tilemap->draw_layer(i, 300, 300);
+		}
 
 		flip();
 	}

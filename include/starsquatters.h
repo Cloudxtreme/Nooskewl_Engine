@@ -1,6 +1,15 @@
 #ifndef STARSQUATTERS_H
 #define STARSQUATTERS_H
 
+#include <cctype>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+
+#include <algorithm>
+#include <string>
+#include <vector>
+
 #include <GL/glew.h>
 
 #include <GL/gl.h>
@@ -16,11 +25,7 @@
 
 #include <SDL_ttf.h>
 
-#include "audio.h"
-#include "font.h"
-#include "image.h"
-#include "log.h"
-#include "util.h"
-#include "video.h"
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 #endif // STARSQUATTERS_H

@@ -3,10 +3,7 @@
 
 #include <string>
 
-#include <windows.h>
-#include <GL/gl.h>
-
-#include <SDL_rwops.h>
+#include "starsquatters.h"
 
 class Image {
 public:
@@ -16,8 +13,8 @@ public:
 	};
 
 	GLuint texture;
-	int width;
-	int height;
+	int w;
+	int h;
 
 	Image();
 	~Image();
