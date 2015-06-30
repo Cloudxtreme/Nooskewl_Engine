@@ -65,8 +65,8 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 	float dy2 = dy + sh;
 
 	// FIXME: target height
-	dy = 768 - dy;
-	dy2 = 768 - dy2;
+	//dy = 768 - dy;
+	//dy2 = 768 - dy2;
 
 	// Set vertex x, y
 	vertices[9*(count+0)+0] = dx;
@@ -87,9 +87,14 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 	}
 
 	float tu = sx / image->w;
-	float tv = 1.0f - (sy / image->h);
+	//float tv = 1.0f - (sy / image->h);
+	float tv = sy / image->h;
 	float tu2 = tu + sw / image->w;
-	float tv2 = tv - (sh / image->h);
+	//float tv2 = tv - (sh / image->h);
+	float tv2 = tv + sh / image->h;
+
+	tv = 1.0f - tv;
+	tv2 = 1.0f - tv2;
 
 	if (flags & Image::FLIP_H) {
 		float tmp = tu;
@@ -104,17 +109,17 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 
 	// texture coordinates
 	vertices[9*(count+0)+7] = tu;
-	vertices[9*(count+0)+8] = tv2;
+	vertices[9*(count+0)+8] = tv;
 	vertices[9*(count+1)+7] = tu2;
-	vertices[9*(count+1)+8] = tv2;
+	vertices[9*(count+1)+8] = tv;
 	vertices[9*(count+2)+7] = tu2;
-	vertices[9*(count+2)+8] = tv;
+	vertices[9*(count+2)+8] = tv2;
 	vertices[9*(count+3)+7] = tu;
-	vertices[9*(count+3)+8] = tv2;
+	vertices[9*(count+3)+8] = tv;
 	vertices[9*(count+4)+7] = tu2;
-	vertices[9*(count+4)+8] = tv;
+	vertices[9*(count+4)+8] = tv2;
 	vertices[9*(count+5)+7] = tu;
-	vertices[9*(count+5)+8] = tv;
+	vertices[9*(count+5)+8] = tv2;
 
 	// Set vertex r, g, b, a
 	for (int i = 0; i < 6; i++) {

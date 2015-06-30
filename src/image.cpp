@@ -46,8 +46,9 @@ static void MergeBytes(unsigned char *pixel, unsigned char *p, int bytes)
 // FIXME: MSVC inline
 static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_HEADER *h)
 {
-	int flipped = (h->imagedescriptor & 0x20) != 0;
-	if (flipped) {
+	/* OpenGL expects upside down, so that's what we provide */
+	int flip = (h->imagedescriptor & 0x20) != 0;
+	if (flip) {
 		int x = n % h->width;
 		int y = n / h->width;
 		return p + (h->width * 4) * (h->height-1) - (y * h->width * 4) +  x * 4;

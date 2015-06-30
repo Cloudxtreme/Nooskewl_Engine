@@ -55,7 +55,11 @@ void Font::draw(std::string text, float x, float y, SDL_Color color)
 		}
 		if (found != NULL) {
 			found->image->start();
-			found->image->draw(x, y, 0);
+			/* When we upload the glyph, it's right-side up, but OpenGL
+			 * expects it upside-down. It's quicker to just flip it
+			 * like this than to flip all the pixels.
+			 */
+			found->image->draw(x, y, Image::FLIP_V);
 			found->image->end();
 			x += found->image->w;
 		}
