@@ -54,8 +54,9 @@ void Font::draw(std::string text, float x, float y, SDL_Color color)
 			it++;
 		}
 		if (found != NULL) {
-			found->image->bind();
+			found->image->start();
 			found->image->draw(x, y, 0);
+			found->image->end();
 			x += found->image->w;
 		}
 

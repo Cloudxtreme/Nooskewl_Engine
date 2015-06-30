@@ -161,7 +161,7 @@ void Tilemap::draw_layer(int layer, float x, float y)
 
 		int width_in_tiles = sheets[sheet_num]->w / tile_size;
 
-		sheets[sheet_num]->bind();
+		sheets[sheet_num]->start();
 
 		for (int row = 0; row < height; row++) {
 			for (int col = 0; col < width; col++) {
@@ -184,5 +184,7 @@ void Tilemap::draw_layer(int layer, float x, float y)
 				}
 			}
 		}
+
+		sheets[sheet_num]->end();
 	}
 }

@@ -4,9 +4,7 @@
 #include "image.h"
 #include "log.h"
 #include "util.h"
-
-// FIXME:
-extern GLuint current_shader;
+#include "vertex_accel.h"
 
 typedef struct {
 	char idlength;
@@ -23,7 +21,7 @@ typedef struct {
 	char imagedescriptor;
 } TGA_HEADER;
 
-static void MergeBytes(unsigned char *pixel,unsigned char *p,int bytes)
+static void MergeBytes(unsigned char *pixel, unsigned char *p, int bytes)
 {
 	if (bytes == 4) {
 		*pixel++ = p[2];
@@ -61,12 +59,6 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_HEADER *h)
 Image::Image() :
 	texture(0)
 {
-	// Set vertex constants: rgba and texture coordinates
-	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 4; j++) {
-			vertices[9*i+3+j] = 1.0f; // r, g, b, a
-		}
-	}
 }
 
 Image::~Image()
@@ -226,80 +218,17 @@ bool Image::from_surface(SDL_Surface *surface)
 	return true;
 }
 
-void Image::bind()
+void Image::start()
 {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindTexture(GL_TEXTURE_2D, texture);
+
+	vertex_accel->start(this);
 }
 
 void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
-	float dx2 = dx + sw;
-	float dy2 = dy + sh;
-
-	// Set varying vertex attributes: xy
-	vertices[9*0+0] = dx;
-	vertices[9*0+1] = dy;
-	vertices[9*1+0] = dx2;
-	vertices[9*1+1] = dy;
-	vertices[9*2+0] = dx2;
-	vertices[9*2+1] = dy2;
-	vertices[9*3+0] = dx;
-	vertices[9*3+1] = dy;
-	vertices[9*4+0] = dx2;
-	vertices[9*4+1] = dy2;
-	vertices[9*5+0] = dx;
-	vertices[9*5+1] = dy2;
-	for (int i = 0; i < 6; i++) {
-		vertices[9*i+2] = 0; // z
-	}
-
-	float tu = sx / w;
-	float tv = 1.0f - (sy / h);
-	float tu2 = tu + sw / w;
-	float tv2 = tv - (sh / h);
-
-	if (flags & FLIP_H) {
-		float tmp = tu;
-		tu = tu2;
-		tu2 = tmp;
-	}
-	if (flags & FLIP_V) {
-		float tmp = tv;
-		tv = tv2;
-		tv2 = tmp;
-	}
-
-	// texture coordinates
-	vertices[9*0+7] = tu;
-	vertices[9*0+8] = tv2;
-	vertices[9*1+7] = tu2;
-	vertices[9*1+8] = tv2;
-	vertices[9*2+7] = tu2;
-	vertices[9*2+8] = tv;
-	vertices[9*3+7] = tu;
-	vertices[9*3+8] = tv2;
-	vertices[9*4+7] = tu2;
-	vertices[9*4+8] = tv;
-	vertices[9*5+7] = tu;
-	vertices[9*5+8] = tv;
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*6, vertices, GL_DYNAMIC_DRAW);
-
-	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(current_shader, "position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-
-	GLint colAttrib = glGetAttribLocation(current_shader, "color");
-	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	GLint texcoordAttrib = glGetAttribLocation(current_shader, "texcoord");
-	glEnableVertexAttribArray(texcoordAttrib);
-	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, flags);
 }
 
 void Image::draw(float dx, float dy, int flags)
@@ -307,16 +236,33 @@ void Image::draw(float dx, float dy, int flags)
 	draw_region(0.0f, 0.0f, (float)w, (float)h, dx, dy, flags);
 }
 
+void Image::end()
+{
+	vertex_accel->end();
+}
+
 bool Image::upload(unsigned char *pixels)
 {
 	glGenVertexArrays(1, &vao);
+	if (vao == 0) {
+		return false;
+	}
 	glBindVertexArray(vao);
 
 	glGenBuffers(1, &vbo);
+	if (vbo == 0) {
+		glDeleteVertexArrays(1, &vao);
+		vao = 0;
+		return false;
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	glGenTextures(1, &texture);
 	if (texture == 0) {
+		glDeleteVertexArrays(1, &vao);
+		vao = 0;
+		glDeleteBuffers(1, &vbo);
+		vbo = 0;
 		return false;
 	}
 

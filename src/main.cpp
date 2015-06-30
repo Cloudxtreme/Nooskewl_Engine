@@ -4,7 +4,11 @@
 #include "image.h"
 #include "log.h"
 #include "tilemap.h"
+#include "vertex_accel.h"
 #include "video.h"
+
+// FIXME
+#include <Mmsystem.h>
 
 int main(int argc, char **argv)
 {
@@ -34,6 +38,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	/*
 	Sample *sample = new Sample();
 	file = SDL_RWFromFile("test.wav", "rb");
 	if (file == NULL || sample->load_wav(file) == false) {
@@ -49,41 +54,71 @@ int main(int argc, char **argv)
 	}
 
 	Audio music = load_audio("title.mml");
-	play_audio(music, true);
+	//play_audio(music, true);
 
 	Tilemap *tilemap = new Tilemap(16);
 	if (tilemap->load("test", "test.level") == false) {
 		errormsg("Error loading tilemap");
 		return 1;
 	}
+	*/
+
+	vertex_accel = new Vertex_Accel();
+	if (vertex_accel->init() == false) {
+		errormsg("Couldn't create vertex accelerator");
+		return 1;
+	}
+
+	int frames = 0;
+	double elapsed = 0.0;
 
 	while (1) {
+		int start = timeGetTime();
 		SDL_Event event;
 		if (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
 				break;
 			}
 			else if (event.type == SDL_KEYDOWN) {
-				sample->play(1.0f, false);
+				//sample->play(1.0f, false);
 			}
 		}
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		img->bind();
+		img->start();
+		for (int i = 0; i < 1000; i++) {
+			img->draw(rand()%1024, rand()%768, 0);
+		}
+		img->end();
+
+		/*
 		img->draw_region(0, 0, 16, 16, 10, 10, 0);
 		img->draw_region(16, 0, 16, 16, 50, 50, 0);
 		img->draw(100, 100, 0);
+		*/
 
+		/*
 		SDL_Colour colour = { 255, 255, 255, 255 };
 		font->draw("HELLO, WORLD!", 200, 200, colour);
 
 		for (int i = 0; i < tilemap->get_layer_count(); i++) {
 			tilemap->draw_layer(i, 300, 300);
 		}
+		*/
 
 		flip();
+
+		int end = timeGetTime();
+		double secs = (end - start) / 1000.0;
+		elapsed += secs;
+
+		if (frames++ == 300) {
+			printf("%d FPS\n", (int)(frames/elapsed));
+			frames = 0;
+			elapsed = 0.0;
+		}
 	}
 
 	delete img;

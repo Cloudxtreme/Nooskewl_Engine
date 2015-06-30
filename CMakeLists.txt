@@ -19,8 +19,9 @@ set(SRC
 	src/snprintf.cpp
 	src/tilemap.cpp
 	src/util.cpp
+	src/vertex_accel.cpp
 	src/video.cpp
 )
 
 add_executable(StarSquatters ${SRC})
-target_link_libraries(StarSquatters SDL2 SDL2main SDL2_ttf glew32 opengl32)
+target_link_libraries(StarSquatters SDL2 SDL2main SDL2_ttf glew32 opengl32 winmm)
