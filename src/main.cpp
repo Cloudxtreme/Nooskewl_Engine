@@ -32,22 +32,19 @@ int main(int argc, char **argv)
 	}
 
 	Image *img = new Image();
-	SDL_RWops *file = SDL_RWFromFile("test.tga", "rb");
-	if (file == NULL || img->load_tga(file) == false) {
+	if (img->load_tga("test.tga") == false) {
 		errormsg("Error loading test.tga");
 		return 1;
 	}
 
 	Sample *sample = new Sample();
-	file = SDL_RWFromFile("test.wav", "rb");
-	if (file == NULL || sample->load_wav(file) == false) {
+	if (sample->load_wav("test.wav") == false) {
 		errormsg("Error loading test.wav");
 		return 1;
 	}
 
 	Font *font = new Font();
-	file = SDL_RWFromFile("C:\\Windows\\Fonts\\arial.ttf", "rb");
-	if (file == NULL || font->load_ttf(file, 16) == false) {
+	if (font->load_ttf("C:\\Windows\\Fonts\\arial.ttf", 16) == false) {
 		errormsg("Error loading font");
 		return 1;
 	}

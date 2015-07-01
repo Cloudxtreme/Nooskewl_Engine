@@ -58,7 +58,8 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_HEADER *h)
 }
 
 Image::Image() :
-	texture(0)
+	texture(0),
+	filename("")
 {
 }
 
@@ -69,8 +70,15 @@ Image::~Image()
 	glDeleteVertexArrays(1, &vao);
 }
 
-bool Image::load_tga(SDL_RWops *file)
+bool Image::load_tga(std::string filename)
 {
+	this->filename = filename;
+
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	if (file == NULL) {
+		return false;
+	}
+
 	int n = 0, i, j;
 	int bytes2read, skipover = 0;
 	unsigned char p[5];

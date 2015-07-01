@@ -67,11 +67,17 @@ Sample::~Sample()
 	SDL_FreeWAV(data);
 }
 
-bool Sample::load_wav(SDL_RWops *file)
+bool Sample::load_wav(std::string filename)
 {
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	if (file == NULL) {
+		return false;
+	}
+
 	spec = SDL_LoadWAV_RW(file, true, &device_spec, &data, &length);
 
 	if (spec == NULL) {
+		SDL_RWclose(file);
 		return false;
 	}
 

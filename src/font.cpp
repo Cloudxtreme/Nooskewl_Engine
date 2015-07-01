@@ -13,12 +13,18 @@ Font::~Font()
 	if (font) {
 		TTF_CloseFont(font);
 	}
+	SDL_RWclose(file);
 }
 
-bool Font::load_ttf(SDL_RWops *file, int size)
+bool Font::load_ttf(std::string filename, int size)
 {
+	file = SDL_RWFromFile(filename.c_str(), "rb");
+	if (file == NULL) {
+		return false;
+	}
 	font = TTF_OpenFontRW(file, true, size);
 	if (font == NULL) {
+		SDL_RWclose(file);
 		return false;
 	}
 	return true;

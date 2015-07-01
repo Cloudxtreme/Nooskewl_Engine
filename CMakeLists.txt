@@ -11,16 +11,19 @@ endif()
 include_directories("include")
 
 set(SRC
+	src/animation_set.cpp
 	src/audio.cpp
 	src/font.cpp
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
+	src/resource_manager.cpp
 	src/snprintf.cpp
 	src/tilemap.cpp
 	src/util.cpp
 	src/vertex_accel.cpp
 	src/video.cpp
+	src/xml.cpp
 )
 
 add_executable(StarSquatters ${SRC})

@@ -12,7 +12,7 @@ public:
 	Font();
 	~Font();
 
-	bool load_ttf(SDL_RWops *file, int size);
+	bool load_ttf(std::string filename, int size);
 
 	void clear_cache();
 
@@ -27,6 +27,7 @@ private:
 	void cache(int ch, SDL_Color color);
 	void cache(std::string text, SDL_Color color);
 
+	SDL_RWops *file;
 	TTF_Font *font;
 	std::multimap<int, Glyph *> glyphs;
 };

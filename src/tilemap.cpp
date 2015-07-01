@@ -33,19 +33,10 @@ bool Tilemap::load(std::string sheet_directory, std::string level_filename)
 	for (int i = 0; i < 256; i++) {
 		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
 		infomsg("Attempting to load tile sheet '%s'.\n", filename.c_str());
-		SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
-		Image *image = NULL;
-		if (file) {
+		Image *image = new Image();
+		if (image->load_tga(filename)) {
 			infomsg("- Found!\n");
-			image = new Image();
-			if (image->load_tga(file)) {
-				sheets.push_back(image);
-			}
-			else {
-				errormsg("Problem loading sheet!");
-				sheets.push_back(NULL);
-			}
-			SDL_RWclose(file);
+			sheets.push_back(image);
 		}
 		else {
 			infomsg("- Not found!\n");

@@ -12,6 +12,7 @@ public:
 		FLIP_V = 2
 	};
 
+	std::string filename;
 	GLuint texture;
 	int w;
 	int h;
@@ -20,7 +21,7 @@ public:
 	~Image();
 
 	// Supports: TGA 16/24/32 bit
-	bool load_tga(SDL_RWops *file);
+	bool load_tga(std::string filename);
 	bool from_surface(SDL_Surface *surface);
 
 	void start();

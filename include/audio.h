@@ -12,7 +12,7 @@ public:
 
 	static void update();
 
-	bool load_wav(SDL_RWops *file);
+	bool load_wav(std::string filename);
 
 	bool play(float volume, bool loop);
 
