@@ -46,7 +46,6 @@ bool Animation_Set::load(std::string xml_filename, std::string image_directory)
 				break;
 			}
 			images.push_back(image);
-			count++;
 		}
 		XML *delays = anim->find("delays");
 		std::vector<Uint32> delays_vector;
@@ -54,7 +53,7 @@ bool Animation_Set::load(std::string xml_filename, std::string image_directory)
 			XML *delay = anim->find("delay");
 			if  (delay == NULL) {
 				for (int i = 0; i < count; i++) {
-					delays_vector.push_back(0.1);
+					delays_vector.push_back(100);
 				}				
 			}
 			else {
@@ -68,14 +67,14 @@ bool Animation_Set::load(std::string xml_filename, std::string image_directory)
 			for (int i = 0; i < count; i++) {
 				XML *delay = delays->find(itos(i));
 				if (delay == NULL) {
-					delays_vector.push_back(0.1);
+					delays_vector.push_back(100);
 				}
 				else {
 					delays_vector.push_back(atof(delay->get_value().c_str()));
 				}
 			}
 		}
-		Uint32 total_delays;
+		Uint32 total_delays = 0;
 		for (size_t i = 0; i < delays_vector.size(); i++) {
 			total_delays += delays_vector[i];
 		}

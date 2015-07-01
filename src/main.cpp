@@ -1,4 +1,5 @@
 #include "starsquatters.h"
+#include "animation_set.h"
 #include "audio.h"
 #include "font.h"
 #include "image.h"
@@ -64,6 +65,13 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	Animation_Set *anim = new Animation_Set();
+	if (anim->load("test.xml", "anim") == false) {
+		errormsg("Error loading animation set");
+		return 1;
+	}
+	anim->start();
+
 	while (1) {
 		int start = timeGetTime();
 		SDL_Event event;
@@ -76,7 +84,7 @@ int main(int argc, char **argv)
 			}
 		}
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		/*
@@ -92,6 +100,11 @@ int main(int argc, char **argv)
 		img->draw_region(16, 0, 16, 16, 50, 50, 0);
 		img->draw(100, 100, 0);
 		img->end();
+
+		Image *frame = anim->get_current_image();
+		frame->start();
+		frame->draw(150, 150, 0);
+		frame->end();
 
 		SDL_Colour colour = { 255, 255, 255, 255 };
 		font->draw("HELLO, WORLD!", 200, 200, colour);
