@@ -39,7 +39,7 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 SDL_RWops *open_file(std::string filename)
 {
 	// FIXME:
-	filename = "C:/Users/Trent/code/starsquatters/data/" + filename;
+	filename = "C:/Users/Trent/code/starsquatters-data/" + filename;
 	return SDL_RWFromFile(filename.c_str(), "rb");
 }
 
