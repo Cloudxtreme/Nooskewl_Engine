@@ -176,7 +176,6 @@ bool Image::load_tga(std::string filename)
 			header.palette[i].g = SDL_fgetc(file);
 			header.palette[i].r = SDL_fgetc(file);
 		}
-		printf("skip=%d\n", skip);
 		SDL_RWseek(file, skip, RW_SEEK_CUR);
 	}
 	else {
