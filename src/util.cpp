@@ -36,6 +36,13 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 	return SDL_RWwrite(file, string, 1, len) < len ? EOF : 0;
 }
 
+SDL_RWops *open_file(std::string filename)
+{
+	// FIXME:
+	filename = "C:/Users/Trent/code/starsquatters/data/" + filename;
+	return SDL_RWFromFile(filename.c_str(), "rb");
+}
+
 std::string itos(int i)
 {
 	char buf[20];

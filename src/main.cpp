@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	}
 
 	Font *font = new Font();
-	if (font->load_ttf("C:\\Windows\\Fonts\\arial.ttf", 16) == false) {
+	if (font->load_ttf("majestica.ttf", 16) == false) {
 		errormsg("Error loading font");
 		return 1;
 	}

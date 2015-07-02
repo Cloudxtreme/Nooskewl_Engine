@@ -20,7 +20,7 @@ XML::XML(std::string filename) :
 {
 	name = std::string("main");
 
-	file = SDL_RWFromFile(filename.c_str(), "r");
+	file = open_file(filename);
 	if (!file) {
 		errormsg("Could not open XML file %s\n", filename.c_str());
 		return;

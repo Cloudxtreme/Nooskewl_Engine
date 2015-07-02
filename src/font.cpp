@@ -2,6 +2,7 @@
 #include "font.h"
 #include "image.h"
 #include "log.h"
+#include "util.h"
 
 Font::Font() :
 	font(NULL)
@@ -18,7 +19,7 @@ Font::~Font()
 
 bool Font::load_ttf(std::string filename, int size)
 {
-	file = SDL_RWFromFile(filename.c_str(), "rb");
+	file = open_file(filename);
 	if (file == NULL) {
 		return false;
 	}

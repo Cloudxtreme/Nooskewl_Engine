@@ -47,7 +47,7 @@ bool Tilemap::load(std::string sheet_directory, std::string level_filename)
 		}
 	}
 
-	SDL_RWops *f = SDL_RWFromFile(level_filename.c_str(), "rb");
+	SDL_RWops *f = open_file(level_filename);
 	if (f == NULL) {
 		errormsg("Can't open level: %s\n", level_filename.c_str());
 		for (size_t i = 0; i < sheets.size(); i++) {

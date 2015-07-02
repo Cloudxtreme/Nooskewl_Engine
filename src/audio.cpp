@@ -69,7 +69,7 @@ Sample::~Sample()
 
 bool Sample::load_wav(std::string filename)
 {
-	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	SDL_RWops *file = open_file(filename);
 	if (file == NULL) {
 		return false;
 	}
@@ -575,7 +575,7 @@ Audio load_audio(std::string filename)
 	std::vector< std::vector<int> > dutycycle_envelopes;
 	char buf[1000];
 
-	SDL_RWops *f = SDL_RWFromFile(filename.c_str(), "r");
+	SDL_RWops *f = open_file(filename);
 
 	while (SDL_fgets(f, buf, 1000)) {
 		int pos = 0;

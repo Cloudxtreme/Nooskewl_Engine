@@ -99,7 +99,7 @@ bool Image::load_tga(std::string filename)
 {
 	this->filename = filename;
 
-	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	SDL_RWops *file = open_file(filename);
 	if (file == NULL) {
 		return false;
 	}
