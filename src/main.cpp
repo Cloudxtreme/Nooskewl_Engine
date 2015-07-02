@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	Audio music = load_audio("title.mml");
 	play_audio(music, true);
 
-	Tilemap *tilemap = new Tilemap(16);
+	Tilemap *tilemap = new Tilemap(8);
 	if (tilemap->load("test", "test.level") == false) {
 		errormsg("Error loading tilemap");
 		return 1;
