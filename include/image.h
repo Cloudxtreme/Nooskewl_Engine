@@ -20,7 +20,6 @@ public:
 	Image();
 	~Image();
 
-	// Supports: TGA 16/24/32 bit
 	bool load_tga(std::string filename);
 	bool from_surface(SDL_Surface *surface);
 

@@ -6,6 +6,10 @@
 #include "util.h"
 #include "vertex_accel.h"
 
+typedef struct Colour {
+	unsigned char r, g, b;
+};
+
 typedef struct {
 	char idlength;
 	char colourmaptype;
@@ -19,32 +23,53 @@ typedef struct {
 	short height;
 	char bitsperpixel;
 	char imagedescriptor;
-} TGA_HEADER;
+	Colour palette[256];
+} TGA_Header;
 
-static void MergeBytes(unsigned char *pixel, unsigned char *p, int bytes)
+static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
 {
-	if (bytes == 4) {
-		*pixel++ = p[2];
-		*pixel++ = p[1];
-		*pixel++ = p[0];
-		*pixel++ = p[3];
+	if (header->colourmaptype == 1) {
+		// Paletted
+		if (*p == 0) {
+			// transparent
+			*pixel++ = 0;
+			*pixel++ = 0;
+			*pixel++ = 0;
+			*pixel++ = 0;
+		}
+		else {
+			Colour *colour = &header->palette[*p];
+
+			*pixel++ = colour->r;
+			*pixel++ = colour->g;
+			*pixel++ = colour->b;
+			*pixel++ = 255;
+		}
 	}
-	else if (bytes == 3) {
-		*pixel++ = p[2];
-		*pixel++ = p[1];
-		*pixel++ = p[0];
-		*pixel++ = 255;
-	}
-	else if (bytes == 2) {
-		*pixel++ = (p[1] & 0x7c) << 1;
-		*pixel++ = ((p[1] & 0x03) << 6) | ((p[0] & 0xe0) >> 2);
-		*pixel++ = (p[0] & 0x1f) << 3;
-		*pixel++ = (p[1] & 0x80);
+	else {
+		if (bytes == 4) {
+			*pixel++ = p[2];
+			*pixel++ = p[1];
+			*pixel++ = p[0];
+			*pixel++ = p[3];
+		}
+		else if (bytes == 3) {
+			*pixel++ = p[2];
+			*pixel++ = p[1];
+			*pixel++ = p[0];
+			*pixel++ = 255;
+		}
+		else if (bytes == 2) {
+			*pixel++ = (p[1] & 0x7c) << 1;
+			*pixel++ = ((p[1] & 0x03) << 6) | ((p[0] & 0xe0) >> 2);
+			*pixel++ = (p[0] & 0x1f) << 3;
+			*pixel++ = (p[1] & 0x80);
+		}
 	}
 }
 
 // FIXME: MSVC inline
-static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_HEADER *h)
+static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 {
 	/* OpenGL expects upside down, so that's what we provide */
 	int flip = (h->imagedescriptor & 0x20) != 0;
@@ -82,7 +107,7 @@ bool Image::load_tga(std::string filename)
 	int n = 0, i, j;
 	int bytes2read, skipover = 0;
 	unsigned char p[5];
-	TGA_HEADER header;
+	TGA_Header header;
 	unsigned char *pixels;
 
 	/* Display the header fields */
@@ -110,14 +135,13 @@ bool Image::load_tga(std::string filename)
 	}
 
 	/* What can we handle */
-	if (header.datatypecode != 2 && header.datatypecode != 10) {
-		errormsg("Can only handle image type 2 and 10\n");
+	if (header.datatypecode != 1 && header.datatypecode != 2 && header.datatypecode != 9 && header.datatypecode != 10) {
+		errormsg("Can only handle image type 1, 2, 9 and 10\n");
 		SDL_RWclose(file);
 		return false;
 	}		
-	if (header.bitsperpixel != 16 && 
-		header.bitsperpixel != 24 && header.bitsperpixel != 32) {
-		errormsg("Can only handle pixel depths of 16, 24, and 32\n");
+	if (header.bitsperpixel != 8 && header.bitsperpixel != 16 && header.bitsperpixel != 24 && header.bitsperpixel != 32) {
+		errormsg("Can only handle pixel depths of 8, 16, 24 and 32\n");
 		SDL_RWclose(file);
 		return false;
 	}
@@ -128,24 +152,52 @@ bool Image::load_tga(std::string filename)
 	}
 
 	/* Skip over unnecessary stuff */
-	skipover += header.idlength;
-	skipover += header.colourmaptype * header.colourmaplength;
-	SDL_RWseek(file, skipover, RW_SEEK_CUR);
+	SDL_RWseek(file, header.idlength, RW_SEEK_CUR);
+
+	/* Read the palette if there is one */
+	if (header.colourmaptype == 1) {
+		if (header.colourmapdepth != 24) {
+			errormsg("Can't handle anything but 24 bit palettes\n");
+			SDL_RWclose(file);
+			return false;
+		}
+		if (header.bitsperpixel != 8) {
+			errormsg("Can only read 8 bpp paletted images");
+			SDL_RWclose(file);
+			return false;
+		}
+		int skip = header.colourmaporigin * (header.colourmapdepth / 8);
+		SDL_RWseek(file, skip, RW_SEEK_CUR);
+		// We can only read 256 colour palettes max, skip the rest
+		int size = MIN(header.colourmaplength-skip, 256);
+		skip = (header.colourmaplength - size) * (header.colourmapdepth / 8);
+		for (i = 0; i < size; i++) {
+			header.palette[i].b = SDL_fgetc(file);
+			header.palette[i].g = SDL_fgetc(file);
+			header.palette[i].r = SDL_fgetc(file);
+		}
+		printf("skip=%d\n", skip);
+		SDL_RWseek(file, skip, RW_SEEK_CUR);
+	}
+	else {
+		// Skip the palette on truecolour images
+		SDL_RWseek(file, (header.colourmapdepth / 8) * header.colourmaplength, RW_SEEK_CUR);
+	}
 
 	/* Read the image */
 	bytes2read = header.bitsperpixel / 8;
 	while (n < header.width * header.height) {
-		if (header.datatypecode == 2) {                     /* Uncompressed */
+		if (header.datatypecode == 1 || header.datatypecode == 2) {                     /* Uncompressed */
 			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
 				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
 				SDL_RWclose(file);
 				return false;
 			}
-			MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
+			merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
 			n++;
 		}
-		else if (header.datatypecode == 10) {             /* Compressed */
+		else if (header.datatypecode == 9 || header.datatypecode == 10) {             /* Compressed */
 			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
 				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
@@ -153,11 +205,11 @@ bool Image::load_tga(std::string filename)
 				return false;
 			}
 			j = p[0] & 0x7f;
-			MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
+			merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
 			n++;
 			if (p[0] & 0x80) {         /* RLE chunk */
 				for (i = 0; i < j; i++) {
-					MergeBytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read);
+					merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
 					n++;
 				}
 			}
@@ -169,7 +221,7 @@ bool Image::load_tga(std::string filename)
 						SDL_RWclose(file);
 						return false;
 					}
-					MergeBytes(pixel_ptr(pixels, n, &header), p, bytes2read);
+					merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
 					n++;
 				}
 			}
