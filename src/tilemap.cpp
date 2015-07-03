@@ -4,7 +4,8 @@
 #include "util.h"
 
 Tilemap::Tilemap(int tile_size) :
-	tile_size(tile_size)
+	tile_size(tile_size),
+	layers(NULL)
 {
 }
 
@@ -14,21 +15,23 @@ Tilemap::~Tilemap()
 		delete sheets[i];
 	}
 
-	for (int layer = 0; layer < num_layers; layer++) {
-		for (int row = 0; row < height; row++) {
-			delete[] layers[layer].sheets[row];
-			delete[] layers[layer].tiles[row];
-			delete[] layers[layer].solids[row];
+	if (layers) {
+		for (int layer = 0; layer < num_layers; layer++) {
+			for (int row = 0; row < height; row++) {
+				delete[] layers[layer].sheets[row];
+				delete[] layers[layer].tiles[row];
+				delete[] layers[layer].solids[row];
+			}
+			delete layers[layer].sheets;
+			delete[] layers[layer].tiles;
+			delete[] layers[layer].solids;
 		}
-		delete layers[layer].sheets;
-		delete[] layers[layer].tiles;
-		delete[] layers[layer].solids;
-	}
 
-	delete[] layers;
+		delete[] layers;
+	}
 }
 
-bool Tilemap::load(std::string sheet_directory, std::string level_filename)
+bool Tilemap::load(std::string sheet_directory, std::string map_filename)
 {
 	for (int i = 0; i < 256; i++) {
 		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
@@ -47,9 +50,9 @@ bool Tilemap::load(std::string sheet_directory, std::string level_filename)
 		}
 	}
 
-	SDL_RWops *f = open_file(level_filename);
+	SDL_RWops *f = open_file(map_filename);
 	if (f == NULL) {
-		errormsg("Can't open level: %s\n", level_filename.c_str());
+		errormsg("Can't open map: %s\n", map_filename.c_str());
 		for (size_t i = 0; i < sheets.size(); i++) {
 			delete sheets[i];
 		}
@@ -113,7 +116,7 @@ int Tilemap::get_tile_size()
 	return tile_size;
 }
 
-bool Tilemap::is_solid(Point<int> position, int layer)
+bool Tilemap::is_solid(int layer, Point<int> position)
 {
 	int start_layer = layer < 0 ? 0 : layer;
 	int end_layer = layer < 0 ? num_layers - 1 : layer;
@@ -128,7 +131,7 @@ bool Tilemap::is_solid(Point<int> position, int layer)
 	return false;
 }
 
-bool Tilemap::collides(Point<float> topleft, Point<float> bottomright, int layer)
+bool Tilemap::collides(int layer, Point<float> topleft, Point<float> bottomright)
 {
 	int start_layer = layer < 0 ? 0 : layer;
 	int end_layer = layer < 0 ? num_layers - 1 : layer;
@@ -158,7 +161,7 @@ bool Tilemap::collides(Point<float> topleft, Point<float> bottomright, int layer
 	return false;
 }
 
-void Tilemap::draw_layer(int layer, float x, float y)
+void Tilemap::draw(int layer, float x, float y)
 {
 	Layer l = layers[layer];
 

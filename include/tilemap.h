@@ -10,17 +10,17 @@ public:
 	Tilemap(int tile_size);
 	~Tilemap();
 
-	bool load(std::string sheet_directory, std::string level_filename);
+	bool load(std::string sheet_directory, std::string map_filename);
 
 	int get_layer_count();
 	int get_width();
 	int get_height();
 	int get_tile_size();
 
-	bool is_solid(Point<int> position, int layer);
-	bool collides(Point<float> topleft, Point<float> bottomright, int layer = -1);
+	bool is_solid(int layer, Point<int> position);
+	bool collides(int layer, Point<float> topleft, Point<float> bottomright);
 
-	void draw_layer(int layer, float x, float y);
+	void draw(int layer, float x, float y);
 
 private:
 	struct Layer

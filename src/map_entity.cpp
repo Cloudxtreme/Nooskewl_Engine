@@ -1,5 +1,7 @@
-#include "starsquatters.h"
+#include "map.h"
 #include "map_entity.h"
+
+static int current_id;
 
 Map_Entity::Map_Entity(Brain *brain) :
 	map(NULL),
@@ -11,6 +13,7 @@ Map_Entity::Map_Entity(Brain *brain) :
 	speed(0.1f),
 	offset(0.0f, 0.0f)
 {
+	id = current_id++;
 }
 
 Map_Entity::~Map_Entity()
@@ -43,15 +46,25 @@ void Map_Entity::set_position(Point<int> position)
 	this->position = position;
 }
 
+int Map_Entity::get_id()
+{
+	return id;
+}
+
 Direction Map_Entity::get_direction()
 {
 	return direction;
 }
 
+Point<int> Map_Entity::get_position()
+{
+	return position;
+}
+
 bool Map_Entity::maybe_move()
 {
 	if (brain->l) {
-		if (map->tilemap->is_solid(position+Point<int>(-1, 0), -1) == false) {
+		if (map->is_solid(-1, position+Point<int>(-1, 0)) == false) {
 			moving = true;
 			offset = Point<float>(1, 0);
 			position += Point<int>(-1, 0);
@@ -66,7 +79,7 @@ bool Map_Entity::maybe_move()
 		direction = W;
 	}
 	else if (brain->r) {
-		if (map->tilemap->is_solid(position+Point<int>(1, 0), -1) == false) {
+		if (map->is_solid(-1, position+Point<int>(1, 0)) == false) {
 			moving = true;
 			offset = Point<float>(-1, 0);
 			position += Point<int>(1, 0);
@@ -81,7 +94,7 @@ bool Map_Entity::maybe_move()
 		direction = E;
 	}
 	else if (brain->u) {
-		if (map->tilemap->is_solid(position+Point<int>(0, -1), -1) == false) {
+		if (map->is_solid(-1, position+Point<int>(0, -1)) == false) {
 			moving = true;
 			offset = Point<float>(0, 1);
 			position += Point<int>(0, -1);
@@ -96,7 +109,7 @@ bool Map_Entity::maybe_move()
 		direction = N;
 	}
 	else if (brain->d) {
-		if (map->tilemap->is_solid(position+Point<int>(0, 1), -1) == false) {
+		if (map->is_solid(-1, position+Point<int>(0, 1)) == false) {
 			moving = true;
 			offset = Point<float>(0, -1);
 			position += Point<int>(0, 1);
@@ -111,6 +124,11 @@ bool Map_Entity::maybe_move()
 		direction = S;
 	}
 	return false;
+}
+
+void Map_Entity::handle_event(SDL_Event *event)
+{
+	brain->handle_event(event);
 }
 
 bool Map_Entity::update()

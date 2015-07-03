@@ -1,16 +1,10 @@
-#include "starsquatters.h"
-#include "animation_set.h"
 #include "audio.h"
-#include "brain.h"
 #include "font.h"
-#include "image.h"
 #include "log.h"
+#include "map.h"
 #include "map_entity.h"
-#include "tilemap.h"
+#include "player_brain.h"
 #include "video.h"
-
-// FIXME
-#include <Mmsystem.h>
 
 int main(int argc, char **argv)
 {
@@ -33,14 +27,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	Tilemap *tilemap = new Tilemap(8);
-	if (tilemap->load("test", "test.level") == false) {
-		errormsg("Error loading tilemap");
+	Map *map = new Map();
+	if (map->load("test.map") == false) {
+		errormsg("Couldn't load test.map");
 		return 1;
 	}
-
-	Map *map = new Map();
-	map->tilemap = tilemap;
 
 	Player_Brain *player_brain = new Player_Brain();
 	if (player_brain == NULL) {
@@ -56,6 +47,8 @@ int main(int argc, char **argv)
 	player->set_map(map);
 	player->set_position(Point<int>(1, 2));
 
+	map->add_entity(player);
+
 	// FIXME!!!!!!!!!! TIMER
 
 	while (1) {
@@ -64,22 +57,20 @@ int main(int argc, char **argv)
 			if (event.type == SDL_QUIT) {
 				break;
 			}
-			player_brain->update((void *)&event);
+			map->handle_event(&event);
 		}
 
-		player->update();
+		map->update();
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		tilemap->draw_layer(0, 0, 0);
-		player->draw();
-		tilemap->draw_layer(1, 0, 0);
+		map->draw();
 
 		flip();
 	}
 
-	delete tilemap;
+	delete map;
 
 	shutdown_audio();
 	shutdown_font();

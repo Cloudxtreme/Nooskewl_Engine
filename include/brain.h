@@ -10,15 +10,7 @@ public:
 	Brain();
 	virtual ~Brain();
 
-	virtual void update(void *input) = 0;
-};
-
-class Player_Brain : public Brain {
-public:
-		Player_Brain();
-		~Player_Brain();
-
-		void update(void *input);
+	virtual void handle_event(SDL_Event *event) = 0;
 };
 
 #endif // BRAIN_H

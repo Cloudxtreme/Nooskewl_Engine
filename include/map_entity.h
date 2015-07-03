@@ -1,11 +1,11 @@
 #ifndef MAP_ENTITY_H
 #define MAP_ENTITY_H
 
-#include "starsquatters.h"
 #include "animation_set.h"
 #include "brain.h"
-#include "map.h"
 #include "types.h"
+
+class Map;
 
 class Map_Entity {
 public:
@@ -16,8 +16,11 @@ public:
 	bool load_animation_set(std::string name);
 	void set_position(Point<int> position);
 
+	int get_id();
 	Direction get_direction();
+	Point<int> get_position();
 
+	void handle_event(SDL_Event *event);
 	// return false to destroy
 	bool update();
 	void draw();
@@ -25,6 +28,7 @@ public:
 private:
 	bool maybe_move();
 
+	int id;
 	Direction direction;
 	Map *map;
 	Animation_Set *anim;

@@ -18,7 +18,9 @@ set(SRC
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
+	src/map.cpp
 	src/map_entity.cpp
+	src/player_brain.cpp
 	src/resource_manager.cpp
 	src/snprintf.cpp
 	src/tilemap.cpp
