@@ -2,8 +2,10 @@
 #include "map_entity.h"
 
 Map_Entity::Map_Entity(Brain *brain) :
-	brain(brain),
+	map(NULL),
+	direction(S),
 	anim(NULL),
+	brain(brain),
 	position(0, 0),
 	moving(false),
 	speed(0.1f),
@@ -15,6 +17,11 @@ Map_Entity::~Map_Entity()
 {
 	delete brain;
 	delete anim;
+}
+
+void Map_Entity::set_map(Map *map)
+{
+	this->map = map;
 }
 
 bool Map_Entity::load_animation_set(std::string name)
@@ -36,10 +43,15 @@ void Map_Entity::set_position(Point<int> position)
 	this->position = position;
 }
 
-bool Map_Entity::maybe_move(Tilemap *map)
+Direction Map_Entity::get_direction()
+{
+	return direction;
+}
+
+bool Map_Entity::maybe_move()
 {
 	if (brain->l) {
-		if (map->is_solid(position+Point<int>(-1, 0), -1) == false) {
+		if (map->tilemap->is_solid(position+Point<int>(-1, 0), -1) == false) {
 			moving = true;
 			offset = Point<float>(1, 0);
 			position += Point<int>(-1, 0);
@@ -48,9 +60,13 @@ bool Map_Entity::maybe_move(Tilemap *map)
 			anim->start();
 			return true;
 		}
+		else {
+			anim->set_animation("stand_w");
+		}
+		direction = W;
 	}
 	else if (brain->r) {
-		if (map->is_solid(position+Point<int>(1, 0), -1) == false) {
+		if (map->tilemap->is_solid(position+Point<int>(1, 0), -1) == false) {
 			moving = true;
 			offset = Point<float>(-1, 0);
 			position += Point<int>(1, 0);
@@ -59,9 +75,13 @@ bool Map_Entity::maybe_move(Tilemap *map)
 			anim->start();
 			return true;
 		}
+		else {
+			anim->set_animation("stand_e");
+		}
+		direction = E;
 	}
 	else if (brain->u) {
-		if (map->is_solid(position+Point<int>(0, -1), -1) == false) {
+		if (map->tilemap->is_solid(position+Point<int>(0, -1), -1) == false) {
 			moving = true;
 			offset = Point<float>(0, 1);
 			position += Point<int>(0, -1);
@@ -70,9 +90,13 @@ bool Map_Entity::maybe_move(Tilemap *map)
 			anim->start();
 			return true;
 		}
+		else {
+			anim->set_animation("stand_n");
+		}
+		direction = N;
 	}
 	else if (brain->d) {
-		if (map->is_solid(position+Point<int>(0, 1), -1) == false) {
+		if (map->tilemap->is_solid(position+Point<int>(0, 1), -1) == false) {
 			moving = true;
 			offset = Point<float>(0, -1);
 			position += Point<int>(0, 1);
@@ -81,14 +105,18 @@ bool Map_Entity::maybe_move(Tilemap *map)
 			anim->start();
 			return true;
 		}
+		else {
+			anim->set_animation("stand_s");
+		}
+		direction = S;
 	}
 	return false;
 }
 
-bool Map_Entity::update(Tilemap *map)
+bool Map_Entity::update()
 {
 	if (moving == false) {
-		maybe_move(map);
+		maybe_move();
 	}
 
 	if (moving) {
@@ -96,7 +124,7 @@ bool Map_Entity::update(Tilemap *map)
 			offset.x += speed;
 			if (offset.x >= 0) {
 				offset.x = 0;
-				if (maybe_move(map) == false) {
+				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
 					anim->set_animation("stand_e");
@@ -107,7 +135,7 @@ bool Map_Entity::update(Tilemap *map)
 			offset.x -= speed;
 			if (offset.x <= 0) {
 				offset.x = 0;
-				if (maybe_move(map) == false) {
+				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
 					anim->set_animation("stand_w");
@@ -118,7 +146,7 @@ bool Map_Entity::update(Tilemap *map)
 			offset.y += speed;
 			if (offset.y >= 0) {
 				offset.y = 0;
-				if (maybe_move(map) == false) {
+				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
 					anim->set_animation("stand_s");
@@ -129,7 +157,7 @@ bool Map_Entity::update(Tilemap *map)
 			offset.y -= speed;
 			if (offset.y <= 0) {
 				offset.y = 0;
-				if (maybe_move(map) == false) {
+				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
 					anim->set_animation("stand_n");
