@@ -296,6 +296,32 @@ void Image::draw(float dx, float dy, int flags)
 	draw_region(0.0f, 0.0f, (float)w, (float)h, dx, dy, flags);
 }
 
+void Image::draw(Point<int> position, int flags)
+{
+	draw_region(0.0f, 0.0f, (float)w, (float)h, position.x, position.y, flags);	
+}
+
+void Image::draw_region_single(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
+{
+	start();
+	draw_region(sx, sy, sw, sh, dx, dy, flags);
+	end();
+}
+
+void Image::draw_single(float dx, float dy, int flags)
+{
+	start();
+	draw(dx, dy, flags);
+	end();
+}
+
+void Image::draw_single(Point<int> position, int flags)
+{
+	start();
+	draw(position, flags);
+	end();
+}
+
 void Image::end()
 {
 	vertex_accel->end();

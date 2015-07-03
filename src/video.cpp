@@ -1,5 +1,6 @@
 #include "starsquatters.h"
 #include "log.h"
+#include "vertex_accel.h"
 #include "video.h"
 
 // FIXME: private
@@ -41,10 +42,11 @@ bool init_video()
 		"out vec4 Color;"
 		"out vec2 Texcoord;"
 		"uniform mat4 proj;"
+		"uniform mat4 view;"
 		"void main() {"
 		"	Color = color;"
 		"	Texcoord = texcoord;"
-		"	gl_Position = proj * vec4(position, 1.0);"
+		"	gl_Position = proj * view * vec4(position, 1.0);"
 		"}";
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
@@ -86,18 +88,30 @@ bool init_video()
 
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
-	glm::mat4 ortho = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
 	GLint uniTrans = glGetUniformLocation(current_shader, "proj");
-	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(ortho));
+	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(proj));
+
+	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
+	uniTrans = glGetUniformLocation(current_shader, "view");
+	glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(view));
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	vertex_accel = new Vertex_Accel();
+	if (vertex_accel->init() == false) {
+		errormsg("Couldn't create vertex accelerator");
+		return 1;
+	}
 
 	return true;
 }
 
 void shutdown_video()
 {
+	delete vertex_accel;
+
 	glDeleteProgram(current_shader);
 	glDeleteShader(fragmentShader);
 	glDeleteShader(vertexShader);

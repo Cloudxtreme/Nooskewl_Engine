@@ -13,10 +13,12 @@ include_directories("include")
 set(SRC
 	src/animation_set.cpp
 	src/audio.cpp
+	src/brain.cpp
 	src/font.cpp
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
+	src/map_entity.cpp
 	src/resource_manager.cpp
 	src/snprintf.cpp
 	src/tilemap.cpp

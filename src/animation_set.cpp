@@ -40,7 +40,7 @@ bool Animation_Set::load(std::string xml_filename, std::string image_directory)
 		int count;
 		std::vector<Image *> images;
 		for (count = 0; count < 1024 /* NOTE: hardcoded max frames */; count++) {
-			std::string filename = image_directory + "/" + itos(count) + ".tga";
+			std::string filename = image_directory + "/" + anim->get_name() + "/" + itos(count) + ".tga";
 			Image *image = reference_image(filename);
 			if (image == NULL) {
 				break;
@@ -123,7 +123,7 @@ Image *Animation_Set::get_current_image()
 
 	Animation *anim = animations[current_animation];
 
-	Uint32 remainder = elapsed % anim->total_delays;
+	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
 	int frame = 0;
 
 	for (size_t i = 0; i < anim->delays.size(); i++) {
