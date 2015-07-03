@@ -17,6 +17,7 @@ public:
 	int get_height();
 	int get_tile_size();
 
+	bool is_solid(Point<int> position, int layer);
 	bool collides(Point<float> topleft, Point<float> bottomright, int layer = -1);
 
 	void draw_layer(int layer, float x, float y);

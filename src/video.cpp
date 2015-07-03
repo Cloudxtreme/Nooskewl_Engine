@@ -21,7 +21,7 @@ bool init_video()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-	window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1024, 768, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 640, SDL_WINDOW_OPENGL);
 	if (window == NULL) {
 		return false;
 	}
@@ -29,7 +29,7 @@ bool init_video()
 	context = SDL_GL_CreateContext(window);
 
 	//SDL_GL_SetSwapInterval(1);
-	SDL_GL_SetSwapInterval(0); // no vsync
+	SDL_GL_SetSwapInterval(1); // vsync
 
 	glewExperimental = 1;
 	glewInit();

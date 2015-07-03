@@ -50,6 +50,9 @@ int main(int argc, char **argv)
 		errormsg("Error loading player");
 		return 1;
 	}
+	player->set_position(Point<int>(1, 2));
+
+	// FIXME!!!!!!!!!! TIMER
 
 	while (1) {
 		SDL_Event event;
@@ -60,16 +63,14 @@ int main(int argc, char **argv)
 			player_brain->update((void *)&event);
 		}
 
-		player->update();
+		player->update(tilemap);
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		for (int i = 0; i < tilemap->get_layer_count(); i++) {
-			tilemap->draw_layer(i, 0, 0);
-		}
-
+		tilemap->draw_layer(0, 0, 0);
 		player->draw();
+		tilemap->draw_layer(1, 0, 0);
 
 		flip();
 	}

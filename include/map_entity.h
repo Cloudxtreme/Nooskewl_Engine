@@ -4,6 +4,7 @@
 #include "starsquatters.h"
 #include "animation_set.h"
 #include "brain.h"
+#include "tilemap.h"
 #include "types.h"
 
 class Map_Entity {
@@ -15,15 +16,17 @@ public:
 	void set_position(Point<int> position);
 
 	// return false to destroy
-	bool update();
+	bool update(Tilemap *map);
 	void draw();
 
 private:
-	Brain *brain;
+	bool maybe_move(Tilemap *map);
+
 	Animation_Set *anim;
+	Brain *brain;
 	Point<int> position;
 	bool moving;
-	Point<float> speed;
+	float speed;
 	Point<float> offset;
 };
 

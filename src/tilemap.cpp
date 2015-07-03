@@ -113,6 +113,21 @@ int Tilemap::get_tile_size()
 	return tile_size;
 }
 
+bool Tilemap::is_solid(Point<int> position, int layer)
+{
+	int start_layer = layer < 0 ? 0 : layer;
+	int end_layer = layer < 0 ? num_layers - 1 : layer;
+
+	for (int i = start_layer; i <= end_layer; i++) {
+		Layer l = layers[i];
+		if (l.solids[position.y][position.x]) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool Tilemap::collides(Point<float> topleft, Point<float> bottomright, int layer)
 {
 	int start_layer = layer < 0 ? 0 : layer;

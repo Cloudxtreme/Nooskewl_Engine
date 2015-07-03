@@ -141,6 +141,34 @@ public:
 		this->y /= rhs;
 		return *this;
 	}
+
+	inline Point<T> &operator+=(const Point<T> &b)
+	{
+		this->x += b.x;
+		this->y += b.y;
+		return *this;
+	}
+
+	inline Point<T> &operator-=(const Point<T> &b)
+	{
+		this->x -= b.x;
+		this->y -= b.y;
+		return *this;
+	}
+
+	inline Point<T> &operator+=(const T &b)
+	{
+		this->x += b;
+		this->y += b;
+		return *this;
+	}
+
+	inline Point<T> &operator-=(const T &b)
+	{
+		this->x -= b;
+		this->y -= b;
+		return *this;
+	}
 };
 
 template<typename T> class Four_Corners
