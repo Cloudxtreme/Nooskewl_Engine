@@ -60,6 +60,7 @@ void Map::draw()
 {
 	// FIXME: fix layers
 	tilemap->draw(0, 0, 0); // FIXME: pos
+
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		e->draw();

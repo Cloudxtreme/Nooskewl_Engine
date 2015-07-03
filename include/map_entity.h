@@ -15,6 +15,7 @@ public:
 	void set_map(Map *map);
 	bool load_animation_set(std::string name);
 	void set_position(Point<int> position);
+	void set_bounce(int bounce);
 
 	int get_id();
 	Direction get_direction();
@@ -37,6 +38,7 @@ private:
 	bool moving;
 	float speed;
 	Point<float> offset;
+	int bounce;
 };
 
 #endif // MAP_ENTITY_H

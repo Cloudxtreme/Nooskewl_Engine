@@ -11,7 +11,8 @@ Map_Entity::Map_Entity(Brain *brain) :
 	position(0, 0),
 	moving(false),
 	speed(0.1f),
-	offset(0.0f, 0.0f)
+	offset(0.0f, 0.0f),
+	bounce(1)
 {
 	id = current_id++;
 }
@@ -44,6 +45,11 @@ bool Map_Entity::load_animation_set(std::string name)
 void Map_Entity::set_position(Point<int> position)
 {
 	this->position = position;
+}
+
+void Map_Entity::set_bounce(int bounce)
+{
+	this->bounce = bounce;
 }
 
 int Map_Entity::get_id()
@@ -191,6 +197,8 @@ void Map_Entity::draw()
 {
 	Image *image = anim->get_current_image();
 	if (image) {
-		image->draw_single((position.x+offset.x)*8, (position.y+offset.y)*8);
+		int add = moving ? -(((SDL_GetTicks() / 100) % 2) * bounce) : 0;
+		int h = image->h;
+		image->draw_single((position.x+offset.x)*8, (position.y+offset.y+1)*8+add-h);
 	}
 }

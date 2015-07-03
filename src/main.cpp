@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 	player->set_map(map);
-	player->set_position(Point<int>(1, 2));
+	player->set_position(Point<int>(1, 3));
 
 	map->add_entity(player);
 
