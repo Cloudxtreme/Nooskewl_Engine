@@ -39,6 +39,9 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	Map *map = new Map();
+	map->tilemap = tilemap;
+
 	Player_Brain *player_brain = new Player_Brain();
 	if (player_brain == NULL) {
 		errormsg("Error allocating player brain");
@@ -50,6 +53,7 @@ int main(int argc, char **argv)
 		errormsg("Error loading player");
 		return 1;
 	}
+	player->set_map(map);
 	player->set_position(Point<int>(1, 2));
 
 	// FIXME!!!!!!!!!! TIMER
@@ -63,7 +67,7 @@ int main(int argc, char **argv)
 			player_brain->update((void *)&event);
 		}
 
-		player->update(tilemap);
+		player->update();
 
 		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
