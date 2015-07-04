@@ -14,6 +14,7 @@ set(SRC
 	src/animation_set.cpp
 	src/audio.cpp
 	src/brain.cpp
+	src/floor_trigger.cpp
 	src/font.cpp
 	src/image.cpp
 	src/log.cpp

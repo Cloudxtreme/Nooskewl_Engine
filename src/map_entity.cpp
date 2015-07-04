@@ -160,6 +160,7 @@ bool Map_Entity::update()
 			offset.x += speed;
 			if (offset.x >= 0) {
 				offset.x = 0;
+				map->check_triggers(this);
 				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
@@ -171,6 +172,7 @@ bool Map_Entity::update()
 			offset.x -= speed;
 			if (offset.x <= 0) {
 				offset.x = 0;
+				map->check_triggers(this);
 				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
@@ -182,6 +184,7 @@ bool Map_Entity::update()
 			offset.y += speed;
 			if (offset.y >= 0) {
 				offset.y = 0;
+				map->check_triggers(this);
 				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();
@@ -193,6 +196,7 @@ bool Map_Entity::update()
 			offset.y -= speed;
 			if (offset.y <= 0) {
 				offset.y = 0;
+				map->check_triggers(this);
 				if (maybe_move() == false) {
 					moving = false;
 					anim->stop();

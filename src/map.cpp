@@ -15,16 +15,23 @@ Map::~Map()
 	for (size_t i = 0; i < entities.size(); i++) {
 		delete entities[i];
 	}
+
+	for (size_t i = 0; i < floor_triggers.size(); i++) {
+		delete floor_triggers[i];
+	}
 }
 
-bool Map::load(std::string name)
+bool Map::load(std::string map_name)
 {
 	tilemap = new Tilemap(8);
-	if (tilemap->load("sheets", name) == false) {
+	if (tilemap->load("sheets", map_name) == false) {
 		delete tilemap;
 		errormsg("Error loading tilemap\n");
 		return false;
 	}
+
+	init_entities(map_name);
+
 	return true;
 }
 
@@ -41,6 +48,17 @@ bool Map::is_solid(int layer, Point<int> position)
 		}
 	}
 	return tilemap->is_solid(layer, position);
+}
+
+void Map::check_triggers(Map_Entity *entity)
+{
+	Point<int> pos = entity->get_position();
+	for (size_t i = 0; i < floor_triggers.size(); i++) {
+		Floor_Trigger *t = floor_triggers[i];
+		if (pos.x >= t->topleft.x && pos.x < t->topleft.x+t->size.w && pos.y >= t->topleft.y && pos.y < t->topleft.y+t->size.h) {
+			t->function(this, entity);
+		}
+	}
 }
 
 void Map::handle_event(SDL_Event *event)
@@ -88,4 +106,11 @@ void Map::draw()
 		e->draw(e->get_draw_position() + offset);
 	}
 	tilemap->draw(1, offset.x, offset.y); // FIXME: pos
+}
+
+void Map::init_entities(std::string map_name)
+{
+	if (map_name == "test.map") {
+		floor_triggers.push_back(new Floor_Trigger(Point<int>(1, 4), Size<int>(1, 1), ft_test));
+	}
 }
