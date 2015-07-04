@@ -67,6 +67,18 @@ Point<int> Map_Entity::get_position()
 	return position;
 }
 
+Size<int> Map_Entity::get_size()
+{
+	// FIXME:
+	return Size<int>(8, 16);
+}
+
+Point<int> Map_Entity::get_draw_position()
+{
+		int h = anim->get_current_image()->h;
+		return Point<int>((position.x+offset.x)*8, (position.y+offset.y+1)*8-h);
+}
+
 bool Map_Entity::maybe_move()
 {
 	if (brain->l) {
@@ -190,15 +202,13 @@ bool Map_Entity::update()
 		}
 	}
 
+	anim->update();
+
 	return true;
 }
 
-void Map_Entity::draw()
+void Map_Entity::draw(Point<int> draw_pos)
 {
-	Image *image = anim->get_current_image();
-	if (image) {
-		int add = moving ? -(((SDL_GetTicks() / 100) % 2) * bounce) : 0;
-		int h = image->h;
-		image->draw_single((position.x+offset.x)*8, (position.y+offset.y+1)*8+add-h);
-	}
+	int add = moving ? -(((SDL_GetTicks() / 100) % 2) * bounce) : 0;
+	anim->get_current_image()->draw_single(draw_pos.x, draw_pos.y+add);
 }

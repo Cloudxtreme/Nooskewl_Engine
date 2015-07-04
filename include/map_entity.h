@@ -20,11 +20,13 @@ public:
 	int get_id();
 	Direction get_direction();
 	Point<int> get_position();
+	Size<int> get_size();
+	Point<int> get_draw_position();
 
 	void handle_event(SDL_Event *event);
 	// return false to destroy
 	bool update();
-	void draw();
+	void draw(Point<int> draw_pos);
 
 private:
 	bool maybe_move();

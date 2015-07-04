@@ -6,4 +6,7 @@ void flip();
 bool init_video();
 void shutdown_video();
 
+extern int screen_w;
+extern int screen_h;
+
 #endif // VIDEO_H

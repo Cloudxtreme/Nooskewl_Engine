@@ -20,6 +20,7 @@ public:
 
 private:
 	Tilemap *tilemap;
+	Point<float> offset;
 	std::vector<Map_Entity *> entities;
 };
 

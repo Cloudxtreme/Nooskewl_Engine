@@ -17,6 +17,7 @@ public:
 	void stop();
 	// set to frame 0
 	void reset();
+	void update();
 
 	Image *get_current_image();
 
@@ -34,6 +35,8 @@ private:
 	std::string current_animation;
 
 	std::map<std::string, Animation *> animations;
+
+	Image *current_image;
 };
 
 #endif // ANIMATION_SET_H

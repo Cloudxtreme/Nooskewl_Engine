@@ -23,6 +23,74 @@ public:
 		w = from.w;
 		h = from.h;
 	}
+
+	inline Size<T> operator+(const T &rhs)
+	{
+		Size<T> s;
+		s.w = this->w + rhs;
+		s.h = this->h + rhs;
+		return s;
+	}
+
+	inline Size<T> operator-(const T &rhs)
+	{
+		Size<T> s;
+		s.w = this->w - rhs;
+		s.h = this->h - rhs;
+		return s;
+	}
+
+	inline Size<T> operator*(const T &rhs)
+	{
+		Size<T> s;
+		s.w = this->w * rhs;
+		s.h = this->h * rhs;
+		return s;
+	}
+
+	inline Size<T> operator/(const T &rhs)
+	{
+		Size<T> s;
+		s.w = this->w / rhs;
+		s.h = this->h / rhs;
+		return s;
+	}
+
+	inline Size<T> &operator+=(const T &rhs)
+	{
+		this->w += rhs;
+		this->h += rhs;
+		return *this;
+	}
+
+	inline Size<T> &operator-=(const T &rhs)
+	{
+		this->w -= rhs;
+		this->h -= rhs;
+		return *this;
+	}
+
+	inline Size<T> &operator*=(const T &rhs)
+	{
+		this->w *= rhs;
+		this->h *= rhs;
+		return *this;
+	}
+
+	inline Size<T> &operator/=(const T &rhs)
+	{
+		this->w /= rhs;
+		this->h /= rhs;
+		return *this;
+	}
+
+	inline Size<T> operator-()
+	{
+		Size<T> s;
+		s.w = -this->w;
+		s.h = -this->h;
+		return s;
+	}
 };
 
 template<typename T> class Point
@@ -54,13 +122,7 @@ public:
 		this->y = p.y;
 	}
 
-	inline void operator=(const Point<float> &from)
-	{
-		x = from.x;
-		y = from.y;
-	}
-
-	inline void operator=(const Point<int> &from)
+	inline void operator=(const Point<T> &from)
 	{
 		x = from.x;
 		y = from.y;
@@ -71,103 +133,192 @@ public:
 		return this->x == rhs.x && this->y == rhs.y;
 	}
 
-	inline Point<T> operator+(const Point<float> &rhs)
+	inline Point<T> operator+(const T &rhs)
 	{
 		Point<T> p;
-		p.x = this->x + rhs.x;
-		p.y = this->y + rhs.y;
+		p.x = this->x + rhs;
+		p.y = this->y + rhs;
 		return p;
 	}
 
-	inline Point<T> operator-(const Point<float> &rhs)
+	inline Point<T> operator-(const T &rhs)
 	{
 		Point<T> p;
-		p.x = this->x - rhs.x;
-		p.y = this->y - rhs.y;
+		p.x = this->x - rhs;
+		p.y = this->y - rhs;
 		return p;
 	}
 
-	inline Point<T> operator+(const Point<int> &rhs)
+	inline Point<T> operator*(const T &rhs)
 	{
 		Point<T> p;
-		p.x = this->x + rhs.x;
-		p.y = this->y + rhs.y;
+		p.x = this->x * rhs;
+		p.y = this->y * rhs;
 		return p;
 	}
 
-	inline Point<T> operator-(const Point<int> &rhs)
+	inline Point<T> operator/(const T &rhs)
 	{
 		Point<T> p;
-		p.x = this->x - rhs.x;
-		p.y = this->y - rhs.y;
+		p.x = this->x / rhs;
+		p.y = this->y / rhs;
 		return p;
 	}
 
-	inline Point<T> operator+(const Size<float> &rhs)
+	inline Point<T> &operator+=(const T &rhs)
 	{
-		Point<T> p;
-		p.x = this->x + rhs.w;
-		p.y = this->y + rhs.h;
-		return p;
+		this->x += rhs;
+		this->y += rhs;
+		return *this;
 	}
 
-	inline Point<T> operator-(const Size<float> &rhs)
+	inline Point<T> &operator-=(const T &rhs)
 	{
-		Point<T> p;
-		p.x = this->x - rhs.w;
-		p.y = this->y - rhs.h;
-		return p;
+		this->x -= rhs;
+		this->y -= rhs;
+		return *this;
 	}
 
-	inline Point<T> operator+(const Size<int> &rhs)
+	inline Point<T> &operator*=(const T &rhs)
 	{
-		Point<T> p;
-		p.x = this->x + rhs.w;
-		p.y = this->y + rhs.h;
-		return p;
+		this->x *= rhs;
+		this->y *= rhs;
+		return *this;
 	}
 
-	inline Point<T> operator-(const Size<int> &rhs)
-	{
-		Point<T> p;
-		p.x = this->x - rhs.w;
-		p.y = this->y - rhs.h;
-		return p;
-	}
-
-	inline const Point<T> &operator/(const float &rhs)
+	inline Point<T> &operator/=(const T &rhs)
 	{
 		this->x /= rhs;
 		this->y /= rhs;
 		return *this;
 	}
 
-	inline Point<T> &operator+=(const Point<T> &b)
+	inline Point<T> operator+(const Point<T> &rhs)
 	{
-		this->x += b.x;
-		this->y += b.y;
+		Point<T> p;
+		p.x = this->x + rhs.x;
+		p.y = this->y + rhs.y;
+		return p;
+	}
+
+	inline Point<T> operator-(const Point<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x - rhs.x;
+		p.y = this->y - rhs.y;
+		return p;
+	}
+
+	inline Point<T> operator*(const Point<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x * rhs.x;
+		p.y = this->y * rhs.y;
+		return p;
+	}
+
+	inline Point<T> operator/(const Point<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x / rhs.x;
+		p.y = this->y / rhs.y;
+		return p;
+	}
+
+	inline Point<T> &operator+=(const Point<T> &rhs)
+	{
+		this->x += rhs.x;
+		this->y += rhs.y;
 		return *this;
 	}
 
-	inline Point<T> &operator-=(const Point<T> &b)
+	inline Point<T> &operator-=(const Point<T> &rhs)
 	{
-		this->x -= b.x;
-		this->y -= b.y;
+		this->x -= rhs.x;
+		this->y -= rhs.y;
 		return *this;
 	}
 
-	inline Point<T> &operator+=(const T &b)
+	inline Point<T> &operator*=(const Point<T> &rhs)
 	{
-		this->x += b;
-		this->y += b;
+		this->x *= rhs.x;
+		this->y *= rhs.y;
 		return *this;
 	}
 
-	inline Point<T> &operator-=(const T &b)
+	inline Point<T> &operator/=(const Point<T> &rhs)
 	{
-		this->x -= b;
-		this->y -= b;
+		this->x /= rhs.x;
+		this->y /= rhs.y;
 		return *this;
+	}
+
+	inline Point<T> operator+(const Size<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x + rhs.w;
+		p.y = this->y + rhs.h;
+		return p;
+	}
+
+	inline Point<T> operator-(const Size<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x - rhs.w;
+		p.y = this->y - rhs.h;
+		return p;
+	}
+
+	inline Point<T> operator*(const Size<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x * rhs.w;
+		p.y = this->y * rhs.h;
+		return p;
+	}
+
+	inline Point<T> operator/(const Size<T> &rhs)
+	{
+		Point<T> p;
+		p.x = this->x / rhs.w;
+		p.y = this->y / rhs.h;
+		return p;
+	}
+
+	inline Point<T> &operator+=(const Size<T> &rhs)
+	{
+		this->x += rhs.w;
+		this->y += rhs.h;
+		return *this;
+	}
+
+	inline Point<T> &operator-=(const Size<T> &rhs)
+	{
+		this->x -= rhs.w;
+		this->y -= rhs.h;
+		return *this;
+	}
+
+	inline Point<T> &operator*=(const Size<T> &rhs)
+	{
+		this->x *= rhs.w;
+		this->y *= rhs.h;
+		return *this;
+	}
+
+	inline Point<T> &operator/=(const Size<T> &rhs)
+	{
+		this->x /= rhs.w;
+		this->y /= rhs.h;
+		return *this;
+	}
+
+	inline Point<T> operator-()
+	{
+		Point<T> p;
+		p.x = -this->x;
+		p.y = -this->y;
+		return p;
 	}
 };
 

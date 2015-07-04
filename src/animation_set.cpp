@@ -116,7 +116,7 @@ void Animation_Set::reset()
 	start_time = 0;
 }
 
-Image *Animation_Set::get_current_image()
+void Animation_Set::update()
 {
 	Uint32 now = SDL_GetTicks();
 	Uint32 elapsed = now - start_time;
@@ -137,5 +137,10 @@ Image *Animation_Set::get_current_image()
 		}
 	}
 
-	return anim->images[frame];
+	current_image = anim->images[frame];
+}
+
+Image *Animation_Set::get_current_image()
+{
+	return current_image;
 }

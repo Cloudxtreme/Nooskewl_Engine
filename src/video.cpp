@@ -10,6 +10,9 @@ GLuint vertexShader;
 GLuint fragmentShader;
 GLuint current_shader;
 
+int screen_w;
+int screen_h;
+
 void flip()
 {
 	SDL_GL_SwapWindow(window);
@@ -22,7 +25,10 @@ bool init_video()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 
-	window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 656, SDL_WINDOW_OPENGL);
+	screen_w = 142;
+	screen_h = 80;
+
+	window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_w * 4, screen_h * 4, SDL_WINDOW_OPENGL);
 	if (window == NULL) {
 		return false;
 	}
