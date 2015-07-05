@@ -10,12 +10,11 @@ Image *reference_image(std::string filename)
 		return it->second;
 	}
 	else {
-		Image *image = new Image();
+		Image *image;
 		try {
-			image->load_tga(filename);
+			image = new Image(filename);
 		}
 		catch (Error e) {
-			delete image;
 			throw e;
 		}
 		loaded_images[filename] = image;

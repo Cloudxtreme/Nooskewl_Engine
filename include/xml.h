@@ -2,11 +2,12 @@
 #define XML_H
 
 #include "starsquatters.h"
+#include "error.h"
 
 class XML {
 public:
 	XML(std::string name, std::string value);
-	XML(std::string filename);
+	XML(std::string filename) throw (Error);
 	~XML();
 
 	std::list<XML *> &get_nodes();

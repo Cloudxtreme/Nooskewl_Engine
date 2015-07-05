@@ -21,9 +21,8 @@ XML::XML(std::string filename) :
 	name = std::string("main");
 
 	file = open_file(filename);
-	if (!file) {
-		errormsg("Could not open XML file %s\n", filename.c_str());
-		return;
+	if (file == NULL) {
+		throw FileNotFoundError(filename);
 	}
 
 	read();
@@ -76,11 +75,6 @@ void XML::add(XML* node)
 std::string XML::get_name(void)
 {
 	return name;
-}
-
-bool XML::failed(void)
-{
-	return file == NULL;
 }
 
 XML::XML(std::string name, SDL_RWops *f) :

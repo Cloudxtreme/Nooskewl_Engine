@@ -3,41 +3,14 @@
 #include "tilemap.h"
 #include "util.h"
 
-Tilemap::Tilemap(int tile_size) :
-	tile_size(tile_size),
-	layers(NULL)
-{
-}
-
-Tilemap::~Tilemap()
-{
-	for (size_t i = 0; i < sheets.size(); i++) {
-		delete sheets[i];
-	}
-
-	if (layers) {
-		for (int layer = 0; layer < num_layers; layer++) {
-			for (int row = 0; row < height; row++) {
-				delete[] layers[layer].sheets[row];
-				delete[] layers[layer].tiles[row];
-				delete[] layers[layer].solids[row];
-			}
-			delete layers[layer].sheets;
-			delete[] layers[layer].tiles;
-			delete[] layers[layer].solids;
-		}
-
-		delete[] layers;
-	}
-}
-
-void Tilemap::load(std::string sheet_directory, std::string map_filename)
+Tilemap::Tilemap(int tile_size, std::string sheet_directory, std::string map_filename) :
+	tile_size(tile_size)
 {
 	for (int i = 0; i < 256; i++) {
 		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
-		Image *image = new Image();
+		Image *image;
 		try {
-			image->load_tga(filename);
+			image = new Image(filename);
 		}
 		catch (Error e) {
 			if (i == 0) {
@@ -93,6 +66,28 @@ void Tilemap::load(std::string sheet_directory, std::string map_filename)
 
 	for (int layer = 0; layer < num_layers; layer++) {
 		std::sort(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end());
+	}
+}
+
+Tilemap::~Tilemap()
+{
+	for (size_t i = 0; i < sheets.size(); i++) {
+		delete sheets[i];
+	}
+
+	if (layers) {
+		for (int layer = 0; layer < num_layers; layer++) {
+			for (int row = 0; row < height; row++) {
+				delete[] layers[layer].sheets[row];
+				delete[] layers[layer].tiles[row];
+				delete[] layers[layer].solids[row];
+			}
+			delete layers[layer].sheets;
+			delete[] layers[layer].tiles;
+			delete[] layers[layer].solids;
+		}
+
+		delete[] layers;
 	}
 }
 

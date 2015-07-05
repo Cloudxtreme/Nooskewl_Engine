@@ -30,18 +30,7 @@ void Map_Entity::set_map(Map *map)
 
 void Map_Entity::load_animation_set(std::string name)
 {
-	anim = new Animation_Set();
-	if (anim == NULL) {
-		throw MemoryError("couldn't allocate Animation_Set");
-	}
-	try {
-		anim->load(name + "/animations.xml", name);
-	}
-	catch (Error e) {
-		delete anim;
-		throw e;
-	}
-
+	anim = new Animation_Set(name + "/animations.xml", name);
 	anim->set_animation("stand_s");
 }
 

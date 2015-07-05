@@ -8,12 +8,10 @@ typedef signed short Int16;
 
 class Sample {
 public:
-	Sample();
+	Sample(std::string filename) throw (Error);
 	~Sample();
 
 	static void update();
-
-	void load_wav(std::string filename) throw (Error);
 
 	bool play(float volume, bool loop);
 

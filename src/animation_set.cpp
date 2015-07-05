@@ -4,31 +4,11 @@
 #include "util.h"
 #include "xml.h"
 
-Animation_Set::Animation_Set() :
+Animation_Set::Animation_Set(std::string xml_filename, std::string image_directory) :
 	started(false),
 	current_animation("")
 {
-}
-
-Animation_Set::~Animation_Set()
-{
-	std::map<std::string, Animation *>::iterator it;
-	for (it = animations.begin(); it != animations.end(); it++) {
-		std::pair<std::string, Animation *> p = *it;
-		Animation *a = p.second;
-		for (size_t i = 0; i < a->images.size(); i++) {
-			release_image(a->images[i]);
-		}
-	}
-}
-
-void Animation_Set::load(std::string xml_filename, std::string image_directory)
-{
 	XML *xml = new XML(xml_filename);
-	if (xml->failed()) {
-		delete xml;
-		throw LoadError("XML error");
-	}
 
 	std::list<XML *> nodes = xml->get_nodes();
 	std::list<XML *>::iterator it;
@@ -91,8 +71,20 @@ void Animation_Set::load(std::string xml_filename, std::string image_directory)
 			current_animation = anim->get_name();
 		}
 	}
-
+	
 	delete xml;
+}
+
+Animation_Set::~Animation_Set()
+{
+	std::map<std::string, Animation *>::iterator it;
+	for (it = animations.begin(); it != animations.end(); it++) {
+		std::pair<std::string, Animation *> p = *it;
+		Animation *a = p.second;
+		for (size_t i = 0; i < a->images.size(); i++) {
+			release_image(a->images[i]);
+		}
+	}
 }
 
 bool Animation_Set::set_animation(std::string name)

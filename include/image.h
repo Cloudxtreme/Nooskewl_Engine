@@ -20,11 +20,9 @@ public:
 	int w;
 	int h;
 
-	Image();
+	Image(std::string filename) throw (Error);
+	Image(SDL_Surface *surface) throw (Error);
 	~Image();
-
-	void load_tga(std::string filename) throw (Error);
-	void from_surface(SDL_Surface *surface) throw (Error);
 
 	void start();
 	void stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);

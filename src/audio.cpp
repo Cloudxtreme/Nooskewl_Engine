@@ -46,10 +46,16 @@ static std::vector<Audio> loaded_audio;
 // FIXME: use a mutex
 static bool lock = false;
 
-Sample::Sample() :
-	spec(NULL),
-	data(NULL)
+Sample::Sample(std::string filename)
 {
+	SDL_RWops *file = open_file(filename);
+
+	spec = SDL_LoadWAV_RW(file, true, &device_spec, &data, &length);
+
+	if (spec == NULL) {
+		SDL_RWclose(file);
+		throw LoadError("SDL_LoadWAV_RW failed");
+	}
 }
 
 Sample::~Sample()
@@ -65,19 +71,6 @@ Sample::~Sample()
 		}
 	}
 	SDL_FreeWAV(data);
-}
-
-void Sample::load_wav(std::string filename)
-{
-	SDL_RWops *file = open_file(filename);
-
-	spec = SDL_LoadWAV_RW(file, true, &device_spec, &data, &length);
-
-	if (spec == NULL) {
-		SDL_RWclose(file);
-		throw LoadError("SDL_LoadWAV_RW failed");
-	}
-
 }
 
 bool Sample::play(float volume, bool loop)

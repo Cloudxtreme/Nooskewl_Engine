@@ -82,20 +82,9 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 		return p + n * 4;
 }
 
-Image::Image() :
-	texture(0),
-	filename("")
-{
-}
-
-Image::~Image()
-{
-	glDeleteTextures(1, &texture);
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
-}
-
-void Image::load_tga(std::string filename)
+Image::Image(std::string filename) :
+	filename(filename),
+	texture(0)
 {
 	this->filename = filename;
 
@@ -229,7 +218,9 @@ void Image::load_tga(std::string filename)
 	SDL_RWclose(file);
 }
 
-void Image::from_surface(SDL_Surface *surface)
+Image::Image(SDL_Surface *surface) :
+	filename("--FROM SURFACE--"),
+	texture(0)
 {
 	unsigned char *pixels;
 	SDL_Surface *tmp = NULL;
@@ -265,6 +256,13 @@ void Image::from_surface(SDL_Surface *surface)
 	}
 
 	if (tmp) SDL_FreeSurface(tmp);
+}
+
+Image::~Image()
+{
+	glDeleteTextures(1, &texture);
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
 }
 
 void Image::start()

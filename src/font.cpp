@@ -4,9 +4,14 @@
 #include "log.h"
 #include "util.h"
 
-Font::Font() :
-	font(NULL)
+Font::Font(std::string filename, int size)
 {
+	file = open_file(filename);
+	font = TTF_OpenFontRW(file, true, size);
+	if (font == NULL) {
+		SDL_RWclose(file);
+		throw LoadError("TTF_OpenFontRW failed");
+	}
 }
 
 Font::~Font()
@@ -15,16 +20,6 @@ Font::~Font()
 		TTF_CloseFont(font);
 	}
 	SDL_RWclose(file);
-}
-
-void Font::load_ttf(std::string filename, int size)
-{
-	file = open_file(filename);
-	font = TTF_OpenFontRW(file, true, size);
-	if (font == NULL) {
-		SDL_RWclose(file);
-		throw LoadError("TTF_OpenFontRW failed");
-	}
 }
 
 void Font::clear_cache()
@@ -86,9 +81,8 @@ void Font::cache(int ch, SDL_Color color)
 		return;
 	}
 
-	g->image = new Image();
 	try {
-		g->image->from_surface(surface);
+		g->image = new Image(surface);
 	}
 	catch (Error e) {
 		SDL_FreeSurface(surface);

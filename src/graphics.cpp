@@ -15,13 +15,10 @@ Font *bold_font;
 void init_graphics()
 {
 	// FIXME: exceptions!
-	window_image = new Image();
 	try {
-		window_image->load_tga("misc_graphics/window.tga");
-		font = new Font();
-		font->load_ttf("fonts/fff_majestica.ttf", 8);
-		bold_font = new Font();
-		bold_font->load_ttf("fonts/fff_majestica_bold.ttf", 8);
+		window_image = new Image("misc_graphics/window.tga");
+		font = new Font("fonts/fff_majestica.ttf", 8);
+		bold_font = new Font("fonts/fff_majestica_bold.ttf", 8);
 		load_palette("nes.gpl");
 	}
 	catch (Error e) {

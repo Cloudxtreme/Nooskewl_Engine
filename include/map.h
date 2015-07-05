@@ -7,10 +7,9 @@
 
 class Map {
 public:
-	Map();
+	Map(std::string map_name) throw (Error);
 	~Map();
 
-	void load(std::string map_name) throw (Error);
 	void add_entity(Map_Entity *entity);
 
 	bool is_solid(int layer, Point<int> position);

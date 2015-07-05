@@ -8,10 +8,8 @@ class Image;
 
 class Font {
 public:
-	Font();
+	Font(std::string filename, int size) throw (Error);
 	~Font();
-
-	void load_ttf(std::string filename, int size) throw (Error);
 
 	void clear_cache();
 

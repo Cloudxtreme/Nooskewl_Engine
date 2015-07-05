@@ -35,8 +35,7 @@ bool run_main()
 	init_font();
 	init_graphics();
 
-	Map *map = new Map();
-	map->load("test.map");
+	Map *map = new Map("test.map");
 
 	Player_Brain *player_brain = new Player_Brain();
 

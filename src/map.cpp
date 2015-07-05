@@ -2,10 +2,11 @@
 #include "map.h"
 #include "video.h"
 
-Map::Map() :
-	tilemap(NULL),
+Map::Map(std::string map_name) :
 	offset(0.0f, 0.0f)
 {
+	tilemap = new Tilemap(8, "sheets", map_name);
+	init_entities(map_name);
 }
 
 Map::~Map()
@@ -19,20 +20,6 @@ Map::~Map()
 	for (size_t i = 0; i < floor_triggers.size(); i++) {
 		delete floor_triggers[i];
 	}
-}
-
-void Map::load(std::string map_name)
-{
-	tilemap = new Tilemap(8);
-	try {
-		tilemap->load("sheets", map_name);
-	}
-	catch (Error e) {
-		delete tilemap;
-		throw e;
-	}
-
-	init_entities(map_name);
 }
 
 void Map::add_entity(Map_Entity *entity)
