@@ -8,6 +8,8 @@ static Image *window_image;
 
 SDL_Colour colours[256];
 SDL_Colour four_whites[4];
+SDL_Colour black;
+SDL_Colour white;
 
 Font *font;
 Font *bold_font;
@@ -73,11 +75,12 @@ void load_palette(std::string name)
 		}
 	}
 
+	black.r = black.g = black.b = 0;
+	black.a = 255;
+	white.r = white.g = white.b = white.a = 255;
+
 	for (int i = 0; i < 4; i++) {
-		four_whites[i].r = 255;
-		four_whites[i].g = 255;
-		four_whites[i].b = 255;
-		four_whites[i].a = 255;
+		four_whites[i] = white;
 	}
 
 	SDL_RWclose(file);

@@ -15,6 +15,8 @@ void draw_window(float x, float y, float w, float h);
 
 extern SDL_Colour colours[256];
 extern SDL_Colour four_whites[4];
+extern SDL_Colour black;
+extern SDL_Colour white;
 
 extern Font *font;
 extern Font *bold_font;
