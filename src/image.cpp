@@ -286,9 +286,14 @@ void Image::start()
 	vertex_accel->start(this);
 }
 
+void Image::stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+{
+	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, dw, dh, 1, 1, 1, 1, flags);
+}
+
 void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
-	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, flags);
+	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, sw, sh, 1, 1, 1, 1, flags);
 }
 
 void Image::draw(float dx, float dy, int flags)
@@ -299,6 +304,13 @@ void Image::draw(float dx, float dy, int flags)
 void Image::draw(Point<int> position, int flags)
 {
 	draw_region(0.0f, 0.0f, (float)w, (float)h, position.x, position.y, flags);	
+}
+
+void Image::stretch_region_single(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+{
+	start();
+	stretch_region(sx, sy, sw, sh, dx, dy, dw, dh, flags);
+	end();
 }
 
 void Image::draw_region_single(float sx, float sy, float sw, float sh, float dx, float dy, int flags)

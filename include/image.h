@@ -25,12 +25,14 @@ public:
 	bool from_surface(SDL_Surface *surface);
 
 	void start();
+	void stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);
 	void draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags = 0);
 	void draw(float dx, float dy, int flags = 0);
 	void draw(Point<int> position, int flags = 0);
 	void end(); // call after every group of draws
 
 	// These ones call start/end automatically
+	void stretch_region_single(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);
 	void draw_region_single(float sx, float sy, float sw, float sh, float dx, float dy, int flags = 0);
 	void draw_single(float dx, float dy, int flags = 0);
 	void draw_single(Point<int> position, int flags = 0);
