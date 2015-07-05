@@ -36,7 +36,6 @@ void init_video()
 
 	context = SDL_GL_CreateContext(window);
 
-	//SDL_GL_SetSwapInterval(1);
 	SDL_GL_SetSwapInterval(1); // vsync
 
 	glewExperimental = 1;
