@@ -13,16 +13,20 @@ public:
 
 	void clear_cache();
 
-	void draw(std::string text, float x, float y, SDL_Color color);
+	int get_width(std::string text);
+
+	void draw(std::string text, float x, float y, SDL_Color colour);
+	// Returns number of characters drawn
+	int draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, SDL_Color colour);
 
 private:
 	struct Glyph {
 		Image *image;
-		SDL_Color color;
+		SDL_Color colour;
 	};
 
-	void cache(int ch, SDL_Color color);
-	void cache(std::string text, SDL_Color color);
+	void cache(int ch, SDL_Color colour);
+	void cache(std::string text, SDL_Color colour);
 
 	SDL_RWops *file;
 	TTF_Font *font;

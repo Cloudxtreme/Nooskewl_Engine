@@ -100,10 +100,9 @@ static bool run_main()
 
 			draw_window(5, screen_h/2, screen_w-10, screen_h/2-5);
 
-			font->draw("I've been wandering around this room for three days... there", 14, screen_h/2+9, four_whites[0]);
-			font->draw("are no windows or doors, just bright blue walls. All I can do", 14, screen_h/2+9+14, four_whites[0]);
-			font->draw("is dance. And I hate dancing. When I get out of here... IF I", 14, screen_h/2+9+28, four_whites[0]);
-			font->draw("get out of here...", 14, screen_h/2+9+42, four_whites[0]);
+			std::string text = "I've been wandering around this room for three days... there are no windows or doors, just bright blue walls. All I can do is dance. And I hate dancing. When I get out of here... IF I get out of here... I'm going to eat 4 big bags of chips!";
+			int skip = font->draw_wrapped(text, 14, screen_h/2+9, screen_w-28, 14, 4, white);
+			font->draw("\"" + text.substr(skip) + "\"", 0, 0, white);
 
 			flip();
 		}

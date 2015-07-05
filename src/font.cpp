@@ -1,5 +1,6 @@
 #include "starsquatters.h"
 #include "font.h"
+#include "graphics.h"
 #include "image.h"
 #include "log.h"
 #include "util.h"
@@ -34,9 +35,24 @@ void Font::clear_cache()
 	}
 }
 
-void Font::draw(std::string text, float x, float y, SDL_Color color)
+int Font::get_width(std::string text)
 {
-	cache(text, color);
+	cache(text, white);
+	const char *p = text.c_str();
+	int width = 0;
+	while (*p) {
+		std::pair<std::multimap<int, Glyph *>::const_iterator, std::multimap<int, Glyph *>::const_iterator> matches = glyphs.equal_range(*p);
+		const std::pair<int, Glyph *> pair = *matches.first;
+		Glyph *g = pair.second;
+		width += g->image->w;
+		p++;
+	}
+	return width;
+}
+
+void Font::draw(std::string text, float x, float y, SDL_Color colour)
+{
+	cache(text, colour);
 	const char *p = text.c_str();
 	while (*p) {
 		std::pair<std::multimap<int, Glyph *>::const_iterator, std::multimap<int, Glyph *>::const_iterator> matches = glyphs.equal_range(*p);
@@ -45,7 +61,7 @@ void Font::draw(std::string text, float x, float y, SDL_Color color)
 		while (it != matches.second) {
 			const std::pair<int, Glyph *> pair = *it;
 			Glyph *g = pair.second;
-			if (memcmp(&g->color, &color, sizeof(SDL_Color)) == 0) {
+			if (memcmp(&g->colour, &colour, sizeof(SDL_Color)) == 0) {
 				found = g;
 				break;
 			}
@@ -66,7 +82,59 @@ void Font::draw(std::string text, float x, float y, SDL_Color color)
 	}
 }
 
-void Font::cache(int ch, SDL_Color color)
+int Font::draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, SDL_Colour colour)
+{
+	const char *p = text.c_str();
+	char buf[2] = { 0 };
+	int curr_y = y;
+	bool done = false;
+	int lines = 0;
+	if (max_lines == -1) {
+		max_lines = 1000000;
+	}
+	while (done == false && lines < max_lines) {
+		int count = 0;
+		int max = 0;
+		int this_w = 0;
+		while (p[count]) {
+			buf[0] = p[count];
+			this_w += get_width(buf);
+			if (this_w >= w) {
+				if (count == 0) {
+					done = true;
+				}
+				else {
+					if (this_w > w) {
+						count--;
+					}
+				}
+				break;
+			}
+			if (p[count] == ' ') {
+				max = count;
+			}
+			count++;
+		}
+		if (p[count] == 0) {
+			max = count;
+		}
+		if (done == false) {
+			std::string s = std::string(p).substr(0, max);
+			draw(s, x, curr_y, colour);
+			p += max;
+			if (*p == ' ') p++;
+			curr_y += line_height;
+			lines++;
+		}
+		if (*p == 0) {
+			done = true;
+		}
+	}
+
+	return p - text.c_str();
+}
+
+void Font::cache(int ch, SDL_Color colour)
 {
 	Glyph *g = new Glyph;
 	if (g == NULL) {
@@ -74,7 +142,7 @@ void Font::cache(int ch, SDL_Color color)
 		return;
 	}
 
-	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, color);
+	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, colour);
 	if (surface == NULL) {
 		errormsg("Error rendering glyph");
 		delete g;
@@ -90,7 +158,7 @@ void Font::cache(int ch, SDL_Color color)
 		throw e;
 	}
 
-	g->color = color;
+	g->colour = colour;
 
 	std::pair<int, Glyph *> p;
 	p.first = ch;
@@ -99,7 +167,7 @@ void Font::cache(int ch, SDL_Color color)
 	glyphs.insert(p);
 }
 
-void Font::cache(std::string text, SDL_Color color)
+void Font::cache(std::string text, SDL_Color colour)
 {
 	const char *p = text.c_str();
 	while (*p) {
@@ -108,14 +176,14 @@ void Font::cache(std::string text, SDL_Color color)
 		bool found = false;
 		while (it != matches.second) {
 			const std::pair<int, Glyph *> g = *it;
-			if (memcmp(&g.second->color, &color, sizeof(SDL_Color)) == 0) {
+			if (memcmp(&g.second->colour, &colour, sizeof(SDL_Color)) == 0) {
 					found = true;
 				break;
 			}
 			it++;
 		}
 		if (found == false) {
-			cache(*p, color);
+			cache(*p, colour);
 		}
 		p++;
 	}
