@@ -14,7 +14,9 @@ Map::~Map()
 	delete tilemap;
 
 	for (size_t i = 0; i < entities.size(); i++) {
-		delete entities[i];
+		if (entities[i]->get_id() != 0) {
+			delete entities[i];
+		}
 	}
 
 	for (size_t i = 0; i < floor_triggers.size(); i++) {
