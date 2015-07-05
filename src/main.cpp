@@ -101,7 +101,7 @@ static bool run_main()
 			draw_window(5, screen_h/2, screen_w-10, screen_h/2-5);
 
 			std::string text = "I've been wandering around this room for three days... there are no windows or doors, just bright blue walls. All I can do is dance. And I hate dancing. When I get out of here... IF I get out of here... I'm going to eat 4 big bags of chips!";
-			int skip = font->draw_wrapped(text, 14, screen_h/2+9, screen_w-28, 14, 4, white);
+			int skip = font->draw_wrapped(text, 14, screen_h/2+9, screen_w-28, 14, 4, SDL_GetTicks(), white);
 			font->draw("\"" + text.substr(skip) + "\"", 0, 0, white);
 
 			flip();

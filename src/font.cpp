@@ -82,7 +82,7 @@ void Font::draw(std::string text, float x, float y, SDL_Color colour)
 	}
 }
 
-int Font::draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, SDL_Colour colour)
+int Font::draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, int elapsed, SDL_Colour colour)
 {
 	const char *p = text.c_str();
 	char buf[2] = { 0 };
@@ -92,10 +92,16 @@ int Font::draw_wrapped(std::string text, float x, float y, int w, int line_heigh
 	if (max_lines == -1) {
 		max_lines = 1000000;
 	}
+	if (elapsed < 0) {
+		elapsed = 1000000;
+	}
+	int chars_to_draw = elapsed / CHAR_DELAY;
+	int chars_drawn = 0;
 	while (done == false && lines < max_lines) {
 		int count = 0;
 		int max = 0;
 		int this_w = 0;
+		int chars_drawn_this_time = 0;
 		while (p[count]) {
 			buf[0] = p[count];
 			this_w += get_width(buf);
@@ -114,24 +120,32 @@ int Font::draw_wrapped(std::string text, float x, float y, int w, int line_heigh
 				max = count;
 			}
 			count++;
+			if (chars_drawn+count < chars_to_draw) {
+				chars_drawn_this_time++;
+			}
 		}
 		if (p[count] == 0) {
 			max = count;
 		}
+		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = std::string(p).substr(0, max);
 			draw(s, x, curr_y, colour);
 			p += max;
 			if (*p == ' ') p++;
+			chars_drawn = p - text.c_str();
 			curr_y += line_height;
 			lines++;
 		}
 		if (*p == 0) {
 			done = true;
 		}
+		if (chars_drawn >= chars_to_draw) {
+			done = true;
+		}
 	}
 
-	return p - text.c_str();
+	return chars_drawn;
 }
 
 void Font::cache(int ch, SDL_Color colour)
