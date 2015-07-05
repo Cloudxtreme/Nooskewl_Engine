@@ -28,6 +28,11 @@ bool Vertex_Accel::init()
 	return true;
 }
 
+void Vertex_Accel::start()
+{
+	this->image = NULL;
+}
+
 void Vertex_Accel::start(Image *image)
 {
 	this->image = image;
@@ -35,6 +40,14 @@ void Vertex_Accel::start(Image *image)
 
 void Vertex_Accel::end()
 {
+	GLint use_tex = glGetUniformLocation(current_shader, "use_tex");
+	if (image) {
+		glUniform1i(use_tex, true);
+	}
+	else {
+		glUniform1i(use_tex, false);		
+	}
+
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
 
 	// Specify the layout of the vertex data
@@ -55,18 +68,14 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
-bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
+bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, float r, float g, float b, float a, int flags)
 {
 	if (maybe_resize_buffer(256) == false) {
 		return false;
 	}
 
-	float dx2 = dx + sw;
-	float dy2 = dy + sh;
-
-	// FIXME: target height
-	//dy = 768 - dy;
-	//dy2 = 768 - dy2;
+	float dx2 = dx + dw;
+	float dy2 = dy + dh;
 
 	// Set vertex x, y
 	vertices[9*(count+0)+0] = dx;
@@ -86,46 +95,50 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 		vertices[9*(count+i)+2] = 0; // set vertex z
 	}
 
-	float tu = sx / image->w;
-	//float tv = 1.0f - (sy / image->h);
-	float tv = sy / image->h;
-	float tu2 = tu + sw / image->w;
-	//float tv2 = tv - (sh / image->h);
-	float tv2 = tv + sh / image->h;
+	float tu, tv, tu2, tv2;
+	if (image) {
+		float tu = sx / image->w;
+		//float tv = 1.0f - (sy / image->h);
+		float tv = sy / image->h;
+		float tu2 = tu + sw / image->w;
+		//float tv2 = tv - (sh / image->h);
+		float tv2 = tv + sh / image->h;
 
-	tv = 1.0f - tv;
-	tv2 = 1.0f - tv2;
+		tv = 1.0f - tv;
+		tv2 = 1.0f - tv2;
 
-	if (flags & Image::FLIP_H) {
-		float tmp = tu;
-		tu = tu2;
-		tu2 = tmp;
+		if (flags & Image::FLIP_H) {
+			float tmp = tu;
+			tu = tu2;
+			tu2 = tmp;
+		}
+		if (flags & Image::FLIP_V) {
+			float tmp = tv;
+			tv = tv2;
+			tv2 = tmp;
+		}
+
+		// texture coordinates
+		vertices[9*(count+0)+7] = tu;
+		vertices[9*(count+0)+8] = tv;
+		vertices[9*(count+1)+7] = tu2;
+		vertices[9*(count+1)+8] = tv;
+		vertices[9*(count+2)+7] = tu2;
+		vertices[9*(count+2)+8] = tv2;
+		vertices[9*(count+3)+7] = tu;
+		vertices[9*(count+3)+8] = tv;
+		vertices[9*(count+4)+7] = tu2;
+		vertices[9*(count+4)+8] = tv2;
+		vertices[9*(count+5)+7] = tu;
+		vertices[9*(count+5)+8] = tv2;
 	}
-	if (flags & Image::FLIP_V) {
-		float tmp = tv;
-		tv = tv2;
-		tv2 = tmp;
-	}
-
-	// texture coordinates
-	vertices[9*(count+0)+7] = tu;
-	vertices[9*(count+0)+8] = tv;
-	vertices[9*(count+1)+7] = tu2;
-	vertices[9*(count+1)+8] = tv;
-	vertices[9*(count+2)+7] = tu2;
-	vertices[9*(count+2)+8] = tv2;
-	vertices[9*(count+3)+7] = tu;
-	vertices[9*(count+3)+8] = tv;
-	vertices[9*(count+4)+7] = tu2;
-	vertices[9*(count+4)+8] = tv2;
-	vertices[9*(count+5)+7] = tu;
-	vertices[9*(count+5)+8] = tv2;
 
 	// Set vertex r, g, b, a
 	for (int i = 0; i < 6; i++) {
-		for (int j = 0; j < 4; j++) {
-			vertices[9*(count+i)+3+j] = 1.0f; // r, g, b, a
-		}
+		vertices[9*(count+i)+3+0] = r;
+		vertices[9*(count+i)+3+1] = g;
+		vertices[9*(count+i)+3+2] = b;
+		vertices[9*(count+i)+3+3] = a;
 	}
 
 	count += 6;

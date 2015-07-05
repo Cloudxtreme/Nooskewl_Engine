@@ -91,6 +91,13 @@ bool Map::update()
 				offset.y = max_y;
 			}
 			offset = -offset;
+			// Correct for small levels
+			if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
+				offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
+			}
+			if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
+				offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+			}
 		}
 	}
 	return true;
