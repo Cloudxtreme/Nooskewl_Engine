@@ -16,6 +16,7 @@ set(SRC
 	src/brain.cpp
 	src/floor_trigger.cpp
 	src/font.cpp
+	src/graphics.cpp
 	src/image.cpp
 	src/log.cpp
 	src/main.cpp
