@@ -17,18 +17,14 @@ Font::~Font()
 	SDL_RWclose(file);
 }
 
-bool Font::load_ttf(std::string filename, int size)
+void Font::load_ttf(std::string filename, int size)
 {
 	file = open_file(filename);
-	if (file == NULL) {
-		return false;
-	}
 	font = TTF_OpenFontRW(file, true, size);
 	if (font == NULL) {
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("TTF_OpenFontRW failed");
 	}
-	return true;
 }
 
 void Font::clear_cache()
@@ -91,11 +87,13 @@ void Font::cache(int ch, SDL_Color color)
 	}
 
 	g->image = new Image();
-	if (g->image == NULL || g->image->from_surface(surface) == false) {
-		errormsg("Error converting glyph from surface to image");
+	try {
+		g->image->from_surface(surface);
+	}
+	catch (Error e) {
 		SDL_FreeSurface(surface);
 		delete g;
-		return;
+		throw e;
 	}
 
 	g->color = color;

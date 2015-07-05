@@ -1,4 +1,3 @@
-#include "starsquatters.h"
 #include "graphics.h"
 #include "image.h"
 #include "log.h"
@@ -10,22 +9,30 @@ static Image *window_image;
 SDL_Colour colours[256];
 SDL_Colour four_whites[4];
 
-bool init_graphics()
+Font *font;
+Font *bold_font;
+
+void init_graphics()
 {
+	// FIXME: exceptions!
 	window_image = new Image();
-	if (window_image->load_tga("misc_graphics/window.tga") == false) {
-		errormsg("Error loading misc_graphics/window.tga!\n");
-		delete window_image;
-		return false;
+	try {
+		window_image->load_tga("misc_graphics/window.tga");
+		font = new Font();
+		font->load_ttf("fonts/fff_majestica.ttf", 8);
+		bold_font = new Font();
+		bold_font->load_ttf("fonts/fff_majestica_bold.ttf", 8);
+		load_palette("nes.gpl");
 	}
-
-	if (load_palette("nes.gpl") == false) {
-		errormsg("Couldn't load nes.gpl!\n");
+	catch (Error e) {
 		delete window_image;
-		return false;
+		delete font;
+		delete bold_font;
+		window_image = NULL;
+		font = NULL;
+		bold_font = NULL;
+		throw e;
 	}
-
-	return true;
 }
 
 void shutdown_graphics()
@@ -33,21 +40,16 @@ void shutdown_graphics()
 	delete window_image;
 }
 
-bool load_palette(std::string name)
+void load_palette(std::string name)
 {
 	SDL_RWops *file = open_file(name);
-	if (file == NULL) {
-		errormsg("Couldn't load palette: %s\n", name.c_str());
-		return false;
-	}
 
 	char line[1000];
 
 	SDL_fgets(file, line, 1000);
 	if (strncmp(line, "GIMP Palette", 12)) {
-		errormsg("Not a GIMP palette (%s)\n", name.c_str());
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("not a GIMP palette: " + name);
 	}
 
 	int line_count = 1;
@@ -82,8 +84,6 @@ bool load_palette(std::string name)
 	}
 
 	SDL_RWclose(file);
-
-	return true;
 }
 
 void draw_quad(float x, float y, float w, float h, SDL_Colour vertex_colours[4])

@@ -13,7 +13,7 @@ public:
 	~Map_Entity();
 
 	void set_map(Map *map);
-	bool load_animation_set(std::string name);
+	void load_animation_set(std::string name) throw (Error);
 	void set_position(Point<int> position);
 	void set_bounce(int bounce);
 

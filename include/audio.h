@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include "starsquatters.h"
+#include "error.h"
 
 typedef signed short Int16;
 
@@ -12,7 +13,7 @@ public:
 
 	static void update();
 
-	bool load_wav(std::string filename);
+	void load_wav(std::string filename) throw (Error);
 
 	bool play(float volume, bool loop);
 
@@ -90,11 +91,11 @@ typedef std::vector<Track *> *Audio;
 
 void update_audio();
 
-Audio load_audio(std::string filename);
+Audio load_audio(std::string filename) throw (Error);
 void play_audio(Audio audio, bool looping);
 void destroy_audio(Audio tracks);
 
-bool init_audio();
+void init_audio() throw (Error);
 void shutdown_audio();
 
 #endif // AUDIO_H

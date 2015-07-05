@@ -31,30 +31,35 @@ Tilemap::~Tilemap()
 	}
 }
 
-bool Tilemap::load(std::string sheet_directory, std::string map_filename)
+void Tilemap::load(std::string sheet_directory, std::string map_filename)
 {
 	for (int i = 0; i < 256; i++) {
 		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
 		Image *image = new Image();
-		if (image->load_tga(filename)) {
-			sheets.push_back(image);
+		try {
+			image->load_tga(filename);
 		}
-		else {
+		catch (Error e) {
 			if (i == 0) {
-				errormsg("No tile sheets!\n");
+				throw LoadError("no tile sheets!");
 			}
-			break;
+			else {
+				break;
+			}
 		}
+		sheets.push_back(image);
 	}
 
-	SDL_RWops *f = open_file(map_filename);
-	if (f == NULL) {
-		errormsg("Can't open map: %s\n", map_filename.c_str());
+	SDL_RWops *f;
+	try {
+		f = open_file(map_filename);
+	}
+	catch (Error e) {
 		for (size_t i = 0; i < sheets.size(); i++) {
 			delete sheets[i];
 		}
 		sheets.clear();
-		return false;
+		throw e;
 	}
 
 	width = SDL_ReadLE32(f);
@@ -89,8 +94,6 @@ bool Tilemap::load(std::string sheet_directory, std::string map_filename)
 	for (int layer = 0; layer < num_layers; layer++) {
 		std::sort(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end());
 	}
-
-	return true;
 }
 
 int Tilemap::get_layer_count()

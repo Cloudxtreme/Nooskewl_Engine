@@ -95,14 +95,11 @@ Image::~Image()
 	glDeleteVertexArrays(1, &vao);
 }
 
-bool Image::load_tga(std::string filename)
+void Image::load_tga(std::string filename)
 {
 	this->filename = filename;
 
 	SDL_RWops *file = open_file(filename);
-	if (file == NULL) {
-		return false;
-	}
 
 	int n = 0, i, j;
 	int bytes2read, skipover = 0;
@@ -129,26 +126,22 @@ bool Image::load_tga(std::string filename)
 
 	/* Allocate space for the image */
 	if ((pixels = new unsigned char[header.width*header.height*4]) == NULL) {
-		errormsg("malloc of image failed\n");
 		SDL_RWclose(file);
-		return false;
+		throw MemoryError("malloc of image failed");
 	}
 
 	/* What can we handle */
 	if (header.datatypecode != 1 && header.datatypecode != 2 && header.datatypecode != 9 && header.datatypecode != 10) {
-		errormsg("Can only handle image type 1, 2, 9 and 10\n");
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("can only handle image type 1, 2, 9 and 10");
 	}		
 	if (header.bitsperpixel != 8 && header.bitsperpixel != 16 && header.bitsperpixel != 24 && header.bitsperpixel != 32) {
-		errormsg("Can only handle pixel depths of 8, 16, 24 and 32\n");
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("can only handle pixel depths of 8, 16, 24 and 32");
 	}
 	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
-		errormsg("Can only handle colour map types of 0 and 1\n");
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("can only handle colour map types of 0 and 1");
 	}
 
 	/* Skip over unnecessary stuff */
@@ -157,14 +150,12 @@ bool Image::load_tga(std::string filename)
 	/* Read the palette if there is one */
 	if (header.colourmaptype == 1) {
 		if (header.colourmapdepth != 24) {
-			errormsg("Can't handle anything but 24 bit palettes\n");
 			SDL_RWclose(file);
-			return false;
+			throw LoadError("can't handle anything but 24 bit palettes");
 		}
 		if (header.bitsperpixel != 8) {
-			errormsg("Can only read 8 bpp paletted images");
 			SDL_RWclose(file);
-			return false;
+			throw LoadError("can only read 8 bpp paletted images");
 		}
 		int skip = header.colourmaporigin * (header.colourmapdepth / 8);
 		SDL_RWseek(file, skip, RW_SEEK_CUR);
@@ -188,20 +179,18 @@ bool Image::load_tga(std::string filename)
 	while (n < header.width * header.height) {
 		if (header.datatypecode == 1 || header.datatypecode == 2) {                     /* Uncompressed */
 			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
 				SDL_RWclose(file);
-				return false;
+				throw LoadError("unexpected end of file at pixel " + itos(i));
 			}
 			merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
 			n++;
 		}
 		else if (header.datatypecode == 9 || header.datatypecode == 10) {             /* Compressed */
 			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
-				errormsg("Unexpected end of file at pixel %d\n",i);
 				delete[] pixels;
 				SDL_RWclose(file);
-				return false;
+				throw LoadError("unexpected end of file at pixel " + itos(i));
 			}
 			j = p[0] & 0x7f;
 			merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
@@ -215,10 +204,9 @@ bool Image::load_tga(std::string filename)
 			else {                   /* Normal chunk */
 				for (i = 0; i < j; i++) {
 					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-						errormsg("Unexpected end of file at pixel %d\n",i);
 						delete[] pixels;
 						SDL_RWclose(file);
-						return false;
+						throw LoadError("unexpected end of file at pixel " + itos(i));
 					}
 					merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
 					n++;
@@ -227,20 +215,21 @@ bool Image::load_tga(std::string filename)
 		}
 	}
 
-	if (upload(pixels) == false) {
+	try {
+		upload(pixels);
+	}
+	catch (Error e) {
 		delete[] pixels;
 		SDL_RWclose(file);
-		return false;
+		throw e;
 	}
 
 	delete[] pixels;
 
 	SDL_RWclose(file);
-
-	return true;
 }
 
-bool Image::from_surface(SDL_Surface *surface)
+void Image::from_surface(SDL_Surface *surface)
 {
 	unsigned char *pixels;
 	SDL_Surface *tmp = NULL;
@@ -259,7 +248,7 @@ bool Image::from_surface(SDL_Surface *surface)
 		format.Amask = 0xff000000;
 		tmp = SDL_ConvertSurface(surface, &format, 0);
 		if (tmp == NULL) {
-			return false;
+			throw Error("SDL_ConvertSurface returned NULL");
 		}
 		pixels = (unsigned char *)tmp->pixels;
 	}
@@ -267,15 +256,15 @@ bool Image::from_surface(SDL_Surface *surface)
 	w = surface->w;
 	h = surface->h;
 
-	bool ret = upload(pixels);
-
-	if (tmp) SDL_FreeSurface(tmp);
-
-	if (ret == false) {
-		return false;
+	try {
+		upload(pixels);
+	}
+	catch (Error e) {
+		if (tmp) SDL_FreeSurface(tmp);
+		throw e;
 	}
 
-	return true;
+	if (tmp) SDL_FreeSurface(tmp);
 }
 
 void Image::start()
@@ -339,11 +328,11 @@ void Image::end()
 	vertex_accel->end();
 }
 
-bool Image::upload(unsigned char *pixels)
+void Image::upload(unsigned char *pixels)
 {
 	glGenVertexArrays(1, &vao);
 	if (vao == 0) {
-		return false;
+		throw GLError("glGenVertexArrays failed");
 	}
 	glBindVertexArray(vao);
 
@@ -351,7 +340,7 @@ bool Image::upload(unsigned char *pixels)
 	if (vbo == 0) {
 		glDeleteVertexArrays(1, &vao);
 		vao = 0;
-		return false;
+		throw GLError("glBenBuffers failed");
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
@@ -361,7 +350,7 @@ bool Image::upload(unsigned char *pixels)
 		vao = 0;
 		glDeleteBuffers(1, &vbo);
 		vbo = 0;
-		return false;
+		throw GLError("glGenTextures failed");
 	}
 
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -373,6 +362,4 @@ bool Image::upload(unsigned char *pixels)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    return true;
 }

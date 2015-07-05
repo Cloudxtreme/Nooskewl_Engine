@@ -1,9 +1,8 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include <map>
-
 #include "starsquatters.h"
+#include "error.h"
 
 class Image;
 
@@ -12,7 +11,7 @@ public:
 	Font();
 	~Font();
 
-	bool load_ttf(std::string filename, int size);
+	void load_ttf(std::string filename, int size) throw (Error);
 
 	void clear_cache();
 

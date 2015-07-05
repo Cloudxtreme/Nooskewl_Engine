@@ -40,7 +40,10 @@ SDL_RWops *open_file(std::string filename)
 {
 	// FIXME:
 	filename = "C:/Users/Trent/code/starsquatters-data/" + filename;
-	return SDL_RWFromFile(filename.c_str(), "rb");
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	if (file == NULL) {
+		throw FileNotFoundError(filename);
+	}
 }
 
 std::string itos(int i)

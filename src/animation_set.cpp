@@ -22,12 +22,12 @@ Animation_Set::~Animation_Set()
 	}
 }
 
-bool Animation_Set::load(std::string xml_filename, std::string image_directory)
+void Animation_Set::load(std::string xml_filename, std::string image_directory)
 {
 	XML *xml = new XML(xml_filename);
 	if (xml->failed()) {
 		delete xml;
-		return false;
+		throw LoadError("XML error");
 	}
 
 	std::list<XML *> nodes = xml->get_nodes();
@@ -41,8 +41,11 @@ bool Animation_Set::load(std::string xml_filename, std::string image_directory)
 		std::vector<Image *> images;
 		for (count = 0; count < 1024 /* NOTE: hardcoded max frames */; count++) {
 			std::string filename = image_directory + "/" + anim->get_name() + "/" + itos(count) + ".tga";
-			Image *image = reference_image(filename);
-			if (image == NULL) {
+			Image *image;
+			try {
+				image = reference_image(filename);
+			}
+			catch (Error e) {
 				break;
 			}
 			images.push_back(image);

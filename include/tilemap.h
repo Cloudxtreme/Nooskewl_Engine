@@ -1,6 +1,7 @@
 #ifndef TILEMAP_H
 #define TILEMAP_H
 
+#include "error.h"
 #include "image.h"
 #include "types.h"
 
@@ -10,7 +11,7 @@ public:
 	Tilemap(int tile_size);
 	~Tilemap();
 
-	bool load(std::string sheet_directory, std::string map_filename);
+	void load(std::string sheet_directory, std::string map_filename) throw (Error);
 
 	int get_layer_count();
 	int get_width();

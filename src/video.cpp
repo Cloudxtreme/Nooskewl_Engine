@@ -1,4 +1,5 @@
 #include "starsquatters.h"
+#include "error.h"
 #include "log.h"
 #include "vertex_accel.h"
 #include "video.h"
@@ -18,7 +19,7 @@ void flip()
 	SDL_GL_SwapWindow(window);
 }
 
-bool init_video()
+void init_video()
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -30,7 +31,7 @@ bool init_video()
 
 	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_w * 4, screen_h * 4, SDL_WINDOW_OPENGL);
 	if (window == NULL) {
-		return false;
+		throw Error("SDL_CreateWindow failed");
 	}
 
 	context = SDL_GL_CreateContext(window);
@@ -111,12 +112,7 @@ bool init_video()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	vertex_accel = new Vertex_Accel();
-	if (vertex_accel->init() == false) {
-		errormsg("Couldn't create vertex accelerator");
-		return 1;
-	}
-
-	return true;
+	vertex_accel->init();
 }
 
 void shutdown_video()

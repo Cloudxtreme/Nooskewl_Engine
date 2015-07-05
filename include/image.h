@@ -4,6 +4,7 @@
 #include <string>
 
 #include "starsquatters.h"
+#include "error.h"
 #include "graphics.h"
 #include "types.h"
 
@@ -22,8 +23,8 @@ public:
 	Image();
 	~Image();
 
-	bool load_tga(std::string filename);
-	bool from_surface(SDL_Surface *surface);
+	void load_tga(std::string filename) throw (Error);
+	void from_surface(SDL_Surface *surface) throw (Error);
 
 	void start();
 	void stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);
@@ -39,7 +40,7 @@ public:
 	void draw_single(Point<int> position, int flags = 0);
 
 private:
-	bool upload(unsigned char *data);
+	void upload(unsigned char *data) throw (Error);
 
 	GLuint vao;
 	GLuint vbo;

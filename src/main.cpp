@@ -7,55 +7,41 @@
 #include "player_brain.h"
 #include "video.h"
 
+bool run_main();
+
 int main(int argc, char **argv)
 {
+	try {
+		if (run_main() == false) {
+			return 1;
+		}
+	}
+	catch (Error e) {
+		errormsg("Fatal error: %s\n", e.error_message.c_str());
+		return 1;
+	}
+
+	return 0;
+}
+
+bool run_main()
+{
 	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) != 0) {
-		return 1;
+		return false;
 	}
 
-	if (!init_audio()) {
-		errormsg("Error initializing audio\n");
-		return 1;
-	}
-
-	if (!init_video()) {
-		errormsg("Error initializing video\n");
-		return 1;
-	}
-
-	if (!init_font()) {
-		errormsg("Error initializing fonts\n");
-		return 1;
-	}
-
-	if (!init_graphics()) {
-		errormsg("Error initializing graphics\n");
-		return 1;
-	}
-
-	Font *font = new Font();
-	if (font->load_ttf("fonts/majestica.ttf", 8) == false) {
-		errormsg("Error loading fonts/majestica.ttf\n");
-		return 1;
-	}
+	init_audio();
+	init_video();
+	init_font();
+	init_graphics();
 
 	Map *map = new Map();
-	if (map->load("test.map") == false) {
-		errormsg("Couldn't load test.map\n");
-		return 1;
-	}
+	map->load("test.map");
 
 	Player_Brain *player_brain = new Player_Brain();
-	if (player_brain == NULL) {
-		errormsg("Error allocating player brain\n");
-		return 1;
-	}
 
 	Map_Entity *player = new Map_Entity(player_brain);
-	if (player == NULL || player->load_animation_set("sprites/player") == false) {
-		errormsg("Error loading player\n");
-		return 1;
-	}
+	player->load_animation_set("sprites/player");
 	player->set_map(map);
 	player->set_position(Point<int>(1, 3));
 
@@ -81,8 +67,10 @@ int main(int argc, char **argv)
 
 		draw_window(5, screen_h/2, screen_w-10, screen_h/2-5);
 
-		SDL_Colour white = { 255, 255, 255, 255 };
-		font->draw("Hello, world!", 12, screen_h/2+7, white);
+		font->draw("I've been wandering around this room for three days... there", 14, screen_h/2+9, four_whites[0]);
+		font->draw("are no windows or doors, just bright blue walls. All I can do", 14, screen_h/2+9+14, four_whites[0]);
+		font->draw("is dance. And I hate dancing. When I get out of here... IF I", 14, screen_h/2+9+28, four_whites[0]);
+		font->draw("get out of here...", 14, screen_h/2+9+42, four_whites[0]);
 
 		flip();
 	}
@@ -94,5 +82,5 @@ int main(int argc, char **argv)
 	shutdown_graphics();
 	shutdown_video();
 	
-	return 0;
+	return true;
 }

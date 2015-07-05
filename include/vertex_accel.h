@@ -10,13 +10,13 @@ public:
 	Vertex_Accel();
 	~Vertex_Accel();
 
-	bool init();
+	void init();
 
 	void start(); // no texture
 	void start(Image *image);
-	bool buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4] /* tl, tr, br, bl */, int flags);
+	void buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4] /* tl, tr, br, bl */, int flags);
 	void end();
-	bool maybe_resize_buffer(int increase);
+	void maybe_resize_buffer(int increase);
 
 private:
 	float *vertices;

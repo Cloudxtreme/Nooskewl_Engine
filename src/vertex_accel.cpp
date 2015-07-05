@@ -19,13 +19,9 @@ Vertex_Accel::~Vertex_Accel()
 	free(vertices);
 }
 
-bool Vertex_Accel::init()
+void Vertex_Accel::init()
 {
-	if (!maybe_resize_buffer(256)) {
-		return false;
-	}
-
-	return true;
+	maybe_resize_buffer(256);
 }
 
 void Vertex_Accel::start()
@@ -68,11 +64,9 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
-bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4], int flags)
+void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4], int flags)
 {
-	if (maybe_resize_buffer(256) == false) {
-		return false;
-	}
+	maybe_resize_buffer(256);
 
 	float dx2 = dx + dw;
 	float dy2 = dy + dh;
@@ -164,14 +158,12 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 	vertices[9*(count+5)+3+3] = vertex_colours[3].a / 255.0f;
 
 	count += 6;
-
-	return true;
 }
 
-bool Vertex_Accel::maybe_resize_buffer(int increase)
+void Vertex_Accel::maybe_resize_buffer(int increase)
 {
 	if (total - count >= increase) {
-		return true;
+		return;
 	}
 
 	if (vertices == NULL) {
@@ -181,10 +173,8 @@ bool Vertex_Accel::maybe_resize_buffer(int increase)
 		vertices = (float *)realloc(vertices, sizeof(float)*9*(total+increase));
 	}
 	if (vertices == NULL) {
-		return false;
+		throw MemoryError("out of memory in maybe_resize_buffer");
 	}
 
 	total += increase;
-
-	return true;
 }

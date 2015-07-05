@@ -28,18 +28,21 @@ void Map_Entity::set_map(Map *map)
 	this->map = map;
 }
 
-bool Map_Entity::load_animation_set(std::string name)
+void Map_Entity::load_animation_set(std::string name)
 {
 	anim = new Animation_Set();
 	if (anim == NULL) {
-		return false;
+		throw MemoryError("couldn't allocate Animation_Set");
 	}
-	if (anim->load(name + "/animations.xml", name) == false) {
+	try {
+		anim->load(name + "/animations.xml", name);
+	}
+	catch (Error e) {
 		delete anim;
-		return false;
+		throw e;
 	}
+
 	anim->set_animation("stand_s");
-	return true;
 }
 
 void Map_Entity::set_position(Point<int> position)

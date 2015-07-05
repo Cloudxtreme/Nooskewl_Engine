@@ -3,7 +3,7 @@
 
 void flip();
 
-bool init_video();
+void init_video();
 void shutdown_video();
 
 extern int screen_w;

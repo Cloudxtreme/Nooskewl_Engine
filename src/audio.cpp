@@ -67,21 +67,17 @@ Sample::~Sample()
 	SDL_FreeWAV(data);
 }
 
-bool Sample::load_wav(std::string filename)
+void Sample::load_wav(std::string filename)
 {
 	SDL_RWops *file = open_file(filename);
-	if (file == NULL) {
-		return false;
-	}
 
 	spec = SDL_LoadWAV_RW(file, true, &device_spec, &data, &length);
 
 	if (spec == NULL) {
 		SDL_RWclose(file);
-		return false;
+		throw LoadError("SDL_LoadWAV_RW failed");
 	}
 
-	return true;
 }
 
 bool Sample::play(float volume, bool loop)
@@ -872,7 +868,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	lock = false;
 }
 
-bool init_audio()
+void init_audio()
 {
 	SDL_AudioSpec desired;
 	desired.freq = 44100;
@@ -885,12 +881,10 @@ bool init_audio()
 	audio_device = SDL_OpenAudioDevice(NULL, false, &desired, &device_spec, 0);
 
 	if (audio_device == 0) {
-		return false;
+		throw Error("init_audio failed");
 	}
 
 	SDL_PauseAudioDevice(audio_device, false);
-
-	return true;
 }
 
 void shutdown_audio()

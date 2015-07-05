@@ -21,18 +21,18 @@ Map::~Map()
 	}
 }
 
-bool Map::load(std::string map_name)
+void Map::load(std::string map_name)
 {
 	tilemap = new Tilemap(8);
-	if (tilemap->load("sheets", map_name) == false) {
+	try {
+		tilemap->load("sheets", map_name);
+	}
+	catch (Error e) {
 		delete tilemap;
-		errormsg("Error loading tilemap\n");
-		return false;
+		throw e;
 	}
 
 	init_entities(map_name);
-
-	return true;
 }
 
 void Map::add_entity(Map_Entity *entity)

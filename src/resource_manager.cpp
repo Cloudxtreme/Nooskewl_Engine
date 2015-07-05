@@ -11,9 +11,12 @@ Image *reference_image(std::string filename)
 	}
 	else {
 		Image *image = new Image();
-		if (image->load_tga(filename) == false) {
+		try {
+			image->load_tga(filename);
+		}
+		catch (Error e) {
 			delete image;
-			return NULL;
+			throw e;
 		}
 		loaded_images[filename] = image;
 		return image;

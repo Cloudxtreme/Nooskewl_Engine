@@ -2,6 +2,7 @@
 #define ANIMATION_SET_H
 
 #include "starsquatters.h"
+#include "error.h"
 #include "image.h"
 
 class Animation_Set {
@@ -9,7 +10,7 @@ public:
 	Animation_Set();
 	~Animation_Set();
 
-	bool load(std::string xml_filename, std::string image_directory);
+	void load(std::string xml_filename, std::string image_directory) throw (Error);
 
 	bool set_animation(std::string name);
 
