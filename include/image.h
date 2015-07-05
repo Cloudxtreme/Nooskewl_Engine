@@ -4,6 +4,7 @@
 #include <string>
 
 #include "starsquatters.h"
+#include "graphics.h"
 #include "types.h"
 
 class Image {

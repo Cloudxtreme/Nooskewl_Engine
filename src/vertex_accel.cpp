@@ -45,7 +45,7 @@ void Vertex_Accel::end()
 		glUniform1i(use_tex, true);
 	}
 	else {
-		glUniform1i(use_tex, false);		
+		glUniform1i(use_tex, false);
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
@@ -68,7 +68,7 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
-bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, float r, float g, float b, float a, int flags)
+bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4], int flags)
 {
 	if (maybe_resize_buffer(256) == false) {
 		return false;
@@ -133,13 +133,35 @@ bool Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 		vertices[9*(count+5)+8] = tv2;
 	}
 
-	// Set vertex r, g, b, a
-	for (int i = 0; i < 6; i++) {
-		vertices[9*(count+i)+3+0] = r;
-		vertices[9*(count+i)+3+1] = g;
-		vertices[9*(count+i)+3+2] = b;
-		vertices[9*(count+i)+3+3] = a;
-	}
+	vertices[9*(count+0)+3+0] = vertex_colours[0].r / 255.0f;
+	vertices[9*(count+0)+3+1] = vertex_colours[0].g / 255.0f;
+	vertices[9*(count+0)+3+2] = vertex_colours[0].b / 255.0f;
+	vertices[9*(count+0)+3+3] = vertex_colours[0].a / 255.0f;
+
+	vertices[9*(count+1)+3+0] = vertex_colours[1].r / 255.0f;
+	vertices[9*(count+1)+3+1] = vertex_colours[1].g / 255.0f;
+	vertices[9*(count+1)+3+2] = vertex_colours[1].b / 255.0f;
+	vertices[9*(count+1)+3+3] = vertex_colours[1].a / 255.0f;
+
+	vertices[9*(count+2)+3+0] = vertex_colours[2].r / 255.0f;
+	vertices[9*(count+2)+3+1] = vertex_colours[2].g / 255.0f;
+	vertices[9*(count+2)+3+2] = vertex_colours[2].b / 255.0f;
+	vertices[9*(count+2)+3+3] = vertex_colours[2].a / 255.0f;
+
+	vertices[9*(count+3)+3+0] = vertex_colours[0].r / 255.0f;
+	vertices[9*(count+3)+3+1] = vertex_colours[0].g / 255.0f;
+	vertices[9*(count+3)+3+2] = vertex_colours[0].b / 255.0f;
+	vertices[9*(count+3)+3+3] = vertex_colours[0].a / 255.0f;
+
+	vertices[9*(count+4)+3+0] = vertex_colours[2].r / 255.0f;
+	vertices[9*(count+4)+3+1] = vertex_colours[2].g / 255.0f;
+	vertices[9*(count+4)+3+2] = vertex_colours[2].b / 255.0f;
+	vertices[9*(count+4)+3+3] = vertex_colours[2].a / 255.0f;
+
+	vertices[9*(count+5)+3+0] = vertex_colours[3].r / 255.0f;
+	vertices[9*(count+5)+3+1] = vertex_colours[3].g / 255.0f;
+	vertices[9*(count+5)+3+2] = vertex_colours[3].b / 255.0f;
+	vertices[9*(count+5)+3+3] = vertex_colours[3].a / 255.0f;
 
 	count += 6;
 

@@ -35,14 +35,11 @@ bool Tilemap::load(std::string sheet_directory, std::string map_filename)
 {
 	for (int i = 0; i < 256; i++) {
 		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
-		infomsg("Attempting to load tile sheet '%s'.\n", filename.c_str());
 		Image *image = new Image();
 		if (image->load_tga(filename)) {
-			infomsg("- Found!\n");
 			sheets.push_back(image);
 		}
 		else {
-			infomsg("- Not found!\n");
 			if (i == 0) {
 				errormsg("No tile sheets!\n");
 			}

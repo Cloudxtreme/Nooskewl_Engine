@@ -288,12 +288,12 @@ void Image::start()
 
 void Image::stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags)
 {
-	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, dw, dh, 1, 1, 1, 1, flags);
+	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, dw, dh, four_whites, flags);
 }
 
 void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
 {
-	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, sw, sh, 1, 1, 1, 1, flags);
+	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, sw, sh, four_whites, flags);
 }
 
 void Image::draw(float dx, float dy, int flags)
