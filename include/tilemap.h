@@ -8,7 +8,7 @@
 class Tilemap
 {
 public:
-	Tilemap(int tile_size, std::string sheet_directory, std::string map_filename) throw (Error);
+	Tilemap(int tile_size, std::string map_filename) throw (Error);
 	~Tilemap();
 
 	int get_layer_count();

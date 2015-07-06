@@ -3,14 +3,16 @@
 #include "tilemap.h"
 #include "util.h"
 
-Tilemap::Tilemap(int tile_size, std::string sheet_directory, std::string map_filename) :
+Tilemap::Tilemap(int tile_size, std::string map_filename) :
 	tile_size(tile_size)
 {
+	map_filename = "maps/" + map_filename;
+
 	for (int i = 0; i < 256; i++) {
-		std::string filename = std::string(sheet_directory + "/tiles" + itos(i) + ".tga");
+		std::string filename = std::string("sheets/tiles" + itos(i) + ".tga");
 		Image *image;
 		try {
-			image = new Image(filename);
+			image = new Image(filename, true);
 		}
 		catch (Error e) {
 			if (i == 0) {
