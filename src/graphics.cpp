@@ -1,3 +1,4 @@
+#include "animation_set.h"
 #include "graphics.h"
 #include "image.h"
 #include "log.h"
@@ -5,6 +6,7 @@
 #include "vertex_accel.h"
 
 static Image *window_image;
+static Animation_Set *speech_arrow;
 
 SDL_Colour colours[256];
 SDL_Colour four_whites[4];
@@ -19,6 +21,8 @@ void init_graphics()
 	// FIXME: exceptions!
 	try {
 		window_image = new Image("misc_graphics/window.tga");
+		speech_arrow = new Animation_Set("sprites/speech_arrow");
+		speech_arrow->start();
 		font = new Font("fonts/fff_majestica.ttf", 8);
 		bold_font = new Font("fonts/fff_majestica_bold.ttf", 8);
 		load_palette("nes.gpl");
@@ -37,6 +41,11 @@ void init_graphics()
 void shutdown_graphics()
 {
 	delete window_image;
+}
+
+void update_graphics()
+{
+	speech_arrow->update();
 }
 
 void load_palette(std::string name)
@@ -103,7 +112,7 @@ void draw_quad(float x, float y, float w, float h, SDL_Colour colour)
 	draw_quad(x, y, w, h, vertex_colours);
 }
 
-void draw_window(float x, float y, float w, float h)
+void draw_window(float x, float y, float w, float h, bool arrow, bool circle)
 {
 	SDL_Colour vertex_colours[4];
 
@@ -127,4 +136,13 @@ void draw_window(float x, float y, float w, float h)
 	window_image->stretch_region(1, 5, 4, 2, x+1, y+6, 4, h-12, 0); // left
 	window_image->stretch_region(7, 5, 4, 2, x+w-5, y+6, 4, h-12, 0); // right
 	window_image->end();
+
+	if (circle) {
+		speech_arrow->set_animation("circle");
+		speech_arrow->get_current_image()->draw_single(x+w-12, y+h-12, 0);
+	}
+	else if (arrow) {
+		speech_arrow->set_animation("arrow");
+		speech_arrow->get_current_image()->draw_single(x+w-12, y+h-12, 0);
+	}
 }
