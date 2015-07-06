@@ -71,6 +71,13 @@ Point<int> Map_Entity::get_draw_position()
 		return Point<int>((position.x+offset.x)*8, (position.y+offset.y+1)*8-h);
 }
 
+void Map_Entity::stop()
+{
+	moving = false;
+	// FIXME: add all buttons here
+	brain->l = brain->r = brain->u = brain->d = brain->b1 = false;
+}
+
 bool Map_Entity::maybe_move()
 {
 	if (brain->l) {

@@ -3,6 +3,7 @@
 
 #include "floor_trigger.h"
 #include "map_entity.h"
+#include "speech.h"
 #include "tilemap.h"
 
 class Map {
@@ -11,6 +12,7 @@ public:
 	~Map();
 
 	void add_entity(Map_Entity *entity);
+	void add_speeches(std::vector<std::string> &speeches);
 
 	bool is_solid(int layer, Point<int> position);
 	void check_triggers(Map_Entity *entity);
@@ -26,6 +28,9 @@ private:
 	Point<float> offset;
 	std::vector<Map_Entity *> entities;
 	std::vector<Floor_Trigger *> floor_triggers;
+
+	std::vector<std::string> speeches;
+	Speech *speech;
 };
 
 #endif // MAP_H

@@ -25,6 +25,7 @@ set(SRC
 	src/player_brain.cpp
 	src/resource_manager.cpp
 	src/snprintf.cpp
+	src/speech.cpp
 	src/tilemap.cpp
 	src/util.cpp
 	src/vertex_accel.cpp

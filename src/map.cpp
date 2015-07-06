@@ -3,7 +3,8 @@
 #include "video.h"
 
 Map::Map(std::string map_name) :
-	offset(0.0f, 0.0f)
+	offset(0.0f, 0.0f),
+	speech(NULL)
 {
 	tilemap = new Tilemap(8, "sheets", map_name);
 	init_entities(map_name);
@@ -29,6 +30,15 @@ void Map::add_entity(Map_Entity *entity)
 	entities.push_back(entity);
 }
 
+void Map::add_speeches(std::vector<std::string> &speeches)
+{
+	this->speeches.insert(this->speeches.begin(), speeches.begin(), speeches.end());
+	if (speech == NULL) {
+		speech = new Speech(speeches[0]);
+		speech->start();
+	}
+}
+
 bool Map::is_solid(int layer, Point<int> position)
 {
 	for (size_t i = 0; i < entities.size(); i++) {
@@ -52,40 +62,57 @@ void Map::check_triggers(Map_Entity *entity)
 
 void Map::handle_event(SDL_Event *event)
 {
-	for (size_t i = 0; i < entities.size(); i++) {
-		entities[i]->handle_event(event);
+	if (speech) {
+		if (speech->handle_event(event) == false) {
+			delete speech;
+			speeches.erase(speeches.begin());
+			if (speeches.size() > 0) {
+				speech = new Speech(speeches[0]);
+				speech->start();
+			}
+			else {
+				speech = NULL;
+			}
+		}
+	}
+	else {
+		for (size_t i = 0; i < entities.size(); i++) {
+			entities[i]->handle_event(event);
+		}
 	}
 }
 
 bool Map::update()
 {
-	for (size_t i = 0; i < entities.size(); i++) {
-		entities[i]->update();
-		if (entities[i]->get_id() == 0) {
-			Point<int> p = entities[i]->get_draw_position();
-			Size<int> sz = entities[i]->get_size();
-			offset = p - Point<float>(screen_w/2, screen_h/2) + sz / 2;
-			int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
-			int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
-			if (offset.x < 0) {
-				offset.x = 0;
-			}
-			else if (offset.x > max_x) {
-				offset.x = max_x;
-			}
-			if (offset.y < 0) {
-				offset.y = 0;
-			}
-			else if (offset.y > max_y) {
-				offset.y = max_y;
-			}
-			offset = -offset;
-			// Correct for small levels
-			if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
-				offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
-			}
-			if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
-				offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+	if (speech == NULL) {
+		for (size_t i = 0; i < entities.size(); i++) {
+			entities[i]->update();
+			if (entities[i]->get_id() == 0) {
+				Point<int> p = entities[i]->get_draw_position();
+				Size<int> sz = entities[i]->get_size();
+				offset = p - Point<float>(screen_w/2, screen_h/2) + sz / 2;
+				int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
+				int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
+				if (offset.x < 0) {
+					offset.x = 0;
+				}
+				else if (offset.x > max_x) {
+					offset.x = max_x;
+				}
+				if (offset.y < 0) {
+					offset.y = 0;
+				}
+				else if (offset.y > max_y) {
+					offset.y = max_y;
+				}
+				offset = -offset;
+				// Correct for small levels
+				if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
+					offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
+				}
+				if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
+					offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+				}
 			}
 		}
 	}
@@ -102,6 +129,10 @@ void Map::draw()
 		e->draw(e->get_draw_position() + offset);
 	}
 	tilemap->draw(1, offset.x, offset.y); // FIXME: pos
+
+	if (speech) {
+		speech->draw();
+	}
 }
 
 void Map::init_entities(std::string map_name)

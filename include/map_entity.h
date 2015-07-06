@@ -23,6 +23,7 @@ public:
 	Size<int> get_size();
 	Point<int> get_draw_position();
 
+	void stop();
 	void handle_event(SDL_Event *event);
 	// return false to destroy
 	bool update();
