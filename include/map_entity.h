@@ -1,8 +1,8 @@
 #ifndef MAP_ENTITY_H
 #define MAP_ENTITY_H
 
-#include "animation_set.h"
 #include "brain.h"
+#include "sprite.h"
 #include "types.h"
 
 class Map;
@@ -12,10 +12,10 @@ public:
 	Map_Entity(Brain *brain);
 	~Map_Entity();
 
-	void set_map(Map *map);
-	void load_animation_set(std::string name) throw (Error);
+	void load_sprite(std::string name) throw (Error);
 	void set_position(Point<int> position);
 	void set_bounce(int bounce);
+	void set_direction(Direction direction);
 
 	int get_id();
 	Direction get_direction();
@@ -26,16 +26,15 @@ public:
 	void stop();
 	void handle_event(SDL_Event *event);
 	// return false to destroy
-	bool update();
+	bool update(Map *map);
 	void draw(Point<int> draw_pos);
 
 private:
-	bool maybe_move();
+	bool maybe_move(Map *map);
 
 	int id;
 	Direction direction;
-	Map *map;
-	Animation_Set *anim;
+	Sprite *sprite;
 	Brain *brain;
 	Point<int> position;
 	bool moving;
