@@ -8,7 +8,7 @@ class Image;
 
 class Font {
 public:
-	static const int CHAR_DELAY = 10; // ms, for wrapped drawing with advancing text
+	static const int CHAR_DELAY = 50; // ms, for wrapped drawing with advancing text
 
 	Font(std::string filename, int size) throw (Error);
 	~Font();
@@ -19,7 +19,7 @@ public:
 
 	void draw(std::string text, float x, float y, SDL_Color colour);
 	// Returns number of characters drawn
-	int draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, int elapsed, SDL_Color colour);
+	int draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
 
 private:
 	struct Glyph {

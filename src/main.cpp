@@ -65,6 +65,13 @@ static bool run_main()
 	bool quit = false;
 	bool draw = false;
 
+	int speech_offset = 0;
+	int speech_skip;
+	bool speech_advance = false;
+	bool speech_done = false;
+	bool draw_speech = true;
+	int speech_start = SDL_GetTicks();
+
 	while (quit == false) {
 		bool got_event = false;
 		while (true) {
@@ -80,8 +87,22 @@ static bool run_main()
 				break;
 			}
 			else if (event.type == SDL_USEREVENT) {
+				update_graphics();
 				map->update();
 				draw = true;
+			}
+			else if (event.type == SDL_KEYDOWN) {
+				if (speech_done) {
+					draw_speech = false;
+				}
+				else if (speech_advance) {
+					speech_offset += speech_skip;
+					speech_advance = false;
+					speech_start = SDL_GetTicks();
+				}
+				else {
+					speech_start = -1000000;
+				}
 			}
 			map->handle_event(&event);
 		}
@@ -98,11 +119,23 @@ static bool run_main()
 
 			map->draw();
 
-			draw_window(5, screen_h/2, screen_w-10, screen_h/2-5);
+			if (draw_speech) {
+				draw_window(5, screen_h/2, screen_w-10, screen_h/2-5, speech_advance, speech_done);
 
-			std::string text = "I've been wandering around this room for three days... there are no windows or doors, just bright blue walls. All I can do is dance. And I hate dancing. When I get out of here... IF I get out of here... I'm going to eat 4 big bags of chips!";
-			int skip = font->draw_wrapped(text, 14, screen_h/2+9, screen_w-28, 14, 4, SDL_GetTicks(), white);
-			font->draw("\"" + text.substr(skip) + "\"", 0, 0, white);
+				std::string text = "I've been wandering around this room for three days... there are no windows or doors, just bright blue walls. All I can do is dance. And I hate dancing. When I get out of here... IF I get out of here... I'm going to eat 4 big bags of chips!";
+				bool full;
+				int skip = font->draw_wrapped(text.substr(speech_offset), 14, screen_h/2+9, screen_w-28, 14, 4, speech_start, white, full);
+
+				if (full) {
+					if (speech_offset+skip >= text.length()) {
+						speech_done = true;
+					}
+					else {
+						speech_advance = true;
+						speech_skip = skip;
+					}
+				}
+			}
 
 			flip();
 		}
