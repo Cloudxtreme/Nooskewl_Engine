@@ -11,7 +11,6 @@ endif()
 include_directories("include")
 
 set(SRC
-	src/animation_set.cpp
 	src/audio.cpp
 	src/brain.cpp
 	src/floor_trigger.cpp
@@ -26,6 +25,7 @@ set(SRC
 	src/resource_manager.cpp
 	src/snprintf.cpp
 	src/speech.cpp
+	src/sprite.cpp
 	src/tilemap.cpp
 	src/util.cpp
 	src/vertex_accel.cpp
