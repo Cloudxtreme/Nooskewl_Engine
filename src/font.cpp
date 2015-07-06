@@ -7,6 +7,7 @@
 
 Font::Font(std::string filename, int size)
 {
+	filename = "fonts/" + filename;
 	file = open_file(filename);
 	font = TTF_OpenFontRW(file, true, size);
 	if (font == NULL) {
