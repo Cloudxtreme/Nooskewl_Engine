@@ -20,6 +20,7 @@ public:
 	int w;
 	int h;
 
+	Image(std::string filename, bool is_absolute_path) throw (Error);
 	Image(std::string filename) throw (Error);
 	Image(SDL_Surface *surface) throw (Error);
 	~Image();

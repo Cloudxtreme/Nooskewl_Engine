@@ -82,10 +82,14 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 		return p + n * 4;
 }
 
-Image::Image(std::string filename) :
+Image::Image(std::string filename, bool is_absolute_path) :
 	filename(filename),
 	texture(0)
 {
+	if (is_absolute_path == false) {
+		filename = "graphics/" + filename;
+	}
+
 	this->filename = filename;
 
 	SDL_RWops *file = open_file(filename);
@@ -216,6 +220,11 @@ Image::Image(std::string filename) :
 	delete[] pixels;
 
 	SDL_RWclose(file);
+}
+
+Image::Image(std::string filename) :
+	Image(filename, false)
+{
 }
 
 Image::Image(SDL_Surface *surface) :
