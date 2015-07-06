@@ -55,8 +55,7 @@ static bool run_main()
 
 	Player_Brain *player_brain = new Player_Brain();
 	player = new Map_Entity(player_brain);
-	player->load_animation_set("sprites/player");
-	player->set_map(map);
+	player->load_sprite("player");
 	player->set_position(Point<int>(1, 3));
 	map->add_entity(player);
 
@@ -81,7 +80,23 @@ static bool run_main()
 			}
 			else if (event.type == SDL_USEREVENT) {
 				update_graphics();
-				map->update();
+				if (map->update() == false) {
+					std::string map_name;
+					Point<int> position;
+					Direction direction;
+					map->get_new_map_details(map_name, position, direction);
+					if (map_name != "") {
+						Map *old_map = map;
+						map = new Map(map_name);
+						map->add_entity(player);
+						player->set_position(position);
+						player->set_direction(direction);
+						delete old_map;
+					}
+					else {
+						quit = true;
+					}
+				}
 				draw = true;
 			}
 			map->handle_event(&event);
