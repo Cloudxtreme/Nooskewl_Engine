@@ -1,12 +1,12 @@
-#include "animation_set.h"
 #include "graphics.h"
 #include "image.h"
 #include "log.h"
+#include "sprite.h"
 #include "util.h"
 #include "vertex_accel.h"
 
 static Image *window_image;
-static Animation_Set *speech_arrow;
+static Sprite *speech_arrow;
 
 SDL_Colour colours[256];
 SDL_Colour four_whites[4];
@@ -20,11 +20,11 @@ void init_graphics()
 {
 	// FIXME: exceptions!
 	try {
-		window_image = new Image("misc_graphics/window.tga");
-		speech_arrow = new Animation_Set("sprites/speech_arrow");
+		window_image = new Image("window.tga");
+		speech_arrow = new Sprite("speech_arrow");
 		speech_arrow->start();
-		font = new Font("fonts/fff_majestica.ttf", 8);
-		bold_font = new Font("fonts/fff_majestica_bold.ttf", 8);
+		font = new Font("fff_majestica.ttf", 8);
+		bold_font = new Font("fff_majestica_bold.ttf", 8);
 		load_palette("nes.gpl");
 	}
 	catch (Error e) {
@@ -50,6 +50,8 @@ void update_graphics()
 
 void load_palette(std::string name)
 {
+	name = "palettes/" + name;
+
 	SDL_RWops *file = open_file(name);
 
 	char line[1000];
