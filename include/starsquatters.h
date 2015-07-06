@@ -1,6 +1,11 @@
 #ifndef STARSQUATTERS_H
 #define STARSQUATTERS_H
 
+#ifdef _MSC_VER
+// MSVC 2013 warns on throw (Error)
+#pragma warning(disable : 4290)
+#endif
+
 #include <cctype>
 #include <cmath>
 #include <cstdio>
