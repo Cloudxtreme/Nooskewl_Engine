@@ -8,6 +8,7 @@
 class Animation_Set {
 public:
 	Animation_Set(std::string xml_filename, std::string image_directory) throw (Error);
+	Animation_Set(std::string directory_name) throw (Error);
 	~Animation_Set();
 
 	bool set_animation(std::string name);

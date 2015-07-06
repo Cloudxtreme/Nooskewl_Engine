@@ -53,7 +53,7 @@ Animation_Set::Animation_Set(std::string xml_filename, std::string image_directo
 					delays_vector.push_back(100);
 				}
 				else {
-					delays_vector.push_back(atof(delay->get_value().c_str()));
+					delays_vector.push_back(atoi(delay->get_value().c_str()));
 				}
 			}
 		}
@@ -73,6 +73,11 @@ Animation_Set::Animation_Set(std::string xml_filename, std::string image_directo
 	}
 	
 	delete xml;
+}
+
+Animation_Set::Animation_Set(std::string directory_name) :
+	Animation_Set(directory_name + "/animations.xml", directory_name)
+{
 }
 
 Animation_Set::~Animation_Set()
@@ -99,6 +104,7 @@ bool Animation_Set::set_animation(std::string name)
 void Animation_Set::start()
 {
 	started = true;
+	update();
 }
 
 void Animation_Set::stop()
