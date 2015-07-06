@@ -3,25 +3,25 @@
 #include "util.h"
 
 #define PI M_PI
-#define TWOPI (2.0 * PI)
+#define TWOPI (2.0f * PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((Int16)(f*32767))
 
 const double dt = 1.0 / STREAM_FREQUENCY;
 
 const float note_pitches[12][11] = {
-	{ 16.352, 32.703, 65.406, 130.81, 261.63, 523.25, 1046.5, 2093.0, 4186.0, 8372.0, 16744.0 },
-	{ 17.324, 34.648, 69.296, 138.59, 277.18, 554.37, 1108.7, 2217.5, 4434.9, 8869.8, 17739.7 },
-	{ 18.354, 36.708, 73.416, 146.83, 293.66, 587.33, 1174.7, 2349.3, 4698.6, 9397.3, 18794.5 },
-	{ 19.445, 38.891, 77.782, 155.56, 311.13, 622.25, 1244.5, 2489.0, 4978.0, 9956.1, 19912.1 },
-	{ 20.602, 41.203, 82.407, 164.81, 329.63, 659.26, 1318.5, 2637.0, 5274.0, 10548.1, 21096.2 },
-	{ 21.827, 43.654, 87.307, 174.61, 349.23, 698.46, 1396.9, 2793.8, 5587.7, 11175.3, 22350.6 },
-	{ 23.125, 46.249, 92.499, 185.00, 369.99, 739.99, 1480.0, 2960.0, 5919.9, 11839.8, 23679.6 },
-	{ 24.500, 48.999, 97.999, 196.00, 392.00, 783.99, 1568.0, 3136.0, 6271.9, 12543.9, 25087.7 },
-	{ 25.957, 51.913, 103.83, 207.65, 415.30, 830.61, 1661.2, 3322.4, 6644.9, 13289.8, 26579.5 },
-	{ 27.500, 55.000, 110.00, 220.00, 440.00, 880.00, 1760.0, 3520.0, 7040.0, 14080.0, 28160.0 },
-	{ 29.135, 58.270, 116.54, 233.08, 466.16, 932.33, 1864.7, 3729.3, 7458.6, 14917.2, 29834.5 },
-	{ 30.868, 61.735, 123.47, 246.94, 493.88, 987.77, 1975.5, 3951.1, 7902.1, 15804.3, 31608.5 }
+	{ 16.352f, 32.703f, 65.406f, 130.81f, 261.63f, 523.25f, 1046.5f, 2093.0f, 4186.0f, 8372.0f, 16744.0f },
+	{ 17.324f, 34.648f, 69.296f, 138.59f, 277.18f, 554.37f, 1108.7f, 2217.5f, 4434.9f, 8869.8f, 17739.7f },
+	{ 18.354f, 36.708f, 73.416f, 146.83f, 293.66f, 587.33f, 1174.7f, 2349.3f, 4698.6f, 9397.3f, 18794.5f },
+	{ 19.445f, 38.891f, 77.782f, 155.56f, 311.13f, 622.25f, 1244.5f, 2489.0f, 4978.0f, 9956.1f, 19912.1f },
+	{ 20.602f, 41.203f, 82.407f, 164.81f, 329.63f, 659.26f, 1318.5f, 2637.0f, 5274.0f, 10548.1f, 21096.2f },
+	{ 21.827f, 43.654f, 87.307f, 174.61f, 349.23f, 698.46f, 1396.9f, 2793.8f, 5587.7f, 11175.3f, 22350.6f },
+	{ 23.125f, 46.249f, 92.499f, 185.00f, 369.99f, 739.99f, 1480.0f, 2960.0f, 5919.9f, 11839.8f, 23679.6f },
+	{ 24.500f, 48.999f, 97.999f, 196.00f, 392.00f, 783.99f, 1568.0f, 3136.0f, 6271.9f, 12543.9f, 25087.7f },
+	{ 25.957f, 51.913f, 103.83f, 207.65f, 415.30f, 830.61f, 1661.2f, 3322.4f, 6644.9f, 13289.8f, 26579.5f },
+	{ 27.500f, 55.000f, 110.00f, 220.00f, 440.00f, 880.00f, 1760.0f, 3520.0f, 7040.0f, 14080.0f, 28160.0f },
+	{ 29.135f, 58.270f, 116.54f, 233.08f, 466.16f, 932.33f, 1864.7f, 3729.3f, 7458.6f, 14917.2f, 29834.5f },
+	{ 30.868f, 61.735f, 123.47f, 246.94f, 493.88f, 987.77f, 1975.5f, 3951.1f, 7902.1f, 15804.3f, 31608.5f }
 };
 
 const char indexes[7] = {
@@ -146,7 +146,7 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 		tok++;
 	}
 	int length = atoi(tok);
-	int total = (STREAM_FREQUENCY / (tempo / 4.0f / 60.0f)) / (length == 0 ? note_length : length);
+	int total = (int)((STREAM_FREQUENCY / (tempo / 4.0f / 60.0f)) / (length == 0 ? note_length : length));
 	int dotlength = total / 2;
 	while (*tok != 0) {
 		if (*tok == '.') {
@@ -168,11 +168,11 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 		frequency = pitch_envelopes[pitch][pitch_envelopes[pitch].size()-1];
 	}
 	float samples_per_phase = STREAM_FREQUENCY / frequency;
-	float mod = fmod(total, samples_per_phase);
+	float mod = fmodf(total, samples_per_phase);
 	if (mod <= 1) {
 		return total;
 	}
-	total += samples_per_phase - mod;
+	total += (int)(samples_per_phase - mod);
 	return total;
 }
 
@@ -316,9 +316,9 @@ void Track::noise(Int16 *buf, size_t samples, double t, float frequency, float p
 		double ti = t + i * dt;
 		double a = fmod(w * ti + phase, TWOPI);
 
-		float r = (rand() % 255 / 255.0); // FIXME: use different rand
+		float r = (rand() % 255 / 255.0f); // FIXME: use different rand
 
-		float v = fmod(a, TWOPI) / TWOPI * get_volume();
+		float v = fmodf(a, TWOPI) / TWOPI * get_volume();
 
 		buf[i] = TO_INT16(r * v);
 
@@ -419,7 +419,7 @@ float Track::get_frequency(float start_freq)
 		return start_freq;
 	}
 	float p = note_fulfilled / (float)length_in_samples;
-	int i = p * pitch_envelopes[pitch].size();
+	int i = (int)(p * pitch_envelopes[pitch].size());
 	if (i > 0) {
 		start_freq = pitch_envelopes[pitch][i-1];
 	}
