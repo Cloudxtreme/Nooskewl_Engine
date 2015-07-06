@@ -4,9 +4,10 @@
 
 Map::Map(std::string map_name) :
 	offset(0.0f, 0.0f),
-	speech(NULL)
+	speech(NULL),
+	new_map_name("")
 {
-	tilemap = new Tilemap(8, "sheets", map_name);
+	tilemap = new Tilemap(8, map_name);
 	init_entities(map_name);
 }
 
@@ -39,6 +40,13 @@ void Map::add_speeches(std::vector<std::string> &speeches)
 	}
 }
 
+void Map::change_map(std::string map_name, Point<int> position, Direction direction)
+{
+	new_map_name = map_name;
+	new_map_position = position;
+	new_map_direction = direction;
+}
+
 bool Map::is_solid(int layer, Point<int> position)
 {
 	for (size_t i = 0; i < entities.size(); i++) {
@@ -58,6 +66,13 @@ void Map::check_triggers(Map_Entity *entity)
 			t->function(this, entity);
 		}
 	}
+}
+
+void Map::get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction)
+{
+	map_name = new_map_name;
+	position = new_map_position;
+	direction = new_map_direction;
 }
 
 void Map::handle_event(SDL_Event *event)
@@ -86,7 +101,7 @@ bool Map::update()
 {
 	if (speech == NULL) {
 		for (size_t i = 0; i < entities.size(); i++) {
-			entities[i]->update();
+			entities[i]->update(this);
 			if (entities[i]->get_id() == 0) {
 				Point<int> p = entities[i]->get_draw_position();
 				Size<int> sz = entities[i]->get_size();
@@ -116,6 +131,11 @@ bool Map::update()
 			}
 		}
 	}
+
+	if (new_map_name != "") {
+		return false;
+	}
+
 	return true;
 }
 

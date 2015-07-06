@@ -5,6 +5,7 @@
 #include "map_entity.h"
 #include "speech.h"
 #include "tilemap.h"
+#include "types.h"
 
 class Map {
 public:
@@ -13,9 +14,11 @@ public:
 
 	void add_entity(Map_Entity *entity);
 	void add_speeches(std::vector<std::string> &speeches);
+	void change_map(std::string map_name, Point<int> position, Direction direction);
 
 	bool is_solid(int layer, Point<int> position);
 	void check_triggers(Map_Entity *entity);
+	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 
 	void handle_event(SDL_Event *event);
 	bool update();
@@ -31,6 +34,10 @@ private:
 
 	std::vector<std::string> speeches;
 	Speech *speech;
+
+	std::string new_map_name;
+	Point<int> new_map_position;
+	Direction new_map_direction;
 };
 
 #endif // MAP_H
