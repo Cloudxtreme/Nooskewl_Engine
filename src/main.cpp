@@ -94,7 +94,7 @@ static bool run_main()
 	child5->set_parent(child3);
 	child5->set_padding(10);
 	child5->set_float_right(true);
-	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
+	TGUI *gui = new TGUI(main_div, 200, 100);
 	gui->layout();
 
 	while (quit == false) {

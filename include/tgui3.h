@@ -176,6 +176,11 @@ public:
 		layout(main_div);
 	}
 
+	void resize(int w, int h) {
+		this->w = w;
+		this->h = h;
+	}
+
 	void draw() {
 		draw(main_div, 0, 0);
 	}

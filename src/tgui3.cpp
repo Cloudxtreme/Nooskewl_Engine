@@ -34,7 +34,9 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 						if (total_w + this_w > w) {
 							total_w = 0;
 						}
-						total_w += this_w;
+						if (d->float_right == false) {
+							total_w += this_w;
+						}
 						if (d == div) {
 							break;
 						}
@@ -90,7 +92,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 								max_percent = this_percent;
 							}
 						}
-						if (total_w + this_w >= w || i == parent->children.size()-1) {
+						if (total_w + this_w >= w) {
 							total_h += max_h;
 							total_percent += max_percent;
 							if (total_w + this_w > w) {
@@ -104,7 +106,10 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 								total_w = 0;
 							}
 						}
-						else {
+						else if (i == parent->children.size()-1) {
+							total_percent += max_percent;
+						}
+						else if (d->float_right == false) {
 							total_w += this_w;
 						}
 					}
