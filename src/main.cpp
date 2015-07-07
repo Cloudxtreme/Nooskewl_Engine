@@ -93,7 +93,7 @@ static bool run_main()
 
 						// draw transition
 
-						const Uint32 duration = 1000;
+						const Uint32 duration = 500;
 						Uint32 start_time = SDL_GetTicks();
 						Uint32 end_time = start_time + duration;
 						bool moved_player = false;
