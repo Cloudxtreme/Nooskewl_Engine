@@ -10,6 +10,7 @@ void shutdown_graphics();
 void update_graphics();
 
 void load_palette(std::string name) throw (Error);
+void draw_line(Point<int> a, Point<int> b, SDL_Colour colour);
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4]);
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour);
 void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);

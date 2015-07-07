@@ -99,6 +99,41 @@ void load_palette(std::string name)
 	SDL_RWclose(file);
 }
 
+void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
+{
+	SDL_Colour vertex_colours[4];
+	for (int i = 0; i < 4; i++) {
+		vertex_colours[i] = colour;
+	}
+	float x1 = (float)a.x;
+	float y1 = (float)a.y;
+	float x2 = (float)b.x;
+	float y2 = (float)b.y;
+	float dx = x2 - x1;
+	float dy = y2 - y1;
+	float angle = atan2(dy, dx);
+	float a1 = angle + PI / 2.0f;
+	float a2 = angle - PI / 2.0f;
+	// FIXME: 4 hardcoded
+	float scale = 0.5f;
+	Point<float> da = a;
+	Point<float> db = a;
+	Point<float> dc = b;
+	Point<float> dd = b;
+	da.x += cos(a1) * scale;
+	da.y += sin(a1) * scale;
+	db.x += cos(a2) * scale;
+	db.y += sin(a2) * scale;
+	dc.x += cos(a1) * scale;
+	dc.y += sin(a1) * scale;
+	dd.x += cos(a2) * scale;
+	dd.y += sin(a2) * scale;
+	glBindTexture(GL_TEXTURE_2D, 0);
+	vertex_accel->start();
+	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
+	vertex_accel->end();
+}
+
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
 	glBindTexture(GL_TEXTURE_2D, 0);

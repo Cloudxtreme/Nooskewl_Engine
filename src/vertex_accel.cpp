@@ -66,6 +66,98 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
+void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, SDL_Colour vertex_colours[4], int flags)
+{
+	maybe_resize_buffer(256);
+
+	// Set vertex x, y
+	vertices[9*(count+0)+0] = da.x;
+	vertices[9*(count+0)+1] = da.y;
+	vertices[9*(count+1)+0] = db.x;
+	vertices[9*(count+1)+1] = db.y;
+	vertices[9*(count+2)+0] = dc.x;
+	vertices[9*(count+2)+1] = dc.y;
+	vertices[9*(count+3)+0] = da.x;
+	vertices[9*(count+3)+1] = da.y;
+	vertices[9*(count+4)+0] = dc.x;
+	vertices[9*(count+4)+1] = dc.y;
+	vertices[9*(count+5)+0] = dd.x;
+	vertices[9*(count+5)+1] = dd.y;
+
+	for (int i = 0; i < 6; i++) {
+		vertices[9*(count+i)+2] = 0.0f; // set vertex z
+	}
+
+	if (image) {
+		float sx = (float)source_position.x;
+		float sy = (float)source_position.y;
+		float tu = sx / (float)image->w;
+		float tv = sy / (float)image->h;
+		float tu2 = tu + (float)source_size.w / (float)image->w;
+		float tv2 = tv + (float)source_size.h / (float)image->h;
+
+		tv = 1.0f - tv;
+		tv2 = 1.0f - tv2;
+
+		if (flags & Image::FLIP_H) {
+			float tmp = tu;
+			tu = tu2;
+			tu2 = tmp;
+		}
+		if (flags & Image::FLIP_V) {
+			float tmp = tv;
+			tv = tv2;
+			tv2 = tmp;
+		}
+
+		// texture coordinates
+		vertices[9*(count+0)+7] = tu;
+		vertices[9*(count+0)+8] = tv;
+		vertices[9*(count+1)+7] = tu2;
+		vertices[9*(count+1)+8] = tv;
+		vertices[9*(count+2)+7] = tu2;
+		vertices[9*(count+2)+8] = tv2;
+		vertices[9*(count+3)+7] = tu;
+		vertices[9*(count+3)+8] = tv;
+		vertices[9*(count+4)+7] = tu2;
+		vertices[9*(count+4)+8] = tv2;
+		vertices[9*(count+5)+7] = tu;
+		vertices[9*(count+5)+8] = tv2;
+	}
+
+	vertices[9*(count+0)+3+0] = (float)vertex_colours[0].r / 255.0f;
+	vertices[9*(count+0)+3+1] = (float)vertex_colours[0].g / 255.0f;
+	vertices[9*(count+0)+3+2] = (float)vertex_colours[0].b / 255.0f;
+	vertices[9*(count+0)+3+3] = (float)vertex_colours[0].a / 255.0f;
+
+	vertices[9*(count+1)+3+0] = (float)vertex_colours[1].r / 255.0f;
+	vertices[9*(count+1)+3+1] = (float)vertex_colours[1].g / 255.0f;
+	vertices[9*(count+1)+3+2] = (float)vertex_colours[1].b / 255.0f;
+	vertices[9*(count+1)+3+3] = (float)vertex_colours[1].a / 255.0f;
+
+	vertices[9*(count+2)+3+0] = (float)vertex_colours[2].r / 255.0f;
+	vertices[9*(count+2)+3+1] = (float)vertex_colours[2].g / 255.0f;
+	vertices[9*(count+2)+3+2] = (float)vertex_colours[2].b / 255.0f;
+	vertices[9*(count+2)+3+3] = (float)vertex_colours[2].a / 255.0f;
+
+	vertices[9*(count+3)+3+0] = (float)vertex_colours[0].r / 255.0f;
+	vertices[9*(count+3)+3+1] = (float)vertex_colours[0].g / 255.0f;
+	vertices[9*(count+3)+3+2] = (float)vertex_colours[0].b / 255.0f;
+	vertices[9*(count+3)+3+3] = (float)vertex_colours[0].a / 255.0f;
+
+	vertices[9*(count+4)+3+0] = (float)vertex_colours[2].r / 255.0f;
+	vertices[9*(count+4)+3+1] = (float)vertex_colours[2].g / 255.0f;
+	vertices[9*(count+4)+3+2] = (float)vertex_colours[2].b / 255.0f;
+	vertices[9*(count+4)+3+3] = (float)vertex_colours[2].a / 255.0f;
+
+	vertices[9*(count+5)+3+0] = (float)vertex_colours[3].r / 255.0f;
+	vertices[9*(count+5)+3+1] = (float)vertex_colours[3].g / 255.0f;
+	vertices[9*(count+5)+3+2] = (float)vertex_colours[3].b / 255.0f;
+	vertices[9*(count+5)+3+3] = (float)vertex_colours[3].a / 255.0f;
+
+	count += 6;
+}
+
 void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
 {
 	maybe_resize_buffer(256);
