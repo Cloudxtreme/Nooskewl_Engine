@@ -9,6 +9,7 @@ static Image *window_image;
 static Sprite *speech_arrow;
 
 SDL_Colour colours[256];
+SDL_Colour four_blacks[4];
 SDL_Colour four_whites[4];
 SDL_Colour black;
 SDL_Colour white;
@@ -91,6 +92,7 @@ void load_palette(std::string name)
 	white.r = white.g = white.b = white.a = 255;
 
 	for (int i = 0; i < 4; i++) {
+		four_blacks[i] = black;
 		four_whites[i] = white;
 	}
 

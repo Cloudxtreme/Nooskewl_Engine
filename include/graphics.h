@@ -15,6 +15,7 @@ void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)
 void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);
 
 extern SDL_Colour colours[256];
+extern SDL_Colour four_blacks[4];
 extern SDL_Colour four_whites[4];
 extern SDL_Colour black;
 extern SDL_Colour white;
