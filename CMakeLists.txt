@@ -14,6 +14,7 @@ set(SRC
 	src/audio.cpp
 	src/brain.cpp
 	src/cpa.cpp
+	src/dllist.cpp
 	src/font.cpp
 	src/graphics.cpp
 	src/image.cpp
