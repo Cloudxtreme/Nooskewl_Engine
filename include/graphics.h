@@ -10,9 +10,9 @@ void shutdown_graphics();
 void update_graphics();
 
 void load_palette(std::string name) throw (Error);
-void draw_quad(float x, float y, float w, float h, SDL_Colour vertex_colours[4]);
-void draw_quad(float x, float y, float w, float h, SDL_Colour colour);
-void draw_window(float x, float y, float w, float h, bool arrow, bool circle);
+void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4]);
+void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour);
+void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);
 
 extern SDL_Colour colours[256];
 extern SDL_Colour four_whites[4];

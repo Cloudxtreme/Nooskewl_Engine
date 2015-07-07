@@ -28,7 +28,7 @@ private:
 	void init_entities(std::string map_name);
 
 	Tilemap *tilemap;
-	Point<float> offset;
+	Point<int> offset;
 	std::vector<Map_Entity *> entities;
 	std::vector<Floor_Trigger *> floor_triggers;
 

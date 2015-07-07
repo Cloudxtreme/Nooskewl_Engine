@@ -26,17 +26,15 @@ public:
 	~Image();
 
 	void start();
-	void stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);
-	void draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags = 0);
-	void draw(float dx, float dy, int flags = 0);
-	void draw(Point<int> position, int flags = 0);
+	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
+	void draw(Point<int> dest_position, int flags = 0);
 	void end(); // call after every group of draws
 
 	// These ones call start/end automatically
-	void stretch_region_single(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags = 0);
-	void draw_region_single(float sx, float sy, float sw, float sh, float dx, float dy, int flags = 0);
-	void draw_single(float dx, float dy, int flags = 0);
-	void draw_single(Point<int> position, int flags = 0);
+	void stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
+	void draw_single(Point<int> dest_position, int flags = 0);
 
 private:
 	void upload(unsigned char *data) throw (Error);

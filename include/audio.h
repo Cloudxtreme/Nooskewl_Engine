@@ -43,12 +43,12 @@ public:
 private:
 	void reset();
 
-	void pulse(Int16 *buf, size_t samples, double t, float frequency, float phase);
-	void noise(Int16 *buf, size_t samples, double t, float frequency, float phase);
-	void sawtooth(Int16 *buf, size_t samples, double t, float frequency, float phase);
-	void sine(Int16 *buf, size_t samples, double t, float frequency, float phase);
-	void triangle(Int16 *buf, size_t samples, double t, float frequency, float phase);
-	void generate(Int16 *buf, int samples, double t, const char *tok, int octave);
+	void pulse(Int16 *buf, size_t samples, float t, float frequency, float phase);
+	void noise(Int16 *buf, size_t samples, float t, float frequency, float phase);
+	void sawtooth(Int16 *buf, size_t samples, float t, float frequency, float phase);
+	void sine(Int16 *buf, size_t samples, float t, float frequency, float phase);
+	void triangle(Int16 *buf, size_t samples, float t, float frequency, float phase);
+	void generate(Int16 *buf, int samples, float t, const char *tok, int octave);
 
 	float get_frequency(float start_freq);
 	float get_volume();
@@ -65,7 +65,7 @@ private:
 	std::vector< std::pair<int, float> > dutycycles;
 	int pad;
 
-	double dutycycle;
+	float dutycycle;
 	int octave;
 	int note_length;
 	float volume;
@@ -74,7 +74,7 @@ private:
 	int note;
 	int volume_section;
 	int dutycycle_section;
-	double t;
+	float t;
 	int pos;
 	std::string tok;
 	int length_in_samples;

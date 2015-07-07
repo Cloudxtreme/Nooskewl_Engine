@@ -18,4 +18,9 @@ void ft_test2(Map *map, Map_Entity *entity, Point<int> touch_point)
 {
 	entity->stop();
 	map->change_map("test.map", Point<int>(7+touch_point.x, 1), S);
+	/*
+	std::vector<std::string> s;
+	s.push_back("TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST TEST ");
+	map->add_speeches(s);
+	*/
 }

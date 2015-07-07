@@ -36,13 +36,13 @@ bool Speech::handle_event(SDL_Event *event)
 
 void Speech::draw()
 {
-	draw_window(5, screen_h/2, screen_w-10, screen_h/2-5, advance, done);
+	draw_window(Point<int>(5, screen_h/2), Size<int>(screen_w-10, screen_h/2-5), advance, done);
 
 	bool full;
-	int drawn = font->draw_wrapped(text.substr(offset), 14, screen_h/2+9, screen_w-28, 14, 4, start_time, white, full);
+	int drawn = font->draw_wrapped(text.substr(offset), Point<int>(14, screen_h/2+9), screen_w-28, 14, 4, start_time, white, full);
 
 	if (full) {
-		if (offset+drawn >= text.length()) {
+		if (unsigned(offset+drawn) >= text.length()) {
 			done = true;
 		}
 		else {

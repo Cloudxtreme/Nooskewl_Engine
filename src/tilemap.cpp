@@ -55,7 +55,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 			for (int col = 0; col < width; col++) {
 				layers[layer].tiles[row][col] = (int16_t)SDL_ReadLE16(f);
 				layers[layer].sheets[row][col] = (char)SDL_fgetc(f);
-				layers[layer].solids[row][col] = SDL_fgetc(f);
+				layers[layer].solids[row][col] = SDL_fgetc(f) != 0;
 
 				if (layers[layer].tiles[row][col] >= 0 && std::find(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end(), layers[layer].sheets[row][col]) == layers[layer].sheets_used.end()) {
 					layers[layer].sheets_used.push_back(layers[layer].sheets[row][col]);
@@ -128,7 +128,7 @@ bool Tilemap::is_solid(int layer, Point<int> position)
 	return false;
 }
 
-bool Tilemap::collides(int layer, Point<float> topleft, Point<float> bottomright)
+bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 {
 	int start_layer = layer < 0 ? 0 : layer;
 	int end_layer = layer < 0 ? num_layers - 1 : layer;
@@ -158,7 +158,7 @@ bool Tilemap::collides(int layer, Point<float> topleft, Point<float> bottomright
 	return false;
 }
 
-void Tilemap::draw(int layer, float x, float y)
+void Tilemap::draw(int layer, Point<int> position)
 {
 	Layer l = layers[layer];
 
@@ -176,15 +176,12 @@ void Tilemap::draw(int layer, float x, float y)
 					int tile = l.tiles[row][col];
 					int sx = tile % width_in_tiles * tile_size;
 					int sy = tile / width_in_tiles * tile_size;
-					int dx = x + col * tile_size;
-					int dy = y + row * tile_size;
+					int dx = position.x + col * tile_size;
+					int dy = position.y + row * tile_size;
 					sheets[s]->draw_region(
-						sx,
-						sy,
-						tile_size,
-						tile_size,
-						dx,
-						dy,
+						Point<int>(sx, sy),
+						Size<int>(tile_size, tile_size),
+						Point<int>(dx, dy),
 						0
 					);
 				}

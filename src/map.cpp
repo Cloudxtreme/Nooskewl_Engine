@@ -3,7 +3,7 @@
 #include "video.h"
 
 Map::Map(std::string map_name) :
-	offset(0.0f, 0.0f),
+	offset(0, 0),
 	speech(NULL),
 	new_map_name("")
 {
@@ -105,7 +105,7 @@ bool Map::update()
 			if (entities[i]->get_id() == 0) {
 				Point<int> p = entities[i]->get_draw_position();
 				Size<int> sz = entities[i]->get_size();
-				offset = p - Point<float>(screen_w/2, screen_h/2) + sz / 2;
+				offset = p - Point<int>(screen_w/2, screen_h/2) + sz / 2;
 				int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
 				int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
 				if (offset.x < 0) {
@@ -142,13 +142,13 @@ bool Map::update()
 void Map::draw()
 {
 	// FIXME: fix layers
-	tilemap->draw(0, offset.x, offset.y); // FIXME: pos
+	tilemap->draw(0, offset); // FIXME: pos
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		e->draw(e->get_draw_position() + offset);
 	}
-	tilemap->draw(1, offset.x, offset.y); // FIXME: pos
+	tilemap->draw(1, offset); // FIXME: pos
 
 	if (speech) {
 		speech->draw();

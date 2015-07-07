@@ -102,7 +102,7 @@ Size<int> Map_Entity::get_size()
 Point<int> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->h;
-		return Point<int>((position.x+offset.x)*8, (position.y+offset.y+1)*8-h);
+		return Point<int>((int)((position.x+offset.x)*8.0f), (int)((position.y+offset.y+1.0f)*8.0f-h));
 }
 
 void Map_Entity::stop()
@@ -246,6 +246,6 @@ bool Map_Entity::update(Map *map)
 
 void Map_Entity::draw(Point<int> draw_pos)
 {
-	int add = moving ? -(((SDL_GetTicks() / 100) % 2) * bounce) : 0;
-	sprite->get_current_image()->draw_single(draw_pos.x, draw_pos.y+add);
+	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
+	sprite->get_current_image()->draw_single(Point<int>(draw_pos.x, draw_pos.y+add));
 }

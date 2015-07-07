@@ -3,6 +3,7 @@
 
 #include "starsquatters.h"
 #include "error.h"
+#include "types.h"
 
 class Image;
 
@@ -17,9 +18,9 @@ public:
 
 	int get_width(std::string text);
 
-	void draw(std::string text, float x, float y, SDL_Color colour);
+	void draw(std::string text, Point<int> dest_position, SDL_Color colour);
 	// Returns number of characters drawn
-	int draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
+	int draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
 
 private:
 	struct Glyph {

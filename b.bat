@@ -1,1 +1,1 @@
-msbuild StarSquatters.sln
+msbuild StarSquatters.sln %*

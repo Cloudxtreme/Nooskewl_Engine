@@ -6,11 +6,11 @@
 #include "util.h"
 #include "vertex_accel.h"
 
-typedef struct Colour {
+struct Colour {
 	unsigned char r, g, b;
 };
 
-typedef struct {
+struct TGA_Header {
 	char idlength;
 	char colourmaptype;
 	char datatypecode;
@@ -24,7 +24,7 @@ typedef struct {
 	char bitsperpixel;
 	char imagedescriptor;
 	Colour palette[256];
-} TGA_Header;
+};
 
 static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
 {
@@ -282,51 +282,39 @@ void Image::start()
 	vertex_accel->start(this);
 }
 
-void Image::stretch_region(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, dw, dh, four_whites, flags);
+	vertex_accel->buffer(source_position, source_size, dest_position, dest_size, four_whites, flags);
 }
 
-void Image::draw_region(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
+void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
-	vertex_accel->buffer(sx, sy, sw, sh, dx, dy, sw, sh, four_whites, flags);
+	vertex_accel->buffer(source_position, source_size, dest_position, source_size, four_whites, flags);
 }
 
-void Image::draw(float dx, float dy, int flags)
+void Image::draw(Point<int> dest_position, int flags)
 {
-	draw_region(0.0f, 0.0f, (float)w, (float)h, dx, dy, flags);
+	draw_region(Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
 }
 
-void Image::draw(Point<int> position, int flags)
-{
-	draw_region(0.0f, 0.0f, (float)w, (float)h, position.x, position.y, flags);	
-}
-
-void Image::stretch_region_single(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, int flags)
+void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
 	start();
-	stretch_region(sx, sy, sw, sh, dx, dy, dw, dh, flags);
+	stretch_region(source_position, source_size, dest_position, dest_size, flags);
 	end();
 }
 
-void Image::draw_region_single(float sx, float sy, float sw, float sh, float dx, float dy, int flags)
+void Image::draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
 	start();
-	draw_region(sx, sy, sw, sh, dx, dy, flags);
+	draw_region(source_position, source_size, dest_position, flags);
 	end();
 }
 
-void Image::draw_single(float dx, float dy, int flags)
+void Image::draw_single(Point<int> dest_position, int flags)
 {
 	start();
-	draw(dx, dy, flags);
-	end();
-}
-
-void Image::draw_single(Point<int> position, int flags)
-{
-	start();
-	draw(position, flags);
+	draw(dest_position, flags);
 	end();
 }
 

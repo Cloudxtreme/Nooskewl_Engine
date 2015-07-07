@@ -66,12 +66,14 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
-void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, float dy, float dw, float dh, SDL_Colour vertex_colours[4], int flags)
+void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
 {
 	maybe_resize_buffer(256);
 
-	float dx2 = dx + dw;
-	float dy2 = dy + dh;
+	float dx = (float)dest_position.x;
+	float dy = (float)dest_position.y;
+	float dx2 = dx + (float)dest_size.w;
+	float dy2 = dy + (float)dest_size.h;
 
 	if (perspective_drawing) {
 		dx /= (float)screen_w;
@@ -102,14 +104,13 @@ void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 		vertices[9*(count+i)+2] = 0.0f; // set vertex z
 	}
 
-	float tu, tv, tu2, tv2;
 	if (image) {
-		float tu = sx / image->w;
-		//float tv = 1.0f - (sy / image->h);
-		float tv = sy / image->h;
-		float tu2 = tu + sw / image->w;
-		//float tv2 = tv - (sh / image->h);
-		float tv2 = tv + sh / image->h;
+		float sx = (float)source_position.x;
+		float sy = (float)source_position.y;
+		float tu = sx / (float)image->w;
+		float tv = sy / (float)image->h;
+		float tu2 = tu + (float)source_size.w / (float)image->w;
+		float tv2 = tv + (float)source_size.h / (float)image->h;
 
 		tv = 1.0f - tv;
 		tv2 = 1.0f - tv2;
@@ -140,35 +141,35 @@ void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 		vertices[9*(count+5)+8] = tv2;
 	}
 
-	vertices[9*(count+0)+3+0] = vertex_colours[0].r / 255.0f;
-	vertices[9*(count+0)+3+1] = vertex_colours[0].g / 255.0f;
-	vertices[9*(count+0)+3+2] = vertex_colours[0].b / 255.0f;
-	vertices[9*(count+0)+3+3] = vertex_colours[0].a / 255.0f;
+	vertices[9*(count+0)+3+0] = (float)vertex_colours[0].r / 255.0f;
+	vertices[9*(count+0)+3+1] = (float)vertex_colours[0].g / 255.0f;
+	vertices[9*(count+0)+3+2] = (float)vertex_colours[0].b / 255.0f;
+	vertices[9*(count+0)+3+3] = (float)vertex_colours[0].a / 255.0f;
 
-	vertices[9*(count+1)+3+0] = vertex_colours[1].r / 255.0f;
-	vertices[9*(count+1)+3+1] = vertex_colours[1].g / 255.0f;
-	vertices[9*(count+1)+3+2] = vertex_colours[1].b / 255.0f;
-	vertices[9*(count+1)+3+3] = vertex_colours[1].a / 255.0f;
+	vertices[9*(count+1)+3+0] = (float)vertex_colours[1].r / 255.0f;
+	vertices[9*(count+1)+3+1] = (float)vertex_colours[1].g / 255.0f;
+	vertices[9*(count+1)+3+2] = (float)vertex_colours[1].b / 255.0f;
+	vertices[9*(count+1)+3+3] = (float)vertex_colours[1].a / 255.0f;
 
-	vertices[9*(count+2)+3+0] = vertex_colours[2].r / 255.0f;
-	vertices[9*(count+2)+3+1] = vertex_colours[2].g / 255.0f;
-	vertices[9*(count+2)+3+2] = vertex_colours[2].b / 255.0f;
-	vertices[9*(count+2)+3+3] = vertex_colours[2].a / 255.0f;
+	vertices[9*(count+2)+3+0] = (float)vertex_colours[2].r / 255.0f;
+	vertices[9*(count+2)+3+1] = (float)vertex_colours[2].g / 255.0f;
+	vertices[9*(count+2)+3+2] = (float)vertex_colours[2].b / 255.0f;
+	vertices[9*(count+2)+3+3] = (float)vertex_colours[2].a / 255.0f;
 
-	vertices[9*(count+3)+3+0] = vertex_colours[0].r / 255.0f;
-	vertices[9*(count+3)+3+1] = vertex_colours[0].g / 255.0f;
-	vertices[9*(count+3)+3+2] = vertex_colours[0].b / 255.0f;
-	vertices[9*(count+3)+3+3] = vertex_colours[0].a / 255.0f;
+	vertices[9*(count+3)+3+0] = (float)vertex_colours[0].r / 255.0f;
+	vertices[9*(count+3)+3+1] = (float)vertex_colours[0].g / 255.0f;
+	vertices[9*(count+3)+3+2] = (float)vertex_colours[0].b / 255.0f;
+	vertices[9*(count+3)+3+3] = (float)vertex_colours[0].a / 255.0f;
 
-	vertices[9*(count+4)+3+0] = vertex_colours[2].r / 255.0f;
-	vertices[9*(count+4)+3+1] = vertex_colours[2].g / 255.0f;
-	vertices[9*(count+4)+3+2] = vertex_colours[2].b / 255.0f;
-	vertices[9*(count+4)+3+3] = vertex_colours[2].a / 255.0f;
+	vertices[9*(count+4)+3+0] = (float)vertex_colours[2].r / 255.0f;
+	vertices[9*(count+4)+3+1] = (float)vertex_colours[2].g / 255.0f;
+	vertices[9*(count+4)+3+2] = (float)vertex_colours[2].b / 255.0f;
+	vertices[9*(count+4)+3+3] = (float)vertex_colours[2].a / 255.0f;
 
-	vertices[9*(count+5)+3+0] = vertex_colours[3].r / 255.0f;
-	vertices[9*(count+5)+3+1] = vertex_colours[3].g / 255.0f;
-	vertices[9*(count+5)+3+2] = vertex_colours[3].b / 255.0f;
-	vertices[9*(count+5)+3+3] = vertex_colours[3].a / 255.0f;
+	vertices[9*(count+5)+3+0] = (float)vertex_colours[3].r / 255.0f;
+	vertices[9*(count+5)+3+1] = (float)vertex_colours[3].g / 255.0f;
+	vertices[9*(count+5)+3+2] = (float)vertex_colours[3].b / 255.0f;
+	vertices[9*(count+5)+3+3] = (float)vertex_colours[3].a / 255.0f;
 
 	count += 6;
 }

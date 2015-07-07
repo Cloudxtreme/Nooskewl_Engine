@@ -33,7 +33,7 @@ char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max)
 
 int SDL_fputs(const char *string, SDL_RWops *file)
 {
-	int len = strlen(string);
+	unsigned int len = strlen(string);
 	return SDL_RWwrite(file, string, 1, len) < len ? EOF : 0;
 }
 

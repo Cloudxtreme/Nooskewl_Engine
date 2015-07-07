@@ -51,7 +51,7 @@ int Font::get_width(std::string text)
 	return width;
 }
 
-void Font::draw(std::string text, float x, float y, SDL_Color colour)
+void Font::draw(std::string text, Point<int> dest_position, SDL_Color colour)
 {
 	cache(text, colour);
 	const char *p = text.c_str();
@@ -74,21 +74,21 @@ void Font::draw(std::string text, float x, float y, SDL_Color colour)
 			 * expects it upside-down. It's quicker to just flip it
 			 * like this than to flip all the pixels.
 			 */
-			found->image->draw(x, y, Image::FLIP_V);
+			found->image->draw(dest_position, Image::FLIP_V);
 			found->image->end();
-			x += found->image->w;
+			dest_position.x += found->image->w;
 		}
 
 		p++;
 	}
 }
 
-int Font::draw_wrapped(std::string text, float x, float y, int w, int line_height, int max_lines, int started_time, SDL_Colour colour, bool &full)
+int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Colour colour, bool &full)
 {
 	full = false;
 	const char *p = text.c_str();
 	char buf[2] = { 0 };
-	int curr_y = (int)y;
+	int curr_y = dest_position.y;
 	bool done = false;
 	int lines = 0;
 	if (max_lines == -1) {
@@ -137,7 +137,7 @@ int Font::draw_wrapped(std::string text, float x, float y, int w, int line_heigh
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = std::string(p).substr(0, max);
-			draw(s, x, (float)curr_y, colour);
+			draw(s, Point<int>(dest_position.x, curr_y), colour);
 			p += max;
 			if (*p == ' ') p++;
 			chars_drawn = p - text.c_str();

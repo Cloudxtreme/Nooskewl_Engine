@@ -6,7 +6,7 @@
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((Int16)(f*32767))
 
-const double dt = 1.0 / STREAM_FREQUENCY;
+const float dt = 1.0f / STREAM_FREQUENCY;
 
 const float note_pitches[12][11] = {
 	{ 16.352f, 32.703f, 65.406f, 130.81f, 261.63f, 523.25f, 1046.5f, 2093.0f, 4186.0f, 8372.0f, 16744.0f },
@@ -169,7 +169,7 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 		frequency = pitch_envelopes[pitch][pitch_envelopes[pitch].size()-1];
 	}
 	float samples_per_phase = STREAM_FREQUENCY / frequency;
-	float mod = fmodf(total, samples_per_phase);
+	float mod = fmodf((float)total, samples_per_phase);
 	if (mod <= 1) {
 		return total;
 	}
@@ -274,7 +274,7 @@ void Track::reset()
 	note = 0;
 	volume_section = 0;
 	dutycycle_section = 0;
-	t = 0.0;
+	t = 0.0f;
 	pos = 0;
 	tok = next_note(audio.c_str(), &pos);
 	length_in_samples = notelength(tok.c_str(), audio.c_str(), &pos);
@@ -284,15 +284,15 @@ void Track::reset()
 	done = false;
 }
 
-void Track::pulse(Int16 *buf, size_t samples, double t, float frequency, float phase)
+void Track::pulse(Int16 *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		double w = TWOPI * get_frequency(frequency);
-		double ti = t + i * dt;
-		double a = fmod(w * ti + phase, TWOPI);
-		double x;
+		float w = TWOPI * get_frequency(frequency);
+		float ti = t + i * dt;
+		float a = fmod(w * ti + phase, TWOPI);
+		float x;
 
 		if (a < TWOPI*get_dutycycle()) {
 			x = 1;
@@ -308,14 +308,14 @@ void Track::pulse(Int16 *buf, size_t samples, double t, float frequency, float p
 	}
 }
 
-void Track::noise(Int16 *buf, size_t samples, double t, float frequency, float phase)
+void Track::noise(Int16 *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		double w = TWOPI * get_frequency(frequency);
-		double ti = t + i * dt;
-		double a = fmod(w * ti + phase, TWOPI);
+		float w = TWOPI * get_frequency(frequency);
+		float ti = t + i * dt;
+		float a = fmod(w * ti + phase, TWOPI);
 
 		float r = (rand() % 255 / 255.0f); // FIXME: use different rand
 
@@ -328,29 +328,29 @@ void Track::noise(Int16 *buf, size_t samples, double t, float frequency, float p
 	}
 }
 
-void Track::sawtooth(Int16 *buf, size_t samples, double t, float frequency, float phase)
+void Track::sawtooth(Int16 *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		double w = TWOPI * get_frequency(frequency);
-		double tx = w * (t + i * dt) + PI + phase;
-		double tu = fmod(tx/PI, 2.0);
+		float w = TWOPI * get_frequency(frequency);
+		float tx = w * (t + i * dt) + PI + phase;
+		float tu = fmod(tx/PI, 2.0f);
 
-		buf[i] = TO_INT16((-1.0 + tu) * get_volume());
+		buf[i] = TO_INT16((-1.0f + tu) * get_volume());
 
 		sample++;
 		note_fulfilled++;
 	}
 }
 
-void Track::sine(Int16 *buf, size_t samples, double t, float frequency, float phase)
+void Track::sine(Int16 *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		double w = TWOPI * get_frequency(frequency);
-		double ti = t + i * dt;
+		float w = TWOPI * get_frequency(frequency);
+		float ti = t + i * dt;
 		buf[i] = TO_INT16(sin(w * ti + phase) * get_volume());
 
 		sample++;
@@ -358,26 +358,26 @@ void Track::sine(Int16 *buf, size_t samples, double t, float frequency, float ph
 	}
 }
 
-void Track::triangle(Int16 *buf, size_t samples, double t, float frequency, float phase)
+void Track::triangle(Int16 *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		double w = TWOPI * get_frequency(frequency);
-		double tx = w * (t + i * dt) + PI/2.0 + phase;
-		double tu = fmod(tx/PI, 2.0);
+		float w = TWOPI * get_frequency(frequency);
+		float tx = w * (t + i * dt) + PI/2.0f + phase;
+		float tu = fmod(tx/PI, 2.0f);
 
-		if (tu <= 1.0)
-			buf[i] = TO_INT16((1.0 - 2.0 * tu) * get_volume());
+		if (tu <= 1.0f)
+			buf[i] = TO_INT16((1.0f - 2.0f * tu) * get_volume());
 		else
-			buf[i] = TO_INT16((-1.0 + 2.0 * (tu - 1.0)) * get_volume());
+			buf[i] = TO_INT16((-1.0f + 2.0f * (tu - 1.0f)) * get_volume());
 
 		sample++;
 		note_fulfilled++;
 	}
 }
 
-void Track::generate(Int16 *buf, int samples, double t, const char *tok, int octave)
+void Track::generate(Int16 *buf, int samples, float t, const char *tok, int octave)
 {
 	char c = tok[0];
 	int index = 0;

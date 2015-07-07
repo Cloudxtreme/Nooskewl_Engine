@@ -102,6 +102,8 @@ bool Sprite::set_animation(std::string name)
 	}
 
 	current_animation = name;
+
+	return true;
 }
 
 void Sprite::start()

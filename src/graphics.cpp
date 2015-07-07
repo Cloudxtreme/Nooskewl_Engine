@@ -97,24 +97,24 @@ void load_palette(std::string name)
 	SDL_RWclose(file);
 }
 
-void draw_quad(float x, float y, float w, float h, SDL_Colour vertex_colours[4])
+void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
 	vertex_accel->start();
-	vertex_accel->buffer(0, 0, 0, 0, x, y, w, h, vertex_colours, 0);
+	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
 	vertex_accel->end();
 }
 
-void draw_quad(float x, float y, float w, float h, SDL_Colour colour)
+void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)
 {
 	static SDL_Colour vertex_colours[4];
 	for (int i = 0; i < 4; i++) {
 		vertex_colours[i] = colour;
 	}
-	draw_quad(x, y, w, h, vertex_colours);
+	draw_quad(dest_position, dest_size, vertex_colours);
 }
 
-void draw_window(float x, float y, float w, float h, bool arrow, bool circle)
+void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle)
 {
 	SDL_Colour vertex_colours[4];
 
@@ -126,25 +126,25 @@ void draw_window(float x, float y, float w, float h, bool arrow, bool circle)
 		vertex_colours[i].a = 220;
 	}
 
-	draw_quad(x+1, y+1, w-2, h-2, vertex_colours);
+	draw_quad(dest_position+1, dest_size-2, vertex_colours);
 
 	window_image->start();
-	window_image->draw_region(0, 0, 6, 6, x, y, 0); // top left
-	window_image->draw_region(6, 0, 6, 6, x+w-6, y, 0); // top right
-	window_image->draw_region(6, 6, 6, 6, x+w-6, y+h-6, 0); // bottom right
-	window_image->draw_region(0, 6, 6, 6, x, y+h-6, 0); // bottom left
-	window_image->stretch_region(5, 1, 2, 4, x+6, y+1, w-12, 4, 0); // top
-	window_image->stretch_region(5, 7, 2, 4, x+6, y+h-5, w-12, 4, 0); // bottom
-	window_image->stretch_region(1, 5, 4, 2, x+1, y+6, 4, h-12, 0); // left
-	window_image->stretch_region(7, 5, 4, 2, x+w-5, y+6, 4, h-12, 0); // right
+	window_image->draw_region(Point<int>(0, 0), Size<int>(6, 6), dest_position, 0); // top left
+	window_image->draw_region(Point<int>(6, 0), Size<int>(6, 6), Point<int>(dest_position.x+dest_size.w-6, dest_position.y), 0); // top right
+	window_image->draw_region(Point<int>(6, 6), Size<int>(6, 6), dest_position+dest_size-6, 0); // bottom right
+	window_image->draw_region(Point<int>(0, 6), Size<int>(6, 6), Point<int>(dest_position.x, dest_position.y+dest_size.h-6), 0); // bottom left
+	window_image->stretch_region(Point<int>(5, 1), Size<int>(2, 4), Point<int>(dest_position.x+6, dest_position.y+1), Size<int>(dest_size.w-12, 4), 0); // top
+	window_image->stretch_region(Point<int>(5, 7), Size<int>(2, 4), Point<int>(dest_position.x+6, dest_position.y+dest_size.h-5), Size<int>(dest_size.w-12, 4), 0); // bottom
+	window_image->stretch_region(Point<int>(1, 5), Size<int>(4, 2), Point<int>(dest_position.x+1, dest_position.y+6), Size<int>(4, dest_size.h-12), 0); // left
+	window_image->stretch_region(Point<int>(7, 5), Size<int>(4, 2), Point<int>(dest_position.x+dest_size.w-5, dest_position.y+6), Size<int>(4, dest_size.h-12), 0); // right
 	window_image->end();
 
 	if (circle) {
 		speech_arrow->set_animation("circle");
-		speech_arrow->get_current_image()->draw_single(x+w-12, y+h-12, 0);
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-12, 0);
 	}
 	else if (arrow) {
 		speech_arrow->set_animation("arrow");
-		speech_arrow->get_current_image()->draw_single(x+w-12, y+h-12, 0);
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-12, 0);
 	}
 }

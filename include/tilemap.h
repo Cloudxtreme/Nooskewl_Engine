@@ -17,9 +17,9 @@ public:
 	int get_tile_size();
 
 	bool is_solid(int layer, Point<int> position);
-	bool collides(int layer, Point<float> topleft, Point<float> bottomright);
+	bool collides(int layer, Point<int> topleft, Point<int> bottomright);
 
-	void draw(int layer, float x, float y);
+	void draw(int layer, Point<int> position);
 
 private:
 	struct Layer
