@@ -3,7 +3,8 @@
 TGUI::TGUI(TGUI_Div *main_div, int w, int h) :
 	main_div(main_div),
 	w(w),
-	h(h)
+	h(h),
+	focus(NULL)
 {
 }
 
@@ -21,6 +22,16 @@ void TGUI::resize(int w, int h)
 void TGUI::draw()
 {
 	draw(main_div, 0, 0);
+}
+
+void TGUI::set_focus(TGUI_Div *div)
+{
+	focus = div;
+}
+
+TGUI_Div *TGUI::get_focus()
+{
+	return focus;
 }
 
 void TGUI::layout(TGUI_Div *div)
@@ -55,7 +66,6 @@ void TGUI::draw(TGUI_Div *div, int x, int y)
 		max_h = height > max_h ? height : max_h;
 	}
 }
-
 TGUI_Div::TGUI_Div(int w, int h) :
 	parent(NULL),
 	percent_x(false),
@@ -134,6 +144,11 @@ void TGUI_Div::set_padding(int left, int right, int top, int bottom)
 void TGUI_Div::set_float_right(bool float_right)
 {
 	this->float_right = float_right;
+}
+
+TGUI_Div *TGUI_Div::get_parent()
+{
+	return parent;
 }
 
 int TGUI_Div::get_right_pos()

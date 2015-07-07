@@ -54,12 +54,17 @@ public:
 	TGUI_FUNC void resize(int w, int h);
 	TGUI_FUNC void draw();
 
+	TGUI_FUNC void set_focus(TGUI_Div *div);
+
+	TGUI_FUNC TGUI_Div *get_focus();
+
 private:
 	void layout(TGUI_Div *div);
 	void draw(TGUI_Div *div, int x, int y);
 
 	TGUI_Div *main_div;
 	int w, h;
+	TGUI_Div *focus;
 };
 
 class TGUI_Div {
@@ -78,6 +83,8 @@ public:
 	TGUI_FUNC void set_padding(int padding);
 	TGUI_FUNC void set_padding(int left, int right, int top, int bottom);
 	TGUI_FUNC void set_float_right(bool float_right);
+
+	TGUI_FUNC TGUI_Div *get_parent();
 
 protected:
 	int get_right_pos();
@@ -336,54 +343,6 @@ enum
 };
 
 TGUI_FUNC TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event);
-
-#include "graphics.h"
-#include "types.h"
-
-class SDL_Test_Div : public TGUI_Div {
-public:
-	SDL_Test_Div(int w, int h) :
-		TGUI_Div(w, h)
-	{
-	}
-
-	SDL_Test_Div(float percent_w, float percent_h) :
-		TGUI_Div(percent_w, percent_h)
-	{
-	}
-
-	SDL_Test_Div(int w, float percent_h) :
-		TGUI_Div(w, percent_h)
-	{
-	}
-
-	SDL_Test_Div(float percent_w, int h) :
-		TGUI_Div(percent_w, h)
-	{
-	}
-
-	void draw(TGUI_Div *parent, int x, int y) {
-		int width, height;
-		tgui_get_size(parent, this, &width, &height);
-		width -= padding_left + padding_right;
-		height -= padding_top + padding_bottom;
-		SDL_Colour blacks[] = {
-			{ 0, 0, 0, 255 },
-			{ 0, 0, 0, 255 },
-			{ 0, 0, 0, 255 },
-			{ 0, 0, 0, 255 }
-		};
-		SDL_Colour whites[] = {
-			{ 255, 255, 255, 255 },
-			{ 255, 255, 255, 255 },
-			{ 255, 255, 255, 255 },
-			{ 255, 255, 255, 255 }
-		};
-		draw_quad(Point<int>(x, y), Size<int>(width, height), blacks);
-		draw_quad(Point<int>(x, y)+1, Size<int>(width, height)-2, whites);
-	}
-
-};
 #endif // WITH_SDL
 
 #endif // TGUI3_H
