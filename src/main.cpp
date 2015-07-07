@@ -5,6 +5,7 @@
 #include "map.h"
 #include "map_entity.h"
 #include "player_brain.h"
+#include "vertex_accel.h"
 #include "video.h"
 
 Map *map;
@@ -89,8 +90,43 @@ static bool run_main()
 						Map *old_map = map;
 						map = new Map(map_name);
 						map->add_entity(player);
-						player->set_position(position);
-						player->set_direction(direction);
+
+						// draw transition
+
+						const Uint32 duration = 1000;
+						Uint32 start_time = SDL_GetTicks();
+						Uint32 end_time = start_time + duration;
+						bool moved_player = false;
+
+						while (SDL_GetTicks() < end_time) {
+							Uint32 elapsed = SDL_GetTicks() - start_time;
+							if (moved_player == false && elapsed >= duration/2) {
+								moved_player = true;
+								player->set_position(position);
+								player->set_direction(direction);
+							}
+
+							set_map_transition_projection((float)elapsed / duration * PI);
+
+							glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+							glClear(GL_COLOR_BUFFER_BIT);
+
+							vertex_accel->set_perspective_drawing(true);
+							if (moved_player) {
+								map->update();
+								map->draw();
+							}
+							else {
+								old_map->update();
+								old_map->draw();
+							}
+							vertex_accel->set_perspective_drawing(false);
+
+							flip();
+						}
+
+						set_default_projection();
+
 						delete old_map;
 					}
 					else {

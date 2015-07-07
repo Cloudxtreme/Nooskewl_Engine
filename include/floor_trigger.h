@@ -15,5 +15,6 @@ public:
 };
 
 void ft_test(Map *map, Map_Entity *entity);
+void ft_test2(Map *map, Map_Entity *entity);
 
 #endif // FLOOR_TRIGGER_H

@@ -160,4 +160,7 @@ void Map::init_entities(std::string map_name)
 	if (map_name == "test.map") {
 		floor_triggers.push_back(new Floor_Trigger(Point<int>(1, 4), Size<int>(1, 1), ft_test));
 	}
+	else if (map_name == "test2.map") {
+		floor_triggers.push_back(new Floor_Trigger(Point<int>(1, 4), Size<int>(1, 1), ft_test2));
+	}
 }

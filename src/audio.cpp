@@ -2,7 +2,6 @@
 #include "audio.h"
 #include "util.h"
 
-#define PI M_PI
 #define TWOPI (2.0f * PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((Int16)(f*32767))
