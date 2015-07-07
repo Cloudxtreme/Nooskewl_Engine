@@ -43,112 +43,44 @@ class TGUI_Div;
 
 TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
 
+// a GUI hierarchy
+class TGUI {
+	friend void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
+
+public:
+	TGUI_FUNC TGUI(TGUI_Div *main_div, int w, int h);
+
+	TGUI_FUNC void layout();
+	TGUI_FUNC void resize(int w, int h);
+	TGUI_FUNC void draw();
+
+private:
+	void layout(TGUI_Div *div);
+	void draw(TGUI_Div *div, int x, int y);
+
+	TGUI_Div *main_div;
+	int w, h;
+};
+
 class TGUI_Div {
 	friend TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
 	friend class TGUI;
 
 public:
-	TGUI_Div(int w, int h) :
-		parent(NULL),
-		percent_x(false),
-		percent_y(false),
-		w(w),
-		h(h),
-		padding_left(0),
-		padding_right(0),
-		padding_top(0),
-		padding_bottom(0),
-		float_right(false)
-	{
-	}
-
-	TGUI_Div(float percent_w, float percent_h) :
-		parent(NULL),
-		percent_x(true),
-		percent_y(true),
-		percent_w(percent_w),
-		percent_h(percent_h),
-		padding_left(0),
-		padding_right(0),
-		padding_top(0),
-		padding_bottom(0),
-		float_right(false)
-	{
-	}
-
-	TGUI_Div(int w, float percent_h) :
-		parent(NULL),
-		percent_x(false),
-		percent_y(true),
-		percent_h(percent_h),
-		w(w),
-		padding_left(0),
-		padding_right(0),
-		padding_top(0),
-		padding_bottom(0),
-		float_right(false)
-	{
-	}
-
-	TGUI_Div(float percent_w, int h) :
-		parent(NULL),
-		percent_x(true),
-		percent_y(false),
-		percent_w(percent_w),
-		h(h),
-		padding_left(0),
-		padding_right(0),
-		padding_top(0),
-		padding_bottom(0),
-		float_right(false)
-	{
-	}
-
-	void set_parent(TGUI_Div *div) {
-		parent = div;
-		parent->children.push_back(this);
-	}
-
-	void set_padding(int padding) {
-		padding_left = padding_right = padding_top = padding_bottom = padding;
-	}
-
-	void set_padding(int left, int right, int top, int bottom) {
-		padding_left = left;
-		padding_right = right;
-		padding_top = top;
-		padding_bottom = bottom;
-	}
-
-	void set_float_right(bool float_right) {
-		this->float_right = float_right;
-	}
+	TGUI_FUNC TGUI_Div(int w, int h);
+	TGUI_FUNC TGUI_Div(float percent_w, float percent_h);
+	TGUI_FUNC TGUI_Div(int w, float percent_h);
+	TGUI_FUNC TGUI_Div(float percent_w, int h);
 
 	virtual void draw(TGUI_Div *parent, int x, int y) {}
 
+	TGUI_FUNC void set_parent(TGUI_Div *div);
+	TGUI_FUNC void set_padding(int padding);
+	TGUI_FUNC void set_padding(int left, int right, int top, int bottom);
+	TGUI_FUNC void set_float_right(bool float_right);
+
 protected:
-	int get_right_pos() {
-		if (float_right == false) {
-			return 0;
-		}
-		int parent_width;
-		tgui_get_size(parent->parent, parent, &parent_width, NULL);
-		int width;
-		tgui_get_size(parent, this, &width, NULL);
-		int right = 0;
-		for (size_t i = 0; i < parent->children.size(); i++) {
-			TGUI_Div *d = parent->children[i];
-			if (d == this) {
-				break;
-			}
-			if (d->float_right) {
-				int w2;
-				tgui_get_size(parent, d, &w2, NULL);
-				right += w2;
-			}
-		}
-		return parent_width - (right + width);
-	}
+	int get_right_pos();
 
 	TGUI *gui;
 	TGUI_Div *parent;
@@ -158,67 +90,6 @@ protected:
 	std::vector<TGUI_Div *> children;
 	int padding_left, padding_right, padding_top, padding_bottom;
 	bool float_right;
-};
-
-// a GUI hierarchy
-class TGUI {
-	friend void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
-
-public:
-	TGUI(TGUI_Div *main_div, int w, int h) :
-		main_div(main_div),
-		w(w),
-		h(h)
-	{
-	}
-
-	void layout() {
-		layout(main_div);
-	}
-
-	void resize(int w, int h) {
-		this->w = w;
-		this->h = h;
-	}
-
-	void draw() {
-		draw(main_div, 0, 0);
-	}
-
-private:
-	void layout(TGUI_Div *div) {
-		div->gui = this;
-		for (size_t i = 0; i < div->children.size(); i++) {
-			layout(div->children[i]);
-		}
-	}
-
-	void draw(TGUI_Div *div, int x, int y) {
-		div->draw(div->parent, x, y);
-		int parent_width, parent_height;
-		tgui_get_size(div->parent, div, &parent_width, &parent_height);
-		int max_h = 0;
-		int dx = x;
-		int dy = y;
-		for (size_t i = 0; i < div->children.size(); i++) {
-			TGUI_Div *d = div->children[i];
-			int width, height;
-			tgui_get_size(div, d, &width, &height);
-			if (dx + width > parent_width) {
-				dx = x;
-				dy += max_h;
-				max_h = 0;
-			}
-			draw(d, dx+d->padding_left+d->get_right_pos(), dy+d->padding_top);
-			if (d->float_right == false) {
-				dx += width;
-			}
-			max_h = height > max_h ? height : max_h;
-		}
-	}
-
-	TGUI_Div *main_div;
-	int w, h;
 };
 
 #ifdef WITH_SDL
