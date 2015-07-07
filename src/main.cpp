@@ -83,6 +83,8 @@ static bool run_main()
 	child1->set_parent(main_div);
 	child1->set_padding(10);
 	child1->set_accepts_focus(true);
+	SS_Div *child11 = new SS_Div(20, 20);
+	child11->set_parent(child1);
 	SS_Div *child2 = new SS_Div(-1.0f, 75);
 	child2->set_parent(main_div);
 	SS_Div *child3 = new SS_Div(1.0f, -1.0f);
