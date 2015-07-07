@@ -174,6 +174,10 @@ static bool run_main()
 			}
 
 			map->handle_event(&event);
+
+			if (event.type == TGUI_MOUSE_AXIS) {
+				gui->resize(event.mouse.x/4, event.mouse.y/4);
+			}
 		}
 
 		if (quit) {
