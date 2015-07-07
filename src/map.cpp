@@ -105,7 +105,7 @@ bool Map::update()
 			if (entities[i]->get_id() == 0) {
 				Point<int> p = entities[i]->get_draw_position();
 				Size<int> sz = entities[i]->get_size();
-				offset = p - Point<int>(screen_w/2, screen_h/2) + sz / 2;
+				offset = p - Point<int>(screen_w, screen_h) / 2 + sz / 2;
 				int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
 				int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
 				if (offset.x < 0) {

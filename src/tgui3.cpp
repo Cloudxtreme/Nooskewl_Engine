@@ -8,6 +8,7 @@ TGUI::TGUI(TGUI_Div *main_div, int w, int h) :
 	offset_x(0),
 	offset_y(0)
 {
+	layout();
 }
 
 void TGUI::layout()

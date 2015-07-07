@@ -95,7 +95,6 @@ static bool run_main()
 	child5->set_padding(10);
 	child5->set_float_right(true);
 	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
-	gui->layout();
 
 	gui->set_focus(child5);
 
@@ -177,6 +176,14 @@ static bool run_main()
 					}
 				}
 				draw = true;
+			}
+			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				screen_w = sdl_event.window.data1 / 4;
+				screen_h = sdl_event.window.data2 / 4;
+				printf("screen_w=%d screen_h=%d\n", screen_w, screen_h);
+				glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
+				set_default_projection();
+				gui->resize(screen_w, screen_h);
 			}
 
 			map->handle_event(&event);
