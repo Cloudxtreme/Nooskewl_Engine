@@ -1,4 +1,5 @@
 #include "starsquatters.h"
+#include "cpa.h"
 #include "snprintf.h"
 #include "util.h"
 
@@ -6,7 +7,7 @@ int SDL_fgetc(SDL_RWops *file)
 {
 	unsigned char c;
 	if (SDL_RWread(file, &c, 1, 1) == 0) {
-		return -1;
+		return EOF;
 	}
 	return c;
 }
@@ -38,12 +39,20 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 
 SDL_RWops *open_file(std::string filename)
 {
-	// FIXME:
-	filename = "C:/Users/Trent/code/starsquatters-data/" + filename;
-	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
-	if (file == NULL) {
-		throw FileNotFoundError(filename);
+	SDL_RWops *file;
+
+	if (cpa->exists(filename)) {
+		file = cpa->load(filename);
 	}
+	else {
+		// FIXME:
+		filename = "C:/Users/Trent/code/starsquatters-data/" + filename;
+		file = SDL_RWFromFile(filename.c_str(), "rb");
+		if (file == NULL) {
+			throw FileNotFoundError(filename);
+		}
+	}
+	return file;
 }
 
 std::string itos(int i)
