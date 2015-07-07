@@ -78,17 +78,17 @@ static bool run_main()
 	bool quit = false;
 	bool draw = false;
 
-	SS_Widget *main_div = new SS_Widget(1.0f, 1.0f);
+	SS_Widget *main_widget = new SS_Widget(1.0f, 1.0f);
 	SS_Widget *child1 = new SS_Widget(50, 50);
-	child1->set_parent(main_div);
+	child1->set_parent(main_widget);
 	child1->set_padding(10);
 	child1->set_accepts_focus(true);
 	SS_Widget *child11 = new SS_Widget(20, 20);
 	child11->set_parent(child1);
 	SS_Widget *child2 = new SS_Widget(-1.0f, 75);
-	child2->set_parent(main_div);
+	child2->set_parent(main_widget);
 	SS_Widget *child3 = new SS_Widget(1.0f, -1.0f);
-	child3->set_parent(main_div);
+	child3->set_parent(main_widget);
 	SS_Widget *child4 = new SS_Widget(50, -1.0f);
 	child4->set_parent(child3);
 	child4->set_padding(10);
@@ -102,7 +102,7 @@ static bool run_main()
 	SS_Widget *child6 = new SS_Widget(0.25f, 1.0f);
 	child6->set_parent(child3);
 	child6->set_accepts_focus(true);
-	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
+	TGUI *gui = new TGUI(main_widget, screen_w, screen_h);
 
 	while (quit == false) {
 		bool got_event = false;

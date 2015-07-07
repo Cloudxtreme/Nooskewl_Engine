@@ -42,22 +42,22 @@ struct TGUI_Event {
 class TGUI;
 class TGUI_Widget;
 
-TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
-TGUI_FUNC TGUI_Event tgui_get_relative_event(TGUI_Widget *div, TGUI_Event *event);
+TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *widget, int *width, int *height);
+TGUI_FUNC TGUI_Event tgui_get_relative_event(TGUI_Widget *widget, TGUI_Event *event);
 
 // a GUI hierarchy
 class TGUI {
-	friend void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
+	friend void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *widget, int *width, int *height);
 
 public:
-	TGUI_FUNC TGUI(TGUI_Widget *main_div, int w, int h);
+	TGUI_FUNC TGUI(TGUI_Widget *main_widget, int w, int h);
 
 	TGUI_FUNC void layout();
 	TGUI_FUNC void resize(int w, int h);
 	TGUI_FUNC void draw();
 	TGUI_FUNC void handle_event(TGUI_Event *event);
 
-	TGUI_FUNC void set_focus(TGUI_Widget *div);
+	TGUI_FUNC void set_focus(TGUI_Widget *widget);
 	TGUI_FUNC void focus_something();
 	TGUI_FUNC void set_offset(int offset_x, int offset_y);
 
@@ -65,23 +65,23 @@ public:
 	TGUI_FUNC TGUI_Widget *get_event_owner(TGUI_Event *event);
 
 private:
-	void set_sizes(TGUI_Widget *div);
-	void set_positions(TGUI_Widget *div, int x, int y);
-	void draw(TGUI_Widget *div);
-	TGUI_Widget *get_event_owner(TGUI_Event *event, TGUI_Widget *div);
-	void handle_event(TGUI_Event *event, TGUI_Widget *div);
-	bool focus_something(TGUI_Widget *div);
-	void focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int dir_y, int &score, int &grade);
-	void find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *div, int dir_x, int dir_y, int &best_score, int &best_grade);
+	void set_sizes(TGUI_Widget *widget);
+	void set_positions(TGUI_Widget *widget, int x, int y);
+	void draw(TGUI_Widget *widget);
+	TGUI_Widget *get_event_owner(TGUI_Event *event, TGUI_Widget *widget);
+	void handle_event(TGUI_Event *event, TGUI_Widget *widget);
+	bool focus_something(TGUI_Widget *widget);
+	void focus_distance(TGUI_Widget *start, TGUI_Widget *widget, int dir_x, int dir_y, int &score, int &grade);
+	void find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *widget, int dir_x, int dir_y, int &best_score, int &best_grade);
 
-	TGUI_Widget *main_div;
+	TGUI_Widget *main_widget;
 	TGUI_Widget *focus;
 	int w, h;
 	int offset_x, offset_y;
 };
 
 class TGUI_Widget {
-	friend TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
+	friend TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *widget, int *width, int *height);
 	friend class TGUI;
 
 public:
@@ -97,7 +97,7 @@ public:
 	virtual void draw() {}
 	virtual void handle_event(TGUI_Event *event) {}
 
-	TGUI_FUNC void set_parent(TGUI_Widget *div);
+	TGUI_FUNC void set_parent(TGUI_Widget *widget);
 	TGUI_FUNC void set_padding(int padding);
 	TGUI_FUNC void set_padding(int left, int right, int top, int bottom);
 	TGUI_FUNC void set_float_right(bool float_right);

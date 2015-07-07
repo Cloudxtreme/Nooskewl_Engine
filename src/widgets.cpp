@@ -2,7 +2,7 @@
 #include "types.h"
 #include "widgets.h"
 
-static void draw_focus(TGUI_Widget *div)
+static void draw_focus(TGUI_Widget *widget)
 {
 	float f = (SDL_GetTicks() % 1000) / 1000.0f;
 	float alpha;
@@ -17,14 +17,14 @@ static void draw_focus(TGUI_Widget *div)
 	colour.g = 255;
 	colour.b = 0;
 	colour.a = int(alpha * 255.0f);
-	int padding_left = div->get_padding_left();
-	int padding_right = div->get_padding_right();
-	int padding_top = div->get_padding_top();
-	int padding_bottom = div->get_padding_bottom();
-	int x = div->get_x(); // - padding_left;
-	int y = div->get_y(); // - padding_top;
-	int w = div->get_width(); // + padding_left + padding_right;
-	int h = div->get_height(); // + padding_top + padding_bottom;
+	int padding_left = widget->get_padding_left();
+	int padding_right = widget->get_padding_right();
+	int padding_top = widget->get_padding_top();
+	int padding_bottom = widget->get_padding_bottom();
+	int x = widget->get_x(); // - padding_left;
+	int y = widget->get_y(); // - padding_top;
+	int w = widget->get_width(); // + padding_left + padding_right;
+	int h = widget->get_height(); // + padding_top + padding_bottom;
 	draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
 	draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
 	draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);

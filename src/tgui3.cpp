@@ -1,7 +1,7 @@
 #include "tgui3.h"
 
-TGUI::TGUI(TGUI_Widget *main_div, int w, int h) :
-	main_div(main_div),
+TGUI::TGUI(TGUI_Widget *main_widget, int w, int h) :
+	main_widget(main_widget),
 	w(w),
 	h(h),
 	focus(NULL),
@@ -14,8 +14,8 @@ TGUI::TGUI(TGUI_Widget *main_div, int w, int h) :
 
 void TGUI::layout()
 {
-	set_sizes(main_div);
-	set_positions(main_div, offset_x, offset_y);
+	set_sizes(main_widget);
+	set_positions(main_widget, offset_x, offset_y);
 }
 
 void TGUI::resize(int w, int h)
@@ -27,7 +27,7 @@ void TGUI::resize(int w, int h)
 
 void TGUI::draw()
 {
-	draw(main_div);
+	draw(main_widget);
 }
 
 void TGUI::handle_event(TGUI_Event *event)
@@ -68,26 +68,26 @@ void TGUI::handle_event(TGUI_Event *event)
 	}
 
 	if (x == 0 && y == 0) {
-		handle_event(event, main_div);
+		handle_event(event, main_widget);
 	}
 	else {
-		TGUI_Widget *start = focus == NULL ? main_div : focus;
+		TGUI_Widget *start = focus == NULL ? main_widget : focus;
 		TGUI_Widget *best = start;
 		int best_score = INT_MAX;
 		int best_grade = 2;
-		find_focus(start, best, main_div, x, y, best_score, best_grade);
+		find_focus(start, best, main_widget, x, y, best_score, best_grade);
 		focus = best;
 	}
 }
 
-void TGUI::set_focus(TGUI_Widget *div)
+void TGUI::set_focus(TGUI_Widget *widget)
 {
-	focus = div;
+	focus = widget;
 }
 
 void TGUI::focus_something()
 {
-	focus_something(main_div);
+	focus_something(main_widget);
 }
 
 void TGUI::set_offset(int offset_x, int offset_y)
@@ -104,31 +104,31 @@ TGUI_Widget *TGUI::get_focus()
 
 TGUI_Widget *TGUI::get_event_owner(TGUI_Event *event)
 {
-	return get_event_owner(event, main_div);
+	return get_event_owner(event, main_widget);
 }
 
-void TGUI::set_sizes(TGUI_Widget *div)
+void TGUI::set_sizes(TGUI_Widget *widget)
 {
-	div->gui = this;
+	widget->gui = this;
 	int width, height;
-	tgui_get_size(div->parent, div, &width, &height);
-	div->calculated_w = width;
-	div->calculated_h = height;
-	for (size_t i = 0; i < div->children.size(); i++) {
-		set_sizes(div->children[i]);
+	tgui_get_size(widget->parent, widget, &width, &height);
+	widget->calculated_w = width;
+	widget->calculated_h = height;
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		set_sizes(widget->children[i]);
 	}
 }
 
-void TGUI::set_positions(TGUI_Widget *div, int x, int y)
+void TGUI::set_positions(TGUI_Widget *widget, int x, int y)
 {
-	div->calculated_x = x;
-	div->calculated_y = y;
+	widget->calculated_x = x;
+	widget->calculated_y = y;
 
 	int parent_width, parent_height;
 
-	if (div->parent) {
-		parent_width = div->parent->calculated_w + div->parent->padding_left + div->parent->padding_right;
-		parent_height = div->parent->calculated_h + div->parent->padding_top + div->parent->padding_bottom;
+	if (widget->parent) {
+		parent_width = widget->parent->calculated_w + widget->parent->padding_left + widget->parent->padding_right;
+		parent_height = widget->parent->calculated_h + widget->parent->padding_top + widget->parent->padding_bottom;
 	}
 	else {
 		parent_width = w;
@@ -139,8 +139,8 @@ void TGUI::set_positions(TGUI_Widget *div, int x, int y)
 	int dx = x;
 	int dy = y;
 
-	for (size_t i = 0; i < div->children.size(); i++) {
-		TGUI_Widget *d = div->children[i];
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		TGUI_Widget *d = widget->children[i];
 
 		int width = d->calculated_w + d->padding_left + d->padding_right;
 		int height = d->calculated_h + d->padding_top + d->padding_bottom;
@@ -161,53 +161,53 @@ void TGUI::set_positions(TGUI_Widget *div, int x, int y)
 	}
 }
 
-void TGUI::draw(TGUI_Widget *div)
+void TGUI::draw(TGUI_Widget *widget)
 {
-	div->draw();
-	for (size_t i = 0; i < div->children.size(); i++) {
-		draw(div->children[i]);
+	widget->draw();
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		draw(widget->children[i]);
 	}
 }
 
-TGUI_Widget *TGUI::get_event_owner(TGUI_Event *event, TGUI_Widget *div)
+TGUI_Widget *TGUI::get_event_owner(TGUI_Event *event, TGUI_Widget *widget)
 {
-	for (size_t i = 0; i < div->children.size(); i++) {
-		TGUI_Widget *d = get_event_owner(event, div->children[i]);
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		TGUI_Widget *d = get_event_owner(event, widget->children[i]);
 		if (d != NULL) {
 			return d;
 		}
 	}
 
 	if (event->type == TGUI_MOUSE_DOWN || event->type == TGUI_MOUSE_UP || event->type == TGUI_MOUSE_AXIS) {
-		if (event->mouse.x >= div->calculated_x && event->mouse.x < div->calculated_x+div->calculated_w && event->mouse.y >= div->calculated_y && event->mouse.y < div->calculated_y+div->calculated_h) {
-			return div;
+		if (event->mouse.x >= widget->calculated_x && event->mouse.x < widget->calculated_x+widget->calculated_w && event->mouse.y >= widget->calculated_y && event->mouse.y < widget->calculated_y+widget->calculated_h) {
+			return widget;
 		}
 	}
-	else if (event->type != TGUI_UNKNOWN && div == focus) {
-		return div;
+	else if (event->type != TGUI_UNKNOWN && widget == focus) {
+		return widget;
 	}
 
 	return NULL;
 }
 
-void TGUI::handle_event(TGUI_Event *event, TGUI_Widget *div)
+void TGUI::handle_event(TGUI_Event *event, TGUI_Widget *widget)
 {
-	div->handle_event(event);
+	widget->handle_event(event);
 
-	for (size_t i = 0; i < div->children.size(); i++) {
-		handle_event(event, div->children[i]);
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		handle_event(event, widget->children[i]);
 	}
 }
 
-bool TGUI::focus_something(TGUI_Widget *div)
+bool TGUI::focus_something(TGUI_Widget *widget)
 {
-	if (div->accepts_focus) {
-		focus = div;
+	if (widget->accepts_focus) {
+		focus = widget;
 		return true;
 	}
 
-	for (size_t i = 0; i < div->children.size(); i++) {
-		if (focus_something(div->children[i])) {
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		if (focus_something(widget->children[i])) {
 			return true;
 		}
 	}
@@ -216,7 +216,7 @@ bool TGUI::focus_something(TGUI_Widget *div)
 }
 
 // Returns positive for aligned match, negative for unaligned match
-void TGUI::focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int dir_y, int &score, int &grade)
+void TGUI::focus_distance(TGUI_Widget *start, TGUI_Widget *widget, int dir_x, int dir_y, int &score, int &grade)
 {
 	int cx = start->calculated_x + start->calculated_w / 2;
 	int cy = start->calculated_y + start->calculated_h / 2;
@@ -247,22 +247,22 @@ void TGUI::focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int d
 		box_y2 = tmp;
 	}
 
-	int div_x1 = div->calculated_x;
-	int div_x2 = div_x1 + div->calculated_w;
-	int div_y1 = div->calculated_y;
-	int div_y2 = div_y1 + div->calculated_h;
+	int widget_x1 = widget->calculated_x;
+	int widget_x2 = widget_x1 + widget->calculated_w;
+	int widget_y1 = widget->calculated_y;
+	int widget_y2 = widget_y1 + widget->calculated_h;
 
-	int div_cx = (div_x1 + div_x2) / 2;
-	int div_cy = (div_y1 + div_y2) / 2;
+	int widget_cx = (widget_x1 + widget_x2) / 2;
+	int widget_cy = (widget_y1 + widget_y2) / 2;
 
-	int dx = div_cx - cx;
-	int dy = div_cy - cy;
+	int dx = widget_cx - cx;
+	int dy = widget_cy - cy;
 	int dist = int(sqrtf(float(dx*dx + dy*dy)));
 
-	if (!(div_x1 > box_x2 || div_x2 < box_x1 || div_y1 > box_y2 || div_y2 < box_y1)) {
+	if (!(widget_x1 > box_x2 || widget_x2 < box_x1 || widget_y1 > box_y2 || widget_y2 < box_y1)) {
 		grade = 0;
 	}
-	else if (dir_x < 0 && div_cx < cx || dir_x > 0 && div_cx > cx || dir_y < 0 && div_cy < cy || dir_y > 0 && div_cy > cy) {
+	else if (dir_x < 0 && widget_cx < cx || dir_x > 0 && widget_cx > cx || dir_y < 0 && widget_cy < cy || dir_y > 0 && widget_cy > cy) {
 		grade = 1;
 	}
 	else {
@@ -272,25 +272,25 @@ void TGUI::focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int d
 	score = dist;
 }
 
-void TGUI::find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *div, int dir_x, int dir_y, int &best_score, int &best_grade)
+void TGUI::find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *widget, int dir_x, int dir_y, int &best_score, int &best_grade)
 {
-	if (div->accepts_focus && div != start) {
+	if (widget->accepts_focus && widget != start) {
 		int score, grade;
-		focus_distance(start, div, dir_x, dir_y, score, grade);
+		focus_distance(start, widget, dir_x, dir_y, score, grade);
 		if (grade < best_grade) {
 			best_score = score;
 			best_grade = grade;
-			current_best = div;
+			current_best = widget;
 		}
 		else if (grade == best_grade && score < best_score) {
 			best_score = score;
 			best_grade = grade;
-			current_best = div;
+			current_best = widget;
 		}
 	}
 
-	for (size_t i = 0; i < div->children.size(); i++) {
-		find_focus(start, current_best, div->children[i], dir_x, dir_y, best_score, best_grade);
+	for (size_t i = 0; i < widget->children.size(); i++) {
+		find_focus(start, current_best, widget->children[i], dir_x, dir_y, best_score, best_grade);
 	}
 }
 
@@ -354,9 +354,9 @@ TGUI_Widget::TGUI_Widget(float percent_w, int h) :
 {
 }
 
-void TGUI_Widget::set_parent(TGUI_Widget *div)
+void TGUI_Widget::set_parent(TGUI_Widget *widget)
 {
-	parent = div;
+	parent = widget;
 	parent->children.push_back(this);
 }
 
@@ -460,11 +460,11 @@ int TGUI_Widget::get_right_pos()
 	return parent_width - (right + width);
 }
 
-void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height)
+void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *widget, int *width, int *height)
 {
 	if (parent == NULL) {
-		*width = div->gui->w;
-		*height = div->gui->h;
+		*width = widget->gui->w;
+		*height = widget->gui->h;
 	}
 	else {
 		int w, h;
@@ -472,8 +472,8 @@ void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *heigh
 		w += parent->padding_left + parent->padding_right;
 		h += parent->padding_top + parent->padding_bottom;
 		if (width) {
-			if (div->percent_x) {
-				if (div->percent_w < 0) {
+			if (widget->percent_x) {
+				if (widget->percent_w < 0) {
 					int total_w = 0;
 					float total_percent = 0.0f;
 					for (size_t i = 0; i < parent->children.size(); i++) {
@@ -499,29 +499,29 @@ void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *heigh
 						if (d->float_right == false) {
 							total_w += this_w;
 						}
-						if (d == div) {
+						if (d == widget) {
 							break;
 						}
 					}
 					int remainder = w - total_w;
 					if (remainder > 0) {
-						*width = remainder * int(-div->percent_w / total_percent) - (div->padding_left + div->padding_right);
+						*width = remainder * int(-widget->percent_w / total_percent) - (widget->padding_left + widget->padding_right);
 					}
 					else {
 						*width = 0;
 					}
 				}
 				else {
-					*width = int(w * div->percent_w);
+					*width = int(w * widget->percent_w);
 				}
 			}
 			else {
-				*width = div->w;
+				*width = widget->w;
 			}
 		}
 		if (height) {
-			if (div->percent_y) {
-				if (div->percent_h < 0) {
+			if (widget->percent_y) {
+				if (widget->percent_h < 0) {
 					int total_w = 0;
 					int total_h = 0;
 					float total_percent = 0.0f;
@@ -579,30 +579,30 @@ void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *heigh
 					}
 					int remainder = h - total_h;
 					if (remainder > 0) {
-						*height = remainder * int(-div->percent_h / total_percent) - (div->padding_top + div->padding_bottom);
+						*height = remainder * int(-widget->percent_h / total_percent) - (widget->padding_top + widget->padding_bottom);
 					}
 					else {
 						*height = 0;
 					}
 				}
 				else {
-					*height = int(h * div->percent_h);
+					*height = int(h * widget->percent_h);
 				}
 			}
 			else {
-				*height = div->h;
+				*height = widget->h;
 			}
 		}
 	}
 }
 
-TGUI_Event tgui_get_relative_event(TGUI_Widget *div, TGUI_Event *event)
+TGUI_Event tgui_get_relative_event(TGUI_Widget *widget, TGUI_Event *event)
 {
 	TGUI_Event new_event = *event;
 
 	if (new_event.type == TGUI_MOUSE_DOWN || new_event.type == TGUI_MOUSE_UP || new_event.type == TGUI_MOUSE_AXIS) {
-		new_event.mouse.x -= div->get_x();
-		new_event.mouse.y -= div->get_y();
+		new_event.mouse.x -= widget->get_x();
+		new_event.mouse.y -= widget->get_y();
 	}
 
 	return new_event;
