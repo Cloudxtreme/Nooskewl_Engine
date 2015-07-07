@@ -42,6 +42,7 @@ class TGUI;
 class TGUI_Div;
 
 TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
+TGUI_FUNC TGUI_Event tgui_get_relative_event(TGUI_Div *div, TGUI_Event *event);
 
 // a GUI hierarchy
 class TGUI {

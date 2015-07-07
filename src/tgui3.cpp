@@ -435,6 +435,18 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 	}
 }
 
+TGUI_Event tgui_get_relative_event(TGUI_Div *div, TGUI_Event *event)
+{
+	TGUI_Event new_event = *event;
+
+	if (new_event.type == TGUI_MOUSE_DOWN || new_event.type == TGUI_MOUSE_UP || new_event.type == TGUI_MOUSE_AXIS) {
+		new_event.mouse.x -= div->get_x();
+		new_event.mouse.y -= div->get_y();
+	}
+
+	return new_event;
+}
+
 #ifdef WITH_SDL
 TGUI_Event tgui_sdl_convert_event(SDL_Event *sdl_event)
 {

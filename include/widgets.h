@@ -15,6 +15,7 @@ public:
 
 private:
 	bool got_event;
+	int event_x, event_y;
 };
 
 #endif // WIDGETS_H
