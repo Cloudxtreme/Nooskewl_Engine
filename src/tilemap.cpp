@@ -37,9 +37,9 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 		throw e;
 	}
 
-	width = SDL_ReadLE32(f);
-	height = SDL_ReadLE32(f);
-	num_layers = SDL_ReadLE32(f);
+	width = SDL_ReadLE16(f);
+	height = SDL_ReadLE16(f);
+	num_layers = SDL_fgetc(f);
 
 	layers = new Layer[num_layers];
 
@@ -53,7 +53,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 			layers[layer].tiles[row] = new int[width];
 			layers[layer].solids[row] = new bool[width];
 			for (int col = 0; col < width; col++) {
-				layers[layer].tiles[row][col] = SDL_ReadLE32(f);
+				layers[layer].tiles[row][col] = (int16_t)SDL_ReadLE16(f);
 				layers[layer].sheets[row][col] = SDL_fgetc(f);
 				layers[layer].solids[row][col] = SDL_fgetc(f);
 
