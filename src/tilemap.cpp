@@ -54,7 +54,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 			layers[layer].solids[row] = new bool[width];
 			for (int col = 0; col < width; col++) {
 				layers[layer].tiles[row][col] = (int16_t)SDL_ReadLE16(f);
-				layers[layer].sheets[row][col] = SDL_fgetc(f);
+				layers[layer].sheets[row][col] = (char)SDL_fgetc(f);
 				layers[layer].solids[row][col] = SDL_fgetc(f);
 
 				if (layers[layer].tiles[row][col] >= 0 && std::find(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end(), layers[layer].sheets[row][col]) == layers[layer].sheets_used.end()) {
