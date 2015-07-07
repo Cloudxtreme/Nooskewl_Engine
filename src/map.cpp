@@ -63,7 +63,7 @@ void Map::check_triggers(Map_Entity *entity)
 	for (size_t i = 0; i < floor_triggers.size(); i++) {
 		Floor_Trigger *t = floor_triggers[i];
 		if (pos.x >= t->topleft.x && pos.x < t->topleft.x+t->size.w && pos.y >= t->topleft.y && pos.y < t->topleft.y+t->size.h) {
-			t->function(this, entity);
+			t->function(this, entity, pos-t->topleft);
 		}
 	}
 }
@@ -158,9 +158,9 @@ void Map::draw()
 void Map::init_entities(std::string map_name)
 {
 	if (map_name == "test.map") {
-		floor_triggers.push_back(new Floor_Trigger(Point<int>(1, 4), Size<int>(1, 1), ft_test));
+		floor_triggers.push_back(new Floor_Trigger(Point<int>(7, 1), Size<int>(2, 1), ft_test));
 	}
 	else if (map_name == "test2.map") {
-		floor_triggers.push_back(new Floor_Trigger(Point<int>(1, 4), Size<int>(1, 1), ft_test2));
+		floor_triggers.push_back(new Floor_Trigger(Point<int>(7, 18), Size<int>(2, 1), ft_test2));
 	}
 }

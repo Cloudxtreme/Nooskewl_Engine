@@ -9,12 +9,12 @@ public:
 	Point<int> topleft;
 	Size<int> size;
 
-	void (*function)(Map *map, Map_Entity *entity);
+	void (*function)(Map *map, Map_Entity *entity, Point<int> touch_point);
 
-	Floor_Trigger(Point<int> topleft, Size<int> size, void (*function)(Map *map, Map_Entity *entity));
+	Floor_Trigger(Point<int> topleft, Size<int> size, void (*function)(Map *map, Map_Entity *entity, Point<int> touch_point));
 };
 
-void ft_test(Map *map, Map_Entity *entity);
-void ft_test2(Map *map, Map_Entity *entity);
+void ft_test(Map *map, Map_Entity *entity, Point<int> touch_point);
+void ft_test2(Map *map, Map_Entity *entity, Point<int> touch_point);
 
 #endif // FLOOR_TRIGGER_H
