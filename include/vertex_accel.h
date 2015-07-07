@@ -18,11 +18,14 @@ public:
 	void end();
 	void maybe_resize_buffer(int increase);
 
+	void set_perspective_drawing(bool perspective_drawing);
+
 private:
 	float *vertices;
 	int count;
 	int total;
 	Image *image;
+	bool perspective_drawing;
 };
 
 extern Vertex_Accel *vertex_accel;

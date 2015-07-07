@@ -1,6 +1,7 @@
 #include "starsquatters.h"
 #include "image.h"
 #include "vertex_accel.h"
+#include "video.h"
 
 // FIXME:
 extern GLuint current_shader;
@@ -10,7 +11,8 @@ Vertex_Accel *vertex_accel;
 Vertex_Accel::Vertex_Accel() :
 	vertices(NULL),
 	count(0),
-	total(0)
+	total(0),
+	perspective_drawing(false)
 {
 }
 
@@ -71,6 +73,17 @@ void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 	float dx2 = dx + dw;
 	float dy2 = dy + dh;
 
+	if (perspective_drawing) {
+		dx /= (float)screen_w;
+		dy /= (float)screen_h;
+		dx2 /= (float)screen_w;
+		dy2 /= (float)screen_h;
+		dx -= 0.5f;
+		dy -= 0.5f;
+		dx2 -= 0.5f;
+		dy2 -= 0.5f;
+	}
+
 	// Set vertex x, y
 	vertices[9*(count+0)+0] = dx;
 	vertices[9*(count+0)+1] = dy;
@@ -86,7 +99,7 @@ void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 	vertices[9*(count+5)+1] = dy2;
 
 	for (int i = 0; i < 6; i++) {
-		vertices[9*(count+i)+2] = 0; // set vertex z
+		vertices[9*(count+i)+2] = 0.0f; // set vertex z
 	}
 
 	float tu, tv, tu2, tv2;
@@ -159,6 +172,12 @@ void Vertex_Accel::buffer(float sx, float sy, float sw, float sh, float dx, floa
 
 	count += 6;
 }
+
+void Vertex_Accel::set_perspective_drawing(bool perspective_drawing)
+{
+	this->perspective_drawing = perspective_drawing;
+}
+
 
 void Vertex_Accel::maybe_resize_buffer(int increase)
 {
