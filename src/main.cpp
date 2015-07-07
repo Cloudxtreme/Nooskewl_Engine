@@ -79,7 +79,7 @@ static bool run_main()
 	bool draw = false;
 
 	SS_Div *main_div = new SS_Div(1.0f, 1.0f);
-	SS_Div *child1 = new SS_Div(0.25f, 50);
+	SS_Div *child1 = new SS_Div(50, 50);
 	child1->set_parent(main_div);
 	child1->set_padding(10);
 	child1->set_accepts_focus(true);
@@ -97,6 +97,9 @@ static bool run_main()
 	child5->set_padding(10);
 	child5->set_float_right(true);
 	child5->set_accepts_focus(true);
+	SS_Div *child6 = new SS_Div(0.25f, 1.0f);
+	child6->set_parent(child3);
+	child6->set_accepts_focus(true);
 	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
 
 	while (quit == false) {
