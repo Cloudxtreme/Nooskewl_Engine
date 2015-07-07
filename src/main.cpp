@@ -78,6 +78,16 @@ static bool run_main()
 	bool quit = false;
 	bool draw = false;
 
+	SDL_Test_Div *main_div = new SDL_Test_Div(1.0f, 1.0f);
+	SDL_Test_Div *child1 = new SDL_Test_Div(0.25f, 50);
+	child1->set_parent(main_div);
+	SDL_Test_Div *child2 = new SDL_Test_Div(0.75f, 75);
+	child2->set_parent(main_div);
+	SDL_Test_Div *child3 = new SDL_Test_Div(1.0f, 50);
+	child3->set_parent(main_div);
+	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
+	gui->layout();
+
 	while (quit == false) {
 		bool got_event = false;
 		while (true) {
@@ -166,6 +176,8 @@ static bool run_main()
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			map->draw();
+
+			gui->draw();
 
 			flip();
 		}

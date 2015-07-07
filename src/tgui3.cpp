@@ -1,6 +1,32 @@
 #include "tgui3.h"
 #include <stdio.h> // FIXME
 
+void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int &width, int &height)
+{
+	if (parent == NULL) {
+		width = div->gui->w;
+		height = div->gui->h;
+	}
+	else {
+		if (div->percent_x) {
+			int w, h;
+			tgui_get_size(parent->parent, parent, w, h);
+			width = w * div->percent_w;
+		}
+		else {
+			width = div->w;
+		}
+		if (div->percent_y) {
+			int w, h;
+			tgui_get_size(parent->parent, parent, w, h);
+			height = h * div->percent_h;
+		}
+		else {
+			height = div->h;
+		}
+	}
+}
+
 #ifdef WITH_SDL
 TGUI_Event tgui_event_from_sdl_event(SDL_Event *sdl_event)
 {

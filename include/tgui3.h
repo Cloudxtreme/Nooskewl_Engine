@@ -1,10 +1,12 @@
 #ifndef TGUI3_H
 #define TGUI3_H
 
+#include <vector>
+
 #ifdef _MSC_VER
-#define TGUI3_FUNC __declspec(dllexport)
+#define TGUI_FUNC __declspec(dllexport)
 #else
-#define TGUI3_FUNC
+#define TGUI_FUNC
 #endif
 
 enum TGUI_Event_Type {
@@ -34,6 +36,127 @@ struct TGUI_Event {
 		int axis;
 		float value; // -1.0 -> 1.0
 	} joystick;
+};
+
+class TGUI;
+class TGUI_Div;
+
+TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int &width, int &height);
+
+class TGUI_Div {
+	friend TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int &width, int &height);
+	friend class TGUI;
+
+public:
+	TGUI_Div(int w, int h) :
+		parent(NULL),
+		percent_x(false),
+		percent_y(false),
+		w(w),
+		h(h)
+	{
+		printf("percent false\n");
+	}
+
+	TGUI_Div(float percent_w, float percent_h) :
+		parent(NULL),
+		percent_x(true),
+		percent_y(true),
+		percent_w(percent_w),
+		percent_h(percent_h)
+	{
+		printf("percent true\n");
+	}
+
+	TGUI_Div(int w, float percent_h) :
+		parent(NULL),
+		percent_x(false),
+		percent_y(true),
+		percent_h(percent_h),
+		w(w)
+	{
+		printf("percent y\n");
+	}
+
+	TGUI_Div(float percent_w, int h) :
+		parent(NULL),
+		percent_x(true),
+		percent_y(false),
+		percent_w(percent_w),
+		h(h)
+	{
+		printf("percent x\n");
+	}
+
+	void set_parent(TGUI_Div *div) {
+		parent = div;
+		parent->children.push_back(this);
+	}
+
+	virtual void draw(TGUI_Div *parent, int x, int y) {}
+
+private:
+	TGUI *gui;
+	TGUI_Div *parent;
+	bool percent_x, percent_y;
+	float percent_w, percent_h;
+	int w, h;
+	std::vector<TGUI_Div *> children;
+};
+
+// a GUI hierarchy
+class TGUI {
+	friend void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int &width, int &height);
+
+public:
+	TGUI(TGUI_Div *main_div, int w, int h) :
+		main_div(main_div),
+		w(w),
+		h(h)
+	{
+	}
+
+	void layout() {
+		layout(main_div);
+	}
+
+	void draw() {
+		draw(main_div, 0, 0);
+	}
+
+private:
+	void layout(TGUI_Div *div) {
+		div->gui = this;
+		for (size_t i = 0; i < div->children.size(); i++) {
+			layout(div->children[i]);
+		}
+	}
+
+	void draw(TGUI_Div *div, int x, int y) {
+		printf("draw: %p -- %d,%d\n", div, x, y);
+		div->draw(div->parent, x, y);
+		int parent_width, parent_height;
+		tgui_get_size(div->parent, div, parent_width, parent_height);
+		int max_h = 0;
+		int dx = x;
+		int dy = y;
+		for (size_t i = 0; i < div->children.size(); i++) {
+			TGUI_Div *d = div->children[i];
+			int width, height;
+			tgui_get_size(div, d, width, height);
+			if (dx + width > parent_width) {
+				dx = x;
+				dy += max_h;
+				max_h = 0;
+			}
+			draw(d, dx, dy);
+			dx += width;
+			max_h = height > max_h ? height : max_h;
+		}
+	}
+
+	TGUI_Div *main_div;
+	int w, h;
 };
 
 #ifdef WITH_SDL
@@ -279,7 +402,53 @@ enum
 	TGUIK_SLEEP = SDLK_SLEEP,
 };
 
-TGUI3_FUNC TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event);
+TGUI_FUNC TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event);
+
+#include "graphics.h"
+#include "types.h"
+
+class SDL_Test_Div : public TGUI_Div {
+public:
+	SDL_Test_Div(int w, int h) :
+		TGUI_Div(w, h)
+	{
+	}
+
+	SDL_Test_Div(float percent_w, float percent_h) :
+		TGUI_Div(percent_w, percent_h)
+	{
+	}
+
+	SDL_Test_Div(int w, float percent_h) :
+		TGUI_Div(w, percent_h)
+	{
+	}
+
+	SDL_Test_Div(float percent_w, int h) :
+		TGUI_Div(percent_w, h)
+	{
+	}
+
+	void draw(TGUI_Div *parent, int x, int y) {
+		int width, height;
+		tgui_get_size(parent, this, width, height);
+		SDL_Colour blacks[] = {
+			{ 0, 0, 0, 255 },
+			{ 0, 0, 0, 255 },
+			{ 0, 0, 0, 255 },
+			{ 0, 0, 0, 255 }
+		};
+		SDL_Colour whites[] = {
+			{ 255, 255, 255, 255 },
+			{ 255, 255, 255, 255 },
+			{ 255, 255, 255, 255 },
+			{ 255, 255, 255, 255 }
+		};
+		draw_quad(Point<int>(x, y), Size<int>(width, height), blacks);
+		draw_quad(Point<int>(x, y)+1, Size<int>(width, height)-2, whites);
+	}
+
+};
 #endif // WITH_SDL
 
 #endif // TGUI3_H
