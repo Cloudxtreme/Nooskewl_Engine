@@ -47,6 +47,8 @@ static bool lock = false;
 
 Sample::Sample(std::string filename)
 {
+	filename = "samples/" + filename;
+
 	SDL_RWops *file = open_file(filename);
 
 	spec = SDL_LoadWAV_RW(file, true, &device_spec, &data, &length);
@@ -543,6 +545,8 @@ void update_audio(Uint8 *buf, int stream_length)
 
 Audio load_audio(std::string filename)
 {
+	filename = "audio/" + filename;
+
 	std::vector<std::string> tracks_s;
 	std::vector< std::vector< std::pair<int, float> > > volumes;
 	std::vector< std::vector< std::pair<int, float> > > dutycycles;
