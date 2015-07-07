@@ -6,11 +6,14 @@
 #include "map.h"
 #include "map_entity.h"
 #include "player_brain.h"
+#include "tgui3.h"
 #include "vertex_accel.h"
 #include "video.h"
 
 Map *map;
 Map_Entity *player;
+
+SDL_Joystick *joy;
 
 bool run_main();
 
@@ -44,8 +47,12 @@ static Uint32 main_callback(Uint32 interval, void *data)
 
 static bool run_main()
 {
-	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
+	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
 		throw Error("SDL_Init failed");
+	}
+
+	if (SDL_NumJoysticks() > 0) {
+		joy = SDL_JoystickOpen(0);
 	}
 
 	cpa = new CPA("ss.cpa");
@@ -81,6 +88,7 @@ static bool run_main()
 			else {
 				break;
 			}
+			tgui_sdl_handle_event(&event);
 			if (event.type == SDL_QUIT) {
 				quit = true;
 				break;
@@ -169,6 +177,10 @@ static bool run_main()
 	shutdown_font();
 	shutdown_video();
 	shutdown_audio();
+
+	if (SDL_JoystickGetAttached(joy)) {
+		SDL_JoystickClose(joy);
+	}
 	
 	return true;
 }
