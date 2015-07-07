@@ -21,10 +21,10 @@ static void draw_focus(TGUI_Div *div)
 	int padding_right = div->get_padding_right();
 	int padding_top = div->get_padding_top();
 	int padding_bottom = div->get_padding_bottom();
-	int x = div->get_x() - padding_left;
-	int y = div->get_y() - padding_top;
-	int w = div->get_width() + padding_left + padding_right;
-	int h = div->get_height() + padding_top + padding_bottom;
+	int x = div->get_x(); // - padding_left;
+	int y = div->get_y(); // - padding_top;
+	int w = div->get_width(); // + padding_left + padding_right;
+	int h = div->get_height(); // + padding_top + padding_bottom;
 	draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
 	draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
 	draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);
