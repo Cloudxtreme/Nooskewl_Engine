@@ -63,6 +63,7 @@ static bool run_main()
 	init_graphics();
 
 	map = new Map("test.map");
+	map->start();
 
 	Player_Brain *player_brain = new Player_Brain();
 	player = new Map_Entity(player_brain);
@@ -137,6 +138,7 @@ static bool run_main()
 					if (map_name != "") {
 						Map *old_map = map;
 						map = new Map(map_name);
+						map->start();
 						map->add_entity(player);
 
 						// draw transition
@@ -175,6 +177,7 @@ static bool run_main()
 
 						set_default_projection();
 
+						old_map->end();
 						delete old_map;
 					}
 					else {
@@ -213,7 +216,7 @@ static bool run_main()
 
 			map->draw();
 
-			gui->draw();
+//			gui->draw();
 
 			flip();
 		}
@@ -222,6 +225,7 @@ static bool run_main()
 		}
 	}
 
+	map->end();
 	delete map;
 
 	shutdown_graphics();

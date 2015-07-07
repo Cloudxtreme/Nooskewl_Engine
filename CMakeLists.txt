@@ -14,7 +14,6 @@ set(SRC
 	src/audio.cpp
 	src/brain.cpp
 	src/cpa.cpp
-	src/floor_trigger.cpp
 	src/font.cpp
 	src/graphics.cpp
 	src/image.cpp
@@ -24,6 +23,7 @@ set(SRC
 	src/map_entity.cpp
 	src/player_brain.cpp
 	src/resource_manager.cpp
+	src/script_functions.cpp
 	src/snprintf.cpp
 	src/speech.cpp
 	src/sprite.cpp

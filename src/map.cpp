@@ -1,14 +1,16 @@
 #include "log.h"
 #include "map.h"
+#include "script_functions.h"
 #include "video.h"
 
 Map::Map(std::string map_name) :
 	offset(0, 0),
 	speech(NULL),
+	script_func(NULL),
+	map_name(map_name),
 	new_map_name("")
 {
 	tilemap = new Tilemap(8, map_name);
-	init_entities(map_name);
 }
 
 Map::~Map()
@@ -20,9 +22,26 @@ Map::~Map()
 			delete entities[i];
 		}
 	}
+}
 
-	for (size_t i = 0; i < floor_triggers.size(); i++) {
-		delete floor_triggers[i];
+void Map::start()
+{
+	if (map_name == "test.map") {
+		script_func = sf_test;
+	}
+	else if (map_name == "test2.map") {
+		script_func = sf_test2;
+	}
+
+	if (script_func != NULL) {
+		script_func(SCRIPT_BEGIN, this, &script_data, NULL);
+	}
+}
+
+void Map::end()
+{
+	if (script_func) {
+		script_func(SCRIPT_END, this, &script_data, NULL);
 	}
 }
 
@@ -47,24 +66,30 @@ void Map::change_map(std::string map_name, Point<int> position, Direction direct
 	new_map_direction = direction;
 }
 
-bool Map::is_solid(int layer, Point<int> position)
+bool Map::is_solid(int layer, Point<int> position, Size<int> size)
 {
 	for (size_t i = 0; i < entities.size(); i++) {
-		if (position == entities[i]->get_position()) {
+		Point<int> p = entities[i]->get_position();
+		if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
 			return true;
 		}
 	}
-	return tilemap->is_solid(layer, position);
+	for (int y = 0; y < size.h; y++) {
+		for (int x = 0; x < size.w; x++) {
+			Point<int> p(position.x+x, position.y+y);
+			if (tilemap->is_solid(layer, p)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 void Map::check_triggers(Map_Entity *entity)
 {
-	Point<int> pos = entity->get_position();
-	for (size_t i = 0; i < floor_triggers.size(); i++) {
-		Floor_Trigger *t = floor_triggers[i];
-		if (pos.x >= t->topleft.x && pos.x < t->topleft.x+t->size.w && pos.y >= t->topleft.y && pos.y < t->topleft.y+t->size.h) {
-			t->function(this, entity, pos-t->topleft);
-		}
+	if (script_func) {
+		script_func(SCRIPT_TRIGGERS, this, &script_data, entity);
 	}
 }
 
@@ -99,6 +124,10 @@ void Map::handle_event(TGUI_Event *event)
 
 bool Map::update()
 {
+	if (script_func) {
+		script_func(SCRIPT_UPDATE, this, &script_data, NULL);
+	}
+
 	if (speech == NULL) {
 		for (size_t i = 0; i < entities.size(); i++) {
 			entities[i]->update(this);
@@ -152,15 +181,5 @@ void Map::draw()
 
 	if (speech) {
 		speech->draw();
-	}
-}
-
-void Map::init_entities(std::string map_name)
-{
-	if (map_name == "test.map") {
-		floor_triggers.push_back(new Floor_Trigger(Point<int>(7, 1), Size<int>(2, 1), ft_test));
-	}
-	else if (map_name == "test2.map") {
-		floor_triggers.push_back(new Floor_Trigger(Point<int>(7, 18), Size<int>(2, 1), ft_test2));
 	}
 }

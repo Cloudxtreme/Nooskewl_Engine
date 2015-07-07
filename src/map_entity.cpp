@@ -115,7 +115,7 @@ void Map_Entity::stop()
 bool Map_Entity::maybe_move(Map *map)
 {
 	if (brain->l) {
-		if (map->is_solid(-1, position+Point<int>(-1, 0)) == false) {
+		if (map->is_solid(-1, position+Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 			moving = true;
 			offset = Point<float>(1, 0);
 			position += Point<int>(-1, 0);
@@ -130,7 +130,7 @@ bool Map_Entity::maybe_move(Map *map)
 		direction = W;
 	}
 	else if (brain->r) {
-		if (map->is_solid(-1, position+Point<int>(1, 0)) == false) {
+		if (map->is_solid(-1, position+Point<int>(1, 0), Size<int>(1, 1)) == false) {
 			moving = true;
 			offset = Point<float>(-1, 0);
 			position += Point<int>(1, 0);
@@ -145,7 +145,7 @@ bool Map_Entity::maybe_move(Map *map)
 		direction = E;
 	}
 	else if (brain->u) {
-		if (map->is_solid(-1, position+Point<int>(0, -1)) == false) {
+		if (map->is_solid(-1, position+Point<int>(0, -1), Size<int>(1, 1)) == false) {
 			moving = true;
 			offset = Point<float>(0, 1);
 			position += Point<int>(0, -1);
@@ -160,7 +160,7 @@ bool Map_Entity::maybe_move(Map *map)
 		direction = N;
 	}
 	else if (brain->d) {
-		if (map->is_solid(-1, position+Point<int>(0, 1)) == false) {
+		if (map->is_solid(-1, position+Point<int>(0, 1), Size<int>(1, 1)) == false) {
 			moving = true;
 			offset = Point<float>(0, -1);
 			position += Point<int>(0, 1);
