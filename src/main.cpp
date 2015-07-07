@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "cpa.h"
 #include "font.h"
 #include "graphics.h"
 #include "log.h"
@@ -47,6 +48,8 @@ static bool run_main()
 		throw Error("SDL_Init failed");
 	}
 
+	cpa = new CPA("ss.cpa");
+
 	init_audio();
 	init_video();
 	init_font();
@@ -59,6 +62,9 @@ static bool run_main()
 	player->load_sprite("player");
 	player->set_position(Point<int>(1, 3));
 	map->add_entity(player);
+
+	Audio music = load_audio("title.mml");
+	play_audio(music, true);
 
 	SDL_AddTimer(16, main_callback, NULL);
 
