@@ -82,6 +82,7 @@ static bool run_main()
 	SS_Div *child1 = new SS_Div(0.25f, 50);
 	child1->set_parent(main_div);
 	child1->set_padding(10);
+	child1->set_accepts_focus(true);
 	SS_Div *child2 = new SS_Div(-1.0f, 75);
 	child2->set_parent(main_div);
 	SS_Div *child3 = new SS_Div(1.0f, -1.0f);
@@ -90,13 +91,13 @@ static bool run_main()
 	child4->set_parent(child3);
 	child4->set_padding(10);
 	child4->set_float_right(true);
+	child4->set_accepts_focus(true);
 	SS_Div *child5 = new SS_Div(10, 10);
 	child5->set_parent(child3);
 	child5->set_padding(10);
 	child5->set_float_right(true);
+	child5->set_accepts_focus(true);
 	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
-
-	gui->set_focus(child5);
 
 	while (quit == false) {
 		bool got_event = false;

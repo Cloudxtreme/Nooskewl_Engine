@@ -1,6 +1,7 @@
 #ifndef TGUI3_H
 #define TGUI3_H
 
+#include <climits>
 #include <vector>
 
 #ifdef _MSC_VER
@@ -57,6 +58,7 @@ public:
 	TGUI_FUNC void handle_event(TGUI_Event *event);
 
 	TGUI_FUNC void set_focus(TGUI_Div *div);
+	TGUI_FUNC void focus_something();
 	TGUI_FUNC void set_offset(int offset_x, int offset_y);
 
 	TGUI_FUNC TGUI_Div *get_focus();
@@ -68,6 +70,9 @@ private:
 	void draw(TGUI_Div *div);
 	TGUI_Div *get_event_owner(TGUI_Event *event, TGUI_Div *div);
 	void handle_event(TGUI_Event *event, TGUI_Div *div);
+	bool focus_something(TGUI_Div *div);
+	void focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, int &score, int &grade);
+	void find_focus(TGUI_Div *start, TGUI_Div *&current_best, TGUI_Div *div, int dir_x, int dir_y, int &best_score, int &best_grade);
 
 	TGUI_Div *main_div;
 	TGUI_Div *focus;
@@ -92,6 +97,7 @@ public:
 	TGUI_FUNC void set_padding(int padding);
 	TGUI_FUNC void set_padding(int left, int right, int top, int bottom);
 	TGUI_FUNC void set_float_right(bool float_right);
+	TGUI_FUNC void set_accepts_focus(bool accepts_focus);
 
 	TGUI_FUNC TGUI_Div *get_parent();
 	TGUI_FUNC int get_x();
@@ -114,6 +120,7 @@ protected:
 	std::vector<TGUI_Div *> children;
 	int padding_left, padding_right, padding_top, padding_bottom;
 	bool float_right;
+	bool accepts_focus;
 
 	int calculated_x, calculated_y;
 	int calculated_w, calculated_h;

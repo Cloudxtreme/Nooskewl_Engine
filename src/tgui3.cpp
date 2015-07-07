@@ -9,6 +9,7 @@ TGUI::TGUI(TGUI_Div *main_div, int w, int h) :
 	offset_y(0)
 {
 	layout();
+	focus_something();
 }
 
 void TGUI::layout()
@@ -31,12 +32,62 @@ void TGUI::draw()
 
 void TGUI::handle_event(TGUI_Event *event)
 {
-	handle_event(event, main_div);
+	int x = 0;
+	int y = 0;
+	if (event->type == TGUI_JOY_AXIS && fabs(event->joystick.value) > 0.25f) {
+		if (event->joystick.axis == 0) {
+			if (event->joystick.value < 0) {
+				x = -1;
+			}
+			else {
+				x = 1;
+			}
+		}
+		else if (event->joystick.axis == 1) {
+			if (event->joystick.value < 0) {
+				y = -1;
+			}
+			else {
+				y = 1;
+			}
+		}
+	}
+	else if (event->type == TGUI_KEY_DOWN) {
+		if (event->keyboard.code == TGUIK_LEFT) {
+			x = -1;
+		}
+		else if (event->keyboard.code == TGUIK_RIGHT) {
+			x = 1;
+		}
+		else if (event->keyboard.code == TGUIK_UP) {
+			y = -1;
+		}
+		else if (event->keyboard.code == TGUIK_DOWN) {
+			y = 1;
+		}
+	}
+
+	if (x == 0 && y == 0) {
+		handle_event(event, main_div);
+	}
+	else {
+		TGUI_Div *start = focus == NULL ? main_div : focus;
+		TGUI_Div *best = start;
+		int best_score = INT_MAX;
+		int best_grade = 2;
+		find_focus(start, best, main_div, x, y, best_score, best_grade);
+		focus = best;
+	}
 }
 
 void TGUI::set_focus(TGUI_Div *div)
 {
 	focus = div;
+}
+
+void TGUI::focus_something()
+{
+	focus_something(main_div);
 }
 
 void TGUI::set_offset(int offset_x, int offset_y)
@@ -148,6 +199,101 @@ void TGUI::handle_event(TGUI_Event *event, TGUI_Div *div)
 	}
 }
 
+bool TGUI::focus_something(TGUI_Div *div)
+{
+	if (div->accepts_focus) {
+		focus = div;
+		return true;
+	}
+
+	for (size_t i = 0; i < div->children.size(); i++) {
+		if (focus_something(div->children[i])) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// Returns positive for aligned match, negative for unaligned match
+void TGUI::focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, int &score, int &grade)
+{
+	int cx = start->calculated_x + start->calculated_w / 2;
+	int cy = start->calculated_y + start->calculated_h / 2;
+
+	int box_x1 = cx;
+	int box_x2 = cx + dir_x * 1000000;
+	int box_y1 = cy;
+	int box_y2 = cy + dir_y * 1000000;
+
+	if (box_x1 == box_x2) {
+		box_x1 = start->calculated_x;
+		box_x2 = box_x1 + start->calculated_w;
+	}
+	else {
+		box_y1 = start->calculated_y;
+		box_y2 = box_y1 + start->calculated_h;
+	}
+
+	if (box_x2 < box_x1) {
+		int tmp = box_x1;
+		box_x1 = box_x2;
+		box_x2 = tmp;
+	}
+
+	if (box_y2 < box_y1) {
+		int tmp = box_y1;
+		box_y1 = box_y2;
+		box_y2 = tmp;
+	}
+
+	int div_x1 = div->calculated_x;
+	int div_x2 = div_x1 + div->calculated_w;
+	int div_y1 = div->calculated_y;
+	int div_y2 = div_y1 + div->calculated_h;
+
+	int div_cx = (div_x1 + div_x2) / 2;
+	int div_cy = (div_y1 + div_y2) / 2;
+
+	int dx = div_cx - cx;
+	int dy = div_cy - cy;
+	int dist = int(sqrtf(dx*dx + dy*dy));
+
+	if (!(div_x1 > box_x2 || div_x2 < box_x1 || div_y1 > box_y2 || div_y2 < box_y1)) {
+		grade = 0;
+	}
+	else if (dir_x < 0 && div_cx < cx || dir_x > 0 && div_cx > cx || dir_y < 0 && div_cy < cy || dir_y > 0 && div_cy > cy) {
+		grade = 1;
+	}
+	else {
+		grade = 2;
+	}
+
+	score = dist;
+}
+
+void TGUI::find_focus(TGUI_Div *start, TGUI_Div *&current_best, TGUI_Div *div, int dir_x, int dir_y, int &best_score, int &best_grade)
+{
+	if (div->accepts_focus && div != start) {
+		int score, grade;
+		focus_distance(start, div, dir_x, dir_y, score, grade);
+		if (grade < best_grade) {
+			best_score = score;
+			best_grade = grade;
+			current_best = div;
+		}
+		else if (grade == best_grade && score < best_score) {
+			best_score = score;
+			best_grade = grade;
+			current_best = div;
+		}
+	}
+
+	for (size_t i = 0; i < div->children.size(); i++) {
+		find_focus(start, current_best, div->children[i], dir_x, dir_y, best_score, best_grade);
+	}
+}
+
 TGUI_Div::TGUI_Div(int w, int h) :
 	parent(NULL),
 	percent_x(false),
@@ -158,7 +304,8 @@ TGUI_Div::TGUI_Div(int w, int h) :
 	padding_right(0),
 	padding_top(0),
 	padding_bottom(0),
-	float_right(false)
+	float_right(false),
+	accepts_focus(false)
 {
 }
 
@@ -172,7 +319,8 @@ TGUI_Div::TGUI_Div(float percent_w, float percent_h) :
 	padding_right(0),
 	padding_top(0),
 	padding_bottom(0),
-	float_right(false)
+	float_right(false),
+	accepts_focus(false)
 {
 }
 
@@ -186,7 +334,8 @@ TGUI_Div::TGUI_Div(int w, float percent_h) :
 	padding_right(0),
 	padding_top(0),
 	padding_bottom(0),
-	float_right(false)
+	float_right(false),
+	accepts_focus(false)
 {
 }
 
@@ -200,7 +349,8 @@ TGUI_Div::TGUI_Div(float percent_w, int h) :
 	padding_right(0),
 	padding_top(0),
 	padding_bottom(0),
-	float_right(false)
+	float_right(false),
+	accepts_focus(false)
 {
 }
 
@@ -226,6 +376,16 @@ void TGUI_Div::set_padding(int left, int right, int top, int bottom)
 void TGUI_Div::set_float_right(bool float_right)
 {
 	this->float_right = float_right;
+}
+
+void TGUI_Div::set_accepts_focus(bool accepts_focus)
+{
+	this->accepts_focus = accepts_focus;
+	if (accepts_focus == false) {
+		if (gui->get_focus() == this) {
+			gui->focus_something();
+		}
+	}
 }
 
 TGUI_Div *TGUI_Div::get_parent()
