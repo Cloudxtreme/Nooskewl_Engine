@@ -31,6 +31,7 @@ set(SRC
 	src/util.cpp
 	src/vertex_accel.cpp
 	src/video.cpp
+	src/widgets.cpp
 	src/xml.cpp
 )
 
