@@ -32,22 +32,26 @@ static void draw_focus(TGUI_Div *div)
 }
 
 SS_Div::SS_Div(int w, int h) :
-	TGUI_Div(w, h)
+	TGUI_Div(w, h),
+	got_event(false)
 {
 }
 
 SS_Div::SS_Div(float percent_w, float percent_h) :
-	TGUI_Div(percent_w, percent_h)
+	TGUI_Div(percent_w, percent_h),
+	got_event(false)
 {
 }
 
 SS_Div::SS_Div(int w, float percent_h) :
-	TGUI_Div(w, percent_h)
+	TGUI_Div(w, percent_h),
+	got_event(false)
 {
 }
 
 SS_Div::SS_Div(float percent_w, int h) :
-	TGUI_Div(percent_w, h)
+	TGUI_Div(percent_w, h),
+	got_event(false)
 {
 }
 
@@ -65,11 +69,28 @@ void SS_Div::draw()
 		{ 255, 255, 255, 255 },
 		{ 255, 255, 255, 255 }
 	};
+	SDL_Colour greens[] = {
+		{ 0, 255, 0, 255 },
+		{ 0, 255, 0, 255 },
+		{ 0, 255, 0, 255 },
+		{ 0, 255, 0, 255 }
+	};
 
 	draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), blacks);
-	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, whites);
+	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? greens : whites);
 
 	if (gui->get_focus() == this) {
 		draw_focus(this);
+	}
+}
+
+void SS_Div::handle_event(TGUI_Event *event)
+{
+	TGUI_Div *owner = gui->get_event_owner(event);
+	if (owner == this) {
+		got_event = true;
+	}
+	else if (owner != NULL) {
+		got_event = false;
 	}
 }

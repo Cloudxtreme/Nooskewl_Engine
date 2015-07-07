@@ -110,7 +110,13 @@ static bool run_main()
 				break;
 			}
 
-			TGUI_Event event = tgui_sdl_handle_event(&sdl_event);
+			TGUI_Event event = tgui_sdl_convert_event(&sdl_event);
+			// FIXME: process function
+			if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
+				event.mouse.x /= 4;
+				event.mouse.y /= 4;
+			}
+			gui->handle_event(&event);
 
 			if (sdl_event.type == SDL_QUIT) {
 				quit = true;
@@ -175,9 +181,11 @@ static bool run_main()
 
 			map->handle_event(&event);
 
+			/*
 			if (event.type == TGUI_MOUSE_AXIS) {
 				gui->resize(event.mouse.x/4, event.mouse.y/4);
 			}
+			*/
 		}
 
 		if (quit) {

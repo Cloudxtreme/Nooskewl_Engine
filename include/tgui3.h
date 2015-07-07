@@ -53,17 +53,20 @@ public:
 	TGUI_FUNC void layout();
 	TGUI_FUNC void resize(int w, int h);
 	TGUI_FUNC void draw();
+	TGUI_FUNC void handle_event(TGUI_Event *event);
 
 	TGUI_FUNC void set_focus(TGUI_Div *div);
 	TGUI_FUNC void set_offset(int offset_x, int offset_y);
 
 	TGUI_FUNC TGUI_Div *get_focus();
+	TGUI_FUNC TGUI_Div *get_event_owner(TGUI_Event *event);
 
 private:
 	void set_sizes(TGUI_Div *div);
 	void set_positions(TGUI_Div *div, int x, int y);
-
 	void draw(TGUI_Div *div);
+	TGUI_Div *get_event_owner(TGUI_Event *event, TGUI_Div *div);
+	void handle_event(TGUI_Event *event, TGUI_Div *div);
 
 	TGUI_Div *main_div;
 	TGUI_Div *focus;
@@ -82,6 +85,7 @@ public:
 	TGUI_FUNC TGUI_Div(float percent_w, int h);
 
 	virtual void draw() {}
+	virtual void handle_event(TGUI_Event *event) {}
 
 	TGUI_FUNC void set_parent(TGUI_Div *div);
 	TGUI_FUNC void set_padding(int padding);
@@ -357,7 +361,7 @@ enum
 	TGUIK_SLEEP = SDLK_SLEEP,
 };
 
-TGUI_FUNC TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event);
+TGUI_FUNC TGUI_Event tgui_sdl_convert_event(SDL_Event *sdl_event);
 #endif // WITH_SDL
 
 #endif // TGUI3_H

@@ -28,6 +28,11 @@ void TGUI::draw()
 	draw(main_div);
 }
 
+void TGUI::handle_event(TGUI_Event *event)
+{
+	handle_event(event, main_div);
+}
+
 void TGUI::set_focus(TGUI_Div *div)
 {
 	focus = div;
@@ -45,44 +50,9 @@ TGUI_Div *TGUI::get_focus()
 	return focus;
 }
 
-int TGUI_Div::get_x()
+TGUI_Div *TGUI::get_event_owner(TGUI_Event *event)
 {
-	return calculated_x;
-}
-
-int TGUI_Div::get_y()
-{
-	return calculated_y;
-}
-
-int TGUI_Div::get_width()
-{
-	return calculated_w;
-}
-
-int TGUI_Div::get_height()
-{
-	return calculated_h;
-}
-
-int TGUI_Div::get_padding_left()
-{
-	return padding_left;
-}
-
-int TGUI_Div::get_padding_right()
-{
-	return padding_right;
-}
-
-int TGUI_Div::get_padding_top()
-{
-	return padding_top;
-}
-
-int TGUI_Div::get_padding_bottom()
-{
-	return padding_bottom;
+	return get_event_owner(event, main_div);
 }
 
 void TGUI::set_sizes(TGUI_Div *div)
@@ -144,6 +114,36 @@ void TGUI::draw(TGUI_Div *div)
 	div->draw();
 	for (size_t i = 0; i < div->children.size(); i++) {
 		draw(div->children[i]);
+	}
+}
+
+TGUI_Div *TGUI::get_event_owner(TGUI_Event *event, TGUI_Div *div)
+{
+	for (size_t i = 0; i < div->children.size(); i++) {
+		TGUI_Div *d = get_event_owner(event, div->children[i]);
+		if (d != NULL) {
+			return d;
+		}
+	}
+
+	if (event->type == TGUI_MOUSE_DOWN || event->type == TGUI_MOUSE_UP || event->type == TGUI_MOUSE_AXIS) {
+		if (event->mouse.x >= div->calculated_x && event->mouse.x < div->calculated_x+div->calculated_w && event->mouse.y >= div->calculated_y && event->mouse.y < div->calculated_y+div->calculated_h) {
+			return div;
+		}
+	}
+	else if (event->type != TGUI_UNKNOWN && div == focus) {
+		return div;
+	}
+
+	return NULL;
+}
+
+void TGUI::handle_event(TGUI_Event *event, TGUI_Div *div)
+{
+	div->handle_event(event);
+
+	for (size_t i = 0; i < div->children.size(); i++) {
+		handle_event(event, div->children[i]);
 	}
 }
 
@@ -230,6 +230,46 @@ void TGUI_Div::set_float_right(bool float_right)
 TGUI_Div *TGUI_Div::get_parent()
 {
 	return parent;
+}
+
+int TGUI_Div::get_x()
+{
+	return calculated_x;
+}
+
+int TGUI_Div::get_y()
+{
+	return calculated_y;
+}
+
+int TGUI_Div::get_width()
+{
+	return calculated_w;
+}
+
+int TGUI_Div::get_height()
+{
+	return calculated_h;
+}
+
+int TGUI_Div::get_padding_left()
+{
+	return padding_left;
+}
+
+int TGUI_Div::get_padding_right()
+{
+	return padding_right;
+}
+
+int TGUI_Div::get_padding_top()
+{
+	return padding_top;
+}
+
+int TGUI_Div::get_padding_bottom()
+{
+	return padding_bottom;
 }
 
 int TGUI_Div::get_right_pos()
@@ -396,7 +436,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 }
 
 #ifdef WITH_SDL
-TGUI_Event tgui_event_from_sdl_event(SDL_Event *sdl_event)
+TGUI_Event tgui_sdl_convert_event(SDL_Event *sdl_event)
 {
 	TGUI_Event event;
 
@@ -449,13 +489,6 @@ TGUI_Event tgui_event_from_sdl_event(SDL_Event *sdl_event)
 			event.type = TGUI_UNKNOWN;
 			break;
 	}
-
-	return event;
-}
-
-TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event)
-{
-	TGUI_Event event = tgui_event_from_sdl_event(sdl_event);
 
 #ifdef TGUI_DEBUG
 	switch (event.type) {

@@ -11,6 +11,10 @@ public:
 	SS_Div(float percent_w, int h);
 
 	void draw();
+	void handle_event(TGUI_Event *event);
+
+private:
+	bool got_event;
 };
 
 #endif // WIDGETS_H
