@@ -2,10 +2,8 @@
 #include "types.h"
 #include "widgets.h"
 
-static void draw_focus(TGUI_Div *div, int x, int y)
+static void draw_focus(TGUI_Div *div)
 {
-	int w, h;
-	tgui_get_size(div->get_parent(), div, &w, &h);
 	float f = (SDL_GetTicks() % 1000) / 1000.0f;
 	float alpha;
 	if (f >= 0.5f) {
@@ -19,6 +17,14 @@ static void draw_focus(TGUI_Div *div, int x, int y)
 	colour.g = 255;
 	colour.b = 0;
 	colour.a = int(alpha * 255.0f);
+	int padding_left = div->get_padding_left();
+	int padding_right = div->get_padding_right();
+	int padding_top = div->get_padding_top();
+	int padding_bottom = div->get_padding_bottom();
+	int x = div->get_x() - padding_left;
+	int y = div->get_y() - padding_top;
+	int w = div->get_width() + padding_left + padding_right;
+	int h = div->get_height() + padding_top + padding_bottom;
 	draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
 	draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
 	draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);
@@ -45,11 +51,8 @@ SS_Div::SS_Div(float percent_w, int h) :
 {
 }
 
-void SS_Div::draw(TGUI_Div *parent, int x, int y) {
-	int width, height;
-	tgui_get_size(parent, this, &width, &height);
-	width -= padding_left + padding_right;
-	height -= padding_top + padding_bottom;
+void SS_Div::draw()
+{
 	SDL_Colour blacks[] = {
 		{ 0, 0, 0, 255 },
 		{ 0, 0, 0, 255 },
@@ -62,10 +65,11 @@ void SS_Div::draw(TGUI_Div *parent, int x, int y) {
 		{ 255, 255, 255, 255 },
 		{ 255, 255, 255, 255 }
 	};
-	draw_quad(Point<int>(x, y), Size<int>(width, height), blacks);
-	draw_quad(Point<int>(x, y)+1, Size<int>(width, height)-2, whites);
+
+	draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), blacks);
+	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, whites);
 
 	if (gui->get_focus() == this) {
-		draw_focus(this, x-padding_left, y-padding_top);
+		draw_focus(this);
 	}
 }

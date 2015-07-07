@@ -55,16 +55,20 @@ public:
 	TGUI_FUNC void draw();
 
 	TGUI_FUNC void set_focus(TGUI_Div *div);
+	TGUI_FUNC void set_offset(int offset_x, int offset_y);
 
 	TGUI_FUNC TGUI_Div *get_focus();
 
 private:
-	void layout(TGUI_Div *div);
-	void draw(TGUI_Div *div, int x, int y);
+	void set_sizes(TGUI_Div *div);
+	void set_positions(TGUI_Div *div, int x, int y);
+
+	void draw(TGUI_Div *div);
 
 	TGUI_Div *main_div;
-	int w, h;
 	TGUI_Div *focus;
+	int w, h;
+	int offset_x, offset_y;
 };
 
 class TGUI_Div {
@@ -77,7 +81,7 @@ public:
 	TGUI_FUNC TGUI_Div(int w, float percent_h);
 	TGUI_FUNC TGUI_Div(float percent_w, int h);
 
-	virtual void draw(TGUI_Div *parent, int x, int y) {}
+	virtual void draw() {}
 
 	TGUI_FUNC void set_parent(TGUI_Div *div);
 	TGUI_FUNC void set_padding(int padding);
@@ -85,6 +89,14 @@ public:
 	TGUI_FUNC void set_float_right(bool float_right);
 
 	TGUI_FUNC TGUI_Div *get_parent();
+	TGUI_FUNC int get_x();
+	TGUI_FUNC int get_y();
+	TGUI_FUNC int get_width();
+	TGUI_FUNC int get_height();
+	TGUI_FUNC int get_padding_left();
+	TGUI_FUNC int get_padding_right();
+	TGUI_FUNC int get_padding_top();
+	TGUI_FUNC int get_padding_bottom();
 
 protected:
 	int get_right_pos();
@@ -97,6 +109,9 @@ protected:
 	std::vector<TGUI_Div *> children;
 	int padding_left, padding_right, padding_top, padding_bottom;
 	bool float_right;
+
+	int calculated_x, calculated_y;
+	int calculated_w, calculated_h;
 };
 
 #ifdef WITH_SDL

@@ -10,7 +10,7 @@ public:
 	SS_Div(int w, float percent_h);
 	SS_Div(float percent_w, int h);
 
-	void draw(TGUI_Div *parent, int x, int y);
+	void draw();
 };
 
 #endif // WIDGETS_H

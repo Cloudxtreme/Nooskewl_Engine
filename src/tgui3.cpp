@@ -4,24 +4,28 @@ TGUI::TGUI(TGUI_Div *main_div, int w, int h) :
 	main_div(main_div),
 	w(w),
 	h(h),
-	focus(NULL)
+	focus(NULL),
+	offset_x(0),
+	offset_y(0)
 {
 }
 
 void TGUI::layout()
 {
-	layout(main_div);
+	set_sizes(main_div);
+	set_positions(main_div, offset_x, offset_y);
 }
 
 void TGUI::resize(int w, int h)
 {
 	this->w = w;
 	this->h = h;
+	layout();
 }
 
 void TGUI::draw()
 {
-	draw(main_div, 0, 0);
+	draw(main_div);
 }
 
 void TGUI::set_focus(TGUI_Div *div)
@@ -29,43 +33,120 @@ void TGUI::set_focus(TGUI_Div *div)
 	focus = div;
 }
 
+void TGUI::set_offset(int offset_x, int offset_y)
+{
+	this->offset_x = offset_x;
+	this->offset_y = offset_y;
+	layout();
+}
+
 TGUI_Div *TGUI::get_focus()
 {
 	return focus;
 }
 
-void TGUI::layout(TGUI_Div *div)
+int TGUI_Div::get_x()
+{
+	return calculated_x;
+}
+
+int TGUI_Div::get_y()
+{
+	return calculated_y;
+}
+
+int TGUI_Div::get_width()
+{
+	return calculated_w;
+}
+
+int TGUI_Div::get_height()
+{
+	return calculated_h;
+}
+
+int TGUI_Div::get_padding_left()
+{
+	return padding_left;
+}
+
+int TGUI_Div::get_padding_right()
+{
+	return padding_right;
+}
+
+int TGUI_Div::get_padding_top()
+{
+	return padding_top;
+}
+
+int TGUI_Div::get_padding_bottom()
+{
+	return padding_bottom;
+}
+
+void TGUI::set_sizes(TGUI_Div *div)
 {
 	div->gui = this;
+	int width, height;
+	tgui_get_size(div->parent, div, &width, &height);
+	div->calculated_w = width;
+	div->calculated_h = height;
 	for (size_t i = 0; i < div->children.size(); i++) {
-		layout(div->children[i]);
+		set_sizes(div->children[i]);
 	}
 }
 
-void TGUI::draw(TGUI_Div *div, int x, int y)
+void TGUI::set_positions(TGUI_Div *div, int x, int y)
 {
-	div->draw(div->parent, x, y);
+	div->calculated_x = x;
+	div->calculated_y = y;
+
 	int parent_width, parent_height;
-	tgui_get_size(div->parent, div, &parent_width, &parent_height);
+
+	if (div->parent) {
+		parent_width = div->parent->calculated_w + div->parent->padding_left + div->parent->padding_right;
+		parent_height = div->parent->calculated_h + div->parent->padding_top + div->parent->padding_bottom;
+	}
+	else {
+		parent_width = w;
+		parent_height = h;
+	}
+
 	int max_h = 0;
 	int dx = x;
 	int dy = y;
+
 	for (size_t i = 0; i < div->children.size(); i++) {
 		TGUI_Div *d = div->children[i];
-		int width, height;
-		tgui_get_size(div, d, &width, &height);
+
+		int width = d->calculated_w + d->padding_left + d->padding_right;
+		int height = d->calculated_h + d->padding_top + d->padding_bottom;
+
 		if (dx + width > parent_width) {
 			dx = x;
 			dy += max_h;
 			max_h = 0;
 		}
-		draw(d, dx+d->padding_left+d->get_right_pos(), dy+d->padding_top);
+
+		set_positions(d, dx+d->padding_left+d->get_right_pos(), dy+d->padding_top);
+
 		if (d->float_right == false) {
 			dx += width;
 		}
+
 		max_h = height > max_h ? height : max_h;
 	}
 }
+
+void TGUI::draw(TGUI_Div *div)
+{
+	div->draw();
+	for (size_t i = 0; i < div->children.size(); i++) {
+		draw(div->children[i]);
+	}
+}
+
 TGUI_Div::TGUI_Div(int w, int h) :
 	parent(NULL),
 	percent_x(false),
@@ -158,8 +239,10 @@ int TGUI_Div::get_right_pos()
 	}
 	int parent_width;
 	tgui_get_size(parent->parent, parent, &parent_width, NULL);
+	parent_width += parent->padding_left + parent->padding_right;
 	int width;
 	tgui_get_size(parent, this, &width, NULL);
+	width += padding_left + padding_right;
 	int right = 0;
 	for (size_t i = 0; i < parent->children.size(); i++) {
 		TGUI_Div *d = parent->children[i];
@@ -169,6 +252,7 @@ int TGUI_Div::get_right_pos()
 		if (d->float_right) {
 			int w2;
 			tgui_get_size(parent, d, &w2, NULL);
+			w2 += d->padding_left + d->padding_right;
 			right += w2;
 		}
 	}
@@ -184,6 +268,8 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 	else {
 		int w, h;
 		tgui_get_size(parent->parent, parent, &w, &h);
+		w += parent->padding_left + parent->padding_right;
+		h += parent->padding_top + parent->padding_bottom;
 		if (width) {
 			if (div->percent_x) {
 				if (div->percent_w < 0) {
@@ -199,6 +285,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 							else {
 								int w2;
 								tgui_get_size(parent, d, &w2, NULL);
+								w2 += d->padding_left + d->padding_right;
 								this_w = w2;
 							}
 						}
@@ -245,6 +332,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 						float this_percent = 0.0f;
 						TGUI_Div *d = parent->children[i];
 						tgui_get_size(parent, d, &this_w, NULL);
+						this_w += d->padding_left + d->padding_right;
 						if (d->percent_y) {
 							if (d->percent_h < 0) {
 								this_percent = -d->percent_h;
@@ -252,6 +340,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 							else {
 								int h2;
 								tgui_get_size(parent, d, NULL, &h2);
+								h2 += d->padding_top + d->padding_bottom;
 								this_h = h2;
 							}
 						}
@@ -302,12 +391,6 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 			else {
 				*height = div->h;
 			}
-		}
-		if (width) {
-			*width += div->padding_left + div->padding_right;
-		}
-		if (height) {
-			*height += div->padding_top + div->padding_bottom;
 		}
 	}
 }
