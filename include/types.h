@@ -110,16 +110,16 @@ public:
 		this->y = y;
 	}
 
-	Point(const Point<float> &p)
-	{
-		this->x = p.x;
-		this->y = p.y;
-	}
-
 	Point(const Point<int> &p)
 	{
-		this->x = p.x;
-		this->y = p.y;
+		this->x = (T)p.x;
+		this->y = (T)p.y;
+	}
+
+	Point(const Point<float> &p)
+	{
+		this->x = (T)p.x;
+		this->y = (T)p.y;
 	}
 
 	inline void operator=(const Point<T> &from)

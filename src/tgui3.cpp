@@ -217,14 +217,14 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 					}
 					int remainder = w - total_w;
 					if (remainder > 0) {
-						*width = remainder * (-div->percent_w / total_percent) - (div->padding_left + div->padding_right);
+						*width = remainder * int(-div->percent_w / total_percent) - (div->padding_left + div->padding_right);
 					}
 					else {
 						*width = 0;
 					}
 				}
 				else {
-					*width = w * div->percent_w;
+					*width = int(w * div->percent_w);
 				}
 			}
 			else {
@@ -289,14 +289,14 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 					}
 					int remainder = h - total_h;
 					if (remainder > 0) {
-						*height = remainder * (-div->percent_h / total_percent) - (div->padding_top + div->padding_bottom);
+						*height = remainder * int(-div->percent_h / total_percent) - (div->padding_top + div->padding_bottom);
 					}
 					else {
 						*height = 0;
 					}
 				}
 				else {
-					*height = h * div->percent_h;
+					*height = int(h * div->percent_h);
 				}
 			}
 			else {
