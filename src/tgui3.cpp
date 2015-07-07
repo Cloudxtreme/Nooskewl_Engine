@@ -1,28 +1,134 @@
 #include "tgui3.h"
 #include <stdio.h> // FIXME
 
-void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int &width, int &height)
+void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 {
 	if (parent == NULL) {
-		width = div->gui->w;
-		height = div->gui->h;
+		*width = div->gui->w;
+		*height = div->gui->h;
 	}
 	else {
-		if (div->percent_x) {
-			int w, h;
-			tgui_get_size(parent->parent, parent, w, h);
-			width = w * div->percent_w;
+		int w, h;
+		tgui_get_size(parent->parent, parent, &w, &h);
+		if (width) {
+			if (div->percent_x) {
+				if (div->percent_w < 0) {
+					int total_w = 0;
+					float total_percent = 0.0f;
+					for (size_t i = 0; i < parent->children.size(); i++) {
+						int this_w = 0;
+						TGUI_Div *d = parent->children[i];
+						if (d->percent_x) {
+							if (d->percent_w < 0) {
+								total_percent += -d->percent_w;
+							}
+							else {
+								int w2;
+								tgui_get_size(parent, d, &w2, NULL);
+								this_w = w2;
+							}
+						}
+						else {
+							this_w = d->w + d->padding_left + d->padding_right;
+						}
+						if (total_w + this_w > w) {
+							total_w = 0;
+						}
+						total_w += this_w;
+						if (d == div) {
+							break;
+						}
+					}
+					int remainder = w - total_w;
+					if (remainder > 0) {
+						*width = remainder * (-div->percent_w / total_percent) - (div->padding_left + div->padding_right);
+					}
+					else {
+						*width = 0;
+					}
+				}
+				else {
+					*width = w * div->percent_w;
+				}
+			}
+			else {
+				*width = div->w;
+			}
 		}
-		else {
-			width = div->w;
+		if (height) {
+			if (div->percent_y) {
+				if (div->percent_h < 0) {
+					int total_w = 0;
+					int total_h = 0;
+					float total_percent = 0.0f;
+					int max_h = 0;
+					float max_percent = 0.0f;
+					for (size_t i = 0; i < parent->children.size(); i++) {
+						int this_w = 0;
+						int this_h = 0;
+						float this_percent = 0.0f;
+						TGUI_Div *d = parent->children[i];
+						tgui_get_size(parent, d, &this_w, NULL);
+						if (d->percent_y) {
+							if (d->percent_h < 0) {
+								this_percent = -d->percent_h;
+							}
+							else {
+								int h2;
+								tgui_get_size(parent, d, NULL, &h2);
+								this_h = h2;
+							}
+						}
+						else {
+							this_h = d->h + d->padding_top + d->padding_bottom;
+						}
+						if (total_w + this_w <= w) {
+							if (this_h > max_h) {
+								max_h = this_h;
+							}
+							if (this_percent > max_percent) {
+								max_percent = this_percent;
+							}
+						}
+						if (total_w + this_w >= w || i == parent->children.size()-1) {
+							total_h += max_h;
+							total_percent += max_percent;
+							if (total_w + this_w > w) {
+								max_h = this_h;
+								max_percent = this_percent;
+								total_w = this_w;
+							}
+							else {
+								max_h = 0;
+								max_percent = 0.0f;
+								total_w = 0;
+							}
+						}
+						else {
+							total_w += this_w;
+						}
+					}
+					int remainder = h - total_h;
+					if (remainder > 0) {
+						*height = remainder * (-div->percent_h / total_percent) - (div->padding_top + div->padding_bottom);
+					}
+					else {
+						*height = 0;
+					}
+				}
+				else {
+					*height = h * div->percent_h;
+				}
+			}
+			else {
+				*height = div->h;
+			}
 		}
-		if (div->percent_y) {
-			int w, h;
-			tgui_get_size(parent->parent, parent, w, h);
-			height = h * div->percent_h;
+		if (width) {
+			*width += div->padding_left + div->padding_right;
 		}
-		else {
-			height = div->h;
+		if (height) {
+			*height += div->padding_top + div->padding_bottom;
 		}
 	}
 }
