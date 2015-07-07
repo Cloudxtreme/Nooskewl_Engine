@@ -16,9 +16,9 @@ void Speech::start()
 	start_time = SDL_GetTicks();
 }
 
-bool Speech::handle_event(SDL_Event *event)
+bool Speech::handle_event(TGUI_Event *event)
 {
-	if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_RETURN) {
+	if (event->type == TGUI_KEY_DOWN || event->type == TGUI_JOY_DOWN || event->type == TGUI_MOUSE_DOWN) {
 		if (done) {
 			return false;
 		}

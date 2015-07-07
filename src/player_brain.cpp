@@ -8,42 +8,42 @@ Player_Brain::~Player_Brain()
 {
 }
 
-void Player_Brain::handle_event(SDL_Event *event)
+void Player_Brain::handle_event(TGUI_Event *event)
 {
-	if (event->type == SDL_KEYDOWN) {
-		switch (event->key.keysym.sym) {
-			case SDLK_LEFT:
+	if (event->type == TGUI_KEY_DOWN) {
+		switch (event->keyboard.code) {
+			case TGUIK_LEFT:
 				l = true;
 				break;
-			case SDLK_RIGHT:
+			case TGUIK_RIGHT:
 				r = true;
 				break;
-			case SDLK_UP:
+			case TGUIK_UP:
 				u = true;
 				break;
-			case SDLK_DOWN:
+			case TGUIK_DOWN:
 				d = true;
 				break;
-			case SDLK_RETURN:
+			case TGUIK_RETURN:
 				b1 = true;
 				break;
 		}
 	}
-	else if (event->type == SDL_KEYUP) {
-		switch (event->key.keysym.sym) {
-			case SDLK_LEFT:
+	else if (event->type == TGUI_KEY_UP) {
+		switch (event->keyboard.code) {
+			case TGUIK_LEFT:
 				l = false;
 				break;
-			case SDLK_RIGHT:
+			case TGUIK_RIGHT:
 				r = false;
 				break;
-			case SDLK_UP:
+			case TGUIK_UP:
 				u = false;
 				break;
-			case SDLK_DOWN:
+			case TGUIK_DOWN:
 				d = false;
 				break;
-			case SDLK_RETURN:
+			case TGUIK_RETURN:
 				b1 = false;
 				break;
 		}

@@ -20,7 +20,7 @@ public:
 	void check_triggers(Map_Entity *entity);
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 
-	void handle_event(SDL_Event *event);
+	void handle_event(TGUI_Event *event);
 	bool update();
 	void draw();
 

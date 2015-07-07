@@ -24,7 +24,7 @@ public:
 	Point<int> get_draw_position();
 
 	void stop();
-	void handle_event(SDL_Event *event);
+	void handle_event(TGUI_Event *event);
 	// return false to destroy
 	bool update(Map *map);
 	void draw(Point<int> draw_pos);

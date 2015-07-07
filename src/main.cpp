@@ -81,19 +81,21 @@ static bool run_main()
 	while (quit == false) {
 		bool got_event = false;
 		while (true) {
-			SDL_Event event;
-			if (SDL_PollEvent(&event)) {
+			SDL_Event sdl_event;
+			if (SDL_PollEvent(&sdl_event)) {
 				got_event = true;
 			}
 			else {
 				break;
 			}
-			tgui_sdl_handle_event(&event);
-			if (event.type == SDL_QUIT) {
+
+			TGUI_Event event = tgui_sdl_handle_event(&sdl_event);
+
+			if (sdl_event.type == SDL_QUIT) {
 				quit = true;
 				break;
 			}
-			else if (event.type == SDL_USEREVENT) {
+			else if (sdl_event.type == SDL_USEREVENT) {
 				update_graphics();
 				if (map->update() == false) {
 					std::string map_name;
@@ -149,6 +151,7 @@ static bool run_main()
 				}
 				draw = true;
 			}
+
 			map->handle_event(&event);
 		}
 

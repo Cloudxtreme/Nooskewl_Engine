@@ -59,10 +59,11 @@ TGUI_Event tgui_event_from_sdl_event(SDL_Event *sdl_event)
 	return event;
 }
 
-void tgui_sdl_handle_event(SDL_Event *sdl_event)
+TGUI_Event tgui_sdl_handle_event(SDL_Event *sdl_event)
 {
 	TGUI_Event event = tgui_event_from_sdl_event(sdl_event);
 
+#ifdef TGUI_DEBUG
 	switch (event.type) {
 		case TGUI_KEY_DOWN:
 		case TGUI_KEY_UP:
@@ -79,5 +80,8 @@ void tgui_sdl_handle_event(SDL_Event *sdl_event)
 			printf("[%2d] %d %d %f\n", event.type, event.joystick.button, event.joystick.axis, event.joystick.value);
 			break;
 	}
+#endif
+
+	return event;
 }
 #endif

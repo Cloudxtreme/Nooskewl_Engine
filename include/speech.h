@@ -2,6 +2,7 @@
 #define SPEECH_H
 
 #include "starsquatters.h"
+#include "tgui3.h"
 
 class Speech {
 public:
@@ -10,7 +11,7 @@ public:
 	void start();
 
 	// Return false when done
-	bool handle_event(SDL_Event *event);
+	bool handle_event(TGUI_Event *event);
 	void draw();
 
 private:

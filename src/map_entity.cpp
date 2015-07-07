@@ -177,7 +177,7 @@ bool Map_Entity::maybe_move(Map *map)
 	return false;
 }
 
-void Map_Entity::handle_event(SDL_Event *event)
+void Map_Entity::handle_event(TGUI_Event *event)
 {
 	brain->handle_event(event);
 }

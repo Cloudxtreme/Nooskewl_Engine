@@ -8,7 +8,7 @@ public:
 		Player_Brain();
 		~Player_Brain();
 
-		void handle_event(SDL_Event *event);
+		void handle_event(TGUI_Event *event);
 };
 
 #endif PLAYER_BRAIN_H

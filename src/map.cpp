@@ -75,7 +75,7 @@ void Map::get_new_map_details(std::string &map_name, Point<int> &position, Direc
 	direction = new_map_direction;
 }
 
-void Map::handle_event(SDL_Event *event)
+void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {
 		if (speech->handle_event(event) == false) {

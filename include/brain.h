@@ -2,6 +2,7 @@
 #define BRAIN_H
 
 #include "starsquatters.h"
+#include "tgui3.h"
 
 class Brain {
 public:
@@ -10,7 +11,7 @@ public:
 	Brain();
 	virtual ~Brain();
 
-	virtual void handle_event(SDL_Event *event) = 0;
+	virtual void handle_event(TGUI_Event *event) = 0;
 };
 
 #endif // BRAIN_H
