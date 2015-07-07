@@ -6,9 +6,9 @@
 #include "map.h"
 #include "map_entity.h"
 #include "player_brain.h"
-#include "tgui3.h"
 #include "vertex_accel.h"
 #include "video.h"
+#include "widgets.h"
 
 Map *map;
 Map_Entity *player;
@@ -78,24 +78,26 @@ static bool run_main()
 	bool quit = false;
 	bool draw = false;
 
-	SDL_Test_Div *main_div = new SDL_Test_Div(1.0f, 1.0f);
-	SDL_Test_Div *child1 = new SDL_Test_Div(0.25f, 50);
+	SS_Div *main_div = new SS_Div(1.0f, 1.0f);
+	SS_Div *child1 = new SS_Div(0.25f, 50);
 	child1->set_parent(main_div);
 	child1->set_padding(10);
-	SDL_Test_Div *child2 = new SDL_Test_Div(-1.0f, 75);
+	SS_Div *child2 = new SS_Div(-1.0f, 75);
 	child2->set_parent(main_div);
-	SDL_Test_Div *child3 = new SDL_Test_Div(1.0f, -1.0f);
+	SS_Div *child3 = new SS_Div(1.0f, -1.0f);
 	child3->set_parent(main_div);
-	SDL_Test_Div *child4 = new SDL_Test_Div(50, -1.0f);
+	SS_Div *child4 = new SS_Div(50, -1.0f);
 	child4->set_parent(child3);
 	child4->set_padding(10);
 	child4->set_float_right(true);
-	SDL_Test_Div *child5 = new SDL_Test_Div(10, 10);
+	SS_Div *child5 = new SS_Div(10, 10);
 	child5->set_parent(child3);
 	child5->set_padding(10);
 	child5->set_float_right(true);
-	TGUI *gui = new TGUI(main_div, 200, 100);
+	TGUI *gui = new TGUI(main_div, screen_w, screen_h);
 	gui->layout();
+
+	gui->set_focus(child5);
 
 	while (quit == false) {
 		bool got_event = false;
