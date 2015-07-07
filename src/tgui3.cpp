@@ -257,7 +257,7 @@ void TGUI::focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, 
 
 	int dx = div_cx - cx;
 	int dy = div_cy - cy;
-	int dist = int(sqrtf(dx*dx + dy*dy));
+	int dist = int(sqrtf(float(dx*dx + dy*dy)));
 
 	if (!(div_x1 > box_x2 || div_x2 < box_x1 || div_y1 > box_y2 || div_y2 < box_y1)) {
 		grade = 0;
