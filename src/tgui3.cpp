@@ -1,6 +1,6 @@
 #include "tgui3.h"
 
-TGUI::TGUI(TGUI_Div *main_div, int w, int h) :
+TGUI::TGUI(TGUI_Widget *main_div, int w, int h) :
 	main_div(main_div),
 	w(w),
 	h(h),
@@ -71,8 +71,8 @@ void TGUI::handle_event(TGUI_Event *event)
 		handle_event(event, main_div);
 	}
 	else {
-		TGUI_Div *start = focus == NULL ? main_div : focus;
-		TGUI_Div *best = start;
+		TGUI_Widget *start = focus == NULL ? main_div : focus;
+		TGUI_Widget *best = start;
 		int best_score = INT_MAX;
 		int best_grade = 2;
 		find_focus(start, best, main_div, x, y, best_score, best_grade);
@@ -80,7 +80,7 @@ void TGUI::handle_event(TGUI_Event *event)
 	}
 }
 
-void TGUI::set_focus(TGUI_Div *div)
+void TGUI::set_focus(TGUI_Widget *div)
 {
 	focus = div;
 }
@@ -97,17 +97,17 @@ void TGUI::set_offset(int offset_x, int offset_y)
 	layout();
 }
 
-TGUI_Div *TGUI::get_focus()
+TGUI_Widget *TGUI::get_focus()
 {
 	return focus;
 }
 
-TGUI_Div *TGUI::get_event_owner(TGUI_Event *event)
+TGUI_Widget *TGUI::get_event_owner(TGUI_Event *event)
 {
 	return get_event_owner(event, main_div);
 }
 
-void TGUI::set_sizes(TGUI_Div *div)
+void TGUI::set_sizes(TGUI_Widget *div)
 {
 	div->gui = this;
 	int width, height;
@@ -119,7 +119,7 @@ void TGUI::set_sizes(TGUI_Div *div)
 	}
 }
 
-void TGUI::set_positions(TGUI_Div *div, int x, int y)
+void TGUI::set_positions(TGUI_Widget *div, int x, int y)
 {
 	div->calculated_x = x;
 	div->calculated_y = y;
@@ -140,7 +140,7 @@ void TGUI::set_positions(TGUI_Div *div, int x, int y)
 	int dy = y;
 
 	for (size_t i = 0; i < div->children.size(); i++) {
-		TGUI_Div *d = div->children[i];
+		TGUI_Widget *d = div->children[i];
 
 		int width = d->calculated_w + d->padding_left + d->padding_right;
 		int height = d->calculated_h + d->padding_top + d->padding_bottom;
@@ -161,7 +161,7 @@ void TGUI::set_positions(TGUI_Div *div, int x, int y)
 	}
 }
 
-void TGUI::draw(TGUI_Div *div)
+void TGUI::draw(TGUI_Widget *div)
 {
 	div->draw();
 	for (size_t i = 0; i < div->children.size(); i++) {
@@ -169,10 +169,10 @@ void TGUI::draw(TGUI_Div *div)
 	}
 }
 
-TGUI_Div *TGUI::get_event_owner(TGUI_Event *event, TGUI_Div *div)
+TGUI_Widget *TGUI::get_event_owner(TGUI_Event *event, TGUI_Widget *div)
 {
 	for (size_t i = 0; i < div->children.size(); i++) {
-		TGUI_Div *d = get_event_owner(event, div->children[i]);
+		TGUI_Widget *d = get_event_owner(event, div->children[i]);
 		if (d != NULL) {
 			return d;
 		}
@@ -190,7 +190,7 @@ TGUI_Div *TGUI::get_event_owner(TGUI_Event *event, TGUI_Div *div)
 	return NULL;
 }
 
-void TGUI::handle_event(TGUI_Event *event, TGUI_Div *div)
+void TGUI::handle_event(TGUI_Event *event, TGUI_Widget *div)
 {
 	div->handle_event(event);
 
@@ -199,7 +199,7 @@ void TGUI::handle_event(TGUI_Event *event, TGUI_Div *div)
 	}
 }
 
-bool TGUI::focus_something(TGUI_Div *div)
+bool TGUI::focus_something(TGUI_Widget *div)
 {
 	if (div->accepts_focus) {
 		focus = div;
@@ -216,7 +216,7 @@ bool TGUI::focus_something(TGUI_Div *div)
 }
 
 // Returns positive for aligned match, negative for unaligned match
-void TGUI::focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, int &score, int &grade)
+void TGUI::focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int dir_y, int &score, int &grade)
 {
 	int cx = start->calculated_x + start->calculated_w / 2;
 	int cy = start->calculated_y + start->calculated_h / 2;
@@ -272,7 +272,7 @@ void TGUI::focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, 
 	score = dist;
 }
 
-void TGUI::find_focus(TGUI_Div *start, TGUI_Div *&current_best, TGUI_Div *div, int dir_x, int dir_y, int &best_score, int &best_grade)
+void TGUI::find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *div, int dir_x, int dir_y, int &best_score, int &best_grade)
 {
 	if (div->accepts_focus && div != start) {
 		int score, grade;
@@ -294,7 +294,7 @@ void TGUI::find_focus(TGUI_Div *start, TGUI_Div *&current_best, TGUI_Div *div, i
 	}
 }
 
-TGUI_Div::TGUI_Div(int w, int h) :
+TGUI_Widget::TGUI_Widget(int w, int h) :
 	parent(NULL),
 	percent_x(false),
 	percent_y(false),
@@ -309,7 +309,7 @@ TGUI_Div::TGUI_Div(int w, int h) :
 {
 }
 
-TGUI_Div::TGUI_Div(float percent_w, float percent_h) :
+TGUI_Widget::TGUI_Widget(float percent_w, float percent_h) :
 	parent(NULL),
 	percent_x(true),
 	percent_y(true),
@@ -324,7 +324,7 @@ TGUI_Div::TGUI_Div(float percent_w, float percent_h) :
 {
 }
 
-TGUI_Div::TGUI_Div(int w, float percent_h) :
+TGUI_Widget::TGUI_Widget(int w, float percent_h) :
 	parent(NULL),
 	percent_x(false),
 	percent_y(true),
@@ -339,7 +339,7 @@ TGUI_Div::TGUI_Div(int w, float percent_h) :
 {
 }
 
-TGUI_Div::TGUI_Div(float percent_w, int h) :
+TGUI_Widget::TGUI_Widget(float percent_w, int h) :
 	parent(NULL),
 	percent_x(true),
 	percent_y(false),
@@ -354,18 +354,18 @@ TGUI_Div::TGUI_Div(float percent_w, int h) :
 {
 }
 
-void TGUI_Div::set_parent(TGUI_Div *div)
+void TGUI_Widget::set_parent(TGUI_Widget *div)
 {
 	parent = div;
 	parent->children.push_back(this);
 }
 
-void TGUI_Div::set_padding(int padding)
+void TGUI_Widget::set_padding(int padding)
 {
 	padding_left = padding_right = padding_top = padding_bottom = padding;
 }
 
-void TGUI_Div::set_padding(int left, int right, int top, int bottom)
+void TGUI_Widget::set_padding(int left, int right, int top, int bottom)
 {
 	padding_left = left;
 	padding_right = right;
@@ -373,12 +373,12 @@ void TGUI_Div::set_padding(int left, int right, int top, int bottom)
 	padding_bottom = bottom;
 }
 
-void TGUI_Div::set_float_right(bool float_right)
+void TGUI_Widget::set_float_right(bool float_right)
 {
 	this->float_right = float_right;
 }
 
-void TGUI_Div::set_accepts_focus(bool accepts_focus)
+void TGUI_Widget::set_accepts_focus(bool accepts_focus)
 {
 	this->accepts_focus = accepts_focus;
 	if (accepts_focus == false) {
@@ -388,52 +388,52 @@ void TGUI_Div::set_accepts_focus(bool accepts_focus)
 	}
 }
 
-TGUI_Div *TGUI_Div::get_parent()
+TGUI_Widget *TGUI_Widget::get_parent()
 {
 	return parent;
 }
 
-int TGUI_Div::get_x()
+int TGUI_Widget::get_x()
 {
 	return calculated_x;
 }
 
-int TGUI_Div::get_y()
+int TGUI_Widget::get_y()
 {
 	return calculated_y;
 }
 
-int TGUI_Div::get_width()
+int TGUI_Widget::get_width()
 {
 	return calculated_w;
 }
 
-int TGUI_Div::get_height()
+int TGUI_Widget::get_height()
 {
 	return calculated_h;
 }
 
-int TGUI_Div::get_padding_left()
+int TGUI_Widget::get_padding_left()
 {
 	return padding_left;
 }
 
-int TGUI_Div::get_padding_right()
+int TGUI_Widget::get_padding_right()
 {
 	return padding_right;
 }
 
-int TGUI_Div::get_padding_top()
+int TGUI_Widget::get_padding_top()
 {
 	return padding_top;
 }
 
-int TGUI_Div::get_padding_bottom()
+int TGUI_Widget::get_padding_bottom()
 {
 	return padding_bottom;
 }
 
-int TGUI_Div::get_right_pos()
+int TGUI_Widget::get_right_pos()
 {
 	if (float_right == false) {
 		return 0;
@@ -446,7 +446,7 @@ int TGUI_Div::get_right_pos()
 	width += padding_left + padding_right;
 	int right = 0;
 	for (size_t i = 0; i < parent->children.size(); i++) {
-		TGUI_Div *d = parent->children[i];
+		TGUI_Widget *d = parent->children[i];
 		if (d == this) {
 			break;
 		}
@@ -460,7 +460,7 @@ int TGUI_Div::get_right_pos()
 	return parent_width - (right + width);
 }
 
-void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
+void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height)
 {
 	if (parent == NULL) {
 		*width = div->gui->w;
@@ -478,7 +478,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 					float total_percent = 0.0f;
 					for (size_t i = 0; i < parent->children.size(); i++) {
 						int this_w = 0;
-						TGUI_Div *d = parent->children[i];
+						TGUI_Widget *d = parent->children[i];
 						if (d->percent_x) {
 							if (d->percent_w < 0) {
 								total_percent += -d->percent_w;
@@ -531,7 +531,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 						int this_w = 0;
 						int this_h = 0;
 						float this_percent = 0.0f;
-						TGUI_Div *d = parent->children[i];
+						TGUI_Widget *d = parent->children[i];
 						tgui_get_size(parent, d, &this_w, NULL);
 						this_w += d->padding_left + d->padding_right;
 						if (d->percent_y) {
@@ -596,7 +596,7 @@ void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height)
 	}
 }
 
-TGUI_Event tgui_get_relative_event(TGUI_Div *div, TGUI_Event *event)
+TGUI_Event tgui_get_relative_event(TGUI_Widget *div, TGUI_Event *event)
 {
 	TGUI_Event new_event = *event;
 

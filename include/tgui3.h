@@ -40,66 +40,70 @@ struct TGUI_Event {
 };
 
 class TGUI;
-class TGUI_Div;
+class TGUI_Widget;
 
-TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
-TGUI_FUNC TGUI_Event tgui_get_relative_event(TGUI_Div *div, TGUI_Event *event);
+TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
+TGUI_FUNC TGUI_Event tgui_get_relative_event(TGUI_Widget *div, TGUI_Event *event);
 
 // a GUI hierarchy
 class TGUI {
-	friend void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
+	friend void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
 
 public:
-	TGUI_FUNC TGUI(TGUI_Div *main_div, int w, int h);
+	TGUI_FUNC TGUI(TGUI_Widget *main_div, int w, int h);
 
 	TGUI_FUNC void layout();
 	TGUI_FUNC void resize(int w, int h);
 	TGUI_FUNC void draw();
 	TGUI_FUNC void handle_event(TGUI_Event *event);
 
-	TGUI_FUNC void set_focus(TGUI_Div *div);
+	TGUI_FUNC void set_focus(TGUI_Widget *div);
 	TGUI_FUNC void focus_something();
 	TGUI_FUNC void set_offset(int offset_x, int offset_y);
 
-	TGUI_FUNC TGUI_Div *get_focus();
-	TGUI_FUNC TGUI_Div *get_event_owner(TGUI_Event *event);
+	TGUI_FUNC TGUI_Widget *get_focus();
+	TGUI_FUNC TGUI_Widget *get_event_owner(TGUI_Event *event);
 
 private:
-	void set_sizes(TGUI_Div *div);
-	void set_positions(TGUI_Div *div, int x, int y);
-	void draw(TGUI_Div *div);
-	TGUI_Div *get_event_owner(TGUI_Event *event, TGUI_Div *div);
-	void handle_event(TGUI_Event *event, TGUI_Div *div);
-	bool focus_something(TGUI_Div *div);
-	void focus_distance(TGUI_Div *start, TGUI_Div *div, int dir_x, int dir_y, int &score, int &grade);
-	void find_focus(TGUI_Div *start, TGUI_Div *&current_best, TGUI_Div *div, int dir_x, int dir_y, int &best_score, int &best_grade);
+	void set_sizes(TGUI_Widget *div);
+	void set_positions(TGUI_Widget *div, int x, int y);
+	void draw(TGUI_Widget *div);
+	TGUI_Widget *get_event_owner(TGUI_Event *event, TGUI_Widget *div);
+	void handle_event(TGUI_Event *event, TGUI_Widget *div);
+	bool focus_something(TGUI_Widget *div);
+	void focus_distance(TGUI_Widget *start, TGUI_Widget *div, int dir_x, int dir_y, int &score, int &grade);
+	void find_focus(TGUI_Widget *start, TGUI_Widget *&current_best, TGUI_Widget *div, int dir_x, int dir_y, int &best_score, int &best_grade);
 
-	TGUI_Div *main_div;
-	TGUI_Div *focus;
+	TGUI_Widget *main_div;
+	TGUI_Widget *focus;
 	int w, h;
 	int offset_x, offset_y;
 };
 
-class TGUI_Div {
-	friend TGUI_FUNC void tgui_get_size(TGUI_Div *parent, TGUI_Div *div, int *width, int *height);
+class TGUI_Widget {
+	friend TGUI_FUNC void tgui_get_size(TGUI_Widget *parent, TGUI_Widget *div, int *width, int *height);
 	friend class TGUI;
 
 public:
-	TGUI_FUNC TGUI_Div(int w, int h);
-	TGUI_FUNC TGUI_Div(float percent_w, float percent_h);
-	TGUI_FUNC TGUI_Div(int w, float percent_h);
-	TGUI_FUNC TGUI_Div(float percent_w, int h);
+	/* Percentage sizes can be negative or positive: positive means % of parent size,
+	 * negative means % of whatever's left after fixed and positive percentage sized
+	 * widgets.
+	 */
+	TGUI_FUNC TGUI_Widget(int w, int h);
+	TGUI_FUNC TGUI_Widget(float percent_w, float percent_h);
+	TGUI_FUNC TGUI_Widget(int w, float percent_h);
+	TGUI_FUNC TGUI_Widget(float percent_w, int h);
 
 	virtual void draw() {}
 	virtual void handle_event(TGUI_Event *event) {}
 
-	TGUI_FUNC void set_parent(TGUI_Div *div);
+	TGUI_FUNC void set_parent(TGUI_Widget *div);
 	TGUI_FUNC void set_padding(int padding);
 	TGUI_FUNC void set_padding(int left, int right, int top, int bottom);
 	TGUI_FUNC void set_float_right(bool float_right);
 	TGUI_FUNC void set_accepts_focus(bool accepts_focus);
 
-	TGUI_FUNC TGUI_Div *get_parent();
+	TGUI_FUNC TGUI_Widget *get_parent();
 	TGUI_FUNC int get_x();
 	TGUI_FUNC int get_y();
 	TGUI_FUNC int get_width();
@@ -113,11 +117,11 @@ protected:
 	int get_right_pos();
 
 	TGUI *gui;
-	TGUI_Div *parent;
+	TGUI_Widget *parent;
 	bool percent_x, percent_y;
 	float percent_w, percent_h;
 	int w, h;
-	std::vector<TGUI_Div *> children;
+	std::vector<TGUI_Widget *> children;
 	int padding_left, padding_right, padding_top, padding_bottom;
 	bool float_right;
 	bool accepts_focus;

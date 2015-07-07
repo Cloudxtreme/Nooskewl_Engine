@@ -3,12 +3,12 @@
 
 #include "tgui3.h"
 
-class SS_Div : public TGUI_Div {
+class SS_Widget : public TGUI_Widget {
 public:
-	SS_Div(int w, int h);
-	SS_Div(float percent_w, float percent_h);
-	SS_Div(int w, float percent_h);
-	SS_Div(float percent_w, int h);
+	SS_Widget(int w, int h);
+	SS_Widget(float percent_w, float percent_h);
+	SS_Widget(int w, float percent_h);
+	SS_Widget(float percent_w, int h);
 
 	void draw();
 	void handle_event(TGUI_Event *event);

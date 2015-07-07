@@ -2,7 +2,7 @@
 #include "types.h"
 #include "widgets.h"
 
-static void draw_focus(TGUI_Div *div)
+static void draw_focus(TGUI_Widget *div)
 {
 	float f = (SDL_GetTicks() % 1000) / 1000.0f;
 	float alpha;
@@ -31,39 +31,39 @@ static void draw_focus(TGUI_Div *div)
 	draw_line(Point<int>(x, y+h), Point<int>(x, y), colour);
 }
 
-SS_Div::SS_Div(int w, int h) :
-	TGUI_Div(w, h),
+SS_Widget::SS_Widget(int w, int h) :
+	TGUI_Widget(w, h),
 	got_event(false),
 	event_x(-1),
 	event_y(-1)
 {
 }
 
-SS_Div::SS_Div(float percent_w, float percent_h) :
-	TGUI_Div(percent_w, percent_h),
+SS_Widget::SS_Widget(float percent_w, float percent_h) :
+	TGUI_Widget(percent_w, percent_h),
 	got_event(false),
 	event_x(-1),
 	event_y(-1)
 {
 }
 
-SS_Div::SS_Div(int w, float percent_h) :
-	TGUI_Div(w, percent_h),
+SS_Widget::SS_Widget(int w, float percent_h) :
+	TGUI_Widget(w, percent_h),
 	got_event(false),
 	event_x(-1),
 	event_y(-1)
 {
 }
 
-SS_Div::SS_Div(float percent_w, int h) :
-	TGUI_Div(percent_w, h),
+SS_Widget::SS_Widget(float percent_w, int h) :
+	TGUI_Widget(percent_w, h),
 	got_event(false),
 	event_x(-1),
 	event_y(-1)
 {
 }
 
-void SS_Div::draw()
+void SS_Widget::draw()
 {
 	SDL_Colour green = { 0, 255, 0, 255 };
 	SDL_Colour red = { 255, 0, 0, 255 };
@@ -80,9 +80,9 @@ void SS_Div::draw()
 	}
 }
 
-void SS_Div::handle_event(TGUI_Event *event)
+void SS_Widget::handle_event(TGUI_Event *event)
 {
-	TGUI_Div *owner = gui->get_event_owner(event);
+	TGUI_Widget *owner = gui->get_event_owner(event);
 	if (owner == this) {
 		got_event = true;
 		if (event->type == TGUI_MOUSE_DOWN || event->type == TGUI_MOUSE_UP || event->type == TGUI_MOUSE_AXIS) {
