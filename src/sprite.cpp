@@ -6,7 +6,8 @@
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory) :
 	started(false),
-	current_animation("")
+	current_animation(""),
+	current_image(NULL)
 {
 	xml_filename = "sprites/" + xml_filename;
 	image_directory = "sprites/" + image_directory;
@@ -72,9 +73,10 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory) :
 		if (first) {
 			first = false;
 			current_animation = anim->get_name();
+			current_image = a->images.size() > 0 ? a->images[0] : NULL;
 		}
 	}
-	
+
 	delete xml;
 }
 
