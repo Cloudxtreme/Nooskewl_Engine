@@ -100,6 +100,16 @@ void Map::get_new_map_details(std::string &map_name, Point<int> &position, Direc
 	direction = new_map_direction;
 }
 
+Map_Entity *Map::get_entity(int id)
+{
+	for (size_t i = 0; i < entities.size(); i++) {
+		if (entities[i]->get_id() == id) {
+			return entities[i];
+		}
+	}
+	return NULL;
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {
@@ -122,6 +132,38 @@ void Map::handle_event(TGUI_Event *event)
 	}
 }
 
+void Map::update_camera()
+{
+	Map_Entity *player = get_entity(0);
+	if (player) {
+		Point<int> p = player->get_draw_position();
+		Size<int> sz = player->get_size();
+		offset = p - Point<int>(screen_w, screen_h) / 2 + sz / 2;
+		int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
+		int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
+		if (offset.x < 0) {
+			offset.x = 0;
+		}
+		else if (offset.x > max_x) {
+			offset.x = max_x;
+		}
+		if (offset.y < 0) {
+			offset.y = 0;
+		}
+		else if (offset.y > max_y) {
+			offset.y = max_y;
+		}
+		offset = -offset;
+		// Correct for small levels
+		if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
+			offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
+		}
+		if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
+			offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+		}
+	}
+}
+
 bool Map::update()
 {
 	if (script_func) {
@@ -131,35 +173,10 @@ bool Map::update()
 	if (speech == NULL) {
 		for (size_t i = 0; i < entities.size(); i++) {
 			entities[i]->update(this);
-			if (entities[i]->get_id() == 0) {
-				Point<int> p = entities[i]->get_draw_position();
-				Size<int> sz = entities[i]->get_size();
-				offset = p - Point<int>(screen_w, screen_h) / 2 + sz / 2;
-				int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
-				int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
-				if (offset.x < 0) {
-					offset.x = 0;
-				}
-				else if (offset.x > max_x) {
-					offset.x = max_x;
-				}
-				if (offset.y < 0) {
-					offset.y = 0;
-				}
-				else if (offset.y > max_y) {
-					offset.y = max_y;
-				}
-				offset = -offset;
-				// Correct for small levels
-				if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
-					offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
-				}
-				if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
-					offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
-				}
-			}
 		}
 	}
+
+	update_camera();
 
 	if (new_map_name != "") {
 		return false;

@@ -35,6 +35,7 @@ public:
 	Map_Entity *get_entity(int id);
 
 	void handle_event(TGUI_Event *event);
+	void update_camera();
 	bool update();
 	void draw();
 
