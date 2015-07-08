@@ -163,11 +163,11 @@ static bool run_main()
 
 							vertex_accel->set_perspective_drawing(true);
 							if (moved_player) {
-								map->update();
+								map->update_camera();
 								map->draw();
 							}
 							else {
-								old_map->update();
+								old_map->update_camera();
 								old_map->draw();
 							}
 							vertex_accel->set_perspective_drawing(false);
