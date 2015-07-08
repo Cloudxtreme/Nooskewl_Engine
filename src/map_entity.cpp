@@ -33,6 +33,11 @@ void Map_Entity::set_position(Point<int> position)
 	this->position = position;
 }
 
+void Map_Entity::set_offset(Point<float> offset)
+{
+	this->offset = offset;
+}
+
 void Map_Entity::set_bounce(int bounce)
 {
 	this->bounce = bounce;
@@ -114,72 +119,76 @@ void Map_Entity::stop()
 
 bool Map_Entity::maybe_move(Map *map)
 {
-	if (brain->l) {
-		if (map->is_solid(-1, position+Point<int>(-1, 0), Size<int>(1, 1)) == false) {
-			moving = true;
-			offset = Point<float>(1, 0);
-			position += Point<int>(-1, 0);
-			sprite->set_animation("walk_w");
-			sprite->reset();
-			sprite->start();
-			return true;
+	if (brain) {
+		if (brain->l) {
+			if (map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
+				moving = true;
+				offset = Point<float>(1, 0);
+				position += Point<int>(-1, 0);
+				sprite->set_animation("walk_w");
+				sprite->reset();
+				sprite->start();
+				return true;
+			}
+			else {
+				sprite->set_animation("stand_w");
+			}
+			direction = W;
 		}
-		else {
-			sprite->set_animation("stand_w");
+		else if (brain->r) {
+			if (map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
+				moving = true;
+				offset = Point<float>(-1, 0);
+				position += Point<int>(1, 0);
+				sprite->set_animation("walk_e");
+				sprite->reset();
+				sprite->start();
+				return true;
+			}
+			else {
+				sprite->set_animation("stand_e");
+			}
+			direction = E;
 		}
-		direction = W;
-	}
-	else if (brain->r) {
-		if (map->is_solid(-1, position+Point<int>(1, 0), Size<int>(1, 1)) == false) {
-			moving = true;
-			offset = Point<float>(-1, 0);
-			position += Point<int>(1, 0);
-			sprite->set_animation("walk_e");
-			sprite->reset();
-			sprite->start();
-			return true;
+		else if (brain->u) {
+			if (map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
+				moving = true;
+				offset = Point<float>(0, 1);
+				position += Point<int>(0, -1);
+				sprite->set_animation("walk_n");
+				sprite->reset();
+				sprite->start();
+				return true;
+			}
+			else {
+				sprite->set_animation("stand_n");
+			}
+			direction = N;
 		}
-		else {
-			sprite->set_animation("stand_e");
+		else if (brain->d) {
+			if (map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
+				moving = true;
+				offset = Point<float>(0, -1);
+				position += Point<int>(0, 1);
+				sprite->set_animation("walk_s");
+				sprite->reset();
+				sprite->start();
+				return true;
+			}
+			else {
+				sprite->set_animation("stand_s");
+			}
+			direction = S;
 		}
-		direction = E;
-	}
-	else if (brain->u) {
-		if (map->is_solid(-1, position+Point<int>(0, -1), Size<int>(1, 1)) == false) {
-			moving = true;
-			offset = Point<float>(0, 1);
-			position += Point<int>(0, -1);
-			sprite->set_animation("walk_n");
-			sprite->reset();
-			sprite->start();
-			return true;
-		}
-		else {
-			sprite->set_animation("stand_n");
-		}
-		direction = N;
-	}
-	else if (brain->d) {
-		if (map->is_solid(-1, position+Point<int>(0, 1), Size<int>(1, 1)) == false) {
-			moving = true;
-			offset = Point<float>(0, -1);
-			position += Point<int>(0, 1);
-			sprite->set_animation("walk_s");
-			sprite->reset();
-			sprite->start();
-			return true;
-		}
-		else {
-			sprite->set_animation("stand_s");
-		}
-		direction = S;
 	}
 	return false;
 }
 
 void Map_Entity::handle_event(TGUI_Event *event)
 {
-	brain->handle_event(event);
+	if (brain) {
+		brain->handle_event(event);
+	}
 }
 
 bool Map_Entity::update(Map *map)

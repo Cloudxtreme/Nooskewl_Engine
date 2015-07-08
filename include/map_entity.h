@@ -14,6 +14,7 @@ public:
 
 	void load_sprite(std::string name) throw (Error);
 	void set_position(Point<int> position);
+	void set_offset(Point<float> offset);
 	void set_bounce(int bounce);
 	void set_direction(Direction direction);
 
