@@ -44,13 +44,9 @@ SDL_RWops *open_file(std::string filename)
 		file = cpa->load(filename);
 	}
 	else {
-		// FIXME:
-		filename = "C:/Users/Trent/code/starsquatters-data/" + filename;
-		file = SDL_RWFromFile(filename.c_str(), "rb");
-		if (file == NULL) {
-			throw FileNotFoundError(filename);
-		}
+		throw FileNotFoundError(filename);
 	}
+
 	return file;
 }
 
