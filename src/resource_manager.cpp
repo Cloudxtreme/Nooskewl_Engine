@@ -1,13 +1,14 @@
 #include "starsquatters.h"
 #include "resource_manager.h"
 
-static std::map<std::string, Image *> loaded_images;
+static std::map< std::string, std::pair<int, Image *> > loaded_images;
 
 Image *reference_image(std::string filename, bool is_absolute_path)
 {
-	std::map<std::string, Image *>::iterator it;
+	std::map< std::string, std::pair<int, Image *> >::iterator it;
 	if ((it = loaded_images.find(filename)) != loaded_images.end()) {
-		return it->second;
+		it->second.first++;
+		return it->second.second;
 	}
 	else {
 		Image *image;
@@ -17,17 +18,20 @@ Image *reference_image(std::string filename, bool is_absolute_path)
 		catch (Error e) {
 			throw e;
 		}
-		loaded_images[filename] = image;
+		loaded_images[filename] = std::pair<int, Image *>(1, image);
 		return image;
 	}
 }
 
 void release_image(Image *image)
 {
-	std::map<std::string, Image *>::iterator it = loaded_images.find(image->filename);
+	std::map< std::string, std::pair<int, Image *> >::iterator it = loaded_images.find(image->filename);
 	if (it == loaded_images.end()) {
 		return;
 	}
-	delete it->second;
-	loaded_images.erase(it);
+	it->second.first--;
+	if (it->second.first <= 0) {
+		delete it->second.second;
+		loaded_images.erase(it);
+	}
 }
