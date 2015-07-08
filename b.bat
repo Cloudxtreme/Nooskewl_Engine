@@ -1,1 +1,1 @@
-msbuild StarSquatters.sln %*
+msbuild Nooskewl_Engine.sln %*

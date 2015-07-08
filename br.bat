@@ -1,1 +1,1 @@
-msbuild /p:Configuration=Release StarSquatters.sln %*
+msbuild /p:Configuration=Release Nooskewl_Engine.sln %*
