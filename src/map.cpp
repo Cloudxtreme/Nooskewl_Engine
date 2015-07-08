@@ -1,14 +1,15 @@
 #include "log.h"
 #include "map.h"
-#include "script_functions.h"
 #include "video.h"
+
+#include "ss/map_logic.h"
 
 Map::Map(std::string map_name) :
 	offset(0, 0),
 	speech(NULL),
-	script_func(NULL),
 	map_name(map_name),
-	new_map_name("")
+	new_map_name(""),
+	ml(NULL)
 {
 	tilemap = new Tilemap(8, map_name);
 }
@@ -26,22 +27,13 @@ Map::~Map()
 
 void Map::start()
 {
-	if (map_name == "test.map") {
-		script_func = sf_test;
-	}
-	else if (map_name == "test2.map") {
-		script_func = sf_test2;
-	}
-
-	if (script_func != NULL) {
-		script_func(SCRIPT_BEGIN, this, &script_data, NULL);
-	}
+	ml = ss_init_map_logic(this);
 }
 
 void Map::end()
 {
-	if (script_func) {
-		script_func(SCRIPT_END, this, &script_data, NULL);
+	if (ml) {
+		ml->end(this);
 	}
 }
 
@@ -88,8 +80,8 @@ bool Map::is_solid(int layer, Point<int> position, Size<int> size)
 
 void Map::check_triggers(Map_Entity *entity)
 {
-	if (script_func) {
-		script_func(SCRIPT_TRIGGERS, this, &script_data, entity);
+	if (ml) {
+		ml->trigger(this, entity);
 	}
 }
 
@@ -108,6 +100,11 @@ Map_Entity *Map::get_entity(int id)
 		}
 	}
 	return NULL;
+}
+
+std::string Map::get_map_name()
+{
+	return map_name;
 }
 
 void Map::handle_event(TGUI_Event *event)
@@ -166,8 +163,8 @@ void Map::update_camera()
 
 bool Map::update()
 {
-	if (script_func) {
-		script_func(SCRIPT_UPDATE, this, &script_data, NULL);
+	if (ml) {
+		ml->update(this);
 	}
 
 	if (speech == NULL) {

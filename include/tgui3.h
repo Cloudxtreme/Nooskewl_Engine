@@ -131,7 +131,11 @@ protected:
 };
 
 #ifdef WITH_SDL
+#ifdef TRENTS_BUILD
+#include <SDL/SDL.h>
+#else
 #include <SDL.h>
+#endif
 
 enum
 {

@@ -110,6 +110,15 @@ Point<int> Map_Entity::get_draw_position()
 		return Point<int>((int)((position.x+offset.x)*8.0f), (int)((position.y+offset.y+1.0f)*8.0f-h));
 }
 
+bool Map_Entity::collides(Point<int> position, Size<int> size, Point<int> &collide_pos)
+{
+	if (this->position.x >= position.x && this->position.x < position.x+size.w && this->position.y >= position.y && this->position.y < position.y+size.h) {
+		collide_pos = Point<int>(this->position.x-position.x, this->position.y-position.y);
+		return true;
+	}
+	return false;
+}
+
 void Map_Entity::stop()
 {
 	moving = false;

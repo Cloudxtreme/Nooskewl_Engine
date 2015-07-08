@@ -1,51 +1,51 @@
 #include "dllist.h"
 
-DLList_Node::DLList_Node(void *data) :
+template<typename T> DLList_Node<T>::DLList_Node(T data) :
 	prev(0),
 	next(0),
 	data(data)
 {
 }
 
-void DLList_Node::remove()
+template<typename T> void DLList_Node<T>::remove()
 {
-	DLList_Node *next = next;
+	DLList_Node<T> *next = next;
 	prev->next = next;
 	if (next) {
 		next->prev = prev;
 	}
 }
 
-void DLList_Node::insert_before(void *data)
+template<typename T> void DLList_Node<T>::insert_before(T data)
 {
-	DLList_Node *node = new DLList_Node(data);
+	DLList_Node<T> *node = new DLList_Node<T>(data);
 	prev->next = node;
 	node->prev = prev;
 	node->next = this;
 	prev = node;
 }
 
-void DLList_Node::insert_after(void *data)
+template<typename T> void DLList_Node<T>::insert_after(T data)
 {
-	DLList_Node *node = new DLList_Node(data);
+	DLList_Node<T> *node = new DLList_Node(data);
 	next->prev = node;
 	node->prev = this;
 	node->next = next;
 	next = node;
 }
 
-DLList::DLList() :
+template<typename T> DLList<T>::DLList() :
 	nodes(0)
 {
 }
 
-DLList::~DLList()
+template<typename T> DLList<T>::~DLList()
 {
-	DLList_Node *node = nodes;
-	DLList_Node *last = node->prev;
+	DLList_Node<T> *node = nodes;
+	DLList_Node<T> *last = node->prev;
 	while (node != last) {
 		delete node->data;
-		DLList_Node *next = node->next;
+		DLList_Node<T> *next = node->next;
 		delete node;
 		node = next;
 	}
@@ -55,18 +55,18 @@ DLList::~DLList()
 	}
 }
 
-DLList_Node *DLList::push_back(void *data)
+template<typename T> DLList_Node<T> *DLList<T>::push_back(T data)
 {
 	if (nodes == 0) {
-		nodes = new DLList_Node(data);
+		nodes = new DLList_Node<T>(data);
 		return nodes;
 	}
 	else {
-		DLList_Node *node = nodes;
+		DLList_Node<T> *node = nodes;
 		while (node->next) {
 			node = node->next;
 		}
-		node->next = new DLList_Node(data);
+		node->next = new DLList_Node<T>(data);
 		node->next->prev = node;
 		return node->next;
 	}

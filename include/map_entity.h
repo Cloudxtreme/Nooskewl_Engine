@@ -23,6 +23,7 @@ public:
 	Point<int> get_position();
 	Size<int> get_size();
 	Point<int> get_draw_position();
+	bool collides(Point<int> position, Size<int> size, Point<int> &collide_pos);
 
 	void stop();
 	void handle_event(TGUI_Event *event);
