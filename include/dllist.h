@@ -17,8 +17,9 @@ struct DLList {
 	DLList_Node *nodes;
 
 	DLList();
+	~DLList();
 
-	void push_back(void *data);
+	DLList_Node *push_back(void *data);
 };
 
 #endif // DLLIST_H

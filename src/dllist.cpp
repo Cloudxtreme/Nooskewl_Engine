@@ -39,14 +39,35 @@ DLList::DLList() :
 {
 }
 
-void DLList::push_back(void *data)
+DLList::~DLList()
+{
+	DLList_Node *node = nodes;
+	DLList_Node *last = node->prev;
+	while (node != last) {
+		delete node->data;
+		DLList_Node *next = node->next;
+		delete node;
+		node = next;
+	}
+	if (node) {
+		delete node->data;
+		delete node;
+	}
+}
+
+DLList_Node *DLList::push_back(void *data)
 {
 	if (nodes == 0) {
 		nodes = new DLList_Node(data);
+		return nodes;
 	}
 	else {
-		DLList_Node *prev = nodes->prev;
-		prev->next = new DLList_Node(data);
-		prev->next->prev = prev;
+		DLList_Node *node = nodes;
+		while (node->next) {
+			node = node->next;
+		}
+		node->next = new DLList_Node(data);
+		node->next->prev = node;
+		return node->next;
 	}
 }
