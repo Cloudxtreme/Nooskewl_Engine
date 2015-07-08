@@ -18,6 +18,20 @@ public:
 
 	Size() {}
 
+	float length()
+	{
+		float dx = (float)w;
+		float dy = (float)h;
+		return sqrtf(dx*dx + dy*dy);
+	}
+
+	float angle()
+	{
+		float dx = (float)w;
+		float dy = (float)h;
+		return atan2(dy, dx);
+	}
+
 	void operator=(const Size<T> &from)
 	{
 		w = from.w;
