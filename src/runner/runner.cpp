@@ -1,27 +1,17 @@
-#include "Nooskewl_Engine/audio.h"
-#include "Nooskewl_Engine/cpa.h"
-#include "Nooskewl_Engine/font.h"
-#include "Nooskewl_Engine/graphics.h"
-#include "Nooskewl_Engine/load_dll.h"
-#include "Nooskewl_Engine/log.h"
-#include "Nooskewl_Engine/map.h"
-#include "Nooskewl_Engine/map_entity.h"
-#include "Nooskewl_Engine/player_brain.h"
-#include "Nooskewl_Engine/vertex_accel.h"
-#include "Nooskewl_Engine/video.h"
-#include "Nooskewl_Engine/widgets.h"
+#include "Nooskewl_Engine/Nooskewl_Engine.h"
 
 const int64_t TICKS_PER_FRAME = (1000 / 60);
 
 Map *map;
 Map_Entity *player;
-SDL_Joystick *joy;
 
 bool run_main();
 
 int main(int argc, char **argv)
 {
 	try {
+		init_nooskewl_engine(argc, argv);
+
 		run_main();
 	}
 	catch (Error e) {
@@ -49,10 +39,9 @@ static Uint32 timer_callback(Uint32 interval, void *data)
 	int64_t elapsed = now - *timer_last_call;
 	*timer_last_call = now;
 	int64_t over = elapsed - TICKS_PER_FRAME;
-	int64_t ret = TICKS_PER_FRAME - over;
 
-	if (ret > 0) {
-		return ret;
+	if (over > 0 && over < TICKS_PER_FRAME) {
+		return TICKS_PER_FRAME - over;
 	}
 	else {
 		return TICKS_PER_FRAME;
@@ -61,25 +50,7 @@ static Uint32 timer_callback(Uint32 interval, void *data)
 
 static bool run_main()
 {
-	load_dll();
-
-	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
-		throw Error("SDL_Init failed");
-	}
-
-	if (SDL_NumJoysticks() > 0) {
-		joy = SDL_JoystickOpen(0);
-	}
-
-	cpa = new CPA();
-
-	init_audio();
-	init_video();
-	init_font();
-	init_graphics();
-
 	int64_t start_frame = SDL_GetTicks();
-	int64_t delay = 0;
 
 	map = new Map("test.map");
 	map->start();
@@ -143,15 +114,6 @@ static bool run_main()
 				break;
 			}
 			else if (sdl_event.type == SDL_USEREVENT) {
-				int64_t now = SDL_GetTicks();
-				int64_t elapsed = now - start_frame;
-				delay += TICKS_PER_FRAME - elapsed;
-				if (delay > 0) {
-					SDL_Delay(delay);
-					delay = 0;
-				}
-				start_frame = SDL_GetTicks();
-
 				update_graphics();
 
 				if (map->update() == false) {
@@ -234,20 +196,21 @@ static bool run_main()
 //			gui->draw();
 
 			flip();
+
+			int64_t now = SDL_GetTicks();
+			int64_t elapsed = now - start_frame;
+			int64_t delay = TICKS_PER_FRAME - elapsed;
+			if (delay > 0) {
+				SDL_Delay(delay);
+			}
+			start_frame = SDL_GetTicks();
 		}
 	}
 
 	map->end();
 	delete map;
 
-	shutdown_graphics();
-	shutdown_font();
-	shutdown_video();
-	shutdown_audio();
+	shutdown_nooskewl_engine();
 
-	if (SDL_JoystickGetAttached(joy)) {
-		SDL_JoystickClose(joy);
-	}
-	
 	return true;
 }
