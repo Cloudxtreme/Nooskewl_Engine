@@ -35,6 +35,7 @@ set(LIB_SRC
 	src/lib/map.cpp
 	src/lib/map_entity.cpp
 	src/lib/map_logic.cpp
+	src/lib/module.cpp
 	src/lib/player_brain.cpp
 	src/lib/resource_manager.cpp
 	src/lib/snprintf.cpp

@@ -9,6 +9,4 @@ typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
 void load_dll() throw (Error);
 
-extern Map_Logic_Getter get_map_logic;
-
 #endif // LOAD_DLL_H

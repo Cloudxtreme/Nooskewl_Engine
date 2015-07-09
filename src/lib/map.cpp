@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/load_dll.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/video.h"
 
 Map::Map(std::string map_name) :
@@ -27,7 +28,7 @@ Map::~Map()
 
 void Map::start()
 {
-	ml = get_map_logic(this);
+	ml = m.get_map_logic(this);
 }
 
 void Map::end()

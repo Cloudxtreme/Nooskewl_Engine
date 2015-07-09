@@ -1,6 +1,7 @@
 #include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
@@ -48,10 +49,10 @@ void Vertex_Accel::start()
 	this->image = NULL;
 
 	if (g.graphics.opengl == false) {
-		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		d3d_device->SetFVF(FVF);
-		effect->Begin(&required_passes, 0);
+		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		m.d3d_device->SetFVF(FVF);
+		m.effect->Begin(&required_passes, 0);
 	}
 }
 
@@ -60,13 +61,13 @@ void Vertex_Accel::start(Image *image)
 	this->image = image;
 
 	if (g.graphics.opengl == false) {
-		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		d3d_device->SetFVF(FVF);
-		effect->SetBool("use_tex", true);
-		effect->SetTexture("tex", image->video_texture);
-		effect->Begin(&required_passes, 0);
-		d3d_device->SetTexture(0, image->video_texture);
+		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
+		m.d3d_device->SetFVF(FVF);
+		m.effect->SetBool("use_tex", true);
+		m.effect->SetTexture("tex", image->video_texture);
+		m.effect->Begin(&required_passes, 0);
+		m.d3d_device->SetTexture(0, image->video_texture);
 	}
 }
 
@@ -87,14 +88,14 @@ void Vertex_Accel::end()
 	}
 	else {
 		for (unsigned int i = 0; i < required_passes; i++) {
-			effect->BeginPass(i);
-			if (d3d_device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, count / 3, (void *)vertices, 9*sizeof(float)) != D3D_OK) {
+			m.effect->BeginPass(i);
+			if (m.d3d_device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, count / 3, (void *)vertices, 9*sizeof(float)) != D3D_OK) {
 				infomsg("DrawPrimitiveUP failed\n");
 				return;
 			}
-			effect->EndPass();
+			m.effect->EndPass();
 		}
-		effect->End();
+		m.effect->End();
 	}
 
 	count = 0;

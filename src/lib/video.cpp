@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
@@ -15,8 +16,6 @@ GLuint fragmentShader;
 GLuint current_shader;
 static SDL_GLContext opengl_context;
 
-IDirect3DDevice9 *d3d_device;
-LPD3DXEFFECT effect;
 static HWND hwnd;
 static D3DPRESENT_PARAMETERS d3d_pp;
 static bool d3d_lost;
@@ -29,7 +28,7 @@ void clear(SDL_Colour colour)
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 	else {
-		d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0, 0);
+		m.d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0, 0);
 	}
 }
 
@@ -39,12 +38,12 @@ void flip()
 		SDL_GL_SwapWindow(window);
 	}
 	else {
-		d3d_device->EndScene();
+		m.d3d_device->EndScene();
 
 		if (d3d_lost) {
-			HRESULT hr = d3d_device->TestCooperativeLevel();
+			HRESULT hr = m.d3d_device->TestCooperativeLevel();
 			if (hr == D3DERR_DEVICENOTRESET) {
-				hr = d3d_device->Reset(&d3d_pp);
+				hr = m.d3d_device->Reset(&d3d_pp);
 				if (hr != D3D_OK) {
 					infomsg("Device couldn't be reset!\n");
 				}
@@ -55,7 +54,7 @@ void flip()
 			}
 		}
 		else {
-			HRESULT hr = d3d_device->Present(NULL, NULL, hwnd, NULL);
+			HRESULT hr = m.d3d_device->Present(NULL, NULL, hwnd, NULL);
 
 			if (hr == D3DERR_DEVICELOST) {
 				infomsg("D3D device lost\n");
@@ -64,7 +63,7 @@ void flip()
 			}
 		}
 
-		d3d_device->BeginScene();
+		m.d3d_device->BeginScene();
 	}
 }
 
@@ -191,22 +190,22 @@ void init_video(int argc, char **argv)
 		d3d_pp.hDeviceWindow = hwnd;
 
 		HRESULT hr;
-		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&d3d_device)) != D3D_OK) {
+		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&m.d3d_device)) != D3D_OK) {
 			throw Error("Unable to create D3D device");
 		}
 
-		d3d_device->BeginScene();
+		m.d3d_device->BeginScene();
 
-		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		m.d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		m.d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		m.d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		m.d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		m.d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
+		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
 		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
+		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
 		}
 
@@ -263,14 +262,14 @@ void init_video(int argc, char **argv)
 		LPD3DXBUFFER errors;
 
 		DWORD ok = D3DXCreateEffect(
-			d3d_device,
+			m.d3d_device,
 			shader_source,
 			strlen(shader_source),
 			NULL,
 			NULL,
 			D3DXSHADER_PACKMATRIX_ROWMAJOR,
 			NULL,
-			&effect,
+			&m.effect,
 			&errors
 			);
 
@@ -280,9 +279,9 @@ void init_video(int argc, char **argv)
 		}
 
 		D3DXHANDLE hTech;
-		hTech = effect->GetTechniqueByName("TECH");
-		effect->ValidateTechnique(hTech);
-		effect->SetTechnique(hTech);
+		hTech = m.effect->GetTechniqueByName("TECH");
+		m.effect->ValidateTechnique(hTech);
+		m.effect->SetTechnique(hTech);
 	}
 
 	set_default_projection();
@@ -334,9 +333,9 @@ void set_default_projection()
 		/* D3D pixels are slightly different than OpenGL */
 		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
 
-		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
-		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
+		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
 }
 
@@ -365,9 +364,9 @@ void set_map_transition_projection(float angle)
 		SDL_GetWindowSize(window, &w, &h);
 		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
 
-		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
-		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
 }
 

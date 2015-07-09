@@ -1,7 +1,6 @@
 #include "Nooskewl_Engine/load_dll.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
-
-Map_Logic_Getter get_map_logic;
 
 void load_dll()
 {
@@ -15,8 +14,8 @@ void load_dll()
 			throw FileNotFoundError("Couldn't load game.dll!");
 		}
 
-		get_map_logic = (Map_Logic_Getter)GetProcAddress(hGetProcIDDLL, "get_map_logic");
-		if (get_map_logic != NULL) {
+		m.get_map_logic = (Map_Logic_Getter)GetProcAddress(hGetProcIDDLL, "get_map_logic");
+		if (m.get_map_logic != NULL) {
 			return;
 		}
 	}

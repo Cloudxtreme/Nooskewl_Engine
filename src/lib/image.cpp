@@ -3,6 +3,7 @@
 #include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
@@ -370,7 +371,7 @@ void Image::upload(unsigned char *pixels)
 	}
 #ifdef _MSC_VER
 	else {
-		int err = d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, NULL);
+		int err = m.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, NULL);
 		D3DLOCKED_RECT locked_rect;
 		if (video_texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
 			for (int y = 0; y < h; y++) {
