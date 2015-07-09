@@ -1,1 +1,1 @@
-cmake .. -DCMAKE_GENERATOR_TOOLSET=v120_xp -DUSER_INCLUDE_PATH=C:\Users\Trent\code\include -DUSER_LIBRARY_PATH=C:\Users\Trent\code\lib -DTRENTS_BUILD=on
+cmake .. -DCMAKE_GENERATOR_TOOLSET=v120_xp -DUSER_INCLUDE_PATH="C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Include";C:\Users\Trent\code\include -DUSER_LIBRARY_PATH="C:\Program Files (x86)\Microsoft DirectX SDK (June 2010)\Lib\x86";C:\Users\Trent\code\lib -DTRENTS_BUILD=on

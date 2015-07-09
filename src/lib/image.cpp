@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/video.h"
 
 struct Colour {
 	unsigned char r, g, b;
@@ -268,16 +269,20 @@ Image::Image(SDL_Surface *surface) :
 
 Image::~Image()
 {
-	glDeleteTextures(1, &texture);
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+	if (opengl) {
+		glDeleteTextures(1, &texture);
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+	}
 }
 
 void Image::start()
 {
-	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	if (opengl) {
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBindTexture(GL_TEXTURE_2D, texture);
+	}
 
 	vertex_accel->start(this);
 }
@@ -325,38 +330,40 @@ void Image::end()
 
 void Image::upload(unsigned char *pixels)
 {
-	glGenVertexArrays(1, &vao);
-	if (vao == 0) {
-		throw GLError("glGenVertexArrays failed");
+	if (opengl) {
+		glGenVertexArrays(1, &vao);
+		if (vao == 0) {
+			throw GLError("glGenVertexArrays failed");
+		}
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		if (vbo == 0) {
+			glDeleteVertexArrays(1, &vao);
+			vao = 0;
+			throw GLError("glBenBuffers failed");
+		}
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		glGenTextures(1, &texture);
+		if (texture == 0) {
+			glDeleteVertexArrays(1, &vao);
+			vao = 0;
+			glDeleteBuffers(1, &vbo);
+			vbo = 0;
+			throw GLError("glGenTextures failed");
+		}
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE0);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
-	glBindVertexArray(vao);
-
-	glGenBuffers(1, &vbo);
-	if (vbo == 0) {
-		glDeleteVertexArrays(1, &vao);
-		vao = 0;
-		throw GLError("glBenBuffers failed");
-	}
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glGenTextures(1, &texture);
-	if (texture == 0) {
-		glDeleteVertexArrays(1, &vao);
-		vao = 0;
-		glDeleteBuffers(1, &vbo);
-		vbo = 0;
-		throw GLError("glGenTextures failed");
-	}
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glActiveTexture(GL_TEXTURE0);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     vertex_accel->init_new_texture();
 }

@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/video.h"
 
 static Image *window_image;
 static Sprite *speech_arrow;
@@ -128,7 +129,9 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	dc.y += sin(a1) * scale;
 	dd.x += cos(a2) * scale;
 	dd.y += sin(a2) * scale;
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (opengl) {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	vertex_accel->start();
 	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
 	vertex_accel->end();
@@ -136,7 +139,9 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
-	glBindTexture(GL_TEXTURE_2D, 0);
+	if (opengl) {
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 	vertex_accel->start();
 	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
 	vertex_accel->end();

@@ -100,8 +100,7 @@ static bool run_main(int argc, char **argv)
 
 					set_map_transition_projection((float)elapsed / duration * PI);
 
-					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-					glClear(GL_COLOR_BUFFER_BIT);
+					clear(black);
 
 					vertex_accel->set_perspective_drawing(true);
 					if (moved_player) {
@@ -142,7 +141,6 @@ static bool run_main(int argc, char **argv)
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				screen_w = sdl_event.window.data1 / 4;
 				screen_h = sdl_event.window.data2 / 4;
-				glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
 				set_default_projection();
 				gui->resize(screen_w, screen_h);
 			}
@@ -160,8 +158,7 @@ static bool run_main(int argc, char **argv)
 		}
 
 		// DRAWING
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		clear(black);
 
 		map->draw();
 

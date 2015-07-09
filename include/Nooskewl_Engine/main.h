@@ -26,14 +26,15 @@
 #include <vector>
 
 #include <GL/glew.h>
-
 #include <GL/gl.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #ifdef _MSC_VER
+#define D3D_DEBUG_INFO
+#include <d3d9.h>
+#include <d3dx9.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
 #include <SDL/SDL_opengl.h>

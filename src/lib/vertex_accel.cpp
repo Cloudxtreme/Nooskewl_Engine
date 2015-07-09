@@ -27,18 +27,20 @@ void Vertex_Accel::init()
 
 void Vertex_Accel::init_new_texture()
 {
-	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+	if (opengl) {
+		// Specify the layout of the vertex data
+		GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
+		glEnableVertexAttribArray(posAttrib);
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
 
-	GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
-	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+		GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
+		glEnableVertexAttribArray(colAttrib);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
-	glEnableVertexAttribArray(texcoordAttrib);
-	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+		GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
+		glEnableVertexAttribArray(texcoordAttrib);
+		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+	}
 }
 
 void Vertex_Accel::start()
@@ -53,17 +55,19 @@ void Vertex_Accel::start(Image *image)
 
 void Vertex_Accel::end()
 {
-	GLint use_tex = glGetUniformLocation(current_shader, "use_tex");
-	if (image) {
-		glUniform1i(use_tex, true);
-	}
-	else {
-		glUniform1i(use_tex, false);
-	}
+	if (opengl) {
+		GLint use_tex = glGetUniformLocation(current_shader, "use_tex");
+		if (image) {
+			glUniform1i(use_tex, true);
+		}
+		else {
+			glUniform1i(use_tex, false);
+		}
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
 
-	glDrawArrays(GL_TRIANGLES, 0, count);
+		glDrawArrays(GL_TRIANGLES, 0, count);
+	}
 
 	count = 0;
 }
