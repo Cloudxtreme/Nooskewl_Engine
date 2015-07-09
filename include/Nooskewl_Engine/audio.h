@@ -37,8 +37,11 @@ public:
 	~Track();
 
 	void play(bool looping);
+	void stop();
 	// Must be called regularly (~1.0/60.0 seconds). Returns true if generated any samples.
 	bool update(Int16 *buf, int length);
+
+	bool is_playing();
 
 private:
 	void reset();
@@ -83,17 +86,17 @@ private:
 	bool done;
 	bool padded;
 	bool looping;
+	bool playing;
 };
 
 typedef std::vector<Track *> *Audio;
 
-EXPORT void update_audio();
-
 EXPORT Audio load_audio(std::string filename) throw (Error);
 EXPORT void play_audio(Audio audio, bool looping);
+EXPORT void stop_audio(Audio audio);
 EXPORT void destroy_audio(Audio tracks);
 
-EXPORT void init_audio() throw (Error);
+EXPORT void init_audio(int argc, char **argv) throw (Error);
 EXPORT void shutdown_audio();
 
 #endif // AUDIO_H

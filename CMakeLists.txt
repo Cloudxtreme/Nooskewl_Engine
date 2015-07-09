@@ -54,7 +54,7 @@ set(RUNNER_SRC
 
 add_library(Nooskewl_Engine SHARED ${LIB_SRC})
 set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DLIB_BUILD")
-target_link_libraries(Nooskewl_Engine tgui3 SDL2 SDL2main SDL2_ttf glew32 zlib opengl32 winmm)
+target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main glew32 zlib opengl32 winmm)
 
 add_executable(Nooskewl_Runner ${RUNNER_SRC})
 target_link_libraries(Nooskewl_Runner Nooskewl_Engine)

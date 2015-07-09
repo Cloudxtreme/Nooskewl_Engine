@@ -1,12 +1,20 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
 SDL_Joystick *joy;
+bool mute;
 
 void init_nooskewl_engine(int argc, char **argv)
 {
+	mute = check_args(argc, argv, "+mute");
+
 	load_dll();
 
-	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
+	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
+//	if (mute == false) {
+		flags |= SDL_INIT_AUDIO;
+//	}
+
+	if (SDL_Init(flags) != 0) {
 		throw Error("SDL_Init failed");
 	}
 
@@ -16,7 +24,7 @@ void init_nooskewl_engine(int argc, char **argv)
 
 	cpa = new CPA();
 
-	init_audio();
+	init_audio(argc, argv);
 	init_video(argc, argv);
 	init_font();
 	init_graphics();

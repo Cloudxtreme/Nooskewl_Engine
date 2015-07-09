@@ -57,6 +57,16 @@ std::string itos(int i)
 	return std::string(buf);
 }
 
+bool check_args(int argc, char **argv, std::string arg)
+{
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], arg.c_str())) {
+			return true;
+		}
+	}
+	return false;
+}
+
 #ifdef _MSC_VER
 List_Directory::List_Directory(std::string glob) :
 	got_first(false),

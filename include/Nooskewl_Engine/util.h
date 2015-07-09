@@ -9,8 +9,8 @@ EXPORT char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
 EXPORT int SDL_fputs(const char *string, SDL_RWops *file);
 
 EXPORT SDL_RWops *open_file(std::string filename) throw (Error);
-
 EXPORT std::string itos(int i);
+EXPORT bool check_args(int argc, char **argv, std::string arg);
 
 class EXPORT List_Directory {
 public:

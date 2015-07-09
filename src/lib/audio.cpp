@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/audio.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/util.h"
 
 #define TWOPI (2.0f * PI)
@@ -44,6 +45,25 @@ static std::vector<Audio> loaded_audio;
 // FIXME: use a mutex
 static bool lock = false;
 
+static void update_audio(Uint8 *buf, int stream_length)
+{
+	Uint8 *tmp = new Uint8[stream_length];
+
+	for (size_t audio = 0; audio < loaded_audio.size(); audio++) {
+		Audio tracks = loaded_audio[audio];
+		for (size_t track = 0; track < tracks->size(); track++) {
+			if ((*tracks)[track]->is_playing()) {
+				bool filled = (*tracks)[track]->update((Int16 *)tmp, stream_length/2);
+				if (filled) {
+					SDL_MixAudioFormat(buf, tmp, device_spec.format, stream_length, 16);
+				}
+			}
+		}
+	}
+
+	delete[] tmp;
+}
+
 Sample::Sample(std::string filename)
 {
 	filename = "samples/" + filename;
@@ -75,6 +95,10 @@ Sample::~Sample()
 
 bool Sample::play(float volume, bool loop)
 {
+	if (mute) {
+		return true;
+	}
+
 	SampleInstance *s = new SampleInstance();
 	if (s == NULL) {
 		return false;
@@ -184,7 +208,8 @@ Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > 
 	pitch_envelopes(pitch_envelopes),
 	dutycycles(dutycycles),
 	pad(pad),
-	looping(looping)
+	looping(looping),
+	playing(false)
 {
 }
 
@@ -194,9 +219,16 @@ Track::~Track()
 
 void Track::play(bool looping)
 {
+	playing = true;
+
 	this->looping = looping;
 
 	reset();
+}
+
+void Track::stop()
+{
+	playing = false;
 }
 
 bool Track::update(Int16 *buf, int length)
@@ -260,6 +292,11 @@ bool Track::update(Int16 *buf, int length)
 	buffer_fulfilled = 0;
 
 	return true;
+}
+
+bool Track::is_playing()
+{
+	return playing;
 }
 
 void Track::reset()
@@ -523,23 +560,6 @@ int Track::notelength(const char *tok, const char *audio, int *pos)
 		}
 	} while (tok2.c_str()[0] == 'w');
 	return total;
-}
-
-void update_audio(Uint8 *buf, int stream_length)
-{
-	Uint8 *tmp = new Uint8[stream_length];
-
-	for (size_t audio = 0; audio < loaded_audio.size(); audio++) {
-		Audio tracks = loaded_audio[audio];
-		for (size_t track = 0; track < tracks->size(); track++) {
-			bool filled = (*tracks)[track]->update((Int16 *)tmp, stream_length/2);
-			if (filled) {
-				SDL_MixAudioFormat(buf, tmp, device_spec.format, stream_length, 16);
-			}
-		}
-	}
-
-	delete[] tmp;
 }
 
 Audio load_audio(std::string filename)
@@ -811,8 +831,19 @@ Audio load_audio(std::string filename)
 
 void play_audio(Audio tracks, bool looping)
 {
+	if (mute) {
+		return;
+	}
+
 	for (size_t i = 0; i < tracks->size(); i++) {
 		(*tracks)[i]->play(looping);
+	}
+}
+
+void play_audio(Audio tracks)
+{
+	for (size_t i = 0; i < tracks->size(); i++) {
+		(*tracks)[i]->stop();
 	}
 }
 
@@ -863,8 +894,12 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	lock = false;
 }
 
-void init_audio()
+void init_audio(int argc, char **argv)
 {
+//	if (mute) {
+//		return;
+//	}
+
 	SDL_AudioSpec desired;
 	desired.freq = 44100;
 	desired.format = AUDIO_S16;
@@ -884,5 +919,7 @@ void init_audio()
 
 void shutdown_audio()
 {
-	SDL_CloseAudioDevice(audio_device);
+	if (audio_device != 0) {
+		SDL_CloseAudioDevice(audio_device);
+	}
 }
