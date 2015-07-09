@@ -16,10 +16,12 @@ GLuint fragmentShader;
 GLuint current_shader;
 static SDL_GLContext opengl_context;
 
+#ifdef _MSC_VER
 static HWND hwnd;
 static D3DPRESENT_PARAMETERS d3d_pp;
 static bool d3d_lost;
 static IDirect3D9 *d3d;
+#endif
 
 void clear(SDL_Colour colour)
 {
@@ -27,9 +29,11 @@ void clear(SDL_Colour colour)
 		glClearColor(colour.r/255.0f, colour.g/255.0f, colour.b/255.0f, colour.a/255.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
+#ifdef _MSC_VER
 	else {
 		m.d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0, 0);
 	}
+#endif
 }
 
 void flip()
@@ -37,6 +41,7 @@ void flip()
 	if (g.graphics.opengl) {
 		SDL_GL_SwapWindow(window);
 	}
+#ifdef _MSC_VER
 	else {
 		m.d3d_device->EndScene();
 
@@ -65,12 +70,17 @@ void flip()
 
 		m.d3d_device->BeginScene();
 	}
+#endif
 }
 
 void init_video(int argc, char **argv)
 {
 	bool vsync = !check_args(argc, argv, "-vsync");
+#ifdef _MSC_VER
 	g.graphics.opengl = !check_args(argc, argv, "+d3d");
+#else
+	g.graphics.opengl = true;
+#endif
 
 	if (g.graphics.opengl) {
 		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -159,6 +169,7 @@ void init_video(int argc, char **argv)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+#ifdef _MSC_VER
 	else {
 		hwnd = GetActiveWindow();
 
@@ -283,6 +294,7 @@ void init_video(int argc, char **argv)
 		m.effect->ValidateTechnique(hTech);
 		m.effect->SetTechnique(hTech);
 	}
+#endif
 
 	set_default_projection();
 
@@ -329,6 +341,7 @@ void set_default_projection()
 		uni = glGetUniformLocation(current_shader, "model");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 	}
+#ifdef _MSC_VER
 	else {
 		/* D3D pixels are slightly different than OpenGL */
 		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
@@ -337,6 +350,7 @@ void set_default_projection()
 		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
+#endif
 }
 
 void set_map_transition_projection(float angle)
@@ -358,6 +372,7 @@ void set_map_transition_projection(float angle)
 		uni = glGetUniformLocation(current_shader, "model");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 	}
+#ifdef _MSC_VER
 	else {
 		/* D3D pixels are slightly different than OpenGL */
 		int w, h;
@@ -368,6 +383,7 @@ void set_map_transition_projection(float angle)
 		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
+#endif
 }
 
 void release_graphics()

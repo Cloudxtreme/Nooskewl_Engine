@@ -34,6 +34,7 @@
 #ifdef _MSC_VER
 #include <d3d9.h>
 #include <d3dx9.h>
+#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
 #include <SDL/SDL_opengl.h>

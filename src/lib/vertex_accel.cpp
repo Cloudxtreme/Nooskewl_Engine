@@ -48,18 +48,21 @@ void Vertex_Accel::start()
 {
 	this->image = NULL;
 
+#ifdef _MSC_VER
 	if (g.graphics.opengl == false) {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetFVF(FVF);
 		m.effect->Begin(&required_passes, 0);
 	}
+#endif
 }
 
 void Vertex_Accel::start(Image *image)
 {
 	this->image = image;
 
+#ifdef _MSC_VER
 	if (g.graphics.opengl == false) {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
@@ -69,6 +72,7 @@ void Vertex_Accel::start(Image *image)
 		m.effect->Begin(&required_passes, 0);
 		m.d3d_device->SetTexture(0, image->video_texture);
 	}
+#endif
 }
 
 void Vertex_Accel::end()
@@ -86,6 +90,7 @@ void Vertex_Accel::end()
 
 		glDrawArrays(GL_TRIANGLES, 0, count);
 	}
+#ifdef _MSC_VER
 	else {
 		for (unsigned int i = 0; i < required_passes; i++) {
 			m.effect->BeginPass(i);
@@ -97,6 +102,7 @@ void Vertex_Accel::end()
 		}
 		m.effect->End();
 	}
+#endif
 
 	count = 0;
 }

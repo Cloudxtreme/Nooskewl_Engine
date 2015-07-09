@@ -15,6 +15,4 @@ void set_map_transition_projection(float angle);
 void release_graphics();
 void reload_graphics();
 
-#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
-
 #endif // VIDEO_H
