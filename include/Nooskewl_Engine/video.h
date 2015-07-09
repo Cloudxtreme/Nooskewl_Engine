@@ -17,4 +17,8 @@ EXPORT extern int screen_h;
 
 EXPORT extern bool opengl;
 
+#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+EXPORT extern IDirect3DDevice9 *d3d_device;
+EXPORT extern LPD3DXEFFECT effect;
+
 #endif // VIDEO_H

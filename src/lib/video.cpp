@@ -188,23 +188,25 @@ void init_video(int argc, char **argv)
 			"{\n"
 			"   float4 Position  : POSITION0;\n"
 			"   float2 TexCoord  : TEXCOORD0;\n"
-			"   float4 Color     : TEXCOORD1;\n"
+			"   float4 Color	 : TEXCOORD1;\n"
 			"};\n"
 			"struct VS_OUTPUT\n"
 			"{\n"
 			"   float4 Position  : POSITION0;\n"
-			"   float4 Color     : COLOR0;\n"
+			"   float4 Color	 : COLOR0;\n"
 			"   float2 TexCoord  : TEXCOORD0;\n"
 			"};\n"
 			"\n"
 			"float4x4 proj;\n"
+			"float4x4 view;\n"
+			"float4x4 model;\n"
 			"\n"
 			"VS_OUTPUT vs_main(VS_INPUT Input)\n"
 			"{\n"
 			"   VS_OUTPUT Output;\n"
 			"   Output.Color = Input.Color;\n"
 			"   Output.TexCoord = Input.TexCoord;\n"
-			"   Output.Position = mul(Input.Position, proj);\n"
+			"   Output.Position = mul(Input.Position, mul(model, mul(view, proj)));\n"
 			"   return Output;\n"
 			"}\n"
 			"bool use_tex;\n"
@@ -216,10 +218,10 @@ void init_video(int argc, char **argv)
 			"float4 ps_main(VS_OUTPUT Input) : COLOR0\n"
 			"{\n"
 			"   if (use_tex) {\n"
-			"      return Input.Color * tex2D(s, Input.TexCoord);\n"
+			"	  return Input.Color * tex2D(s, Input.TexCoord);\n"
 			"   }\n"
 			"   else {\n"
-			"      return Input.Color;\n"
+			"	  return Input.Color;\n"
 			"   }\n"
 			"}\n"
 			"technique TECH\n"
@@ -280,41 +282,90 @@ void shutdown_video()
 
 void set_default_projection()
 {
-	if (opengl) {
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
 
+	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
+	glm::mat4 model = glm::mat4();
+
+	if (opengl) {
 		glViewport(0, 0, w, h);
 
-		glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
-		GLint uniTrans = glGetUniformLocation(current_shader, "proj");
-		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(proj));
+		GLint uni;
 
-		glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
-		uniTrans = glGetUniformLocation(current_shader, "view");
-		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(view));
+		uni = glGetUniformLocation(current_shader, "proj");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
 
-		uniTrans = glGetUniformLocation(current_shader, "model");
-		glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(glm::mat4()));
+		uni = glGetUniformLocation(current_shader, "view");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+
+		uni = glGetUniformLocation(current_shader, "model");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+	}
+	else {
+		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+
+		/*
+		D3DXMATRIX proj;
+		D3DXMatrixIdentity(&proj);
+		D3DXMatrixOrthoRH(&proj, w, h, -1.0f, 1.0f);
+		effect->SetMatrix("proj", &proj);
+
+		D3DXMATRIX view;
+		D3DXMatrixIdentity(&view);
+		D3DXMatrixScaling(&view, 4.0f, 4.0f, 4.0f);
+		effect->SetMatrix("view", &view);
+
+		D3DXMATRIX model;
+		D3DXMatrixIdentity(&model);
+		effect->SetMatrix("model", &model);
+		*/
 	}
 }
 
 void set_map_transition_projection(float angle)
 {
+	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
+	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+
 	if (opengl) {
 		GLint uni;
 
 		uni = glGetUniformLocation(current_shader, "model");
-	    glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	    model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
-	    glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
 
 		uni = glGetUniformLocation(current_shader, "view");
-		glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
-	    glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
 
+		model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
 		uni = glGetUniformLocation(current_shader, "proj");
-		glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+	}
+	else {
+		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+
+		/*
+		D3DXMATRIX proj;
+		D3DXMatrixIdentity(&proj);
+		D3DXMatrixPerspectiveOffCenterRH(&proj, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+		effect->SetMatrix("proj", &proj);
+
+		D3DXMATRIX view;
+		D3DXMatrixIdentity(&view);
+		D3DXMatrixTranslation(&view, 0.0f, 0.0f, -2.0f);
+		effect->SetMatrix("view", &view);
+
+		D3DXMATRIX model;
+		D3DXMatrixIdentity(&model);
+		D3DXMatrixRotationY(&model, angle);
+		D3DXMatrixScaling(&model, angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f);
+		effect->SetMatrix("model", &model);
+		*/
 	}
 }

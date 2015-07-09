@@ -160,9 +160,17 @@ static bool run_main(int argc, char **argv)
 		// DRAWING
 		clear(black);
 
-		map->draw();
+		//map->draw();
 
 //		gui->draw();
+
+		SDL_Colour c[4] = {
+			{ 255, 0, 0, 255 },
+			{ 0, 255, 0, 255 },
+			{ 0, 0, 255, 255 },
+			{ 255, 255, 255, 255 }
+		};
+		draw_quad(Point<int>(20, 20), Size<int>(screen_w-40, screen_h-40), c);
 
 		flip();
 

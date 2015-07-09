@@ -30,6 +30,8 @@ private:
 	int total;
 	Image *image;
 	bool perspective_drawing;
+
+	unsigned int required_passes;
 };
 
 EXPORT extern Vertex_Accel *vertex_accel;
