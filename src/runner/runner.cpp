@@ -11,9 +11,10 @@
 #include "Nooskewl_Engine/video.h"
 #include "Nooskewl_Engine/widgets.h"
 
+const int64_t TICKS_PER_FRAME = (1000 / 60);
+
 Map *map;
 Map_Entity *player;
-
 SDL_Joystick *joy;
 
 bool run_main();
@@ -31,7 +32,7 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-static Uint32 main_callback(Uint32 interval, void *data)
+static Uint32 timer_callback(Uint32 interval, void *data)
 {
 	SDL_Event event;
 	SDL_UserEvent userevent;
@@ -43,7 +44,19 @@ static Uint32 main_callback(Uint32 interval, void *data)
 
 	SDL_PushEvent(&event);
 
-    return interval;
+	int64_t *timer_last_call = (int64_t *)data;
+	int64_t now = SDL_GetTicks();
+	int64_t elapsed = now - *timer_last_call;
+	*timer_last_call = now;
+	int64_t over = elapsed - TICKS_PER_FRAME;
+	int64_t ret = TICKS_PER_FRAME - over;
+
+	if (ret > 0) {
+		return ret;
+	}
+	else {
+		return TICKS_PER_FRAME;
+	}
 }
 
 static bool run_main()
@@ -65,6 +78,9 @@ static bool run_main()
 	init_font();
 	init_graphics();
 
+	int64_t start_frame = SDL_GetTicks();
+	int64_t delay = 0;
+
 	map = new Map("test.map");
 	map->start();
 
@@ -77,7 +93,8 @@ static bool run_main()
 	Audio music = load_audio("title.mml");
 	play_audio(music, true);
 
-	SDL_AddTimer(16, main_callback, NULL);
+	int64_t timer_last_call = SDL_GetTicks();
+	SDL_AddTimer(16, timer_callback, &timer_last_call);
 
 	bool quit = false;
 	bool draw = false;
@@ -109,22 +126,16 @@ static bool run_main()
 	TGUI *gui = new TGUI(main_widget, screen_w, screen_h);
 
 	while (quit == false) {
-		bool got_event = false;
-		while (true) {
-			SDL_Event sdl_event;
-			if (SDL_PollEvent(&sdl_event)) {
-				got_event = true;
-			}
-			else {
-				break;
-			}
-
+		SDL_Event sdl_event;
+		while (SDL_PollEvent(&sdl_event)) {
 			TGUI_Event event = tgui_sdl_convert_event(&sdl_event);
+
 			// FIXME: process function
 			if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
 				event.mouse.x /= 4;
 				event.mouse.y /= 4;
 			}
+
 			gui->handle_event(&event);
 
 			if (sdl_event.type == SDL_QUIT) {
@@ -132,7 +143,17 @@ static bool run_main()
 				break;
 			}
 			else if (sdl_event.type == SDL_USEREVENT) {
+				int64_t now = SDL_GetTicks();
+				int64_t elapsed = now - start_frame;
+				delay += TICKS_PER_FRAME - elapsed;
+				if (delay > 0) {
+					SDL_Delay(delay);
+					delay = 0;
+				}
+				start_frame = SDL_GetTicks();
+
 				update_graphics();
+
 				if (map->update() == false) {
 					std::string map_name;
 					Point<int> position;
@@ -187,6 +208,7 @@ static bool run_main()
 						quit = true;
 					}
 				}
+
 				draw = true;
 			}
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
@@ -199,16 +221,6 @@ static bool run_main()
 			}
 
 			map->handle_event(&event);
-
-			/*
-			if (event.type == TGUI_MOUSE_AXIS) {
-				gui->resize(event.mouse.x/4, event.mouse.y/4);
-			}
-			*/
-		}
-
-		if (quit) {
-			break;
 		}
 
 		if (draw) {
@@ -222,9 +234,6 @@ static bool run_main()
 //			gui->draw();
 
 			flip();
-		}
-		else if (!got_event) {
-			SDL_Delay(1);
 		}
 	}
 
