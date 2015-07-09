@@ -1,11 +1,9 @@
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
-
-Font *font;
-Font *bold_font;
 
 Font::Font(std::string filename, int size)
 {
@@ -40,7 +38,7 @@ void Font::clear_cache()
 
 int Font::get_width(std::string text)
 {
-	cache(text, white);
+	cache(text, g.graphics.white);
 	const char *p = text.c_str();
 	int width = 0;
 	while (*p) {
@@ -223,14 +221,14 @@ void Font::cache(std::string text, SDL_Color colour)
 
 void load_fonts()
 {
-	font = new Font("fff_majestica.ttf", 8);
-	bold_font = new Font("fff_majestica_bold.ttf", 8);
+	g.graphics.font = new Font("fff_majestica.ttf", 8);
+	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
 }
 
 void release_fonts()
 {
-	delete font;
-	delete bold_font;
+	delete g.graphics.font;
+	delete g.graphics.bold_font;
 }
 
 void init_font()

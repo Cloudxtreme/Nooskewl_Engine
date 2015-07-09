@@ -1,5 +1,6 @@
 #include "Nooskewl_Engine/audio.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/util.h"
 
 #define TWOPI (2.0f * PI)
@@ -95,7 +96,7 @@ Sample::~Sample()
 
 bool Sample::play(float volume, bool loop)
 {
-	if (mute) {
+	if (g.audio.mute) {
 		return true;
 	}
 
@@ -831,7 +832,7 @@ Audio load_audio(std::string filename)
 
 void play_audio(Audio tracks, bool looping)
 {
-	if (mute) {
+	if (g.audio.mute) {
 		return;
 	}
 
@@ -896,9 +897,9 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 
 void init_audio(int argc, char **argv)
 {
-//	if (mute) {
-//		return;
-//	}
+	if (g.audio.mute) {
+		return;
+	}
 
 	SDL_AudioSpec desired;
 	desired.freq = 44100;

@@ -17,6 +17,4 @@ private:
 	std::map< std::string, std::pair<int, int> > info; // offset, size
 };
 
-EXPORT extern CPA *cpa;
-
 #endif

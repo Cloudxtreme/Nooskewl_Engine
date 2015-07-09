@@ -7,7 +7,7 @@
 
 typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
-EXPORT void load_dll() throw (Error);
+void load_dll() throw (Error);
 
 extern Map_Logic_Getter get_map_logic;
 

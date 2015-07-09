@@ -34,6 +34,4 @@ private:
 	unsigned int required_passes;
 };
 
-EXPORT extern Vertex_Accel *vertex_accel;
-
 #endif // VERTEX_ACCEL_H

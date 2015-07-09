@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/vertex_accel.h"
@@ -5,8 +6,6 @@
 
 // FIXME:
 extern GLuint current_shader;
-
-Vertex_Accel *vertex_accel;
 
 Vertex_Accel::Vertex_Accel() :
 	vertices(NULL),
@@ -28,7 +27,7 @@ void Vertex_Accel::init()
 
 void Vertex_Accel::init_new_texture()
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		// Specify the layout of the vertex data
 		GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
 		glEnableVertexAttribArray(posAttrib);
@@ -38,7 +37,7 @@ void Vertex_Accel::init_new_texture()
 		glEnableVertexAttribArray(texcoordAttrib);
 		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 
-		GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
+		GLint colAttrib = glGetAttribLocation(current_shader, "in_colour");
 		glEnableVertexAttribArray(colAttrib);
 		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
 	}
@@ -48,7 +47,7 @@ void Vertex_Accel::start()
 {
 	this->image = NULL;
 
-	if (opengl == false) {
+	if (g.graphics.opengl == false) {
 		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		d3d_device->SetFVF(FVF);
@@ -60,7 +59,7 @@ void Vertex_Accel::start(Image *image)
 {
 	this->image = image;
 
-	if (opengl == false) {
+	if (g.graphics.opengl == false) {
 		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		d3d_device->SetFVF(FVF);
@@ -73,7 +72,7 @@ void Vertex_Accel::start(Image *image)
 
 void Vertex_Accel::end()
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		GLint use_tex = glGetUniformLocation(current_shader, "use_tex");
 		if (image) {
 			glUniform1i(use_tex, true);
@@ -203,10 +202,10 @@ void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Poi
 	float dy2 = dy + (float)dest_size.h;
 
 	if (perspective_drawing) {
-		dx /= (float)screen_w;
-		dy /= (float)screen_h;
-		dx2 /= (float)screen_w;
-		dy2 /= (float)screen_h;
+		dx /= (float)g.graphics.screen_w;
+		dy /= (float)g.graphics.screen_h;
+		dx2 /= (float)g.graphics.screen_w;
+		dy2 /= (float)g.graphics.screen_h;
 		dx -= 0.5f;
 		dy -= 0.5f;
 		dx2 -= 0.5f;

@@ -4,7 +4,7 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/brain.h"
 
-class EXPORT Player_Brain : public Brain {
+class Player_Brain : public Brain {
 public:
 		Player_Brain();
 		~Player_Brain();

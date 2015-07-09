@@ -3,7 +3,7 @@
 
 #include "Nooskewl_Engine/main.h"
 
-class EXPORT Speech {
+class Speech {
 public:
 	Speech(std::string text);
 

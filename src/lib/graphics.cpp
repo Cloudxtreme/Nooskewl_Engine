@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
@@ -9,12 +10,6 @@
 
 static Image *window_image;
 static Sprite *speech_arrow;
-
-SDL_Colour colours[256];
-SDL_Colour four_blacks[4];
-SDL_Colour four_whites[4];
-SDL_Colour black;
-SDL_Colour white;
 
 void init_graphics()
 {
@@ -67,12 +62,12 @@ void load_palette(std::string name)
 		if (*p == '#') {
 			continue;
 		}
-		int r, g, b;
-		if (sscanf(line, "%d %d %d", &r, &g, &b) == 3) {
-			colours[colour_count].r = r;
-			colours[colour_count].g = g;
-			colours[colour_count].b = b;
-			colours[colour_count].a = 255;
+		int red, green, blue;
+		if (sscanf(line, "%d %d %d", &red, &green, &blue) == 3) {
+			g.graphics.colours[colour_count].r = red;
+			g.graphics.colours[colour_count].g = green;
+			g.graphics.colours[colour_count].b = blue;
+			g.graphics.colours[colour_count].a = 255;
 			colour_count++;
 		}
 		else {
@@ -80,13 +75,13 @@ void load_palette(std::string name)
 		}
 	}
 
-	black.r = black.g = black.b = 0;
-	black.a = 255;
-	white.r = white.g = white.b = white.a = 255;
+	g.graphics.black.r = g.graphics.black.g = g.graphics.black.b = 0;
+	g.graphics.black.a = 255;
+	g.graphics.white.r = g.graphics.white.g = g.graphics.white.b = g.graphics.white.a = 255;
 
 	for (int i = 0; i < 4; i++) {
-		four_blacks[i] = black;
-		four_whites[i] = white;
+		g.graphics.four_blacks[i] = g.graphics.black;
+		g.graphics.four_whites[i] = g.graphics.white;
 	}
 
 	SDL_RWclose(file);
@@ -121,22 +116,22 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	dc.y += sin(a1) * scale;
 	dd.x += cos(a2) * scale;
 	dd.y += sin(a2) * scale;
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	vertex_accel->start();
-	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
-	vertex_accel->end();
+	g.graphics.vertex_accel->start();
+	g.graphics.vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
+	g.graphics.vertex_accel->end();
 }
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	vertex_accel->start();
-	vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
-	vertex_accel->end();
+	g.graphics.vertex_accel->start();
+	g.graphics.vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
+	g.graphics.vertex_accel->end();
 }
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)
@@ -153,8 +148,8 @@ void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool
 	SDL_Colour vertex_colours[4];
 
 	// Blue shades in NES palette
-	vertex_colours[0] = vertex_colours[1] = colours[47];
-	vertex_colours[2] = vertex_colours[3] = colours[44];
+	vertex_colours[0] = vertex_colours[1] = g.graphics.colours[47];
+	vertex_colours[2] = vertex_colours[3] = g.graphics.colours[44];
 
 	for (int i = 0; i < 4; i++) {
 		vertex_colours[i].a = 220;

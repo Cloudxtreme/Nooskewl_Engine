@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/load_dll.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/map.h"
@@ -134,9 +135,9 @@ void Map::update_camera()
 	if (player) {
 		Point<int> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
-		offset = p - Point<int>(screen_w, screen_h) / 2 + sz / 2;
-		int max_x = (tilemap->get_width()*tilemap->get_tile_size()-screen_w);
-		int max_y = (tilemap->get_height()*tilemap->get_tile_size()-screen_h);
+		offset = p - Point<int>(g.graphics.screen_w, g.graphics.screen_h) / 2 + sz / 2;
+		int max_x = (tilemap->get_width()*tilemap->get_tile_size()-g.graphics.screen_w);
+		int max_y = (tilemap->get_height()*tilemap->get_tile_size()-g.graphics.screen_h);
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
@@ -151,11 +152,11 @@ void Map::update_camera()
 		}
 		offset = -offset;
 		// Correct for small levels
-		if (tilemap->get_width()*tilemap->get_tile_size() < screen_w) {
-			offset.x = (screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
+		if (tilemap->get_width()*tilemap->get_tile_size() < g.graphics.screen_w) {
+			offset.x = (g.graphics.screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
 		}
-		if (tilemap->get_height()*tilemap->get_tile_size() < screen_h) {
-			offset.y = (screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+		if (tilemap->get_height()*tilemap->get_tile_size() < g.graphics.screen_h) {
+			offset.y = (g.graphics.screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
 		}
 	}
 }

@@ -27,6 +27,7 @@ set(LIB_SRC
 	src/lib/cpa.cpp
 	src/lib/engine.cpp
 	src/lib/font.cpp
+	src/lib/global.cpp
 	src/lib/graphics.cpp
 	src/lib/image.cpp
 	src/lib/load_dll.cpp

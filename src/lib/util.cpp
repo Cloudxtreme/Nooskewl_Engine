@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/cpa.h"
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/snprintf.h"
 #include "Nooskewl_Engine/util.h"
 
@@ -40,8 +41,8 @@ SDL_RWops *open_file(std::string filename)
 {
 	SDL_RWops *file;
 
-	if (cpa->exists(filename)) {
-		file = cpa->load(filename);
+	if (g.cpa->exists(filename)) {
+		file = g.cpa->load(filename);
 	}
 	else {
 		throw FileNotFoundError(filename);

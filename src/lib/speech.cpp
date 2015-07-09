@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/speech.h"
 #include "Nooskewl_Engine/video.h"
@@ -36,10 +37,10 @@ bool Speech::handle_event(TGUI_Event *event)
 
 void Speech::draw()
 {
-	draw_window(Point<int>(5, screen_h/2), Size<int>(screen_w-10, screen_h/2-5), advance, done);
+	draw_window(Point<int>(5, g.graphics.screen_h/2), Size<int>(g.graphics.screen_w-10, g.graphics.screen_h/2-5), advance, done);
 
 	bool full;
-	int drawn = font->draw_wrapped(text.substr(offset), Point<int>(14, screen_h/2+9), screen_w-28, 14, 4, start_time, white, full);
+	int drawn = g.graphics.font->draw_wrapped(text.substr(offset), Point<int>(14, g.graphics.screen_h/2+9), g.graphics.screen_w-28, 14, 4, start_time, g.graphics.white, full);
 
 	if (full) {
 		if (unsigned(offset+drawn) >= text.length()) {

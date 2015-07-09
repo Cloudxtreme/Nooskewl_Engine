@@ -1,5 +1,6 @@
 // http://paulbourke.net/dataformats/tga/
 
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
@@ -135,7 +136,7 @@ Image::~Image()
 
 void Image::release()
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glDeleteTextures(1, &texture);
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
@@ -281,28 +282,28 @@ void Image::reload()
 
 void Image::start()
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBindTexture(GL_TEXTURE_2D, texture);
 	}
 
-	vertex_accel->start(this);
+	g.graphics.vertex_accel->start(this);
 }
 
 void Image::end()
 {
-	vertex_accel->end();
+	g.graphics.vertex_accel->end();
 }
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	vertex_accel->buffer(source_position, source_size, dest_position, dest_size, four_whites, flags);
+	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, dest_size, g.graphics.four_whites, flags);
 }
 
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
-	vertex_accel->buffer(source_position, source_size, dest_position, source_size, four_whites, flags);
+	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, source_size, g.graphics.four_whites, flags);
 }
 
 void Image::draw(Point<int> dest_position, int flags)
@@ -333,7 +334,7 @@ void Image::draw_single(Point<int> dest_position, int flags)
 
 void Image::upload(unsigned char *pixels)
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glGenVertexArrays(1, &vao);
 		if (vao == 0) {
 			throw GLError("glGenVertexArrays failed");
@@ -393,5 +394,5 @@ void Image::upload(unsigned char *pixels)
 	}
 #endif
 
-    vertex_accel->init_new_texture();
+    g.graphics.vertex_accel->init_new_texture();
 }

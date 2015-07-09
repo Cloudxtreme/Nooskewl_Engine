@@ -1,5 +1,6 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/util.h"
@@ -8,9 +9,6 @@
 
 // FIXME: put these something neat
 static SDL_Window *window;
-int screen_w;
-int screen_h;
-bool opengl;
 
 GLuint vertexShader;
 GLuint fragmentShader;
@@ -26,7 +24,7 @@ static IDirect3D9 *d3d;
 
 void clear(SDL_Colour colour)
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glClearColor(colour.r/255.0f, colour.g/255.0f, colour.b/255.0f, colour.a/255.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
@@ -37,7 +35,7 @@ void clear(SDL_Colour colour)
 
 void flip()
 {
-	if (opengl) {
+	if (g.graphics.opengl) {
 		SDL_GL_SwapWindow(window);
 	}
 	else {
@@ -73,29 +71,29 @@ void flip()
 void init_video(int argc, char **argv)
 {
 	bool vsync = !check_args(argc, argv, "-vsync");
-	opengl = !check_args(argc, argv, "+d3d");
+	g.graphics.opengl = !check_args(argc, argv, "+d3d");
 
-	if (opengl) {
+	if (g.graphics.opengl) {
 		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
 
-	screen_w = 285;
-	screen_h = 160;
+	g.graphics.screen_w = 285;
+	g.graphics.screen_h = 160;
 
 	int flags = SDL_WINDOW_RESIZABLE;
-	if (opengl) {
+	if (g.graphics.opengl) {
 		flags |= SDL_WINDOW_OPENGL;
 	}
 
-	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_w * 4, screen_h * 4, flags);
+	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g.graphics.screen_w * 4, g.graphics.screen_h * 4, flags);
 	if (window == NULL) {
 		throw Error("SDL_CreateWindow failed");
 	}
 
-	if (opengl) {
+	if (g.graphics.opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
@@ -108,12 +106,12 @@ void init_video(int argc, char **argv)
 			"uniform mat4 view;"
 			"uniform mat4 proj;"
 			"in vec3 in_position;"
-			"in vec4 in_color;"
+			"in vec4 in_colour;"
 			"in vec2 in_texcoord;"
 			"varying vec4 colour;"
 			"varying vec2 texcoord;"
 			"void main() {"
-			"	colour = in_color;"
+			"	colour = in_colour;"
 			"	texcoord = in_texcoord;"
 			"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
 			"}";
@@ -173,8 +171,8 @@ void init_video(int argc, char **argv)
 
 		d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
 
-		d3d_pp.BackBufferWidth = screen_w*4;
-		d3d_pp.BackBufferHeight = screen_h*4;
+		d3d_pp.BackBufferWidth = g.graphics.screen_w*4;
+		d3d_pp.BackBufferHeight = g.graphics.screen_h*4;
 		//d3d_pp.BackBufferCount = 1;
 		d3d_pp.Windowed = 1;
 		if (vsync) {
@@ -289,15 +287,15 @@ void init_video(int argc, char **argv)
 
 	set_default_projection();
 
-	vertex_accel = new Vertex_Accel();
-	vertex_accel->init();
+	g.graphics.vertex_accel = new Vertex_Accel();
+	g.graphics.vertex_accel->init();
 }
 
 void shutdown_video()
 {
-	delete vertex_accel;
+	delete g.graphics.vertex_accel;
 
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glDeleteProgram(current_shader);
 		glDeleteShader(fragmentShader);
 		glDeleteShader(vertexShader);
@@ -318,7 +316,7 @@ void set_default_projection()
 	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
 	glm::mat4 model = glm::mat4();
 
-	if (opengl) {
+	if (g.graphics.opengl) {
 		glViewport(0, 0, w, h);
 
 		GLint uni;
@@ -349,7 +347,7 @@ void set_map_transition_projection(float angle)
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
 
-	if (opengl) {
+	if (g.graphics.opengl) {
 		GLint uni;
 
 		uni = glGetUniformLocation(current_shader, "proj");
