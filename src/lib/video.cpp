@@ -1,27 +1,28 @@
 #include "Nooskewl_Engine/error.h"
+#include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
-// FIXME: private
+// FIXME: put these something neat
+static SDL_Window *window;
+int screen_w;
+int screen_h;
+bool opengl;
+
 GLuint vertexShader;
 GLuint fragmentShader;
 GLuint current_shader;
+static SDL_GLContext opengl_context;
 
-SDL_Renderer *renderer;
-IDirect3D9 *d3d;
 IDirect3DDevice9 *d3d_device;
 LPD3DXEFFECT effect;
-HWND hwnd;
-
-int screen_w;
-int screen_h;
-
-bool opengl;
-
-static SDL_Window *window;
-static SDL_GLContext opengl_context;
+static HWND hwnd;
+static D3DPRESENT_PARAMETERS d3d_pp;
+static bool d3d_lost;
+static IDirect3D9 *d3d;
 
 void clear(SDL_Colour colour)
 {
@@ -42,10 +43,27 @@ void flip()
 	else {
 		d3d_device->EndScene();
 
-		HRESULT hr = d3d_device->Present(NULL, NULL, hwnd, NULL);
+		if (d3d_lost) {
+			HRESULT hr = d3d_device->TestCooperativeLevel();
+			if (hr == D3DERR_DEVICENOTRESET) {
+				hr = d3d_device->Reset(&d3d_pp);
+				if (hr != D3D_OK) {
+					infomsg("Device couldn't be reset!\n");
+				}
+				else {
+					d3d_lost = false;
+					reload_graphics();
+				}
+			}
+		}
+		else {
+			HRESULT hr = d3d_device->Present(NULL, NULL, hwnd, NULL);
 
-		if (hr == D3DERR_DEVICELOST) {
-			infomsg("D3D device lost\n");
+			if (hr == D3DERR_DEVICELOST) {
+				infomsg("D3D device lost\n");
+				d3d_lost = true;
+				release_graphics();
+			}
 		}
 
 		d3d_device->BeginScene();
@@ -150,8 +168,6 @@ void init_video(int argc, char **argv)
 		if ((d3d = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
 			throw Error("Direct3D9CreateEx failed");
 		}
-
-		D3DPRESENT_PARAMETERS d3d_pp;
 
 		ZeroMemory(&d3d_pp, sizeof(d3d_pp));
 
@@ -355,4 +371,16 @@ void set_map_transition_projection(float angle)
 		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
+}
+
+void release_graphics()
+{
+	release_fonts();
+	release_images();
+}
+
+void reload_graphics()
+{
+	load_fonts();
+	reload_images();
 }

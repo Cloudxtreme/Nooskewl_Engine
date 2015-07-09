@@ -6,10 +6,6 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
-struct Colour {
-	unsigned char r, g, b;
-};
-
 struct TGA_Header {
 	char idlength;
 	char colourmaptype;
@@ -23,7 +19,7 @@ struct TGA_Header {
 	short height;
 	char bitsperpixel;
 	char imagedescriptor;
-	Colour palette[256];
+	SDL_Colour palette[256];
 };
 
 static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
@@ -38,7 +34,7 @@ static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 			*pixel++ = 0;
 		}
 		else {
-			Colour *colour = &header->palette[*p];
+			SDL_Colour *colour = &header->palette[*p];
 
 			*pixel++ = colour->r;
 			*pixel++ = colour->g;
@@ -82,9 +78,7 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 		return p + n * 4;
 }
 
-Image::Image(std::string filename, bool is_absolute_path) :
-	filename(filename),
-	texture(0)
+Image::Image(std::string filename, bool is_absolute_path)
 {
 	if (is_absolute_path == false) {
 		filename = "graphics/" + filename;
@@ -92,6 +86,69 @@ Image::Image(std::string filename, bool is_absolute_path) :
 
 	this->filename = filename;
 
+	reload();
+}
+
+Image::Image(SDL_Surface *surface) :
+	filename("--FROM SURFACE--")
+{
+	unsigned char *pixels;
+	SDL_Surface *tmp = NULL;
+
+	if (surface->format->format == SDL_PIXELFORMAT_RGBA8888)
+		pixels = (unsigned char *)surface->pixels;
+	else {
+		SDL_PixelFormat format;
+		format.format = SDL_PIXELFORMAT_RGBA8888;
+		format.palette = NULL;
+		format.BitsPerPixel = 32;
+		format.BytesPerPixel = 4;
+		format.Rmask = 0xff;
+		format.Gmask = 0xff00;
+		format.Bmask = 0xff0000;
+		format.Amask = 0xff000000;
+		tmp = SDL_ConvertSurface(surface, &format, 0);
+		if (tmp == NULL) {
+			throw Error("SDL_ConvertSurface returned NULL");
+		}
+		pixels = (unsigned char *)tmp->pixels;
+	}
+
+	w = surface->w;
+	h = surface->h;
+
+	try {
+		upload(pixels);
+	}
+	catch (Error e) {
+		if (tmp) SDL_FreeSurface(tmp);
+		throw e;
+	}
+
+	if (tmp) SDL_FreeSurface(tmp);
+}
+
+Image::~Image()
+{
+	release();
+}
+
+void Image::release()
+{
+	if (opengl) {
+		glDeleteTextures(1, &texture);
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
+	}
+#ifdef _MSC_VER
+	else {
+		video_texture->Release();
+	}
+#endif
+}
+
+void Image::reload()
+{
 	SDL_RWops *file = open_file(filename);
 
 	int n = 0, i, j;
@@ -222,63 +279,6 @@ Image::Image(std::string filename, bool is_absolute_path) :
 	SDL_RWclose(file);
 }
 
-Image::Image(std::string filename) :
-	Image(filename, false)
-{
-}
-
-Image::Image(SDL_Surface *surface) :
-	filename("--FROM SURFACE--"),
-	texture(0)
-{
-	unsigned char *pixels;
-	SDL_Surface *tmp = NULL;
-
-	if (surface->format->format == SDL_PIXELFORMAT_RGBA8888)
-		pixels = (unsigned char *)surface->pixels;
-	else {
-		SDL_PixelFormat format;
-		format.format = SDL_PIXELFORMAT_RGBA8888;
-		format.palette = NULL;
-		format.BitsPerPixel = 32;
-		format.BytesPerPixel = 4;
-		format.Rmask = 0xff;
-		format.Gmask = 0xff00;
-		format.Bmask = 0xff0000;
-		format.Amask = 0xff000000;
-		tmp = SDL_ConvertSurface(surface, &format, 0);
-		if (tmp == NULL) {
-			throw Error("SDL_ConvertSurface returned NULL");
-		}
-		pixels = (unsigned char *)tmp->pixels;
-	}
-
-	w = surface->w;
-	h = surface->h;
-
-	try {
-		upload(pixels);
-	}
-	catch (Error e) {
-		if (tmp) SDL_FreeSurface(tmp);
-		throw e;
-	}
-
-	if (tmp) SDL_FreeSurface(tmp);
-}
-
-Image::~Image()
-{
-	if (opengl) {
-		glDeleteTextures(1, &texture);
-		glDeleteBuffers(1, &vbo);
-		glDeleteVertexArrays(1, &vao);
-	}
-	else {
-		video_texture->Release();
-	}
-}
-
 void Image::start()
 {
 	if (opengl) {
@@ -367,6 +367,7 @@ void Image::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
+#ifdef _MSC_VER
 	else {
 		int err = d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, NULL);
 		D3DLOCKED_RECT locked_rect;
@@ -390,6 +391,7 @@ void Image::upload(unsigned char *pixels)
 			infomsg("Unable to lock texture\n");
 		}
 	}
+#endif
 
     vertex_accel->init_new_texture();
 }

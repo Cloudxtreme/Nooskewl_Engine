@@ -21,7 +21,4 @@ EXPORT extern SDL_Colour four_whites[4];
 EXPORT extern SDL_Colour black;
 EXPORT extern SDL_Colour white;
 
-EXPORT extern Font *font;
-EXPORT extern Font *bold_font;
-
 #endif // GRAPHICS_H

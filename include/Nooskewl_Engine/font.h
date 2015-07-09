@@ -36,7 +36,12 @@ private:
 	std::multimap<int, Glyph *> glyphs;
 };
 
-EXPORT bool init_font();
+EXPORT void load_fonts() throw (Error);
+EXPORT void release_fonts();
+EXPORT void init_font() throw (Error);
 EXPORT void shutdown_font();
+
+EXPORT extern Font *font;
+EXPORT extern Font *bold_font;
 
 #endif // FONT_H

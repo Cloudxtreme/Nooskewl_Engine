@@ -12,6 +12,9 @@ EXPORT void shutdown_video();
 EXPORT void set_default_projection();
 EXPORT void set_map_transition_projection(float angle);
 
+EXPORT void release_graphics();
+EXPORT void reload_graphics();
+
 EXPORT extern int screen_w;
 EXPORT extern int screen_h;
 

@@ -16,15 +16,19 @@ public:
 	std::string filename;
 	int w;
 	int h;
+	bool loaded;
 
 	GLuint texture;
-
+#ifdef _MSC_VER
 	LPDIRECT3DTEXTURE9 video_texture;
+#endif
 
-	Image(std::string filename, bool is_absolute_path) throw (Error);
-	Image(std::string filename) throw (Error);
+	Image(std::string filename, bool is_absolute_path = false) throw (Error);
 	Image(SDL_Surface *surface) throw (Error);
 	~Image();
+
+	void release();
+	void reload() throw (Error);
 
 	void start();
 	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);

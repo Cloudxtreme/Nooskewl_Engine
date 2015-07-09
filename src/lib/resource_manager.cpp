@@ -34,3 +34,20 @@ void release_image(Image *image)
 		loaded_images.erase(it);
 	}
 }
+
+void release_images()
+{
+	std::map< std::string, std::pair<int, Image *> >::iterator it;
+	for (it = loaded_images.begin(); it != loaded_images.end(); it++) {
+		std::pair<int, Image *> p = (*it).second;
+		p.second->release();
+	}}
+
+void reload_images()
+{
+	std::map< std::string, std::pair<int, Image *> >::iterator it;
+	for (it = loaded_images.begin(); it != loaded_images.end(); it++) {
+		std::pair<int, Image *> p = (*it).second;
+		p.second->reload();
+	}
+}

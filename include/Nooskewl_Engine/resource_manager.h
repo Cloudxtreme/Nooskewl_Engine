@@ -7,5 +7,7 @@
 
 EXPORT Image *reference_image(std::string filename, bool is_absolute_path = false) throw (Error);
 EXPORT void release_image(Image *image);
+EXPORT void release_images();
+EXPORT void reload_images();
 
 #endif // RESOURCE_MANAGER_H

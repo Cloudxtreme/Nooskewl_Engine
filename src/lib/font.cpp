@@ -4,6 +4,9 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
 
+Font *font;
+Font *bold_font;
+
 Font::Font(std::string filename, int size)
 {
 	filename = "fonts/" + filename;
@@ -218,16 +221,30 @@ void Font::cache(std::string text, SDL_Color colour)
 	}
 }
 
-bool init_font()
+void load_fonts()
+{
+	font = new Font("fff_majestica.ttf", 8);
+	bold_font = new Font("fff_majestica_bold.ttf", 8);
+}
+
+void release_fonts()
+{
+	delete font;
+	delete bold_font;
+}
+
+void init_font()
 {
 	if (TTF_Init() == -1) {
-		return false;
+		throw Error("TTF_Init failed");
 	}
 
-	return true;
+	load_fonts();
 }
 
 void shutdown_font()
 {
+	release_fonts();
+
 	TTF_Quit();
 }

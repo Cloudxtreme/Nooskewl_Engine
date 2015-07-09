@@ -1,6 +1,7 @@
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
@@ -15,34 +16,25 @@ SDL_Colour four_whites[4];
 SDL_Colour black;
 SDL_Colour white;
 
-Font *font;
-Font *bold_font;
-
 void init_graphics()
 {
 	// FIXME: exceptions!
 	try {
-		window_image = new Image("window.tga");
+		window_image = reference_image("window.tga");
 		speech_arrow = new Sprite("speech_arrow");
 		speech_arrow->start();
-		font = new Font("fff_majestica.ttf", 8);
-		bold_font = new Font("fff_majestica_bold.ttf", 8);
 		load_palette("nes.gpl");
 	}
 	catch (Error e) {
 		delete window_image;
-		delete font;
-		delete bold_font;
 		window_image = NULL;
-		font = NULL;
-		bold_font = NULL;
 		throw e;
 	}
 }
 
 void shutdown_graphics()
 {
-	delete window_image;
+	release_image(window_image);
 }
 
 void update_graphics()
