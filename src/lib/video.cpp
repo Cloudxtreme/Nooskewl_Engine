@@ -1,5 +1,6 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
@@ -20,13 +21,7 @@ void flip()
 
 void init_video(int argc, char **argv)
 {
-	bool vsync = true;
-
-	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-vsync")) {
-			vsync = false;
-		}
-	}
+	bool vsync = !check_args(argc, argv, "-vsync");
 
 	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -43,7 +38,7 @@ void init_video(int argc, char **argv)
 
 	context = SDL_GL_CreateContext(window);
 
-	SDL_GL_SetSwapInterval(0); // vsync, 1 = on
+	SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
 	glewExperimental = 0;
 	glewInit();

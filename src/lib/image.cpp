@@ -275,6 +275,7 @@ Image::~Image()
 
 void Image::start()
 {
+	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -356,4 +357,6 @@ void Image::upload(unsigned char *pixels)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    vertex_accel->init_new_texture();
 }

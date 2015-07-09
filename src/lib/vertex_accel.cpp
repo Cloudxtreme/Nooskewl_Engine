@@ -25,6 +25,22 @@ void Vertex_Accel::init()
 	maybe_resize_buffer(256);
 }
 
+void Vertex_Accel::init_new_texture()
+{
+	// Specify the layout of the vertex data
+	GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+
+	GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
+	glEnableVertexAttribArray(colAttrib);
+	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+	GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
+	glEnableVertexAttribArray(texcoordAttrib);
+	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
+}
+
 void Vertex_Accel::start()
 {
 	this->image = NULL;
@@ -46,19 +62,6 @@ void Vertex_Accel::end()
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
-
-	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-
-	GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
-	glEnableVertexAttribArray(colAttrib);
-	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-	GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
-	glEnableVertexAttribArray(texcoordAttrib);
-	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
 
 	glDrawArrays(GL_TRIANGLES, 0, count);
 

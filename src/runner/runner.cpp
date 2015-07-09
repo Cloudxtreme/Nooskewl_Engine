@@ -5,14 +5,14 @@ const int64_t TICKS_PER_FRAME = (1000 / 60);
 Map *map;
 Map_Entity *player;
 
-bool run_main();
+bool run_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
 	try {
 		init_nooskewl_engine(argc, argv);
 
-		run_main();
+		run_main(argc, argv);
 	}
 	catch (Error e) {
 		errormsg("Fatal error: %s\n", e.error_message.c_str());
@@ -48,9 +48,9 @@ static Uint32 timer_callback(Uint32 interval, void *data)
 	}
 }
 
-static bool run_main()
+static bool run_main(int argc, char **argv)
 {
-	int64_t start_frame = SDL_GetTicks();
+	bool performance = check_args(argc, argv, "+performance");
 
 	map = new Map("test.map");
 	map->start();
@@ -63,12 +63,6 @@ static bool run_main()
 
 	Audio music = load_audio("title.mml");
 	play_audio(music, true);
-
-	int64_t timer_last_call = SDL_GetTicks();
-	SDL_AddTimer(16, timer_callback, &timer_last_call);
-
-	bool quit = false;
-	bool draw = false;
 
 	SS_Widget *main_widget = new SS_Widget(1.0f, 1.0f);
 	SS_Widget *child1 = new SS_Widget(50, 50);
@@ -95,6 +89,14 @@ static bool run_main()
 	child6->set_parent(child3);
 	child6->set_accepts_focus(true);
 	TGUI *gui = new TGUI(main_widget, screen_w, screen_h);
+
+	int64_t now = SDL_GetTicks();
+	int64_t timer_last_call = now;
+	int64_t start_frame = now;
+	SDL_AddTimer(16, timer_callback, &timer_last_call);
+
+	bool quit = false;
+	bool draw = false;
 
 	while (quit == false) {
 		SDL_Event sdl_event;
@@ -185,7 +187,7 @@ static bool run_main()
 			map->handle_event(&event);
 		}
 
-		if (draw) {
+		if (performance || draw) {
 			draw = false;
 
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -201,7 +203,9 @@ static bool run_main()
 			int64_t elapsed = now - start_frame;
 			int64_t delay = TICKS_PER_FRAME - elapsed;
 			if (delay > 0) {
-				SDL_Delay(delay);
+				if (performance == false) {
+					SDL_Delay(delay);
+				}
 			}
 			start_frame = SDL_GetTicks();
 		}

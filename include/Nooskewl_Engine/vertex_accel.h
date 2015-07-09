@@ -13,6 +13,8 @@ public:
 
 	void init();
 
+	void init_new_texture();
+
 	void start(); // no texture
 	void start(Image *image);
 	void buffer(Point<int> source_position, Size<int> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, SDL_Colour vertex_colours[4], int flags);
