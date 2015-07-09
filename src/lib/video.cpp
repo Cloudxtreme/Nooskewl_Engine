@@ -45,7 +45,7 @@ void flip()
 		HRESULT hr = d3d_device->Present(NULL, NULL, hwnd, NULL);
 
 		if (hr == D3DERR_DEVICELOST) {
-			infomsg("Device lost");
+			infomsg("D3D device lost\n");
 		}
 
 		d3d_device->BeginScene();
@@ -177,11 +177,24 @@ void init_video(int argc, char **argv)
 		d3d_pp.hDeviceWindow = hwnd;
 
 		HRESULT hr;
-		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING/* | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED*/, &d3d_pp, (LPDIRECT3DDEVICE9 *)&d3d_device)) != D3D_OK) {
+		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&d3d_device)) != D3D_OK) {
 			throw Error("Unable to create D3D device");
 		}
 
 		d3d_device->BeginScene();
+
+		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
 
 		static const char *shader_source =
 			"struct VS_INPUT\n"
@@ -304,25 +317,12 @@ void set_default_projection()
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 	}
 	else {
-		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		/* D3D pixels are slightly different than OpenGL */
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
+		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
 		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-
-		/*
-		D3DXMATRIX proj;
-		D3DXMatrixIdentity(&proj);
-		D3DXMatrixOrthoRH(&proj, w, h, -1.0f, 1.0f);
-		effect->SetMatrix("proj", &proj);
-
-		D3DXMATRIX view;
-		D3DXMatrixIdentity(&view);
-		D3DXMatrixScaling(&view, 4.0f, 4.0f, 4.0f);
-		effect->SetMatrix("view", &view);
-
-		D3DXMATRIX model;
-		D3DXMatrixIdentity(&model);
-		effect->SetMatrix("model", &model);
-		*/
 	}
 }
 
@@ -331,41 +331,28 @@ void set_map_transition_projection(float angle)
 	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
 
 	if (opengl) {
 		GLint uni;
 
-		uni = glGetUniformLocation(current_shader, "model");
+		uni = glGetUniformLocation(current_shader, "proj");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
 
 		uni = glGetUniformLocation(current_shader, "view");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
 
-		model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
-		uni = glGetUniformLocation(current_shader, "proj");
+		uni = glGetUniformLocation(current_shader, "model");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 	}
 	else {
+		/* D3D pixels are slightly different than OpenGL */
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
 		effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
 		effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-
-		/*
-		D3DXMATRIX proj;
-		D3DXMatrixIdentity(&proj);
-		D3DXMatrixPerspectiveOffCenterRH(&proj, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-		effect->SetMatrix("proj", &proj);
-
-		D3DXMATRIX view;
-		D3DXMatrixIdentity(&view);
-		D3DXMatrixTranslation(&view, 0.0f, 0.0f, -2.0f);
-		effect->SetMatrix("view", &view);
-
-		D3DXMATRIX model;
-		D3DXMatrixIdentity(&model);
-		D3DXMatrixRotationY(&model, angle);
-		D3DXMatrixScaling(&model, angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f);
-		effect->SetMatrix("model", &model);
-		*/
 	}
 }

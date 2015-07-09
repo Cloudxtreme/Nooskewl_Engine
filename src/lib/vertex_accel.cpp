@@ -49,6 +49,8 @@ void Vertex_Accel::start()
 	this->image = NULL;
 
 	if (opengl == false) {
+		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		d3d_device->SetFVF(FVF);
 		effect->Begin(&required_passes, 0);
 	}
@@ -59,11 +61,13 @@ void Vertex_Accel::start(Image *image)
 	this->image = image;
 
 	if (opengl == false) {
-		// FIXME!
+		d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
+		d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		d3d_device->SetFVF(FVF);
-		//effect->SetTexture("tex", video_texture);
+		effect->SetBool("use_tex", true);
+		effect->SetTexture("tex", image->video_texture);
 		effect->Begin(&required_passes, 0);
-		//d3d_device->SetTexture(0, video_texture);
+		d3d_device->SetTexture(0, image->video_texture);
 	}
 }
 
@@ -86,7 +90,7 @@ void Vertex_Accel::end()
 		for (unsigned int i = 0; i < required_passes; i++) {
 			effect->BeginPass(i);
 			if (d3d_device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, count / 3, (void *)vertices, 9*sizeof(float)) != D3D_OK) {
-				infomsg("DrawPrimitiveUP failed");
+				infomsg("DrawPrimitiveUP failed\n");
 				return;
 			}
 			effect->EndPass();

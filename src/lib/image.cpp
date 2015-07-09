@@ -274,6 +274,9 @@ Image::~Image()
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
 	}
+	else {
+		video_texture->Release();
+	}
 }
 
 void Image::start()
@@ -285,6 +288,11 @@ void Image::start()
 	}
 
 	vertex_accel->start(this);
+}
+
+void Image::end()
+{
+	vertex_accel->end();
 }
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
@@ -323,11 +331,6 @@ void Image::draw_single(Point<int> dest_position, int flags)
 	end();
 }
 
-void Image::end()
-{
-	vertex_accel->end();
-}
-
 void Image::upload(unsigned char *pixels)
 {
 	if (opengl) {
@@ -363,6 +366,29 @@ void Image::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
+	else {
+		int err = d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, NULL);
+		D3DLOCKED_RECT locked_rect;
+		if (video_texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
+			for (int y = 0; y < h; y++) {
+				unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
+				for (int x = 0; x < w; x++) {
+					unsigned char r = *pixels++;
+					unsigned char g = *pixels++;
+					unsigned char b = *pixels++;
+					unsigned char a = *pixels++;
+					*dest++ = b;
+					*dest++ = g;
+					*dest++ = r;
+					*dest++ = a;
+				}
+			}
+			video_texture->UnlockRect(0);
+		}
+		else {
+			infomsg("Unable to lock texture\n");
+		}
 	}
 
     vertex_accel->init_new_texture();

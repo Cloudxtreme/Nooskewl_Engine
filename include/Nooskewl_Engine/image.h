@@ -14,9 +14,12 @@ public:
 	};
 
 	std::string filename;
-	GLuint texture;
 	int w;
 	int h;
+
+	GLuint texture;
+
+	LPDIRECT3DTEXTURE9 video_texture;
 
 	Image(std::string filename, bool is_absolute_path) throw (Error);
 	Image(std::string filename) throw (Error);
