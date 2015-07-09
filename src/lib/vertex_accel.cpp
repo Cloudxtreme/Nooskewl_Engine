@@ -48,15 +48,15 @@ void Vertex_Accel::end()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
 
 	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(current_shader, "position");
+	GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
 	glEnableVertexAttribArray(posAttrib);
 	glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
 
-	GLint colAttrib = glGetAttribLocation(current_shader, "color");
+	GLint colAttrib = glGetAttribLocation(current_shader, "in_color");
 	glEnableVertexAttribArray(colAttrib);
 	glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 
-	GLint texcoordAttrib = glGetAttribLocation(current_shader, "texcoord");
+	GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
 	glEnableVertexAttribArray(texcoordAttrib);
 	glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
 

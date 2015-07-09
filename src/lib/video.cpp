@@ -18,11 +18,19 @@ void flip()
 	SDL_GL_SwapWindow(window);
 }
 
-void init_video()
+void init_video(int argc, char **argv)
 {
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	bool vsync = true;
+
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-vsync")) {
+			vsync = false;
+		}
+	}
+
+	//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
 	screen_w = 285;
@@ -35,25 +43,25 @@ void init_video()
 
 	context = SDL_GL_CreateContext(window);
 
-	SDL_GL_SetSwapInterval(1); // vsync
+	SDL_GL_SetSwapInterval(0); // vsync, 1 = on
 
-	glewExperimental = 1;
+	glewExperimental = 0;
 	glewInit();
 
 	const char *vertexSource =
-		"#version 150 core\n"
-		"in vec3 position;"
-		"in vec4 color;"
-		"in vec2 texcoord;"
-		"out vec4 Colour;"
-		"out vec2 Texcoord;"
+		"#version 110\n"
 		"uniform mat4 model;"
 		"uniform mat4 view;"
 		"uniform mat4 proj;"
+		"in vec3 in_position;"
+		"in vec4 in_color;"
+		"in vec2 in_texcoord;"
+		"varying vec4 colour;"
+		"varying vec2 texcoord;"
 		"void main() {"
-		"	Colour = color;"
-		"	Texcoord = texcoord;"
-		"	gl_Position = proj * view * model * vec4(position, 1.0);"
+		"	colour = in_color;"
+		"	texcoord = in_texcoord;"
+		"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
 		"}";
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
@@ -67,18 +75,19 @@ void init_video()
 	}
 
 	const char *fragmentSource =
-		"#version 150 core\n"
-		"in vec4 Colour;"
-		"in vec2 Texcoord;"
-		"out vec4 outColour;"
+		"#version 110\n"
 		"uniform sampler2D tex;"
 		"uniform bool use_tex;"
+		"varying vec4 colour;"
+		"varying vec2 texcoord;"
 		"void main()"
 		"{"
-		"	if (use_tex)"
-		"		outColour = texture(tex, Texcoord) * Colour;"
-		"	else"
-		"		outColour = Colour;"
+		"	if (use_tex) {"
+		"		gl_FragColor = texture2D(tex, texcoord) * colour;"
+		"	}"
+		"	else {"
+		"		gl_FragColor = colour;"
+		"	}"
 		"}";
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
@@ -93,7 +102,6 @@ void init_video()
 	current_shader = glCreateProgram();
 	glAttachShader(current_shader, vertexShader);
 	glAttachShader(current_shader, fragmentShader);
-	glBindFragDataLocation(current_shader, 0, "outColour");
 	glLinkProgram(current_shader);
 	glUseProgram(current_shader);
 
