@@ -1,6 +1,6 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
-const int64_t TICKS_PER_FRAME = (1000 / 60);
+const Uint32 TICKS_PER_FRAME = (1000 / 60);
 
 Map *map;
 Map_Entity *player;
@@ -22,36 +22,8 @@ int main(int argc, char **argv)
 	return 0;
 }
 
-static Uint32 timer_callback(Uint32 interval, void *data)
-{
-	SDL_Event event;
-	SDL_UserEvent userevent;
-
-	userevent.type = SDL_USEREVENT;
-	userevent.code = 0;
-	event.type = SDL_USEREVENT;
-	event.user = userevent;
-
-	SDL_PushEvent(&event);
-
-	int64_t *timer_last_call = (int64_t *)data;
-	int64_t now = SDL_GetTicks();
-	int64_t elapsed = now - *timer_last_call;
-	*timer_last_call = now;
-	int64_t over = elapsed - TICKS_PER_FRAME;
-
-	if (over > 0 && over < TICKS_PER_FRAME) {
-		return TICKS_PER_FRAME - over;
-	}
-	else {
-		return TICKS_PER_FRAME;
-	}
-}
-
 static bool run_main(int argc, char **argv)
 {
-	bool performance = check_args(argc, argv, "+performance");
-
 	map = new Map("test.map");
 	map->start();
 
@@ -90,17 +62,91 @@ static bool run_main(int argc, char **argv)
 	child6->set_accepts_focus(true);
 	TGUI *gui = new TGUI(main_widget, screen_w, screen_h);
 
-	int64_t now = SDL_GetTicks();
-	int64_t timer_last_call = now;
-	int64_t start_frame = now;
-	SDL_AddTimer(16, timer_callback, &timer_last_call);
-
 	bool quit = false;
 	bool draw = false;
+	int accumulated_delay = 0;
+
+	Uint32 last_frame = SDL_GetTicks();
 
 	while (quit == false) {
+		// LOGIC
+		update_graphics();
+
+		if (map->update() == false) {
+			std::string map_name;
+			Point<int> position;
+			Direction direction;
+			map->get_new_map_details(map_name, position, direction);
+			if (map_name != "") {
+				Map *old_map = map;
+				map = new Map(map_name);
+				map->start();
+				map->add_entity(player);
+
+				// draw transition
+
+				const Uint32 duration = 500;
+				Uint32 start_time = SDL_GetTicks();
+				Uint32 end_time = start_time + duration;
+				bool moved_player = false;
+
+				while (SDL_GetTicks() < end_time) {
+					Uint32 elapsed = SDL_GetTicks() - start_time;
+					if (moved_player == false && elapsed >= duration/2) {
+						moved_player = true;
+						player->set_position(position);
+						player->set_direction(direction);
+					}
+
+					set_map_transition_projection((float)elapsed / duration * PI);
+
+					glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+					glClear(GL_COLOR_BUFFER_BIT);
+
+					vertex_accel->set_perspective_drawing(true);
+					if (moved_player) {
+						map->update_camera();
+						map->draw();
+					}
+					else {
+						old_map->update_camera();
+						old_map->draw();
+					}
+					vertex_accel->set_perspective_drawing(false);
+
+					flip();
+				}
+
+				set_default_projection();
+
+				old_map->end();
+				delete old_map;
+			}
+			else {
+				quit = true;
+			}
+		}
+
+		if (quit) {
+			break;
+		}
+
+		// EVENTS
 		SDL_Event sdl_event;
+
 		while (SDL_PollEvent(&sdl_event)) {
+			if (sdl_event.type == SDL_QUIT) {
+				quit = true;
+				break;
+			}
+			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
+				screen_w = sdl_event.window.data1 / 4;
+				screen_h = sdl_event.window.data2 / 4;
+				glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
+				set_default_projection();
+				gui->resize(screen_w, screen_h);
+			}
+
 			TGUI_Event event = tgui_sdl_convert_event(&sdl_event);
 
 			// FIXME: process function
@@ -110,105 +156,39 @@ static bool run_main(int argc, char **argv)
 			}
 
 			gui->handle_event(&event);
-
-			if (sdl_event.type == SDL_QUIT) {
-				quit = true;
-				break;
-			}
-			else if (sdl_event.type == SDL_USEREVENT) {
-				update_graphics();
-
-				if (map->update() == false) {
-					std::string map_name;
-					Point<int> position;
-					Direction direction;
-					map->get_new_map_details(map_name, position, direction);
-					if (map_name != "") {
-						Map *old_map = map;
-						map = new Map(map_name);
-						map->start();
-						map->add_entity(player);
-
-						// draw transition
-
-						const Uint32 duration = 500;
-						Uint32 start_time = SDL_GetTicks();
-						Uint32 end_time = start_time + duration;
-						bool moved_player = false;
-
-						while (SDL_GetTicks() < end_time) {
-							Uint32 elapsed = SDL_GetTicks() - start_time;
-							if (moved_player == false && elapsed >= duration/2) {
-								moved_player = true;
-								player->set_position(position);
-								player->set_direction(direction);
-							}
-
-							set_map_transition_projection((float)elapsed / duration * PI);
-
-							glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-							glClear(GL_COLOR_BUFFER_BIT);
-
-							vertex_accel->set_perspective_drawing(true);
-							if (moved_player) {
-								map->update_camera();
-								map->draw();
-							}
-							else {
-								old_map->update_camera();
-								old_map->draw();
-							}
-							vertex_accel->set_perspective_drawing(false);
-
-							flip();
-						}
-
-						set_default_projection();
-
-						old_map->end();
-						delete old_map;
-					}
-					else {
-						quit = true;
-					}
-				}
-
-				draw = true;
-			}
-			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				screen_w = sdl_event.window.data1 / 4;
-				screen_h = sdl_event.window.data2 / 4;
-				printf("screen_w=%d screen_h=%d\n", screen_w, screen_h);
-				glViewport(0, 0, sdl_event.window.data1, sdl_event.window.data2);
-				set_default_projection();
-				gui->resize(screen_w, screen_h);
-			}
-
 			map->handle_event(&event);
 		}
 
-		if (performance || draw) {
-			draw = false;
+		// DRAWING
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+		map->draw();
 
-			map->draw();
+//		gui->draw();
 
-//			gui->draw();
+		flip();
 
-			flip();
-
-			int64_t now = SDL_GetTicks();
-			int64_t elapsed = now - start_frame;
-			int64_t delay = TICKS_PER_FRAME - elapsed;
-			if (delay > 0) {
-				if (performance == false) {
-					SDL_Delay(delay);
-				}
+		// TIMING
+		// This code is ugly for a reason
+		Uint32 now = SDL_GetTicks();
+		int elapsed = now - last_frame;
+		if (elapsed < TICKS_PER_FRAME) {
+			int wanted_delay = TICKS_PER_FRAME - elapsed;
+			int final_delay = wanted_delay + accumulated_delay;
+			if (final_delay > 0) {
+				SDL_Delay(final_delay);
+				elapsed = SDL_GetTicks() - now;
+				accumulated_delay -= elapsed - wanted_delay;
 			}
-			start_frame = SDL_GetTicks();
+			else {
+				accumulated_delay += elapsed;
+			}
+			if (accumulated_delay > 100 || accumulated_delay < -100) {
+				accumulated_delay = 0;
+			}
 		}
+		last_frame = SDL_GetTicks();
 	}
 
 	map->end();
