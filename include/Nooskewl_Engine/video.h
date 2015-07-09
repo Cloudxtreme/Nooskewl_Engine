@@ -5,7 +5,7 @@
 
 EXPORT void flip();
 
-EXPORT void init_video();
+EXPORT void init_video(int argc, char **argv);
 EXPORT void shutdown_video();
 
 EXPORT void set_default_projection();
