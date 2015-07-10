@@ -68,11 +68,9 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 	while (*p) {
 		Image *g = glyphs[*p];
 
+		/* Glyphs appear to be rendered upside down, either by freetype or SDL... so we simple draw them flipped */
+
 		g->start();
-		/* When we upload the glyph, it's right-side up, but OpenGL
-		 * expects it upside-down. It's quicker to just flip it
-		 * like this than to flip all the pixels.
-		 */
 		g->draw_tinted(colour, dest_position, Image::FLIP_V);
 		g->end();
 
@@ -187,32 +185,4 @@ void Font::cache_glyphs_if_needed(std::string text)
 		}
 		p++;
 	}
-}
-
-void load_fonts()
-{
-	g.graphics.font = new Font("fff_majestica.ttf", 8);
-	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
-}
-
-void release_fonts()
-{
-	delete g.graphics.font;
-	delete g.graphics.bold_font;
-}
-
-void init_font()
-{
-	if (TTF_Init() == -1) {
-		throw Error("TTF_Init failed");
-	}
-
-	load_fonts();
-}
-
-void shutdown_font()
-{
-	release_fonts();
-
-	TTF_Quit();
 }

@@ -38,11 +38,6 @@ public:
 	}
 };
 
-void load_fonts();
-void release_fonts();
-void init_font();
-void shutdown_font();
-
 void init_graphics();
 void shutdown_graphics();
 void update_graphics();

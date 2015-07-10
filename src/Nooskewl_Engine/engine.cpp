@@ -30,8 +30,13 @@ Engine::Engine(int argc, char **argv)
 
 	init_audio(argc, argv);
 	init_video(argc, argv);
-	init_font();
 	init_graphics();
+
+	if (TTF_Init() == -1) {
+		throw Error("TTF_Init failed");
+	}
+	g.graphics.font = new Font("fff_majestica.ttf", 8);
+	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
 
 	g.map = new Map("test.map");
 
@@ -46,8 +51,11 @@ Engine::~Engine()
 {
 	delete g.map;
 
+	delete g.graphics.font;
+	delete g.graphics.bold_font;
+	TTF_Quit();
+
 	shutdown_graphics();
-	shutdown_font();
 	shutdown_video();
 	shutdown_audio();
 

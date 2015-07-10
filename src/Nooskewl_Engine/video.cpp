@@ -404,12 +404,16 @@ void shutdown_video()
 
 void release_graphics()
 {
-	release_fonts();
+	delete g.graphics.font;
+	delete g.graphics.bold_font;
+
 	Image::release_all();
 }
 
 void reload_graphics()
 {
-	load_fonts();
+	g.graphics.font = new Font("fff_majestica.ttf", 8);
+	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
+
 	Image::reload_all();
 }
