@@ -50,7 +50,7 @@ static bool run_main(int argc, char **argv)
 	SS_Widget *child6 = new SS_Widget(0.25f, 1.0f);
 	child6->set_parent(child3);
 	child6->set_accepts_focus(true);
-	TGUI *gui = new TGUI(main_widget, g.graphics.screen_w, g.graphics.screen_h);
+	TGUI *gui = new TGUI(main_widget, g.screen_w, g.screen_h);
 
 	bool quit = false;
 	bool draw = false;
@@ -73,10 +73,10 @@ static bool run_main(int argc, char **argv)
 				break;
 			}
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				g.graphics.screen_w = sdl_event.window.data1 / 4;
-				g.graphics.screen_h = sdl_event.window.data2 / 4;
+				g.screen_w = sdl_event.window.data1 / 4;
+				g.screen_h = sdl_event.window.data2 / 4;
 				set_default_projection();
-				gui->resize(g.graphics.screen_w, g.graphics.screen_h);
+				gui->resize(g.screen_w, g.screen_h);
 			}
 
 			// FIXME: move GUI into engine

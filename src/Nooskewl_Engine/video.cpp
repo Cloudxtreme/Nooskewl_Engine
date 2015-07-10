@@ -28,7 +28,7 @@ namespace Nooskewl_Engine {
 
 void clear(SDL_Colour colour)
 {
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glClearColor(colour.r/255.0f, colour.g/255.0f, colour.b/255.0f, colour.a/255.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
@@ -41,7 +41,7 @@ void clear(SDL_Colour colour)
 
 void clear_depth_buffer(float value)
 {
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glClearDepth(value);
 		glClear(GL_DEPTH_BUFFER_BIT);
 	}
@@ -54,7 +54,7 @@ void clear_depth_buffer(float value)
 
 void flip()
 {
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		SDL_GL_SwapWindow(window);
 	}
 #ifdef _MSC_VER
@@ -98,7 +98,7 @@ void set_default_projection()
 	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
 	glm::mat4 model = glm::mat4();
 
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glViewport(0, 0, w, h);
 
 		GLint uni;
@@ -133,7 +133,7 @@ void set_map_transition_projection(float angle)
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
 
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		GLint uni;
 
 		uni = glGetUniformLocation(m.current_shader, "proj");
@@ -163,32 +163,32 @@ void init_video(int argc, char **argv)
 {
 	bool vsync = !check_args(argc, argv, "-vsync");
 #ifdef _MSC_VER
-	g.graphics.opengl = !check_args(argc, argv, "+d3d");
+	g.opengl = !check_args(argc, argv, "+d3d");
 #else
-	g.graphics.opengl = true;
+	g.opengl = true;
 #endif
 
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
 
-	g.graphics.screen_w = 285;
-	g.graphics.screen_h = 160;
+	g.screen_w = 285;
+	g.screen_h = 160;
 
 	int flags = SDL_WINDOW_RESIZABLE;
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		flags |= SDL_WINDOW_OPENGL;
 	}
 
-	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g.graphics.screen_w * 4, g.graphics.screen_h * 4, flags);
+	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, g.screen_w * 4, g.screen_h * 4, flags);
 	if (window == NULL) {
 		throw Error("SDL_CreateWindow failed");
 	}
 
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
@@ -266,8 +266,8 @@ void init_video(int argc, char **argv)
 		ZeroMemory(&d3d_pp, sizeof(d3d_pp));
 
 		d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
-		d3d_pp.BackBufferWidth = g.graphics.screen_w*4;
-		d3d_pp.BackBufferHeight = g.graphics.screen_h*4;
+		d3d_pp.BackBufferWidth = g.screen_w*4;
+		d3d_pp.BackBufferHeight = g.screen_h*4;
 		//d3d_pp.BackBufferCount = 1;
 		d3d_pp.Windowed = 1;
 		if (vsync) {
@@ -391,7 +391,7 @@ void shutdown_video()
 {
 	delete m.vertex_cache;
 
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glDeleteProgram(m.current_shader);
 		glDeleteShader(fragmentShader);
 		glDeleteShader(vertexShader);
@@ -404,16 +404,16 @@ void shutdown_video()
 
 void release_graphics()
 {
-	delete g.graphics.font;
-	delete g.graphics.bold_font;
+	delete g.font;
+	delete g.bold_font;
 
 	Image::release_all();
 }
 
 void reload_graphics()
 {
-	g.graphics.font = new Font("fff_majestica.ttf", 8);
-	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
+	g.font = new Font("fff_majestica.ttf", 8);
+	g.bold_font = new Font("fff_majestica_bold.ttf", 8);
 
 	Image::reload_all();
 }

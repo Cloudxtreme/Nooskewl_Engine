@@ -1,7 +1,7 @@
+// Module-global variables
+
 #ifndef MODULE_H
 #define MODULE_H
-
-// Module-global variables and stuff
 
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/load_dll.h"

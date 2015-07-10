@@ -32,25 +32,25 @@ const char indexes[7] = {
 	9, 11, 0, 2, 4, 5, 7 // a, b, c, d, e, f, g
 };
 
-static std::string token(const char *audio, int *pos)
+static std::string token(const char *text, int *pos)
 {
 	char tok[100];
 	int i = 0;
 	
-	while (*(audio+*pos) != 0 && isspace(*(audio+*pos))) (*pos)++; // skip whitespace
+	while (*(text+*pos) != 0 && isspace(*(text+*pos))) (*pos)++; // skip whitespace
 
 	// Read the token
-	if (*(audio+*pos) != 0) {
-		tok[i++] = *(audio+*pos);
+	if (*(text+*pos) != 0) {
+		tok[i++] = *(text+*pos);
 		(*pos)++;
 	}
 
-	while (*(audio+*pos) != 0 && (isdigit(*(audio+*pos)) || *(audio+*pos) == '+' || *(audio+*pos) == '-' || *(audio+*pos) == '.' || (tok[0] == '@' && *(audio+*pos) >= 'A' && *(audio+*pos) <= 'Z'))) {
-		tok[i++] = *(audio+*pos);
+	while (*(text+*pos) != 0 && (isdigit(*(text+*pos)) || *(text+*pos) == '+' || *(text+*pos) == '-' || *(text+*pos) == '.' || (tok[0] == '@' && *(text+*pos) >= 'A' && *(text+*pos) <= 'Z'))) {
+		tok[i++] = *(text+*pos);
 		(*pos)++;
 	}
 
-	while (*(audio+*pos) != 0 && isspace(*(audio+*pos))) (*pos)++; // skip more whitespace
+	while (*(text+*pos) != 0 && isspace(*(text+*pos))) (*pos)++; // skip more whitespace
 
 	tok[i] = 0;
 	return tok;
@@ -113,9 +113,9 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 	return total;
 }
 
-MML::Internal::Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
+MML::Internal::Track::Track(Type type, std::string text, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
 	type(type),
-	audio(audio),
+	text(text),
 	volumes(volumes),
 	pitches(pitches),
 	pitch_envelopes(pitch_envelopes),
@@ -168,10 +168,10 @@ bool MML::Internal::Track::update(short *buf, int length)
 			get_next_note = true;
 		}
 		if (get_next_note) {
-			const char *audio_cstr = audio.c_str();
+			const char *text_cstr = text.c_str();
 
 			t = 0;
-			tok = next_note(audio_cstr, &pos);
+			tok = next_note(text_cstr, &pos);
 			note++;
 			if (tok[0] == 0) {
 				note--;
@@ -194,7 +194,7 @@ bool MML::Internal::Track::update(short *buf, int length)
 				}
 			}
 			else {
-				length_in_samples = notelength(tok.c_str(), audio_cstr, &pos);
+				length_in_samples = notelength(tok.c_str(), text_cstr, &pos);
 			}
 			note_fulfilled = 0;
 		}
@@ -225,8 +225,8 @@ void MML::Internal::Track::reset()
 	dutycycle_section = 0;
 	t = 0.0f;
 	pos = 0;
-	tok = next_note(audio.c_str(), &pos);
-	length_in_samples = notelength(tok.c_str(), audio.c_str(), &pos);
+	tok = next_note(text.c_str(), &pos);
+	length_in_samples = notelength(tok.c_str(), text.c_str(), &pos);
 	buffer_fulfilled = 0;
 	note_fulfilled = 0;
 	padded = false;
@@ -407,12 +407,12 @@ float MML::Internal::Track::get_dutycycle()
 	}
 }
 
-std::string MML::Internal::Track::next_note(const char *audio, int *pos)
+std::string MML::Internal::Track::next_note(const char *text, int *pos)
 {
 	std::string result;
 	bool done = false;
 	do {
-		result = token(audio, pos);
+		result = token(text, pos);
 		switch (result.c_str()[0]) {
 			case '<':
 			case '>':
@@ -460,14 +460,14 @@ std::string MML::Internal::Track::next_note(const char *audio, int *pos)
 }
 
 // adds waits to length
-int MML::Internal::Track::notelength(const char *tok, const char *audio, int *pos)
+int MML::Internal::Track::notelength(const char *tok, const char *text, int *pos)
 {
 	char ch = *tok;
 	int total = onenotelength(tok, note_length, tempo, octave, note, 'z', pitches, pitch_envelopes); // z == nothing never used
 	int pos2 = *pos;
 	std::string tok2;
 	do {
-		tok2 = token(audio, &pos2);
+		tok2 = token(text, &pos2);
 		if (tok2.c_str()[0] == 'w') {
 			total += onenotelength(tok2.c_str(), note_length, tempo, octave, note, ch, pitches, pitch_envelopes);
 		}
@@ -780,7 +780,7 @@ MML::~MML()
 
 void MML::play(bool loop)
 {
-	if (g.audio.mute) {
+	if (g.mute) {
 		return;
 	}
 

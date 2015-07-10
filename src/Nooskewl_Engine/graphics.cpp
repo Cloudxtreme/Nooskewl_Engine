@@ -44,7 +44,7 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	dc.y += sin(a1) * scale;
 	dd.x += cos(a2) * scale;
 	dd.y += sin(a2) * scale;
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	m.vertex_cache->start();
@@ -54,7 +54,7 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
-	if (g.graphics.opengl) {
+	if (g.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	m.vertex_cache->start();
@@ -76,8 +76,8 @@ void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool
 	SDL_Colour vertex_colours[4];
 
 	// Blue shades in NES palette
-	vertex_colours[0] = vertex_colours[1] = g.graphics.colours[47];
-	vertex_colours[2] = vertex_colours[3] = g.graphics.colours[44];
+	vertex_colours[0] = vertex_colours[1] = g.colours[47];
+	vertex_colours[2] = vertex_colours[3] = g.colours[44];
 
 	for (int i = 0; i < 4; i++) {
 		vertex_colours[i].a = 220;
@@ -161,10 +161,10 @@ void load_palette(std::string name)
 		}
 		int red, green, blue;
 		if (sscanf(line, "%d %d %d", &red, &green, &blue) == 3) {
-			g.graphics.colours[colour_count].r = red;
-			g.graphics.colours[colour_count].g = green;
-			g.graphics.colours[colour_count].b = blue;
-			g.graphics.colours[colour_count].a = 255;
+			g.colours[colour_count].r = red;
+			g.colours[colour_count].g = green;
+			g.colours[colour_count].b = blue;
+			g.colours[colour_count].a = 255;
 			colour_count++;
 		}
 		else {
@@ -172,13 +172,13 @@ void load_palette(std::string name)
 		}
 	}
 
-	g.graphics.black.r = g.graphics.black.g = g.graphics.black.b = 0;
-	g.graphics.black.a = 255;
-	g.graphics.white.r = g.graphics.white.g = g.graphics.white.b = g.graphics.white.a = 255;
+	g.black.r = g.black.g = g.black.b = 0;
+	g.black.a = 255;
+	g.white.r = g.white.g = g.white.b = g.white.a = 255;
 
 	for (int i = 0; i < 4; i++) {
-		g.graphics.four_blacks[i] = g.graphics.black;
-		g.graphics.four_whites[i] = g.graphics.white;
+		g.four_blacks[i] = g.black;
+		g.four_whites[i] = g.white;
 	}
 
 	SDL_RWclose(file);

@@ -1,3 +1,5 @@
+// Access to everything not in a class
+
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
@@ -10,23 +12,20 @@
 namespace Nooskewl_Engine {
 
 struct Global {
-	struct {
-		bool mute;
-	} audio;
-	struct {
-		int screen_w;
-		int screen_h;
-		bool opengl;
-
-		SDL_Colour colours[256];
-		SDL_Colour four_blacks[4];
-		SDL_Colour four_whites[4];
-		SDL_Colour black;
-		SDL_Colour white;
-
-		Font *font;
-		Font *bold_font;
-	} graphics;
+	// Audio
+	bool mute;
+	// Graphics
+	int screen_w;
+	int screen_h;
+	bool opengl;
+	SDL_Colour colours[256];
+	SDL_Colour four_blacks[4];
+	SDL_Colour four_whites[4];
+	SDL_Colour black;
+	SDL_Colour white;
+	Font *font;
+	Font *bold_font;
+	// Other
 	CPA *cpa;
 	Map *map;
 	Map_Entity *player;

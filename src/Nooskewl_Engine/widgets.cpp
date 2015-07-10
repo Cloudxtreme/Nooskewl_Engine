@@ -71,8 +71,8 @@ void SS_Widget::draw()
 	SDL_Colour green = { 0, 255, 0, 255 };
 	SDL_Colour red = { 255, 0, 0, 255 };
 
-	draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), g.graphics.black);
-	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? green : g.graphics.white);
+	draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), g.black);
+	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? green : g.white);
 
 	if (event_x >= 0 || event_y >= 0) {
 		draw_quad(Point<int>(event_x, event_y)+Point<int>(calculated_x, calculated_y)-1, Size<int>(2, 2), red);

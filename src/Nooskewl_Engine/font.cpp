@@ -163,7 +163,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 
 void Font::cache_glyph(int ch)
 {
-	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, g.graphics.white);
+	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, g.white);
 	if (surface == NULL) {
 		errormsg("Error rendering glyph");
 		return;

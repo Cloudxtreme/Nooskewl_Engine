@@ -6,12 +6,12 @@ namespace Nooskewl_Engine {
 
 Engine::Engine(int argc, char **argv)
 {
-	g.audio.mute = check_args(argc, argv, "+mute");
+	g.mute = check_args(argc, argv, "+mute");
 
 	load_dll();
 
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
-	if (g.audio.mute == false) {
+	if (g.mute == false) {
 		flags |= SDL_INIT_AUDIO;
 	}
 
@@ -35,8 +35,8 @@ Engine::Engine(int argc, char **argv)
 	if (TTF_Init() == -1) {
 		throw Error("TTF_Init failed");
 	}
-	g.graphics.font = new Font("fff_majestica.ttf", 8);
-	g.graphics.bold_font = new Font("fff_majestica_bold.ttf", 8);
+	g.font = new Font("fff_majestica.ttf", 8);
+	g.bold_font = new Font("fff_majestica_bold.ttf", 8);
 
 	g.map = new Map("test.map");
 
@@ -51,8 +51,8 @@ Engine::~Engine()
 {
 	delete g.map;
 
-	delete g.graphics.font;
-	delete g.graphics.bold_font;
+	delete g.font;
+	delete g.bold_font;
 	TTF_Quit();
 
 	shutdown_graphics();
@@ -105,7 +105,7 @@ bool Engine::update()
 
 				set_map_transition_projection((float)elapsed / duration * PI);
 
-				clear(g.graphics.black);
+				clear(g.black);
 
 				m.vertex_cache->set_perspective_drawing(true);
 				if (moved_player) {
@@ -136,13 +136,13 @@ bool Engine::update()
 
 void Engine::draw()
 {
-	clear(g.graphics.black);
+	clear(g.black);
 
 	g.map->draw();
 
-	g.graphics.font->draw(g.graphics.white, "This is the most insane time to live!", Point<int>(0, 0));
+	g.font->draw(g.white, "This is the most insane time to live!", Point<int>(0, 0));
 	SDL_Colour green = { 0, 255, 0, 255 };
-	g.graphics.font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
+	g.font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
 
 	flip();
 }

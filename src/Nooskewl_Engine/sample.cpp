@@ -37,7 +37,7 @@ Sample::~Sample()
 
 bool Sample::play(float volume, bool loop)
 {
-	if (g.audio.mute) {
+	if (g.mute) {
 		return true;
 	}
 

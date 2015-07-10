@@ -41,7 +41,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 
 void init_audio(int argc, char **argv)
 {
-	if (g.audio.mute) {
+	if (g.mute) {
 		return;
 	}
 

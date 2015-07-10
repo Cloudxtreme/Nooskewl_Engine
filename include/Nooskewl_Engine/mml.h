@@ -33,8 +33,8 @@ private:
 				TRIANGLE
 			};
 
-			// pad is # of samples of silence to pad the end with so all tracks in audio are even
-			Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad);
+			// pad is # of samples of silence to pad the end with so all tracks are even
+			Track(Type type, std::string text, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad);
 			~Track();
 
 			void play(bool loop);
@@ -58,11 +58,11 @@ private:
 			float get_volume();
 			float get_dutycycle();
 
-			std::string next_note(const char *audio, int *pos);
-			int notelength(const char *tok, const char *audio, int *pos);
+			std::string next_note(const char *text, int *pos);
+			int notelength(const char *tok, const char *text, int *pos);
 
 			Type type;
-			std::string audio;
+			std::string text;
 			std::vector< std::pair<int, float> > volumes;
 			std::vector<int> pitches;
 			std::vector< std::vector<float> > pitch_envelopes;
