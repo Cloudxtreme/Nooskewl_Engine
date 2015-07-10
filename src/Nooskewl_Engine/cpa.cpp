@@ -3,7 +3,7 @@
 
 using namespace Nooskewl_Engine;
 
-SDL_RWops *CPA::load(std::string filename)
+SDL_RWops *CPA::open(std::string filename)
 {
 	if (!exists(filename)) {
 		return NULL;

@@ -43,15 +43,10 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 
 SDL_RWops *open_file(std::string filename)
 {
-	SDL_RWops *file;
-
-	if (g.cpa->exists(filename)) {
-		file = g.cpa->load(filename);
-	}
-	else {
+	SDL_RWops *file = g.cpa->open(filename);
+	if (file == NULL) {
 		throw FileNotFoundError(filename);
 	}
-
 	return file;
 }
 

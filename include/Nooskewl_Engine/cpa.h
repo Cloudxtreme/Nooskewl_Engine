@@ -13,7 +13,7 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT CPA
 {
 public:
-	SDL_RWops *load(std::string filename);
+	SDL_RWops *open(std::string filename);
 	bool exists(std::string filename);
 
 	CPA() throw (Error);
