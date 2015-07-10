@@ -40,7 +40,6 @@ set(LIB_SRC
 	src/Nooskewl_Engine/sprite.cpp
 	src/Nooskewl_Engine/tilemap.cpp
 	src/Nooskewl_Engine/tween.cpp
-	src/Nooskewl_Engine/util.cpp
 	src/Nooskewl_Engine/vertex_cache.cpp
 	src/Nooskewl_Engine/widgets.cpp
 	src/Nooskewl_Engine/xml.cpp

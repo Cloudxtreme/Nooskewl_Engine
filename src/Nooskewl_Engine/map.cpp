@@ -8,8 +8,7 @@ Map::Map(std::string map_name) :
 	offset(0, 0),
 	speech(NULL),
 	map_name(map_name),
-	new_map_name(""),
-	ml(NULL)
+	new_map_name("")
 {
 	tilemap = new Tilemap(8, map_name);
 

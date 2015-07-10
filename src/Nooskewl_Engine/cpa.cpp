@@ -1,5 +1,5 @@
 #include "Nooskewl_Engine/cpa.h"
-#include "Nooskewl_Engine/util.h"
+#include "Nooskewl_Engine/internal.h"
 
 using namespace Nooskewl_Engine;
 

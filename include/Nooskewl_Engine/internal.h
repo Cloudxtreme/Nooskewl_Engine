@@ -41,6 +41,30 @@ struct Module {
 	Vertex_Cache *vertex_cache;
 };
 
+class List_Directory {
+public:
+	List_Directory(std::string glob);
+	~List_Directory();
+
+	std::string next();
+
+private:
+#ifdef _MSC_VER
+	bool got_first;
+	bool done;
+	HANDLE handle;
+	WIN32_FIND_DATA ffd;
+#endif
+};
+
+int SDL_fgetc(SDL_RWops *file);
+char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
+int SDL_fputs(const char *string, SDL_RWops *file);
+
+SDL_RWops *open_file(std::string filename);
+std::string itos(int i);
+bool check_args(int argc, char **argv, std::string arg);
+
 extern Module m;
 
 } // End namespace Nooskewl_Engine

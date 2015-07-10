@@ -2,7 +2,6 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
-#include "Nooskewl_Engine/util.h"
 
 using namespace Nooskewl_Engine;
 
