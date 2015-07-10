@@ -6,6 +6,7 @@
 #define CPA_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/error.h"
 
 namespace Nooskewl_Engine {
 
@@ -15,11 +16,11 @@ public:
 	SDL_RWops *load(std::string filename);
 	bool exists(std::string filename);
 
-	CPA();
+	CPA() throw (Error);
 	~CPA();
 
 private:
-	uint8_t *bytes;
+	unsigned char *bytes;
 	std::map< std::string, std::pair<int, int> > info; // offset, size
 };
 

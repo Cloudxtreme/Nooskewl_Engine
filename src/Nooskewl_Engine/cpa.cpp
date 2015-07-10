@@ -30,40 +30,66 @@ CPA::CPA()
 	}
 
 	if (file) {
+		// The last 4 bytes of every gzipped file is the size of the uncompressed data as a 32 bit little endian number
 		SDL_RWseek(file, -4, RW_SEEK_END);
-		int sz = SDL_ReadLE32(file);
+		int size = SDL_ReadLE32(file);
 		SDL_RWclose(file);
 
 		gzFile f = gzopen(filename.c_str(), "rb");
-		bytes = new uint8_t[sz];
-		gzread(f, bytes, sz);
+		bytes = new unsigned char[size];
+		gzread(f, bytes, size);
 		gzclose(f);
-		int count;
 
-		int header_sz = (strchr((const char *)bytes, '\n') - (char *)bytes) + 1;
-		int data_sz = atoi((const char *)bytes);
+		// Read the size of the data (ascii text followed by newline first thing in the file)
+		unsigned char *header_end = (unsigned char *)strchr((char *)bytes, '\n');
+		if (header_end == NULL) {
+			throw Error("Invalid CPA: header not present");
+		}
+		int header_size = (header_end - bytes) + 1;
+		int data_size = atoi((char *)bytes);
+		if (data_size >= size) {
+			throw Error("Invalid CPA: data size > archive size");
+		}
+		// Skip to the info section at the end
+		unsigned char *p = bytes + header_size + data_size;
+		// Keep track of the byte offset of each file
+		int count = header_size;
 
-		uint8_t *p = bytes + header_sz + data_sz;
-		count = header_sz;
+		int total_size = 0;
 
-		char str[1000];
+		char line[1000];
 
-		while (p < bytes+sz) {
-			const char *end = strchr((const char *)p, '\n');
-			int len = end-(char *)p;
-			memcpy(str, p, len);
-			str[len] = 0;
-			char size[1000];
-			char name[1000];
-			sscanf(str, "%s %s", size, name);
-			std::pair<int, int> pair(count, atoi(size));
-			info[name] = pair;
-			count += atoi(size);
+		while (p < bytes+size) {
+			unsigned char *end = (unsigned char *)strchr((char *)p, '\n');
+			if (end == NULL) {
+				throw Error("Invalid CPA: corrupt info section");
+			}
+			int len = end-p;
+			if (len < 1000) {
+				memcpy(line, p, len);
+				line[len] = 0;
+				char size[1000];
+				char name[1000];
+				unsigned char *size_end = (unsigned char *)strchr((char *)p, '\t');
+				if (size_end == NULL || size_end - p > 999) {
+					throw Error("Invalid CPA: corrupt info section");
+				}
+				memcpy(size, p, size_end-p);
+				size[size_end-p] = 0;
+				memcpy(name, size_end+1, end-size_end-1);
+				name[end-size_end-1] = 0;
+				int file_size = atoi(size);
+				std::pair<int, int> pair(count, file_size);
+				info[name] = pair;
+				count += file_size;
+				total_size += file_size;
+			}
 			p += len + 1;
 		}
-	}
-	else {
-		bytes = NULL;
+
+		if (total_size > data_size) {
+			throw Error("Invalid CPA: total file sizes > data size");
+		}
 	}
 }
 
