@@ -3,6 +3,18 @@
 
 using namespace Nooskewl_Engine;
 
+static Uint8 *safe_find_char(Uint8 *haystack, char needle, Uint8 *end)
+{
+	Uint8 *p = haystack;
+	while (p != end) {
+		if (*p == needle) {
+			return p;
+		}
+		p++;
+	}
+	return NULL;
+}
+
 SDL_RWops *CPA::open(std::string filename)
 {
 	if (!exists(filename)) {
@@ -45,7 +57,7 @@ CPA::CPA()
 		}
 
 		// Read the size of the data (ascii text followed by newline first thing in the file)
-		Uint8 *header_end = (Uint8 *)strchr((char *)bytes, '\n');
+		Uint8 *header_end = (Uint8 *)safe_find_char(bytes, '\n', bytes+size);
 		if (header_end == NULL) {
 			throw Error("Invalid CPA: header not present");
 		}
@@ -64,7 +76,7 @@ CPA::CPA()
 		char line[1000];
 
 		while (p < bytes+size) {
-			Uint8 *end = (Uint8 *)strchr((char *)p, '\n');
+			Uint8 *end = (Uint8 *)safe_find_char(p, '\n', bytes+size);
 			if (end == NULL) {
 				throw Error("Invalid CPA: corrupt info section");
 			}
@@ -72,19 +84,19 @@ CPA::CPA()
 			if (len < 1000) {
 				memcpy(line, p, len);
 				line[len] = 0;
-				char size[1000];
-				char name[1000];
-				Uint8 *size_end = (Uint8 *)strchr((char *)p, '\t');
-				if (size_end == NULL || size_end - p > 999) {
+				char size_text[1000];
+				char name_text[1000];
+				Uint8 *size_text_end = (Uint8 *)safe_find_char(p, '\t', bytes+size);
+				if (size_text_end == NULL || size_text_end - p > 999) {
 					throw Error("Invalid CPA: corrupt info section");
 				}
-				memcpy(size, p, size_end-p);
-				size[size_end-p] = 0;
-				memcpy(name, size_end+1, end-size_end-1);
-				name[end-size_end-1] = 0;
-				int file_size = atoi(size);
+				memcpy(size_text, p, size_text_end-p);
+				size_text[size_text_end-p] = 0;
+				memcpy(name_text, size_text_end+1, end-size_text_end-1);
+				name_text[end-size_text_end-1] = 0;
+				int file_size = atoi(size_text);
 				std::pair<int, int> pair(count, file_size);
-				info[name] = pair;
+				info[name_text] = pair;
 				count += file_size;
 				total_size += file_size;
 			}
