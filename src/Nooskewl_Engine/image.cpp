@@ -132,7 +132,9 @@ Image::Image(SDL_Surface *surface) :
 		throw e;
 	}
 
-	if (tmp) SDL_FreeSurface(tmp);
+	if (tmp) {
+		SDL_FreeSurface(tmp);
+	}
 }
 
 Image::~Image()

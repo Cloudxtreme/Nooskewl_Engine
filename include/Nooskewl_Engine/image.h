@@ -16,9 +16,6 @@ public:
 		FLIP_V = 2
 	};
 
-	static void release_all();
-	static void reload_all();
-
 	std::string filename;
 	int w, h;
 
@@ -26,18 +23,22 @@ public:
 	Image(SDL_Surface *surface);
 	~Image();
 
+	static void release_all();
+	static void reload_all();
+
 	void release();
 	void reload();
 
-	void start();
+	void start(); // call before every group of draws of the same Image
+	void end(); // call after every group of draws
+
 	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
 	void draw_region_tinted(SDL_Colour colour, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
 	void draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
 	void draw_tinted(SDL_Colour colour, Point<int> dest_position, int flags = 0);
 	void draw(Point<int> dest_position, int flags = 0);
-	void end(); // call after every group of draws
 
-	// These ones call start/end automatically
+	// These ones call start/end automatically each time
 	void stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
 	void draw_region_tinted_single(SDL_Colour colour, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
 	void draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
@@ -45,16 +46,15 @@ public:
 	void draw_single(Point<int> dest_position, int flags = 0);
 
 private:
-	bool loaded;
-
 	struct Internal {
 		Internal(std::string filename);
 		Internal(unsigned char *pixels, int w, int h);
 		~Internal();
 
+		void upload(unsigned char *pixels);
+
 		void release();
 		void reload();
-		void upload(unsigned char *pixels);
 
 		std::string filename;
 		int w, h;
