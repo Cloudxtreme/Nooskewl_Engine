@@ -1,5 +1,5 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/mml.h"
-#include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
 
@@ -780,7 +780,7 @@ MML::~MML()
 
 void MML::play(bool loop)
 {
-	if (g.mute) {
+	if (noo.mute) {
 		return;
 	}
 

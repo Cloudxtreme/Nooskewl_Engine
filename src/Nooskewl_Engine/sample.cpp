@@ -1,4 +1,4 @@
-#include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/sample.h"
@@ -37,7 +37,7 @@ Sample::~Sample()
 
 bool Sample::play(float volume, bool loop)
 {
-	if (g.mute) {
+	if (noo.mute) {
 		return true;
 	}
 

@@ -1,4 +1,4 @@
-#include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
@@ -31,7 +31,7 @@ void Vertex_Cache::start()
 	this->image = NULL;
 
 #ifdef _MSC_VER
-	if (g.opengl == false) {
+	if (noo.opengl == false) {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetFVF(FVF);
@@ -44,7 +44,7 @@ void Vertex_Cache::start(Image *image)
 {
 	this->image = image;
 
-	if (g.opengl) {
+	if (noo.opengl) {
 		glBindVertexArray(image->internal->vao);
 		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
 		glBindTexture(GL_TEXTURE_2D, image->internal->texture);
@@ -64,7 +64,7 @@ void Vertex_Cache::start(Image *image)
 
 void Vertex_Cache::end()
 {
-	if (g.opengl) {
+	if (noo.opengl) {
 		GLint use_tex = glGetUniformLocation(m.current_shader, "use_tex");
 		if (image) {
 			glUniform1i(use_tex, true);
@@ -196,10 +196,10 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 	float dy2 = dy + (float)dest_size.h;
 
 	if (perspective_drawing) {
-		dx /= (float)g.screen_w;
-		dy /= (float)g.screen_h;
-		dx2 /= (float)g.screen_w;
-		dy2 /= (float)g.screen_h;
+		dx /= (float)noo.screen_w;
+		dy /= (float)noo.screen_h;
+		dx2 /= (float)noo.screen_w;
+		dy2 /= (float)noo.screen_h;
 		dx -= 0.5f;
 		dy -= 0.5f;
 		dx2 -= 0.5f;

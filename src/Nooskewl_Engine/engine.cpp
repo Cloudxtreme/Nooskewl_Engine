@@ -4,7 +4,7 @@ using namespace Nooskewl_Engine;
 
 namespace Nooskewl_Engine {
 
-Engine engine;
+Engine noo;
 
 Engine::Engine()
 {
@@ -12,18 +12,18 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	delete g.map;
+	delete noo.map;
 
 	delete window_image;
 
-	delete g.font;
-	delete g.bold_font;
+	delete noo.font;
+	delete noo.bold_font;
 	TTF_Quit();
 
 	shutdown_video();
 	shutdown_audio();
 
-	delete g.cpa;
+	delete noo.cpa;
 
 	if (joy && SDL_JoystickGetAttached(joy)) {
 		SDL_JoystickClose(joy);
@@ -34,12 +34,12 @@ Engine::~Engine()
 
 void Engine::start(int argc, char **argv)
 {
-	g.mute = check_args(argc, argv, "+mute");
+	noo.mute = check_args(argc, argv, "+mute");
 
 	load_dll();
 
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
-	if (g.mute == false) {
+	if (noo.mute == false) {
 		flags |= SDL_INIT_AUDIO;
 	}
 
@@ -54,7 +54,7 @@ void Engine::start(int argc, char **argv)
 		joy = NULL;
 	}
 
-	g.cpa = new CPA();
+	noo.cpa = new CPA();
 
 	init_audio(argc, argv);
 	init_video(argc, argv);
@@ -62,41 +62,41 @@ void Engine::start(int argc, char **argv)
 	if (TTF_Init() == -1) {
 		throw Error("TTF_Init failed");
 	}
-	g.font = new Font("fff_majestica.ttf", 8);
-	g.bold_font = new Font("fff_majestica_bold.ttf", 8);
+	noo.font = new Font("fff_majestica.ttf", 8);
+	noo.bold_font = new Font("fff_majestica_bold.ttf", 8);
 
 	window_image = new Image("window.tga");
 	speech_arrow = new Sprite("speech_arrow");
 	speech_arrow->start();
 	load_palette("nes.gpl");
 
-	g.map = new Map("test.map");
+	noo.map = new Map("test.map");
 
 	Player_Brain *player_brain = new Player_Brain();
-	g.player = new Map_Entity(player_brain);
-	g.player->load_sprite("player");
-	g.player->set_position(Point<int>(1, 3));
-	g.map->add_entity(g.player);
+	noo.player = new Map_Entity(player_brain);
+	noo.player->load_sprite("player");
+	noo.player->set_position(Point<int>(1, 3));
+	noo.map->add_entity(noo.player);
 }
 
 void Engine::handle_event(TGUI_Event *event)
 {
-	g.map->handle_event(event);
+	noo.map->handle_event(event);
 }
 
 bool Engine::update()
 {
 	speech_arrow->update();
 
-	if (g.map->update() == false) {
+	if (noo.map->update() == false) {
 		std::string map_name;
 		Point<int> position;
 		Direction direction;
-		g.map->get_new_map_details(map_name, position, direction);
+		noo.map->get_new_map_details(map_name, position, direction);
 		if (map_name != "") {
-			Map *old_map = g.map;
-			g.map = new Map(map_name);
-			g.map->add_entity(g.player);
+			Map *old_map = noo.map;
+			noo.map = new Map(map_name);
+			noo.map->add_entity(noo.player);
 
 			// draw transition
 
@@ -110,18 +110,18 @@ bool Engine::update()
 				if (moved_player == false && elapsed >= duration/2) {
 					// The actual moving happens below in this same loop
 					moved_player = true;
-					g.player->set_position(position);
-					g.player->set_direction(direction);
+					noo.player->set_position(position);
+					noo.player->set_direction(direction);
 				}
 
 				set_map_transition_projection((float)elapsed / duration * PI);
 
-				clear(g.black);
+				clear(noo.black);
 
 				m.vertex_cache->set_perspective_drawing(true);
 				if (moved_player) {
-					g.map->update_camera();
-					g.map->draw();
+					noo.map->update_camera();
+					noo.map->draw();
 				}
 				else {
 					old_map->update_camera();
@@ -147,13 +147,13 @@ bool Engine::update()
 
 void Engine::draw()
 {
-	clear(g.black);
+	clear(noo.black);
 
-	g.map->draw();
+	noo.map->draw();
 
-	g.font->draw(g.white, "This is the most insane time to live!", Point<int>(0, 0));
+	noo.font->draw(noo.white, "This is the most insane time to live!", Point<int>(0, 0));
 	SDL_Colour green = { 0, 255, 0, 255 };
-	g.font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
+	noo.font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
 
 	flip();
 }
@@ -187,7 +187,7 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	dc.y += sin(a1) * scale;
 	dd.x += cos(a2) * scale;
 	dd.y += sin(a2) * scale;
-	if (g.opengl) {
+	if (noo.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	m.vertex_cache->start();
@@ -197,7 +197,7 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 
 void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
-	if (g.opengl) {
+	if (noo.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	m.vertex_cache->start();
@@ -219,8 +219,8 @@ void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arr
 	SDL_Colour vertex_colours[4];
 
 	// Blue shades in NES palette
-	vertex_colours[0] = vertex_colours[1] = g.colours[47];
-	vertex_colours[2] = vertex_colours[3] = g.colours[44];
+	vertex_colours[0] = vertex_colours[1] = noo.colours[47];
+	vertex_colours[2] = vertex_colours[3] = noo.colours[44];
 
 	for (int i = 0; i < 4; i++) {
 		vertex_colours[i].a = 220;
@@ -276,10 +276,10 @@ void Engine::load_palette(std::string name)
 		}
 		int red, green, blue;
 		if (sscanf(line, "%d %d %d", &red, &green, &blue) == 3) {
-			g.colours[colour_count].r = red;
-			g.colours[colour_count].g = green;
-			g.colours[colour_count].b = blue;
-			g.colours[colour_count].a = 255;
+			noo.colours[colour_count].r = red;
+			noo.colours[colour_count].g = green;
+			noo.colours[colour_count].b = blue;
+			noo.colours[colour_count].a = 255;
 			colour_count++;
 		}
 		else {
@@ -287,13 +287,13 @@ void Engine::load_palette(std::string name)
 		}
 	}
 
-	g.black.r = g.black.g = g.black.b = 0;
-	g.black.a = 255;
-	g.white.r = g.white.g = g.white.b = g.white.a = 255;
+	noo.black.r = noo.black.g = noo.black.b = 0;
+	noo.black.a = 255;
+	noo.white.r = noo.white.g = noo.white.b = noo.white.a = 255;
 
 	for (int i = 0; i < 4; i++) {
-		g.four_blacks[i] = g.black;
-		g.four_whites[i] = g.white;
+		noo.four_blacks[i] = noo.black;
+		noo.four_whites[i] = noo.white;
 	}
 
 	SDL_RWclose(file);

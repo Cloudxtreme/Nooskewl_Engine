@@ -1,4 +1,4 @@
-#include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/sample.h"
@@ -41,7 +41,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 
 void init_audio(int argc, char **argv)
 {
-	if (g.mute) {
+	if (noo.mute) {
 		return;
 	}
 

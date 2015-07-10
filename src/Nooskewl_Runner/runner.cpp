@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 static bool run_main(int argc, char **argv)
 {
-	engine.start(argc, argv);
+	noo.start(argc, argv);
 
 	MML *music = new MML("title.mml");
 	music->play(true);
@@ -50,7 +50,7 @@ static bool run_main(int argc, char **argv)
 	SS_Widget *child6 = new SS_Widget(0.25f, 1.0f);
 	child6->set_parent(child3);
 	child6->set_accepts_focus(true);
-	TGUI *gui = new TGUI(main_widget, g.screen_w, g.screen_h);
+	TGUI *gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
 
 	bool quit = false;
 	bool draw = false;
@@ -60,7 +60,7 @@ static bool run_main(int argc, char **argv)
 
 	while (quit == false) {
 		// LOGIC
-		if (engine.update() == false) {
+		if (noo.update() == false) {
 			break;
 		}
 
@@ -73,10 +73,10 @@ static bool run_main(int argc, char **argv)
 				break;
 			}
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
-				g.screen_w = sdl_event.window.data1 / 4;
-				g.screen_h = sdl_event.window.data2 / 4;
+				noo.screen_w = sdl_event.window.data1 / 4;
+				noo.screen_h = sdl_event.window.data2 / 4;
 				set_default_projection();
-				gui->resize(g.screen_w, g.screen_h);
+				gui->resize(noo.screen_w, noo.screen_h);
 			}
 
 			// FIXME: move GUI into engine
@@ -87,12 +87,12 @@ static bool run_main(int argc, char **argv)
 				event.mouse.y /= 4;
 			}
 
-			engine.handle_event(&event);
+			noo.handle_event(&event);
 
 			gui->handle_event(&event);
 		}
 
-		engine.draw();
+		noo.draw();
 
 		// TIMING
 		// This code is ugly for a reason

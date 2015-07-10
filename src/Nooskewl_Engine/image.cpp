@@ -1,6 +1,6 @@
 // http://paulbourke.net/dataformats/tga/
 
-#include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
@@ -195,7 +195,7 @@ void Image::end()
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	m.vertex_cache->buffer(source_position, source_size, dest_position, dest_size, g.four_whites, flags);
+	m.vertex_cache->buffer(source_position, source_size, dest_position, dest_size, noo.four_whites, flags);
 }
 
 void Image::draw_region_tinted(SDL_Colour colour, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
@@ -207,7 +207,7 @@ void Image::draw_region_tinted(SDL_Colour colour, Point<int> source_position, Si
 
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
-	m.vertex_cache->buffer(source_position, source_size, dest_position, source_size, g.four_whites, flags);
+	m.vertex_cache->buffer(source_position, source_size, dest_position, source_size, noo.four_whites, flags);
 }
 
 void Image::draw_tinted(SDL_Colour colour, Point<int> dest_position, int flags)
@@ -289,7 +289,7 @@ Image::Internal::~Internal()
 
 void Image::Internal::release()
 {
-	if (g.opengl) {
+	if (noo.opengl) {
 		glDeleteTextures(1, &texture);
 		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
@@ -435,7 +435,7 @@ void Image::Internal::reload()
 
 void Image::Internal::upload(unsigned char *pixels)
 {
-	if (g.opengl) {
+	if (noo.opengl) {
 		glGenVertexArrays(1, &vao);
 		if (vao == 0) {
 			throw GLError("glGenVertexArrays failed");

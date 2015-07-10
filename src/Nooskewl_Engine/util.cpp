@@ -1,5 +1,5 @@
 #include "Nooskewl_Engine/cpa.h"
-#include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/util.h"
 
@@ -43,7 +43,7 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 
 SDL_RWops *open_file(std::string filename)
 {
-	SDL_RWops *file = g.cpa->open(filename);
+	SDL_RWops *file = noo.cpa->open(filename);
 	if (file == NULL) {
 		throw FileNotFoundError(filename);
 	}
