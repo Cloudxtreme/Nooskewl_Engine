@@ -10,34 +10,34 @@
 
 namespace Nooskewl_Engine {
 
-	struct Global {
-		struct {
-			bool mute;
-		} audio;
-		struct {
-			int screen_w;
-			int screen_h;
-			bool opengl;
+struct Global {
+	struct {
+		bool mute;
+	} audio;
+	struct {
+		int screen_w;
+		int screen_h;
+		bool opengl;
 
-			SDL_Colour colours[256];
-			SDL_Colour four_blacks[4];
-			SDL_Colour four_whites[4];
-			SDL_Colour black;
-			SDL_Colour white;
+		SDL_Colour colours[256];
+		SDL_Colour four_blacks[4];
+		SDL_Colour four_whites[4];
+		SDL_Colour black;
+		SDL_Colour white;
 
-			Font *font;
-			Font *bold_font;
+		Font *font;
+		Font *bold_font;
 
-			Vertex_Accel *vertex_accel;
-		} graphics;
-		CPA *cpa;
-		Map *map;
-		Map_Entity *player;
-	};
+		Vertex_Accel *vertex_accel;
+	} graphics;
+	CPA *cpa;
+	Map *map;
+	Map_Entity *player;
+};
 
-EXPORT extern Global g;
+NOOSKEWL_EXPORT extern Global g;
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

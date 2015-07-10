@@ -6,31 +6,31 @@
 
 namespace Nooskewl_Engine {
 
-	class EXPORT Sample {
-	public:
-		Sample(std::string filename) throw (Error);
-		~Sample();
+class NOOSKEWL_EXPORT Sample {
+public:
+	Sample(std::string filename) throw (Error);
+	~Sample();
 
-		static void update();
+	static void update();
 
-		bool play(float volume, bool loop);
+	bool play(float volume, bool loop);
 
-	private:
-		SDL_AudioSpec *spec;
-		Uint8 *data;
-		Uint32 length;
-	};
+private:
+	SDL_AudioSpec *spec;
+	Uint8 *data;
+	Uint32 length;
+};
 
-	struct SampleInstance {
-		SDL_AudioSpec *spec;
-		Uint8 *data;
-		Uint32 length;
-		Uint32 offset;
-		bool loop;
-		float volume;
-	};
+struct SampleInstance {
+	SDL_AudioSpec *spec;
+	Uint8 *data;
+	Uint32 length;
+	Uint32 offset;
+	bool loop;
+	float volume;
+};
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

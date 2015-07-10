@@ -5,46 +5,13 @@
 
 namespace Nooskewl_Engine {
 
-	class EXPORT Error {
-	public:
-		std::string error_message;
-		Error() {}
-		Error(std::string error_message) : error_message(error_message) {}
-	};
-
-}
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-
-class MemoryError : public Error {
+class NOOSKEWL_EXPORT Error {
 public:
-	MemoryError(std::string error_message) {
-		this->error_message = "Memory error: " + error_message;
-	}
+	std::string error_message;
+	Error() {}
+	Error(std::string error_message) : error_message(error_message) {}
 };
 
-class LoadError : public Error {
-public:
-	LoadError(std::string error_message) {
-		this->error_message = "Load error: " + error_message;
-	}
-};
-
-class FileNotFoundError : public Error {
-public:
-	FileNotFoundError(std::string error_message) {
-		this->error_message = "File not found: " + error_message;
-	}
-};
-
-class GLError : public Error {
-public:
-	GLError(std::string error_message) {
-		this->error_message = "OpenGL error: " + error_message;
-	}
-};
-
-#endif
+} // End namespace Nooskewl_Engine
 
 #endif // EXCEPTIONS_H

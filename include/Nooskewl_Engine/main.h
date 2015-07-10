@@ -7,9 +7,9 @@
 #pragma warning(disable : 4290)
 
 #ifdef NOOSKEWL_ENGINE_BUILD
-#define EXPORT __declspec(dllexport)
+#define NOOSKEWL_EXPORT __declspec(dllexport)
 #else
-#define EXPORT __declspec(dllimport)
+#define NOOSKEWL_EXPORT __declspec(dllimport)
 #endif
 #endif
 
@@ -67,12 +67,14 @@
 #endif
 
 namespace Nooskewl_Engine {
-	enum Direction {
-		N = 1,
-		S,
-		E,
-		W
-	};
-}
+
+enum Direction {
+	N = 1,
+	S,
+	E,
+	W
+};
+
+} // End namespace Nooskewl_Engine
 
 #endif // STARSQUATTERS_H

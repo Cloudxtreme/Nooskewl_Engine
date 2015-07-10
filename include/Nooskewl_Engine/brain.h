@@ -5,16 +5,17 @@
 
 namespace Nooskewl_Engine {
 
-	class EXPORT Brain {
-	public:
-		bool l, r, u, d, b1;
+class NOOSKEWL_EXPORT Brain {
+public:
+	bool l, r, u, d, b1;
 
-		Brain();
-		virtual ~Brain();
+	Brain();
+	virtual ~Brain();
 
-		virtual void handle_event(TGUI_Event *event) = 0;
-	};
-}
+	virtual void handle_event(TGUI_Event *event) = 0;
+};
+
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

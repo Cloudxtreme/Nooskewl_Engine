@@ -5,10 +5,10 @@
 
 namespace Nooskewl_Engine {
 
-	EXPORT void errormsg(const char *fmt, ...);
-	EXPORT void infomsg(const char *fmt, ...);
+NOOSKEWL_EXPORT void errormsg(const char *fmt, ...);
+NOOSKEWL_EXPORT void infomsg(const char *fmt, ...);
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

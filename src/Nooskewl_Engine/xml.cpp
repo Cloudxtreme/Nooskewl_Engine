@@ -1,8 +1,8 @@
 /* A very limited "XML" parser (<tag><subtag>value</subtag></tag> basically) */
 
 #include "Nooskewl_Engine/xml.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
-#include "Nooskewl_Engine/snprintf.h"
 #include "Nooskewl_Engine/util.h"
 
 XML::XML(std::string name, std::string value) :

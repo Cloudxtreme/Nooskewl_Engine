@@ -6,24 +6,24 @@
 
 namespace Nooskewl_Engine {
 
-	class Tween;
-	typedef std::vector< DLList<Tween *> * > Tweens;
+class Tween;
+typedef std::vector< DLList<Tween *> * > Tweens;
 
-	class EXPORT Tween {
-	public:
-		bool started;
-		Uint32 start_time;
+class NOOSKEWL_EXPORT Tween {
+public:
+	bool started;
+	Uint32 start_time;
 
-		Tween();
-		virtual ~Tween();
+	Tween();
+	virtual ~Tween();
 
-		virtual bool update(Tween *tween) = 0;
+	virtual bool update(Tween *tween) = 0;
 
-		static void update_tweens(Tweens tweens);
-		static void destroy_tweens(Tweens tweens);
-	};
+	static void update_tweens(Tweens tweens);
+	static void destroy_tweens(Tweens tweens);
+};
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

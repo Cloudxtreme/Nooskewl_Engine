@@ -8,15 +8,15 @@
 
 namespace Nooskewl_Engine {
 
-	class Player_Brain : public Brain {
-	public:
-			Player_Brain();
-			~Player_Brain();
+class Player_Brain : public Brain {
+public:
+		Player_Brain();
+		~Player_Brain();
 
-			void handle_event(TGUI_Event *event);
-	};
+		void handle_event(TGUI_Event *event);
+};
 
-}
+} // End namespace Nooskewl_Engine
 
 #endif
 

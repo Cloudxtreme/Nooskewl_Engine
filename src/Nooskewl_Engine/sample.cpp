@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/global.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/util.h"

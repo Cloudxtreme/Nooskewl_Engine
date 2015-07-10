@@ -6,31 +6,31 @@
 
 namespace Nooskewl_Engine {
 
-	EXPORT int SDL_fgetc(SDL_RWops *file);
-	EXPORT char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
-	EXPORT int SDL_fputs(const char *string, SDL_RWops *file);
+class NOOSKEWL_EXPORT List_Directory {
+public:
+	List_Directory(std::string glob);
+	~List_Directory();
 
-	EXPORT SDL_RWops *open_file(std::string filename) throw (Error);
-	EXPORT std::string itos(int i);
-	EXPORT bool check_args(int argc, char **argv, std::string arg);
+	std::string next();
 
-	class EXPORT List_Directory {
-	public:
-		List_Directory(std::string glob);
-		~List_Directory();
+private:
+#ifdef _MSC_VER
+	bool got_first;
+	bool done;
+	HANDLE handle;
+	WIN32_FIND_DATA ffd;
+#endif
+};
 
-		std::string next();
+NOOSKEWL_EXPORT int SDL_fgetc(SDL_RWops *file);
+NOOSKEWL_EXPORT char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
+NOOSKEWL_EXPORT int SDL_fputs(const char *string, SDL_RWops *file);
 
-	private:
-	#ifdef _MSC_VER
-		bool got_first;
-		bool done;
-		HANDLE handle;
-		WIN32_FIND_DATA ffd;
-	#endif
-	};
+NOOSKEWL_EXPORT SDL_RWops *open_file(std::string filename) throw (Error);
+NOOSKEWL_EXPORT std::string itos(int i);
+NOOSKEWL_EXPORT bool check_args(int argc, char **argv, std::string arg);
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

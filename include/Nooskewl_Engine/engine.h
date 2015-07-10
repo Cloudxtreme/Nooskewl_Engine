@@ -5,13 +5,13 @@
 
 namespace Nooskewl_Engine {
 
-	EXPORT void init_nooskewl_engine(int argc, char **argv);
-	EXPORT bool update_nooskewl_engine();
-	EXPORT void nooskewl_engine_handle_event(TGUI_Event *event);
-	EXPORT void nooskewl_engine_draw();
-	EXPORT void shutdown_nooskewl_engine();
+NOOSKEWL_EXPORT void init_nooskewl_engine(int argc, char **argv);
+NOOSKEWL_EXPORT bool update_nooskewl_engine();
+NOOSKEWL_EXPORT void nooskewl_engine_handle_event(TGUI_Event *event);
+NOOSKEWL_EXPORT void nooskewl_engine_draw();
+NOOSKEWL_EXPORT void shutdown_nooskewl_engine();
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

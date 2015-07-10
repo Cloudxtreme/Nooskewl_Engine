@@ -1,6 +1,7 @@
 #include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"

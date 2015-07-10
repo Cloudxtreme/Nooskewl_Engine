@@ -109,7 +109,7 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 	return total;
 }
 
-Real_MML::Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
+MML_Internal::Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
 	type(type),
 	audio(audio),
 	volumes(volumes),
@@ -122,11 +122,11 @@ Real_MML::Track::Track(Type type, std::string audio, std::vector< std::pair<int,
 {
 }
 
-Real_MML::Track::~Track()
+MML_Internal::Track::~Track()
 {
 }
 
-void Real_MML::Track::play(bool loop)
+void MML_Internal::Track::play(bool loop)
 {
 	playing = true;
 
@@ -135,12 +135,12 @@ void Real_MML::Track::play(bool loop)
 	reset();
 }
 
-void Real_MML::Track::stop()
+void MML_Internal::Track::stop()
 {
 	playing = false;
 }
 
-bool Real_MML::Track::update(short *buf, int length)
+bool MML_Internal::Track::update(short *buf, int length)
 {
 	if (done) {
 		return false;
@@ -203,12 +203,12 @@ bool Real_MML::Track::update(short *buf, int length)
 	return true;
 }
 
-bool Real_MML::Track::is_playing()
+bool MML_Internal::Track::is_playing()
 {
 	return playing;
 }
 
-void Real_MML::Track::reset()
+void MML_Internal::Track::reset()
 {
 	dutycycle = 0.5f;
 	octave = 4;
@@ -229,7 +229,7 @@ void Real_MML::Track::reset()
 	done = false;
 }
 
-void Real_MML::Track::pulse(short *buf, size_t samples, float t, float frequency, float phase)
+void MML_Internal::Track::pulse(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -253,7 +253,7 @@ void Real_MML::Track::pulse(short *buf, size_t samples, float t, float frequency
 	}
 }
 
-void Real_MML::Track::noise(short *buf, size_t samples, float t, float frequency, float phase)
+void MML_Internal::Track::noise(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -273,7 +273,7 @@ void Real_MML::Track::noise(short *buf, size_t samples, float t, float frequency
 	}
 }
 
-void Real_MML::Track::sawtooth(short *buf, size_t samples, float t, float frequency, float phase)
+void MML_Internal::Track::sawtooth(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -289,7 +289,7 @@ void Real_MML::Track::sawtooth(short *buf, size_t samples, float t, float freque
 	}
 }
 
-void Real_MML::Track::sine(short *buf, size_t samples, float t, float frequency, float phase)
+void MML_Internal::Track::sine(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -303,7 +303,7 @@ void Real_MML::Track::sine(short *buf, size_t samples, float t, float frequency,
 	}
 }
 
-void Real_MML::Track::triangle(short *buf, size_t samples, float t, float frequency, float phase)
+void MML_Internal::Track::triangle(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -322,7 +322,7 @@ void Real_MML::Track::triangle(short *buf, size_t samples, float t, float freque
 	}
 }
 
-void Real_MML::Track::generate(short *buf, int samples, float t, const char *tok, int octave)
+void MML_Internal::Track::generate(short *buf, int samples, float t, const char *tok, int octave)
 {
 	char c = tok[0];
 	int index = 0;
@@ -358,7 +358,7 @@ void Real_MML::Track::generate(short *buf, int samples, float t, const char *tok
 	};
 }
 
-float Real_MML::Track::get_frequency(float start_freq)
+float MML_Internal::Track::get_frequency(float start_freq)
 {
 	int pitch = pitches[note];
 	if (pitch == -1) {
@@ -375,7 +375,7 @@ float Real_MML::Track::get_frequency(float start_freq)
 	return (pitch_envelopes[pitch][i] * p2) + (start_freq * (1.0f - p2));
 }
 
-float Real_MML::Track::get_volume()
+float MML_Internal::Track::get_volume()
 {
 	while (volume_section < (int)volumes.size()-1 && sample > volumes[volume_section+1].first) {
 		volume_section++;
@@ -389,7 +389,7 @@ float Real_MML::Track::get_volume()
 	}
 }
 
-float Real_MML::Track::get_dutycycle()
+float MML_Internal::Track::get_dutycycle()
 {
 	while (dutycycle_section < (int)dutycycles.size()-1 && sample > dutycycles[dutycycle_section+1].first) {
 		dutycycle_section++;
@@ -403,7 +403,7 @@ float Real_MML::Track::get_dutycycle()
 	}
 }
 
-std::string Real_MML::Track::next_note(const char *audio, int *pos)
+std::string MML_Internal::Track::next_note(const char *audio, int *pos)
 {
 	std::string result;
 	bool done = false;
@@ -456,7 +456,7 @@ std::string Real_MML::Track::next_note(const char *audio, int *pos)
 }
 
 // adds waits to length
-int Real_MML::Track::notelength(const char *tok, const char *audio, int *pos)
+int MML_Internal::Track::notelength(const char *tok, const char *audio, int *pos)
 {
 	char ch = *tok;
 	int total = onenotelength(tok, note_length, tempo, octave, note, 'z', pitches, pitch_envelopes); // z == nothing never used
@@ -471,7 +471,7 @@ int Real_MML::Track::notelength(const char *tok, const char *audio, int *pos)
 	return total;
 }
 
-Real_MML::Real_MML(std::string filename)
+MML_Internal::MML_Internal(std::string filename)
 {
 	filename = "mml/" + filename;
 
@@ -728,18 +728,18 @@ Real_MML::Real_MML(std::string filename)
 	}
 
 	for (size_t i = 0; i < tracks_s.size(); i++) {
-		tracks.push_back(new Track(Real_MML::Track::PULSE, tracks_s[i], volumes[i], pitches[i], pitch_envelopes, dutycycles[i], longest-sample[i]));
+		tracks.push_back(new Track(MML_Internal::Track::PULSE, tracks_s[i], volumes[i], pitches[i], pitch_envelopes, dutycycles[i], longest-sample[i]));
 	}
 }
 
-Real_MML::~Real_MML()
+MML_Internal::~MML_Internal()
 {
 	for (size_t i =  0; i < tracks.size(); i++) {
 		delete tracks[i];
 	}
 }
 
-void Real_MML::mix(Uint8 *buf, int stream_length)
+void MML_Internal::mix(Uint8 *buf, int stream_length)
 {
 	Uint8 *tmp = new Uint8[stream_length];
 

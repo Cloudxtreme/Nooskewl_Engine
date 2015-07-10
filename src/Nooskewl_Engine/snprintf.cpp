@@ -1,6 +1,6 @@
 #ifdef _MSC_VER
 
-#include "Nooskewl_Engine/snprintf.h"
+#include "Nooskewl_Engine/internal.h"
 
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap)
 {

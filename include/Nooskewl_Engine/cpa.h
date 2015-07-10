@@ -5,21 +5,21 @@
 
 namespace Nooskewl_Engine {
 
-	class EXPORT CPA
-	{
-	public:
-		SDL_RWops *load(std::string filename);
-		bool exists(std::string filename);
+class NOOSKEWL_EXPORT CPA
+{
+public:
+	SDL_RWops *load(std::string filename);
+	bool exists(std::string filename);
 
-		CPA();
-		~CPA();
+	CPA();
+	~CPA();
 
-	private:
-		uint8_t *bytes;
-		std::map< std::string, std::pair<int, int> > info; // offset, size
-	};
+private:
+	uint8_t *bytes;
+	std::map< std::string, std::pair<int, int> > info; // offset, size
+};
 
-}
+} // End namespace Nooskewl_Engine
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 using namespace Nooskewl_Engine;

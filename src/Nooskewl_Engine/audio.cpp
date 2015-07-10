@@ -5,7 +5,7 @@
 #include "Nooskewl_Engine/sample.h"
 
 static SDL_AudioDeviceID audio_device;
-static std::vector<Real_MML *> loaded_mml;
+static std::vector<MML_Internal *> loaded_mml;
 
 static void update_mml(Uint8 *buf, int stream_length)
 {
@@ -82,7 +82,7 @@ void shutdown_audio()
 
 MML::MML(std::string filename)
 {
-	real_mml = new Real_MML(filename);
+	real_mml = new MML_Internal(filename);
 	loaded_mml.push_back(real_mml);
 }
 
@@ -103,7 +103,7 @@ void MML::play(bool loop)
 		return;
 	}
 
-	std::vector<Real_MML::Track *> &tracks = real_mml->tracks;
+	std::vector<MML_Internal::Track *> &tracks = real_mml->tracks;
 
 	for (size_t i = 0; i < tracks.size(); i++) {
 		tracks[i]->play(loop);
@@ -112,7 +112,7 @@ void MML::play(bool loop)
 
 void MML::stop()
 {
-	std::vector<Real_MML::Track *> &tracks = real_mml->tracks;
+	std::vector<MML_Internal::Track *> &tracks = real_mml->tracks;
 
 	for (size_t i = 0; i < tracks.size(); i++) {
 		tracks[i]->stop();

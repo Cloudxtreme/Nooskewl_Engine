@@ -1,6 +1,6 @@
 #include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/global.h"
-#include "Nooskewl_Engine/snprintf.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/util.h"
 
 namespace Nooskewl_Engine {
