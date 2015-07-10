@@ -12,12 +12,15 @@ typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
 void load_dll();
 
+#ifdef _MSC_VER
 /* MSVC doesn't have snprintf */
 
 #define snprintf c99_snprintf
 
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
 int c99_snprintf(char* str, int size, const char* format, ...);
+
+#endif
 
 } // End namespace Nooskewl_Engine
 

@@ -27,6 +27,8 @@ void load_dll()
 	throw FileNotFoundError("Couldn't find a game DLL!");
 }
 
+#ifdef _MSC_VER
+
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap)
 {
     int count = -1;
@@ -50,5 +52,7 @@ int c99_snprintf(char* str, int size, const char* format, ...)
 
     return count;
 }
+
+#endif // _MSC_VER
 
 } // End namespace Nooskewl_Engine
