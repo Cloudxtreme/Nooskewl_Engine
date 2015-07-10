@@ -15,28 +15,22 @@ Map::Map(std::string map_name) :
 	ml(NULL)
 {
 	tilemap = new Tilemap(8, map_name);
+
+	ml = m.get_map_logic(this);
 }
 
 Map::~Map()
 {
+	if (ml) {
+		ml->end(this);
+	}
+
 	delete tilemap;
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (entities[i]->get_id() != 0) {
 			delete entities[i];
 		}
-	}
-}
-
-void Map::start()
-{
-	ml = m.get_map_logic(this);
-}
-
-void Map::end()
-{
-	if (ml) {
-		ml->end(this);
 	}
 }
 

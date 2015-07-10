@@ -34,7 +34,6 @@ Engine::Engine(int argc, char **argv)
 	init_graphics();
 
 	g.map = new Map("test.map");
-	g.map->start();
 
 	Player_Brain *player_brain = new Player_Brain();
 	g.player = new Map_Entity(player_brain);
@@ -45,7 +44,6 @@ Engine::Engine(int argc, char **argv)
 
 Engine::~Engine()
 {
-	g.map->end();
 	delete g.map;
 
 	shutdown_graphics();
@@ -79,7 +77,6 @@ bool Engine::update()
 		if (map_name != "") {
 			Map *old_map = g.map;
 			g.map = new Map(map_name);
-			g.map->start();
 			g.map->add_entity(g.player);
 
 			// draw transition
@@ -117,7 +114,6 @@ bool Engine::update()
 
 			set_default_projection();
 
-			old_map->end();
 			delete old_map;
 		}
 		else {
