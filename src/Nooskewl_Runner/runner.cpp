@@ -21,8 +21,8 @@ static bool run_main(int argc, char **argv)
 {
 	init_nooskewl_engine(argc, argv);
 
-	Audio music = load_audio("title.mml");
-	play_audio(music, true);
+	MML *music = new MML("title.mml");
+	music->play(true);
 
 	SS_Widget *main_widget = new SS_Widget(1.0f, 1.0f);
 	SS_Widget *child1 = new SS_Widget(50, 50);

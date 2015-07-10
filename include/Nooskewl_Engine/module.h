@@ -5,6 +5,7 @@
 
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/load_dll.h"
+#include "Nooskewl_Engine/sample.h"
 
 struct Module {
 #ifdef _MSC_VER
@@ -12,6 +13,10 @@ struct Module {
 	LPD3DXEFFECT effect;
 #endif
 	Map_Logic_Getter get_map_logic;
+	// audio
+	SDL_mutex *sample_mutex;
+	SDL_AudioSpec device_spec;
+	std::vector<SampleInstance *> playing_samples;
 };
 
 extern Module m;

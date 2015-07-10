@@ -1,6 +1,5 @@
 This software uses the following free software libraries: FreeType, GLEW,
 GLM, SDL, SDL_ttf and zlib. Each library is used under its own license.
-The following acknowledgements are included to comply with those licenses:
 
 ------------------------------------------------------------------------------
 

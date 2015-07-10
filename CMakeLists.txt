@@ -37,9 +37,11 @@ set(LIB_SRC
 	src/Nooskewl_Engine/map.cpp
 	src/Nooskewl_Engine/map_entity.cpp
 	src/Nooskewl_Engine/map_logic.cpp
+	src/Nooskewl_Engine/mml.cpp
 	src/Nooskewl_Engine/module.cpp
 	src/Nooskewl_Engine/player_brain.cpp
 	src/Nooskewl_Engine/resource_manager.cpp
+	src/Nooskewl_Engine/sample.cpp
 	src/Nooskewl_Engine/snprintf.cpp
 	src/Nooskewl_Engine/speech.cpp
 	src/Nooskewl_Engine/sprite.cpp
