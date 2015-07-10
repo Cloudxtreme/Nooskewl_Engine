@@ -37,8 +37,12 @@ CPA::CPA()
 
 		gzFile f = gzopen(filename.c_str(), "rb");
 		bytes = new Uint8[size];
-		gzread(f, bytes, size);
+		int read = gzread(f, bytes, size);
 		gzclose(f);
+
+		if (read != size) {
+			throw Error("Invalid CPA: corrupt gzip file");
+		}
 
 		// Read the size of the data (ascii text followed by newline first thing in the file)
 		Uint8 *header_end = (Uint8 *)strchr((char *)bytes, '\n');
