@@ -3,8 +3,6 @@
 #ifndef DLLIST_H
 #define DLLIST_H
 
-#include "Nooskewl_Engine/main.h"
-
 namespace Nooskewl_Engine {
 
 template<typename T> struct DLList {
