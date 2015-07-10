@@ -36,12 +36,12 @@ CPA::CPA()
 		SDL_RWclose(file);
 
 		gzFile f = gzopen(filename.c_str(), "rb");
-		bytes = new unsigned char[size];
+		bytes = new Uint8[size];
 		gzread(f, bytes, size);
 		gzclose(f);
 
 		// Read the size of the data (ascii text followed by newline first thing in the file)
-		unsigned char *header_end = (unsigned char *)strchr((char *)bytes, '\n');
+		Uint8 *header_end = (Uint8 *)strchr((char *)bytes, '\n');
 		if (header_end == NULL) {
 			throw Error("Invalid CPA: header not present");
 		}
@@ -51,7 +51,7 @@ CPA::CPA()
 			throw Error("Invalid CPA: data size > archive size");
 		}
 		// Skip to the info section at the end
-		unsigned char *p = bytes + header_size + data_size;
+		Uint8 *p = bytes + header_size + data_size;
 		// Keep track of the byte offset of each file
 		int count = header_size;
 
@@ -60,7 +60,7 @@ CPA::CPA()
 		char line[1000];
 
 		while (p < bytes+size) {
-			unsigned char *end = (unsigned char *)strchr((char *)p, '\n');
+			Uint8 *end = (Uint8 *)strchr((char *)p, '\n');
 			if (end == NULL) {
 				throw Error("Invalid CPA: corrupt info section");
 			}
@@ -70,7 +70,7 @@ CPA::CPA()
 				line[len] = 0;
 				char size[1000];
 				char name[1000];
-				unsigned char *size_end = (unsigned char *)strchr((char *)p, '\t');
+				Uint8 *size_end = (Uint8 *)strchr((char *)p, '\t');
 				if (size_end == NULL || size_end - p > 999) {
 					throw Error("Invalid CPA: corrupt info section");
 				}

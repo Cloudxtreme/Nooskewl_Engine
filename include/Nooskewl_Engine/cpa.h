@@ -20,7 +20,7 @@ public:
 	~CPA();
 
 private:
-	unsigned char *bytes;
+	Uint8 *bytes;
 	std::map< std::string, std::pair<int, int> > info; // offset, size
 };
 
