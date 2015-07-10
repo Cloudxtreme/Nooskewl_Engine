@@ -6,6 +6,7 @@
 namespace Nooskewl_Engine {
 
 	EXPORT void clear(SDL_Colour colour);
+	EXPORT void clear_depth_buffer(float value);
 	EXPORT void flip();
 	EXPORT void set_default_projection();
 

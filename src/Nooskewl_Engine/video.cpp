@@ -31,7 +31,20 @@ void clear(SDL_Colour colour)
 	}
 #ifdef _MSC_VER
 	else {
-		m.d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0, 0);
+		m.d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
+	}
+#endif
+}
+
+void clear_depth_buffer(float value)
+{
+	if (g.graphics.opengl) {
+		glClearDepth(value);
+		glClear(GL_DEPTH_BUFFER_BIT);
+	}
+#ifdef _MSC_VER
+	else {
+		m.d3d_device->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, value, 0);
 	}
 #endif
 }
@@ -136,7 +149,7 @@ void set_map_transition_projection(float angle)
 		SDL_GetWindowSize(window, &w, &h);
 		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
 
-		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
 		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
 		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
@@ -280,6 +293,7 @@ void init_video(int argc, char **argv)
 		m.d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		m.d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m.d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		m.d3d_device->SetRenderState(D3DRS_ZENABLE, FALSE);
 
 		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
