@@ -75,7 +75,7 @@ static bool run_main(int argc, char **argv)
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				noo.screen_w = sdl_event.window.data1 / 4;
 				noo.screen_h = sdl_event.window.data2 / 4;
-				set_default_projection();
+				noo.set_default_projection();
 				gui->resize(noo.screen_w, noo.screen_h);
 			}
 

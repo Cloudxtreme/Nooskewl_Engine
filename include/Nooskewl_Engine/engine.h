@@ -41,6 +41,12 @@ public:
 	bool update();
 	void draw();
 
+	void clear(SDL_Colour colour);
+	void clear_depth_buffer(float value);
+	void flip();
+	void set_default_projection();
+	void set_map_transition_projection(float angle);
+
 	void draw_line(Point<int> a, Point<int> b, SDL_Colour colour);
 	void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4]);
 	void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour);
@@ -48,6 +54,23 @@ public:
 	void load_palette(std::string name);
 
 private:
+	void init_video(int argc, char **argv);
+	void shutdown_video();
+	void load_fonts();
+
+	SDL_Window *window;
+
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	SDL_GLContext opengl_context;
+
+#ifdef _MSC_VER
+	HWND hwnd;
+	D3DPRESENT_PARAMETERS d3d_pp;
+	bool d3d_lost;
+	IDirect3D9 *d3d;
+#endif
+
 	SDL_Joystick *joy;
 	Image *window_image;
 	Sprite *speech_arrow;

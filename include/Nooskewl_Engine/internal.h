@@ -38,11 +38,6 @@ public:
 	}
 };
 
-void init_graphics();
-void shutdown_graphics();
-void update_graphics();
-void load_palette(std::string name);
-
 #define snprintf c99_snprintf
 
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
