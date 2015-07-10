@@ -8,7 +8,7 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Sample {
 public:
-	Sample(std::string filename) throw (Error);
+	Sample(std::string filename);
 	~Sample();
 
 	static void update();

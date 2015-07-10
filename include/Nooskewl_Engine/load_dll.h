@@ -11,7 +11,7 @@ namespace Nooskewl_Engine {
 
 typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
-void load_dll() throw (Error);
+void load_dll();
 
 } // End namespace Nooskewl_Engine
 

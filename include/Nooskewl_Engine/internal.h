@@ -7,7 +7,7 @@
 
 using namespace Nooskewl_Engine;
 
-void init_audio(int argc, char **argv) throw (Error);
+void init_audio(int argc, char **argv);
 void shutdown_audio();
 
 class MemoryError : public Error {
@@ -38,15 +38,15 @@ public:
 	}
 };
 
-void load_fonts() throw (Error);
+void load_fonts();
 void release_fonts();
-void init_font() throw (Error);
+void init_font();
 void shutdown_font();
 
-void init_graphics() throw (Error);
+void init_graphics();
 void shutdown_graphics();
 void update_graphics();
-void load_palette(std::string name) throw (Error);
+void load_palette(std::string name);
 
 #define snprintf c99_snprintf
 

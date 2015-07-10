@@ -2,7 +2,6 @@
 #define FONT_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/types.h"
 
 namespace Nooskewl_Engine {
@@ -11,7 +10,7 @@ class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Font {
 public:
-	Font(std::string filename, int size) throw (Error);
+	Font(std::string filename, int size);
 	~Font();
 
 	void clear_cache();

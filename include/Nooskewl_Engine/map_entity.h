@@ -21,7 +21,7 @@ public:
 	bool update(Map *map);
 	void draw(Point<int> draw_pos);
 
-	void load_sprite(std::string name) throw (Error);
+	void load_sprite(std::string name);
 	void set_position(Point<int> position);
 	void set_offset(Point<float> offset);
 	void set_bounce(int bounce);

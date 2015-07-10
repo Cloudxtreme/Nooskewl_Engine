@@ -12,7 +12,7 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Map {
 public:
-	Map(std::string map_name) throw (Error);
+	Map(std::string map_name);
 	~Map();
 
 	void add_entity(Map_Entity *entity);

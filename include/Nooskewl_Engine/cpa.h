@@ -16,7 +16,7 @@ public:
 	SDL_RWops *open(std::string filename);
 	bool exists(std::string filename);
 
-	CPA() throw (Error);
+	CPA();
 	~CPA();
 
 private:

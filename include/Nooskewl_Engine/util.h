@@ -26,7 +26,7 @@ NOOSKEWL_ENGINE_EXPORT int SDL_fgetc(SDL_RWops *file);
 NOOSKEWL_ENGINE_EXPORT char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
 NOOSKEWL_ENGINE_EXPORT int SDL_fputs(const char *string, SDL_RWops *file);
 
-NOOSKEWL_ENGINE_EXPORT SDL_RWops *open_file(std::string filename) throw (Error);
+NOOSKEWL_ENGINE_EXPORT SDL_RWops *open_file(std::string filename);
 NOOSKEWL_ENGINE_EXPORT std::string itos(int i);
 NOOSKEWL_ENGINE_EXPORT bool check_args(int argc, char **argv, std::string arg);
 

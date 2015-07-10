@@ -8,8 +8,6 @@
 
 namespace Nooskewl_Engine {
 
-struct Internal;
-
 class NOOSKEWL_ENGINE_EXPORT Image {
 public:
 	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Cache;
@@ -25,12 +23,12 @@ public:
 	std::string filename;
 	int w, h;
 
-	Image(std::string filename, bool is_absolute_path = false) throw (Error);
-	Image(SDL_Surface *surface) throw (Error);
+	Image(std::string filename, bool is_absolute_path = false);
+	Image(SDL_Surface *surface);
 	~Image();
 
 	void release();
-	void reload() throw (Error);
+	void reload();
 
 	void start();
 	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);

@@ -9,8 +9,8 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Sprite {
 public:
-	Sprite(std::string xml_filename, std::string image_directory) throw (Error);
-	Sprite(std::string directory_name) throw (Error);
+	Sprite(std::string xml_filename, std::string image_directory);
+	Sprite(std::string directory_name);
 	~Sprite();
 
 	bool set_animation(std::string name);

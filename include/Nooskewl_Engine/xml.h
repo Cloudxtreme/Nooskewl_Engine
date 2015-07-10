@@ -9,7 +9,7 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT XML {
 public:
 	XML(std::string name, std::string value);
-	XML(std::string filename) throw (Error);
+	XML(std::string filename);
 	~XML();
 
 	std::list<XML *> &get_nodes();

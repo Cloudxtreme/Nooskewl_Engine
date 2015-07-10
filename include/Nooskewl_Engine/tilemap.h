@@ -11,7 +11,7 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT Tilemap
 {
 public:
-	Tilemap(int tile_size, std::string map_filename) throw (Error);
+	Tilemap(int tile_size, std::string map_filename);
 	~Tilemap();
 
 	int get_layer_count();

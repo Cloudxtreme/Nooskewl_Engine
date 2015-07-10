@@ -10,7 +10,7 @@ class NOOSKEWL_ENGINE_EXPORT MML {
 public:
 	static void mix(Uint8 *buf, int stream_length);
 
-	MML(std::string filename) throw (Error);
+	MML(std::string filename);
 	~MML();
 
 	void play(bool loop);
@@ -19,7 +19,7 @@ public:
 private:
 	class Internal {
 	public:
-		Internal(std::string filename) throw (Error);
+		Internal(std::string filename);
 		~Internal();
 
 		class Track

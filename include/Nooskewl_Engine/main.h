@@ -2,9 +2,7 @@
 #define STARSQUATTERS_H
 
 #ifdef _MSC_VER
-// MSVC 2013 warns on throw (Error)
 #pragma warning(disable : 4251)
-#pragma warning(disable : 4290)
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 #define NOOSKEWL_ENGINE_EXPORT __declspec(dllexport)
