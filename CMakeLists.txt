@@ -29,7 +29,7 @@ set(LIB_SRC
 	src/Nooskewl_Engine/engine.cpp
 	src/Nooskewl_Engine/font.cpp
 	src/Nooskewl_Engine/image.cpp
-	src/Nooskewl_Engine/load_dll.cpp
+	src/Nooskewl_Engine/internal.cpp
 	src/Nooskewl_Engine/log.cpp
 	src/Nooskewl_Engine/map.cpp
 	src/Nooskewl_Engine/map_entity.cpp
@@ -38,7 +38,6 @@ set(LIB_SRC
 	src/Nooskewl_Engine/module.cpp
 	src/Nooskewl_Engine/player_brain.cpp
 	src/Nooskewl_Engine/sample.cpp
-	src/Nooskewl_Engine/snprintf.cpp
 	src/Nooskewl_Engine/speech.cpp
 	src/Nooskewl_Engine/sprite.cpp
 	src/Nooskewl_Engine/tilemap.cpp

@@ -4,7 +4,7 @@
 #define MODULE_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/load_dll.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
