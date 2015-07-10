@@ -1,3 +1,7 @@
+// Crystal Picnic Archive: archive format created for the game Crystal Picnic.
+// Basically all the files catted together with an index at the end, then
+// optionally gzipped.
+
 #ifndef CPA_H
 #define CPA_H
 
