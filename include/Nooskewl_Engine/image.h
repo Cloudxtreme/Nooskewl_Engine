@@ -12,7 +12,7 @@ struct Internal;
 
 class NOOSKEWL_ENGINE_EXPORT Image {
 public:
-	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Accel;
+	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Cache;
 
 	enum Flags {
 		FLIP_H = 1,

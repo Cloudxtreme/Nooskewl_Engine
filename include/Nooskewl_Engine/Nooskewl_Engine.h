@@ -27,7 +27,7 @@
 #include "Nooskewl_Engine/tween.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/util.h"
-#include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/video.h"
 #include "Nooskewl_Engine/widgets.h"
 #include "Nooskewl_Engine/xml.h"

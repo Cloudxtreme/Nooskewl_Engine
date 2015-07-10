@@ -6,7 +6,6 @@
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/font.h"
-#include "Nooskewl_Engine/vertex_accel.h"
 
 namespace Nooskewl_Engine {
 
@@ -27,8 +26,6 @@ struct Global {
 
 		Font *font;
 		Font *bold_font;
-
-		Vertex_Accel *vertex_accel;
 	} graphics;
 	CPA *cpa;
 	Map *map;

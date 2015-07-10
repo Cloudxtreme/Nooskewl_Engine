@@ -3,12 +3,12 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/module.h"
-#include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/video.h"
 
 using namespace Nooskewl_Engine;
 
-Vertex_Accel::Vertex_Accel() :
+Vertex_Cache::Vertex_Cache() :
 	vertices(NULL),
 	count(0),
 	total(0),
@@ -16,17 +16,17 @@ Vertex_Accel::Vertex_Accel() :
 {
 }
 
-Vertex_Accel::~Vertex_Accel()
+Vertex_Cache::~Vertex_Cache()
 {
 	free(vertices);
 }
 
-void Vertex_Accel::init()
+void Vertex_Cache::init()
 {
 	maybe_resize_buffer(256);
 }
 
-void Vertex_Accel::start()
+void Vertex_Cache::start()
 {
 	this->image = NULL;
 
@@ -40,7 +40,7 @@ void Vertex_Accel::start()
 #endif
 }
 
-void Vertex_Accel::start(Image *image)
+void Vertex_Cache::start(Image *image)
 {
 	this->image = image;
 
@@ -62,7 +62,7 @@ void Vertex_Accel::start(Image *image)
 #endif
 }
 
-void Vertex_Accel::end()
+void Vertex_Cache::end()
 {
 	if (g.graphics.opengl) {
 		GLint use_tex = glGetUniformLocation(m.current_shader, "use_tex");
@@ -94,7 +94,7 @@ void Vertex_Accel::end()
 	count = 0;
 }
 
-void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, SDL_Colour vertex_colours[4], int flags)
+void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, SDL_Colour vertex_colours[4], int flags)
 {
 	maybe_resize_buffer(256);
 
@@ -186,7 +186,7 @@ void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Poi
 	count += 6;
 }
 
-void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
+void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
 {
 	maybe_resize_buffer(256);
 
@@ -294,13 +294,13 @@ void Vertex_Accel::buffer(Point<int> source_position, Size<int> source_size, Poi
 	count += 6;
 }
 
-void Vertex_Accel::set_perspective_drawing(bool perspective_drawing)
+void Vertex_Cache::set_perspective_drawing(bool perspective_drawing)
 {
 	this->perspective_drawing = perspective_drawing;
 }
 
 
-void Vertex_Accel::maybe_resize_buffer(int increase)
+void Vertex_Cache::maybe_resize_buffer(int increase)
 {
 	if (total - count >= increase) {
 		return;

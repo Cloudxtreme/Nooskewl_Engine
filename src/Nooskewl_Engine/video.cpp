@@ -5,7 +5,7 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
-#include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/video.h"
 
 using namespace Nooskewl_Engine;
@@ -383,13 +383,13 @@ void init_video(int argc, char **argv)
 
 	set_default_projection();
 
-	g.graphics.vertex_accel = new Vertex_Accel();
-	g.graphics.vertex_accel->init();
+	m.vertex_cache = new Vertex_Cache();
+	m.vertex_cache->init();
 }
 
 void shutdown_video()
 {
-	delete g.graphics.vertex_accel;
+	delete m.vertex_cache;
 
 	if (g.graphics.opengl) {
 		glDeleteProgram(m.current_shader);

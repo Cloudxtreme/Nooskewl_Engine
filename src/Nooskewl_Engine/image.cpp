@@ -6,7 +6,7 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
-#include "Nooskewl_Engine/vertex_accel.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/video.h"
 
 using namespace Nooskewl_Engine;
@@ -185,22 +185,22 @@ void Image::reload()
 
 void Image::start()
 {
-	g.graphics.vertex_accel->start(this);
+	m.vertex_cache->start(this);
 }
 
 void Image::end()
 {
-	g.graphics.vertex_accel->end();
+	m.vertex_cache->end();
 }
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, dest_size, g.graphics.four_whites, flags);
+	m.vertex_cache->buffer(source_position, source_size, dest_position, dest_size, g.graphics.four_whites, flags);
 }
 
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
-	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, source_size, g.graphics.four_whites, flags);
+	m.vertex_cache->buffer(source_position, source_size, dest_position, source_size, g.graphics.four_whites, flags);
 }
 
 void Image::draw(Point<int> dest_position, int flags)

@@ -89,6 +89,7 @@ bool Engine::update()
 			while (SDL_GetTicks() < end_time) {
 				Uint32 elapsed = SDL_GetTicks() - start_time;
 				if (moved_player == false && elapsed >= duration/2) {
+					// The actual moving happens below in this same loop
 					moved_player = true;
 					g.player->set_position(position);
 					g.player->set_direction(direction);
@@ -98,7 +99,7 @@ bool Engine::update()
 
 				clear(g.graphics.black);
 
-				g.graphics.vertex_accel->set_perspective_drawing(true);
+				m.vertex_cache->set_perspective_drawing(true);
 				if (moved_player) {
 					g.map->update_camera();
 					g.map->draw();
@@ -107,7 +108,7 @@ bool Engine::update()
 					old_map->update_camera();
 					old_map->draw();
 				}
-				g.graphics.vertex_accel->set_perspective_drawing(false);
+				m.vertex_cache->set_perspective_drawing(false);
 
 				flip();
 			}

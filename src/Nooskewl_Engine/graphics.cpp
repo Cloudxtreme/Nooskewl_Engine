@@ -3,9 +3,9 @@
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/log.h"
+#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"
-#include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
 using namespace Nooskewl_Engine;
@@ -47,9 +47,9 @@ void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	if (g.graphics.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	g.graphics.vertex_accel->start();
-	g.graphics.vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
-	g.graphics.vertex_accel->end();
+	m.vertex_cache->start();
+	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
+	m.vertex_cache->end();
 }
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
@@ -57,9 +57,9 @@ void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_
 	if (g.graphics.opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	g.graphics.vertex_accel->start();
-	g.graphics.vertex_accel->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
-	g.graphics.vertex_accel->end();
+	m.vertex_cache->start();
+	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
+	m.vertex_cache->end();
 }
 
 void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)

@@ -6,6 +6,7 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/load_dll.h"
 #include "Nooskewl_Engine/sample.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 
@@ -23,6 +24,7 @@ struct Module {
 	LPD3DXEFFECT effect;
 #endif
 	GLuint current_shader;
+	Vertex_Cache *vertex_cache;
 };
 
 extern Module m;

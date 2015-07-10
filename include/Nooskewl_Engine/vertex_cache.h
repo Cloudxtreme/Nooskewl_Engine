@@ -8,10 +8,10 @@ namespace Nooskewl_Engine {
 
 class Image;
 
-class NOOSKEWL_ENGINE_EXPORT Vertex_Accel {
+class NOOSKEWL_ENGINE_EXPORT Vertex_Cache {
 public:
-	Vertex_Accel();
-	~Vertex_Accel();
+	Vertex_Cache();
+	~Vertex_Cache();
 
 	void init();
 
