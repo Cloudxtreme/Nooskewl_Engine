@@ -2,11 +2,9 @@
 
 using namespace Nooskewl_Engine;
 
-static SDL_Joystick *joy;
-
 namespace Nooskewl_Engine {
 
-void init_nooskewl_engine(int argc, char **argv)
+Engine::Engine(int argc, char **argv)
 {
 	g.audio.mute = check_args(argc, argv, "+mute");
 
@@ -23,6 +21,9 @@ void init_nooskewl_engine(int argc, char **argv)
 
 	if (SDL_NumJoysticks() > 0) {
 		joy = SDL_JoystickOpen(0);
+	}
+	else {
+		joy = NULL;
 	}
 
 	g.cpa = new CPA();
@@ -42,7 +43,31 @@ void init_nooskewl_engine(int argc, char **argv)
 	g.map->add_entity(g.player);
 }
 
-bool update_nooskewl_engine()
+Engine::~Engine()
+{
+	g.map->end();
+	delete g.map;
+
+	shutdown_graphics();
+	shutdown_font();
+	shutdown_video();
+	shutdown_audio();
+
+	delete g.cpa;
+
+	if (joy && SDL_JoystickGetAttached(joy)) {
+		SDL_JoystickClose(joy);
+	}
+
+	SDL_Quit();
+}
+
+void Engine::handle_event(TGUI_Event *event)
+{
+	g.map->handle_event(event);
+}
+
+bool Engine::update()
 {
 	update_graphics();
 
@@ -103,12 +128,8 @@ bool update_nooskewl_engine()
 	return true;
 }
 
-void nooskewl_engine_handle_event(TGUI_Event *event)
-{
-	g.map->handle_event(event);
-}
 
-void nooskewl_engine_draw()
+void Engine::draw()
 {
 	clear(g.graphics.black);
 
@@ -118,23 +139,6 @@ void nooskewl_engine_draw()
 	g.graphics.font->draw("HELLO!", Point<int>(10, 10), g.graphics.white);
 
 	flip();
-}
-
-void shutdown_nooskewl_engine()
-{
-	g.map->end();
-	delete g.map;
-
-	shutdown_graphics();
-	shutdown_font();
-	shutdown_video();
-	shutdown_audio();
-
-	delete g.cpa;
-
-	if (SDL_JoystickGetAttached(joy)) {
-		SDL_JoystickClose(joy);
-	}	
 }
 
 } // End namespace Nooskewl_Engine

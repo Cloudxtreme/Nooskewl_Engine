@@ -400,7 +400,6 @@ void shutdown_video()
 	}
 
 	SDL_DestroyWindow(window);
-	SDL_Quit();
 }
 
 void release_graphics()

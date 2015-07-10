@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
 static bool run_main(int argc, char **argv)
 {
-	init_nooskewl_engine(argc, argv);
+	Engine *engine = new Engine(argc, argv);
 
 	MML *music = new MML("title.mml");
 	music->play(true);
@@ -60,7 +60,7 @@ static bool run_main(int argc, char **argv)
 
 	while (quit == false) {
 		// LOGIC
-		if (update_nooskewl_engine() == false) {
+		if (engine->update() == false) {
 			break;
 		}
 
@@ -87,12 +87,12 @@ static bool run_main(int argc, char **argv)
 				event.mouse.y /= 4;
 			}
 
-			nooskewl_engine_handle_event(&event);
+			engine->handle_event(&event);
 
 			gui->handle_event(&event);
 		}
 
-		nooskewl_engine_draw();
+		engine->draw();
 
 		// TIMING
 		// This code is ugly for a reason
@@ -116,7 +116,7 @@ static bool run_main(int argc, char **argv)
 		last_frame = SDL_GetTicks();
 	}
 
-	shutdown_nooskewl_engine();
+	delete engine;
 
 	return true;
 }

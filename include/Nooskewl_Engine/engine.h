@@ -5,11 +5,18 @@
 
 namespace Nooskewl_Engine {
 
-NOOSKEWL_ENGINE_EXPORT void init_nooskewl_engine(int argc, char **argv);
-NOOSKEWL_ENGINE_EXPORT bool update_nooskewl_engine();
-NOOSKEWL_ENGINE_EXPORT void nooskewl_engine_handle_event(TGUI_Event *event);
-NOOSKEWL_ENGINE_EXPORT void nooskewl_engine_draw();
-NOOSKEWL_ENGINE_EXPORT void shutdown_nooskewl_engine();
+class NOOSKEWL_ENGINE_EXPORT Engine {
+public:
+	Engine(int argc, char **argv);
+	~Engine();
+
+	void handle_event(TGUI_Event *event);
+	bool update();
+	void draw();
+
+private:
+	SDL_Joystick *joy;
+};
 
 } // End namespace Nooskewl_Engine
 
