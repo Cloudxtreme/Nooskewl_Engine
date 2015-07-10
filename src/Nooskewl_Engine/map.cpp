@@ -1,8 +1,6 @@
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
-#include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/map.h"
-#include "Nooskewl_Engine/module.h"
 
 using namespace Nooskewl_Engine;
 

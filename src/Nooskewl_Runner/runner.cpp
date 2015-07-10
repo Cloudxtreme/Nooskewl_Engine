@@ -12,7 +12,7 @@ int main(int argc, char **argv)
 		run_main(argc, argv);
 	}
 	catch (Error e) {
-		errormsg("Fatal error: %s\n", e.error_message.c_str());
+		printf("Fatal error: %s\n", e.error_message.c_str());
 		return 1;
 	}
 

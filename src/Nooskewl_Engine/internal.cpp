@@ -1,10 +1,11 @@
 #include "Nooskewl_Engine/internal.h"
-#include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
 
 using namespace Nooskewl_Engine;
 
 namespace Nooskewl_Engine {
+
+Module m;
 
 void load_dll()
 {
@@ -54,5 +55,22 @@ int c99_snprintf(char* str, int size, const char* format, ...)
 }
 
 #endif // _MSC_VER
+
+void errormsg(const char *fmt, ...)
+{
+	va_list v;
+	va_start(v, fmt);
+	printf("ERROR: ");
+	vprintf(fmt, v);
+	va_end(v);
+}
+
+void infomsg(const char *fmt, ...)
+{
+	va_list v;
+	va_start(v, fmt);
+	vprintf(fmt, v);
+	va_end(v);
+}
 
 } // End namespace Nooskewl_Engine
