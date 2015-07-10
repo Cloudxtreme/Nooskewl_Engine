@@ -5,6 +5,8 @@
 
 using namespace Nooskewl_Engine;
 
+namespace Nooskewl_Engine {
+
 void load_dll()
 {
 	List_Directory ld(".\\*.dll");
@@ -25,3 +27,5 @@ void load_dll()
 
 	throw FileNotFoundError("Couldn't find a game DLL!");
 }
+
+} // End namespace Nooskewl_Engine
