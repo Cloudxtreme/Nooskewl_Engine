@@ -6,6 +6,8 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 Font::Font(std::string filename, int size)
 {
 	filename = "fonts/" + filename;

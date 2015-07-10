@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 void load_dll()
 {
 	List_Directory ld(".\\*.dll");

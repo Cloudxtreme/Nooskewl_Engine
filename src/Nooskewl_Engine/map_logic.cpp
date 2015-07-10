@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/map_logic.h"
 
+using namespace Nooskewl_Engine;
+
 void Map_Logic::start(Map *map)
 {
 }

@@ -4,6 +4,8 @@
 #include "Nooskewl_Engine/speech.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 Speech::Speech(std::string text) :
 	text(text),
 	offset(0),

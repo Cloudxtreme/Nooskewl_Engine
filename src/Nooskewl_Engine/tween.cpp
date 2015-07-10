@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/tween.h"
 
+using namespace Nooskewl_Engine;
+
 Tween::Tween() :
 	started(false)
 {

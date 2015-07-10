@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/player_brain.h"
 
+using namespace Nooskewl_Engine;
+
 Player_Brain::Player_Brain()
 {
 }

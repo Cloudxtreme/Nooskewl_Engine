@@ -10,7 +10,7 @@ namespace Nooskewl_Engine {
 
 class Map;
 
-class NOOSKEWL_EXPORT Map_Entity {
+class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
 	Map_Entity(Brain *brain);
 	~Map_Entity();
@@ -53,9 +53,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // MAP_ENTITY_H

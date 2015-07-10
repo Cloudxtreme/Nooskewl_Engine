@@ -1,6 +1,8 @@
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 
+using namespace Nooskewl_Engine;
+
 static int current_id;
 
 Map_Entity::Map_Entity(Brain *brain) :

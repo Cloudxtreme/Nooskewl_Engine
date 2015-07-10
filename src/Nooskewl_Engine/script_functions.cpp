@@ -2,6 +2,8 @@
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/script_functions.h"
 
+using namespace Nooskewl_Engine;
+
 struct Tween {
 	bool (*func)(Tween *tween);
 	void *data;

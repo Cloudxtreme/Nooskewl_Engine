@@ -6,7 +6,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT XML {
+class NOOSKEWL_ENGINE_EXPORT XML {
 public:
 	XML(std::string name, std::string value);
 	XML(std::string filename) throw (Error);
@@ -39,9 +39,5 @@ protected:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // XML_H

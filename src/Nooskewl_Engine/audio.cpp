@@ -4,6 +4,8 @@
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/sample.h"
 
+using namespace Nooskewl_Engine;
+
 static SDL_AudioDeviceID audio_device;
 static std::vector<MML_Internal *> loaded_mml;
 
@@ -82,19 +84,19 @@ void shutdown_audio()
 
 MML::MML(std::string filename)
 {
-	real_mml = new MML_Internal(filename);
-	loaded_mml.push_back(real_mml);
+	internals = new MML_Internal(filename);
+	loaded_mml.push_back(internals);
 }
 
 MML::~MML()
 {
 	for (size_t i = 0; i < loaded_mml.size(); i++) {
-		if (loaded_mml[i] == real_mml) {
+		if (loaded_mml[i] == internals) {
 			loaded_mml.erase(loaded_mml.begin()+i);
 			break;
 		}
 	}
-	delete real_mml;
+	delete internals;
 }
 
 void MML::play(bool loop)
@@ -103,7 +105,7 @@ void MML::play(bool loop)
 		return;
 	}
 
-	std::vector<MML_Internal::Track *> &tracks = real_mml->tracks;
+	std::vector<MML_Internal::Track *> &tracks = internals->tracks;
 
 	for (size_t i = 0; i < tracks.size(); i++) {
 		tracks[i]->play(loop);
@@ -112,7 +114,7 @@ void MML::play(bool loop)
 
 void MML::stop()
 {
-	std::vector<MML_Internal::Track *> &tracks = real_mml->tracks;
+	std::vector<MML_Internal::Track *> &tracks = internals->tracks;
 
 	for (size_t i = 0; i < tracks.size(); i++) {
 		tracks[i]->stop();

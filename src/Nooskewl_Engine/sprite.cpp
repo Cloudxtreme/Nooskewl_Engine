@@ -2,6 +2,8 @@
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/xml.h"
 
+using namespace Nooskewl_Engine;
+
 Sprite::Sprite(std::string xml_filename, std::string image_directory) :
 	started(false),
 	current_animation(""),

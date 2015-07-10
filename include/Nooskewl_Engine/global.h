@@ -35,12 +35,8 @@ struct Global {
 	Map_Entity *player;
 };
 
-NOOSKEWL_EXPORT extern Global g;
+NOOSKEWL_ENGINE_EXPORT extern Global g;
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // GLOBAL_H

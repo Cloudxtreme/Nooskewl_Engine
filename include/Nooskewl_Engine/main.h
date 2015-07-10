@@ -7,9 +7,9 @@
 #pragma warning(disable : 4290)
 
 #ifdef NOOSKEWL_ENGINE_BUILD
-#define NOOSKEWL_EXPORT __declspec(dllexport)
+#define NOOSKEWL_ENGINE_EXPORT __declspec(dllexport)
 #else
-#define NOOSKEWL_EXPORT __declspec(dllimport)
+#define NOOSKEWL_ENGINE_EXPORT __declspec(dllimport)
 #endif
 #endif
 

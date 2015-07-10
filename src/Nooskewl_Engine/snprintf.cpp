@@ -2,6 +2,8 @@
 
 #include "Nooskewl_Engine/internal.h"
 
+using namespace Nooskewl_Engine;
+
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap)
 {
     int count = -1;

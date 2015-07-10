@@ -8,6 +8,8 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 // FIXME: put these something neat
 static SDL_Window *window;
 

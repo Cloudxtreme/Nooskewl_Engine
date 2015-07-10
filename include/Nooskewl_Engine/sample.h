@@ -6,7 +6,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Sample {
+class NOOSKEWL_ENGINE_EXPORT Sample {
 public:
 	Sample(std::string filename) throw (Error);
 	~Sample();
@@ -31,9 +31,5 @@ struct SampleInstance {
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // SAMPLE_H

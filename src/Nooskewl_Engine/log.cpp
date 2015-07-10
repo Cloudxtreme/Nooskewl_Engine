@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/log.h"
 
+using namespace Nooskewl_Engine;
+
 namespace Nooskewl_Engine {
 
 void errormsg(const char *fmt, ...)

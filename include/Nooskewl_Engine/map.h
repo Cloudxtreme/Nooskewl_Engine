@@ -10,7 +10,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Map {
+class NOOSKEWL_ENGINE_EXPORT Map {
 public:
 	Map(std::string map_name) throw (Error);
 	~Map();
@@ -52,9 +52,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // MAP_H

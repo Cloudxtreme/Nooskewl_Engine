@@ -8,7 +8,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Tilemap
+class NOOSKEWL_ENGINE_EXPORT Tilemap
 {
 public:
 	Tilemap(int tile_size, std::string map_filename) throw (Error);
@@ -46,9 +46,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // TILEMAP_H

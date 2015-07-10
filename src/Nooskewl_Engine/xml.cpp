@@ -5,6 +5,8 @@
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 XML::XML(std::string name, std::string value) :
 	ungot(-1),
 	ungotReady(false)

@@ -5,7 +5,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT CPA
+class NOOSKEWL_ENGINE_EXPORT CPA
 {
 public:
 	SDL_RWops *load(std::string filename);
@@ -20,9 +20,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif

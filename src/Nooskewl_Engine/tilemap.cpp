@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 Tilemap::Tilemap(int tile_size, std::string map_filename) :
 	tile_size(tile_size)
 {

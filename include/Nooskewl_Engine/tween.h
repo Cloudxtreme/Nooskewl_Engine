@@ -9,7 +9,7 @@ namespace Nooskewl_Engine {
 class Tween;
 typedef std::vector< DLList<Tween *> * > Tweens;
 
-class NOOSKEWL_EXPORT Tween {
+class NOOSKEWL_ENGINE_EXPORT Tween {
 public:
 	bool started;
 	Uint32 start_time;
@@ -24,9 +24,5 @@ public:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // TWEEN_H

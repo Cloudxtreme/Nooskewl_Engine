@@ -7,7 +7,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Sprite {
+class NOOSKEWL_ENGINE_EXPORT Sprite {
 public:
 	Sprite(std::string xml_filename, std::string image_directory) throw (Error);
 	Sprite(std::string directory_name) throw (Error);
@@ -42,9 +42,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // SPRITE_H

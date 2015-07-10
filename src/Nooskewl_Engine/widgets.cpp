@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
 
+using namespace Nooskewl_Engine;
+
 static void draw_focus(TGUI_Widget *widget)
 {
 	float f = (SDL_GetTicks() % 1000) / 1000.0f;

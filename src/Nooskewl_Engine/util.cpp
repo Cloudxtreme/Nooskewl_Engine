@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 namespace Nooskewl_Engine {
 
 int SDL_fgetc(SDL_RWops *file)

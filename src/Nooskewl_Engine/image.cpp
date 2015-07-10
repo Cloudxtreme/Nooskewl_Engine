@@ -9,6 +9,8 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 static std::vector<Image_Internals *> loaded_images;
 
 struct TGA_Header {

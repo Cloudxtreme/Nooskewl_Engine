@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/dllist.h"
 
+using namespace Nooskewl_Engine;
+
 template<typename T> DLList_Node<T>::DLList_Node(T data) :
 	prev(0),
 	next(0),

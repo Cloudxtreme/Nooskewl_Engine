@@ -4,6 +4,8 @@
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 Sample::Sample(std::string filename)
 {
 	filename = "samples/" + filename;

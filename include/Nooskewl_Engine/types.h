@@ -366,8 +366,4 @@ public:
 
 } // End namespace Nooskewl_Engine
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
-
 #endif // TYPES_H

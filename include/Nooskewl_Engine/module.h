@@ -9,6 +9,8 @@
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 
+namespace Nooskewl_Engine {
+
 struct Module {
 	Map_Logic_Getter get_map_logic;
 	// audio
@@ -24,6 +26,8 @@ struct Module {
 };
 
 extern Module m;
+
+} // End namespace Nooskewl_Engine
 
 #endif
 

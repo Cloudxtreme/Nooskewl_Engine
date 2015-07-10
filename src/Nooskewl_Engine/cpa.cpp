@@ -1,6 +1,8 @@
 #include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 SDL_RWops *CPA::load(std::string filename)
 {
 	if (!exists(filename)) {

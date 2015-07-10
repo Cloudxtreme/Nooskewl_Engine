@@ -8,6 +8,8 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 static Image *window_image;
 static Sprite *speech_arrow;
 

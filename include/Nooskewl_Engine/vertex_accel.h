@@ -8,7 +8,7 @@ namespace Nooskewl_Engine {
 
 class Image;
 
-class NOOSKEWL_EXPORT Vertex_Accel {
+class NOOSKEWL_ENGINE_EXPORT Vertex_Accel {
 public:
 	Vertex_Accel();
 	~Vertex_Accel();
@@ -35,9 +35,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // VERTEX_ACCEL_H

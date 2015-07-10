@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
+using namespace Nooskewl_Engine;
+
 static SDL_Joystick *joy;
 
 namespace Nooskewl_Engine {

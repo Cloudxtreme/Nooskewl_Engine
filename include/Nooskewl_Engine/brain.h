@@ -5,7 +5,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Brain {
+class NOOSKEWL_ENGINE_EXPORT Brain {
 public:
 	bool l, r, u, d, b1;
 
@@ -16,9 +16,5 @@ public:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // BRAIN_H

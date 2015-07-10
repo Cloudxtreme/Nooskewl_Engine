@@ -5,6 +5,8 @@
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 Map::Map(std::string map_name) :
 	offset(0, 0),
 	speech(NULL),

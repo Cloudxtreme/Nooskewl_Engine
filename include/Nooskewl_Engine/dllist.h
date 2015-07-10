@@ -89,8 +89,4 @@ template<typename T> struct DLList {
 
 } // End namespace Nooskewl_Engine
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
-
 #endif // DLLIST_H

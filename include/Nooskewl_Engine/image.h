@@ -10,9 +10,9 @@ namespace Nooskewl_Engine {
 
 struct Image_Internals;
 
-class NOOSKEWL_EXPORT Image {
+class NOOSKEWL_ENGINE_EXPORT Image {
 public:
-	friend class NOOSKEWL_EXPORT Vertex_Accel;
+	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Accel;
 
 	enum Flags {
 		FLIP_H = 1,
@@ -71,9 +71,5 @@ struct Image_Internals {
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif IMAGE_H

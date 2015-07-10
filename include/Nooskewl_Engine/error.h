@@ -5,7 +5,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT Error {
+class NOOSKEWL_ENGINE_EXPORT Error {
 public:
 	std::string error_message;
 	Error() {}

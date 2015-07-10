@@ -5,7 +5,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT SS_Widget : public TGUI_Widget {
+class NOOSKEWL_ENGINE_EXPORT SS_Widget : public TGUI_Widget {
 public:
 	SS_Widget(int w, int h);
 	SS_Widget(float percent_w, float percent_h);
@@ -21,9 +21,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // WIDGETS_H

@@ -7,14 +7,14 @@
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 
+namespace Nooskewl_Engine {
+
 typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
 void load_dll() throw (Error);
 
-#endif
+} // End namespace Nooskewl_Engine
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
 #endif
 
 #endif // LOAD_DLL_H

@@ -9,7 +9,7 @@ namespace Nooskewl_Engine {
 
 class Image;
 
-class NOOSKEWL_EXPORT Font {
+class NOOSKEWL_ENGINE_EXPORT Font {
 public:
 	static const int CHAR_DELAY = 50; // ms, for wrapped drawing with advancing text
 
@@ -39,9 +39,5 @@ private:
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // FONT_H

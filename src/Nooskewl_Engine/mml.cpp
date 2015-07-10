@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/module.h"
 #include "Nooskewl_Engine/util.h"
 
+using namespace Nooskewl_Engine;
+
 #define TWOPI (2.0f * PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((short)(f*32767))

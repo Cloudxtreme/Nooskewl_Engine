@@ -6,6 +6,8 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
+using namespace Nooskewl_Engine;
+
 Vertex_Accel::Vertex_Accel() :
 	vertices(NULL),
 	count(0),

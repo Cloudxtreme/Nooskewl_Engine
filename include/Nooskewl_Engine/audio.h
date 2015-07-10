@@ -5,7 +5,7 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_EXPORT MML {
+class NOOSKEWL_ENGINE_EXPORT MML {
 public:
 	MML(std::string filename) throw (Error);
 	~MML();
@@ -14,13 +14,9 @@ public:
 	void stop();
 
 private:
-	MML_Internal *real_mml;
+	MML_Internal *internals;
 };
 
 } // End namespace Nooskewl_Engine
-
-#ifdef NOOSKEWL_ENGINE_BUILD
-using namespace Nooskewl_Engine;
-#endif
 
 #endif // AUDIO_H
