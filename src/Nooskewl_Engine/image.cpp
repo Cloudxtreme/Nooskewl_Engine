@@ -11,7 +11,7 @@
 
 using namespace Nooskewl_Engine;
 
-static std::vector<Image_Internals *> loaded_images;
+std::vector<Image::Internal *> Image::loaded_images;
 
 struct TGA_Header {
 	char idlength;
@@ -125,7 +125,7 @@ Image::Image(SDL_Surface *surface) :
 	h = surface->h;
 
 	try {
-		internals = new Image_Internals(pixels, w, h);
+		internal = new Internal(pixels, w, h);
 	}
 	catch (Error e) {
 		if (tmp) SDL_FreeSurface(tmp);
@@ -143,12 +143,12 @@ Image::~Image()
 void Image::release()
 {
 	if (filename == "--FROM SURFACE--") {
-		delete internals;
+		delete internal;
 		return;
 	}
 
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		Image_Internals *ii = loaded_images[i];
+		Internal *ii = loaded_images[i];
 		if (ii->filename == filename) {
 			ii->refcount--;
 			if (ii->refcount == 0) {
@@ -167,20 +167,20 @@ void Image::reload()
 	}
 
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		Image_Internals *ii = loaded_images[i];
+		Internal *ii = loaded_images[i];
 		if (ii->filename == filename) {
 			ii->refcount++;
-			internals = ii;
-			w = internals->w;
-			h = internals->h;
+			internal = ii;
+			w = internal->w;
+			h = internal->h;
 			return;
 		}
 	}
 
-	internals = new Image_Internals(filename);
-	w = internals->w;
-	h = internals->h;
-	loaded_images.push_back(internals);
+	internal = new Internal(filename);
+	w = internal->w;
+	h = internal->h;
+	loaded_images.push_back(internal);
 }
 
 void Image::start()
@@ -243,26 +243,26 @@ void Image::reload_all()
 	}
 }
 
-Image_Internals::Image_Internals(std::string filename) :
+Image::Internal::Internal(std::string filename) :
 	filename(filename),
 	refcount(1)
 {
 	reload();
 }
 
-Image_Internals::Image_Internals(unsigned char *pixels, int w, int h) :
+Image::Internal::Internal(unsigned char *pixels, int w, int h) :
 	w(w),
 	h(h)
 {
 	upload(pixels);
 }
 
-Image_Internals::~Image_Internals()
+Image::Internal::~Internal()
 {
 	release();
 }
 
-void Image_Internals::release()
+void Image::Internal::release()
 {
 	if (g.graphics.opengl) {
 		glDeleteTextures(1, &texture);
@@ -276,7 +276,7 @@ void Image_Internals::release()
 #endif
 }
 
-void Image_Internals::reload()
+void Image::Internal::reload()
 {
 	SDL_RWops *file = open_file(filename);
 
@@ -408,7 +408,7 @@ void Image_Internals::reload()
 	SDL_RWclose(file);
 }
 
-void Image_Internals::upload(unsigned char *pixels)
+void Image::Internal::upload(unsigned char *pixels)
 {
 	if (g.graphics.opengl) {
 		glGenVertexArrays(1, &vao);

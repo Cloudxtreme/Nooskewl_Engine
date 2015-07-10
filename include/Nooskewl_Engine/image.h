@@ -8,7 +8,7 @@
 
 namespace Nooskewl_Engine {
 
-struct Image_Internals;
+struct Internal;
 
 class NOOSKEWL_ENGINE_EXPORT Image {
 public:
@@ -44,30 +44,32 @@ public:
 	void draw_single(Point<int> dest_position, int flags = 0);
 
 private:
-	Image_Internals *internals;
-
 	bool loaded;
-};
 
-struct Image_Internals {
-	Image_Internals(std::string filename);
-	Image_Internals(unsigned char *pixels, int w, int h);
-	~Image_Internals();
+	struct Internal {
+		Internal(std::string filename);
+		Internal(unsigned char *pixels, int w, int h);
+		~Internal();
 
-	void release();
-	void reload();
-	void upload(unsigned char *pixels);
+		void release();
+		void reload();
+		void upload(unsigned char *pixels);
 
-	std::string filename;
-	int w, h;
-	int refcount;
+		std::string filename;
+		int w, h;
+		int refcount;
 
-#ifdef _MSC_VER
-	LPDIRECT3DTEXTURE9 video_texture;
-#endif
-	GLuint vao;
-	GLuint vbo;
-	GLuint texture;
+	#ifdef _MSC_VER
+		LPDIRECT3DTEXTURE9 video_texture;
+	#endif
+		GLuint vao;
+		GLuint vbo;
+		GLuint texture;
+	};
+
+	static std::vector<Internal *> loaded_images;
+
+	Internal *internal;
 };
 
 } // End namespace Nooskewl_Engine

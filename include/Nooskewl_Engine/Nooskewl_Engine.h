@@ -1,7 +1,6 @@
 #ifndef NOOSKEWL_ENGINE_H
 #define NOOSKEWL_ENGINE_H
 
-#include "Nooskewl_Engine/audio.h"
 #include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/dllist.h"
@@ -33,4 +32,4 @@
 #include "Nooskewl_Engine/widgets.h"
 #include "Nooskewl_Engine/xml.h"
 
-#endif // NOOSKEWL_ENGINE_H
+#endif // NOOSKEWL_ENGINE_HNooskewl_Engine.h

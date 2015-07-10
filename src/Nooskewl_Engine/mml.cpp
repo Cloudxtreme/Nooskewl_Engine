@@ -5,6 +5,8 @@
 
 using namespace Nooskewl_Engine;
 
+std::vector<MML::Internal *> MML::loaded_mml;
+
 #define TWOPI (2.0f * PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((short)(f*32767))
@@ -111,7 +113,7 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 	return total;
 }
 
-MML_Internal::Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
+MML::Internal::Track::Track(Type type, std::string audio, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
 	type(type),
 	audio(audio),
 	volumes(volumes),
@@ -124,11 +126,11 @@ MML_Internal::Track::Track(Type type, std::string audio, std::vector< std::pair<
 {
 }
 
-MML_Internal::Track::~Track()
+MML::Internal::Track::~Track()
 {
 }
 
-void MML_Internal::Track::play(bool loop)
+void MML::Internal::Track::play(bool loop)
 {
 	playing = true;
 
@@ -137,12 +139,12 @@ void MML_Internal::Track::play(bool loop)
 	reset();
 }
 
-void MML_Internal::Track::stop()
+void MML::Internal::Track::stop()
 {
 	playing = false;
 }
 
-bool MML_Internal::Track::update(short *buf, int length)
+bool MML::Internal::Track::update(short *buf, int length)
 {
 	if (done) {
 		return false;
@@ -205,12 +207,12 @@ bool MML_Internal::Track::update(short *buf, int length)
 	return true;
 }
 
-bool MML_Internal::Track::is_playing()
+bool MML::Internal::Track::is_playing()
 {
 	return playing;
 }
 
-void MML_Internal::Track::reset()
+void MML::Internal::Track::reset()
 {
 	dutycycle = 0.5f;
 	octave = 4;
@@ -231,7 +233,7 @@ void MML_Internal::Track::reset()
 	done = false;
 }
 
-void MML_Internal::Track::pulse(short *buf, size_t samples, float t, float frequency, float phase)
+void MML::Internal::Track::pulse(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -255,7 +257,7 @@ void MML_Internal::Track::pulse(short *buf, size_t samples, float t, float frequ
 	}
 }
 
-void MML_Internal::Track::noise(short *buf, size_t samples, float t, float frequency, float phase)
+void MML::Internal::Track::noise(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -275,7 +277,7 @@ void MML_Internal::Track::noise(short *buf, size_t samples, float t, float frequ
 	}
 }
 
-void MML_Internal::Track::sawtooth(short *buf, size_t samples, float t, float frequency, float phase)
+void MML::Internal::Track::sawtooth(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -291,7 +293,7 @@ void MML_Internal::Track::sawtooth(short *buf, size_t samples, float t, float fr
 	}
 }
 
-void MML_Internal::Track::sine(short *buf, size_t samples, float t, float frequency, float phase)
+void MML::Internal::Track::sine(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -305,7 +307,7 @@ void MML_Internal::Track::sine(short *buf, size_t samples, float t, float freque
 	}
 }
 
-void MML_Internal::Track::triangle(short *buf, size_t samples, float t, float frequency, float phase)
+void MML::Internal::Track::triangle(short *buf, size_t samples, float t, float frequency, float phase)
 {
 	unsigned i;
 
@@ -324,7 +326,7 @@ void MML_Internal::Track::triangle(short *buf, size_t samples, float t, float fr
 	}
 }
 
-void MML_Internal::Track::generate(short *buf, int samples, float t, const char *tok, int octave)
+void MML::Internal::Track::generate(short *buf, int samples, float t, const char *tok, int octave)
 {
 	char c = tok[0];
 	int index = 0;
@@ -360,7 +362,7 @@ void MML_Internal::Track::generate(short *buf, int samples, float t, const char 
 	};
 }
 
-float MML_Internal::Track::get_frequency(float start_freq)
+float MML::Internal::Track::get_frequency(float start_freq)
 {
 	int pitch = pitches[note];
 	if (pitch == -1) {
@@ -377,7 +379,7 @@ float MML_Internal::Track::get_frequency(float start_freq)
 	return (pitch_envelopes[pitch][i] * p2) + (start_freq * (1.0f - p2));
 }
 
-float MML_Internal::Track::get_volume()
+float MML::Internal::Track::get_volume()
 {
 	while (volume_section < (int)volumes.size()-1 && sample > volumes[volume_section+1].first) {
 		volume_section++;
@@ -391,7 +393,7 @@ float MML_Internal::Track::get_volume()
 	}
 }
 
-float MML_Internal::Track::get_dutycycle()
+float MML::Internal::Track::get_dutycycle()
 {
 	while (dutycycle_section < (int)dutycycles.size()-1 && sample > dutycycles[dutycycle_section+1].first) {
 		dutycycle_section++;
@@ -405,7 +407,7 @@ float MML_Internal::Track::get_dutycycle()
 	}
 }
 
-std::string MML_Internal::Track::next_note(const char *audio, int *pos)
+std::string MML::Internal::Track::next_note(const char *audio, int *pos)
 {
 	std::string result;
 	bool done = false;
@@ -458,7 +460,7 @@ std::string MML_Internal::Track::next_note(const char *audio, int *pos)
 }
 
 // adds waits to length
-int MML_Internal::Track::notelength(const char *tok, const char *audio, int *pos)
+int MML::Internal::Track::notelength(const char *tok, const char *audio, int *pos)
 {
 	char ch = *tok;
 	int total = onenotelength(tok, note_length, tempo, octave, note, 'z', pitches, pitch_envelopes); // z == nothing never used
@@ -473,7 +475,7 @@ int MML_Internal::Track::notelength(const char *tok, const char *audio, int *pos
 	return total;
 }
 
-MML_Internal::MML_Internal(std::string filename)
+MML::Internal::Internal(std::string filename)
 {
 	filename = "mml/" + filename;
 
@@ -730,28 +732,70 @@ MML_Internal::MML_Internal(std::string filename)
 	}
 
 	for (size_t i = 0; i < tracks_s.size(); i++) {
-		tracks.push_back(new Track(MML_Internal::Track::PULSE, tracks_s[i], volumes[i], pitches[i], pitch_envelopes, dutycycles[i], longest-sample[i]));
+		tracks.push_back(new Track(MML::Internal::Track::PULSE, tracks_s[i], volumes[i], pitches[i], pitch_envelopes, dutycycles[i], longest-sample[i]));
 	}
 }
 
-MML_Internal::~MML_Internal()
+MML::Internal::~Internal()
 {
 	for (size_t i =  0; i < tracks.size(); i++) {
 		delete tracks[i];
 	}
 }
 
-void MML_Internal::mix(Uint8 *buf, int stream_length)
+void MML::mix(Uint8 *buf, int stream_length)
 {
 	Uint8 *tmp = new Uint8[stream_length];
 
-	for (size_t track = 0; track < tracks.size(); track++) {
-		if (tracks[track]->is_playing()) {
-			if (tracks[track]->update((short *)tmp, stream_length/2)) {
-				SDL_MixAudioFormat(buf, tmp, m.device_spec.format, stream_length, 16);
+	for (size_t i = 0; i < loaded_mml.size(); i++) {
+		std::vector<Internal::Track *> &tracks = loaded_mml[i]->tracks;
+		for (size_t track = 0; track < tracks.size(); track++) {
+			if (tracks[track]->is_playing()) {
+				if (tracks[track]->update((short *)tmp, stream_length/2)) {
+					SDL_MixAudioFormat(buf, tmp, m.device_spec.format, stream_length, 16);
+				}
 			}
 		}
 	}
 
 	delete[] tmp;
+}
+
+MML::MML(std::string filename)
+{
+	internal = new MML::Internal(filename);
+	loaded_mml.push_back(internal);
+}
+
+MML::~MML()
+{
+	for (size_t i = 0; i < loaded_mml.size(); i++) {
+		if (loaded_mml[i] == internal) {
+			loaded_mml.erase(loaded_mml.begin()+i);
+			break;
+		}
+	}
+	delete internal;
+}
+
+void MML::play(bool loop)
+{
+	if (g.audio.mute) {
+		return;
+	}
+
+	std::vector<MML::Internal::Track *> &tracks = internal->tracks;
+
+	for (size_t i = 0; i < tracks.size(); i++) {
+		tracks[i]->play(loop);
+	}
+}
+
+void MML::stop()
+{
+	std::vector<MML::Internal::Track *> &tracks = internal->tracks;
+
+	for (size_t i = 0; i < tracks.size(); i++) {
+		tracks[i]->stop();
+	}
 }

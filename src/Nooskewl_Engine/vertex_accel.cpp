@@ -45,9 +45,9 @@ void Vertex_Accel::start(Image *image)
 	this->image = image;
 
 	if (g.graphics.opengl) {
-		glBindVertexArray(image->internals->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, image->internals->vbo);
-		glBindTexture(GL_TEXTURE_2D, image->internals->texture);
+		glBindVertexArray(image->internal->vao);
+		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
+		glBindTexture(GL_TEXTURE_2D, image->internal->texture);
 	}
 #ifdef _MSC_VER
 	else {
@@ -55,9 +55,9 @@ void Vertex_Accel::start(Image *image)
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetFVF(FVF);
 		m.effect->SetBool("use_tex", true);
-		m.effect->SetTexture("tex", image->internals->video_texture);
+		m.effect->SetTexture("tex", image->internal->video_texture);
 		m.effect->Begin(&required_passes, 0);
-		m.d3d_device->SetTexture(0, image->internals->video_texture);
+		m.d3d_device->SetTexture(0, image->internal->video_texture);
 	}
 #endif
 }
