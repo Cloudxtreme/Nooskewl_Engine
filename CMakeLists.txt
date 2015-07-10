@@ -24,7 +24,6 @@ if(WIN32)
 endif()
 
 set(LIB_SRC
-	src/Nooskewl_Engine/audio.cpp
 	src/Nooskewl_Engine/brain.cpp
 	src/Nooskewl_Engine/cpa.cpp
 	src/Nooskewl_Engine/engine.cpp

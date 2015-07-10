@@ -54,11 +54,15 @@ public:
 	void load_palette(std::string name);
 
 private:
-	void init_video(int argc, char **argv);
+	void init_video();
 	void shutdown_video();
+	void init_audio();
+	void shutdown_audio();
 	void load_fonts();
 
 	SDL_Window *window;
+
+	bool vsync;
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
@@ -74,6 +78,8 @@ private:
 	SDL_Joystick *joy;
 	Image *window_image;
 	Sprite *speech_arrow;
+
+	SDL_AudioDeviceID audio_device;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
