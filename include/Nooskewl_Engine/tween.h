@@ -4,20 +4,29 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/dllist.h"
 
-class EXPORT Tween {
-public:
-	bool started;
-	Uint32 start_time;
+namespace Nooskewl_Engine {
 
-	Tween();
-	virtual ~Tween();
+	class Tween;
+	typedef std::vector< DLList<Tween *> * > Tweens;
 
-	virtual bool update(Tween *tween) = 0;
-};
+	class EXPORT Tween {
+	public:
+		bool started;
+		Uint32 start_time;
 
-typedef std::vector< DLList<Tween *> * > Tweens;
+		Tween();
+		virtual ~Tween();
 
-EXPORT void update_tweens(Tweens tweens);
-EXPORT void destroy_tweens(Tweens tweens);
+		virtual bool update(Tween *tween) = 0;
+
+		static void update_tweens(Tweens tweens);
+		static void destroy_tweens(Tweens tweens);
+	};
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // TWEEN_H

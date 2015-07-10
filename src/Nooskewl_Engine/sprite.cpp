@@ -1,4 +1,3 @@
-#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/xml.h"
@@ -26,7 +25,7 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory) :
 			std::string filename = image_directory + "/" + anim->get_name() + "/" + itos(count) + ".tga";
 			Image *image;
 			try {
-				image = reference_image(filename, true);
+				image = new Image(filename, true);
 			}
 			catch (Error e) {
 				break;
@@ -91,7 +90,7 @@ Sprite::~Sprite()
 		std::pair<std::string, Animation *> p = *it;
 		Animation *a = p.second;
 		for (size_t i = 0; i < a->images.size(); i++) {
-			release_image(a->images[i]);
+			delete a->images[i];
 		}
 	}
 }

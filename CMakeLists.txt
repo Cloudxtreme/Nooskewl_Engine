@@ -40,7 +40,6 @@ set(LIB_SRC
 	src/Nooskewl_Engine/mml.cpp
 	src/Nooskewl_Engine/module.cpp
 	src/Nooskewl_Engine/player_brain.cpp
-	src/Nooskewl_Engine/resource_manager.cpp
 	src/Nooskewl_Engine/sample.cpp
 	src/Nooskewl_Engine/snprintf.cpp
 	src/Nooskewl_Engine/speech.cpp
@@ -59,7 +58,7 @@ set(RUNNER_SRC
 )
 
 add_library(Nooskewl_Engine SHARED ${LIB_SRC})
-set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DLIB_BUILD")
+set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DNOOSKEWL_ENGINE_BUILD")
 target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main glew32 zlib opengl32 d3d9 d3dx9 winmm)
 
 add_executable(Nooskewl_Runner ${RUNNER_SRC})

@@ -8,45 +8,53 @@
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/types.h"
 
-class EXPORT Map {
-public:
-	Map(std::string map_name) throw (Error);
-	~Map();
+namespace Nooskewl_Engine {
 
-	void start();
-	void end();
+	class EXPORT Map {
+	public:
+		Map(std::string map_name) throw (Error);
+		~Map();
 
-	void add_entity(Map_Entity *entity);
-	void add_speeches(std::vector<std::string> &speeches);
-	void change_map(std::string map_name, Point<int> position, Direction direction);
+		void start();
+		void end();
 
-	bool is_solid(int layer, Point<int> position, Size<int> size);
-	void check_triggers(Map_Entity *entity);
-	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
-	Map_Entity *get_entity(int id);
-	std::string get_map_name();
+		void add_entity(Map_Entity *entity);
+		void add_speeches(std::vector<std::string> &speeches);
+		void change_map(std::string map_name, Point<int> position, Direction direction);
 
-	void handle_event(TGUI_Event *event);
-	void update_camera();
-	bool update();
-	void draw();
+		bool is_solid(int layer, Point<int> position, Size<int> size);
+		void check_triggers(Map_Entity *entity);
+		void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
+		Map_Entity *get_entity(int id);
+		std::string get_map_name();
 
-private:
-	void init(std::string map_name);
+		void handle_event(TGUI_Event *event);
+		void update_camera();
+		bool update();
+		void draw();
 
-	Tilemap *tilemap;
-	Point<int> offset;
-	std::vector<Map_Entity *> entities;
+	private:
+		void init(std::string map_name);
 
-	std::vector<std::string> speeches;
-	Speech *speech;
+		Tilemap *tilemap;
+		Point<int> offset;
+		std::vector<Map_Entity *> entities;
 
-	std::string map_name;
-	std::string new_map_name;
-	Point<int> new_map_position;
-	Direction new_map_direction;
+		std::vector<std::string> speeches;
+		Speech *speech;
 
-	Map_Logic *ml;
-};
+		std::string map_name;
+		std::string new_map_name;
+		Point<int> new_map_position;
+		Direction new_map_direction;
+
+		Map_Logic *ml;
+	};
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // MAP_H

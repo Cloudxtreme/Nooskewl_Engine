@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
+using namespace Nooskewl_Engine;
+
 const Uint32 TICKS_PER_FRAME = (1000 / 60);
 
 bool run_main(int argc, char **argv);

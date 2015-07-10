@@ -3,12 +3,19 @@
 
 #include "Nooskewl_Engine/main.h"
 
-class EXPORT Error {
-public:
-	std::string error_message;
-	Error() {}
-	Error(std::string error_message) : error_message(error_message) {}
-};
+namespace Nooskewl_Engine {
+
+	class EXPORT Error {
+	public:
+		std::string error_message;
+		Error() {}
+		Error(std::string error_message) : error_message(error_message) {}
+	};
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
 
 class MemoryError : public Error {
 public:
@@ -37,5 +44,7 @@ public:
 		this->error_message = "OpenGL error: " + error_message;
 	}
 };
+
+#endif
 
 #endif // EXCEPTIONS_H

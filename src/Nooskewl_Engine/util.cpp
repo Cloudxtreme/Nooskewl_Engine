@@ -3,6 +3,8 @@
 #include "Nooskewl_Engine/snprintf.h"
 #include "Nooskewl_Engine/util.h"
 
+namespace Nooskewl_Engine {
+
 int SDL_fgetc(SDL_RWops *file)
 {
 	unsigned char c;
@@ -67,6 +69,8 @@ bool check_args(int argc, char **argv, std::string arg)
 	}
 	return false;
 }
+
+} // End namespace Nooskewl_Engine
 
 #ifdef _MSC_VER
 List_Directory::List_Directory(std::string glob) :

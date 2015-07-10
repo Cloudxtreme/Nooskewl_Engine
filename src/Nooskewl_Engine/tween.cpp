@@ -9,7 +9,7 @@ Tween::~Tween()
 {
 }
 
-void update_tweens(Tweens tweens)
+void Tween::update_tweens(Tweens tweens)
 {
 	std::vector< DLList<Tween *> *>::iterator it;
 	for (it = tweens.begin(); it != tweens.end();) {
@@ -34,7 +34,7 @@ void update_tweens(Tweens tweens)
 	}
 }
 
-void destroy_tweens(Tweens tweens)
+void Tween::destroy_tweens(Tweens tweens)
 {
 	for (size_t i = 0; i < tweens.size(); i++) {
 		delete tweens[i];

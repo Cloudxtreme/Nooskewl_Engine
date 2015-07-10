@@ -3,18 +3,26 @@
 
 #include "Nooskewl_Engine/main.h"
 
-class EXPORT CPA
-{
-public:
-	SDL_RWops *load(std::string filename);
-	bool exists(std::string filename);
+namespace Nooskewl_Engine {
 
-	CPA();
-	~CPA();
+	class EXPORT CPA
+	{
+	public:
+		SDL_RWops *load(std::string filename);
+		bool exists(std::string filename);
 
-private:
-	uint8_t *bytes;
-	std::map< std::string, std::pair<int, int> > info; // offset, size
-};
+		CPA();
+		~CPA();
+
+	private:
+		uint8_t *bytes;
+		std::map< std::string, std::pair<int, int> > info; // offset, size
+	};
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif

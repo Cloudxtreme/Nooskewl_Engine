@@ -6,7 +6,7 @@
 #pragma warning(disable : 4251)
 #pragma warning(disable : 4290)
 
-#ifdef LIB_BUILD
+#ifdef NOOSKEWL_ENGINE_BUILD
 #define EXPORT __declspec(dllexport)
 #else
 #define EXPORT __declspec(dllimport)
@@ -34,7 +34,6 @@
 #ifdef _MSC_VER
 #include <d3d9.h>
 #include <d3dx9.h>
-#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
 #include <SDL/SDL_opengl.h>
@@ -54,16 +53,26 @@
 
 #include <tgui3.h>
 
+#ifdef NOOSKEWL_ENGINE_BUILD
+
+#ifdef _MSC_VER
+#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+#endif
+
 #define PI ((float)M_PI)
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-enum Direction {
-	N = 1,
-	S,
-	E,
-	W
-};
+#endif
+
+namespace Nooskewl_Engine {
+	enum Direction {
+		N = 1,
+		S,
+		E,
+		W
+	};
+}
 
 #endif // STARSQUATTERS_H

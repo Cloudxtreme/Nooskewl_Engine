@@ -5,9 +5,6 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
-// FIXME:
-extern GLuint current_shader;
-
 Vertex_Accel::Vertex_Accel() :
 	vertices(NULL),
 	count(0),
@@ -24,24 +21,6 @@ Vertex_Accel::~Vertex_Accel()
 void Vertex_Accel::init()
 {
 	maybe_resize_buffer(256);
-}
-
-void Vertex_Accel::init_new_texture()
-{
-	if (g.graphics.opengl) {
-		// Specify the layout of the vertex data
-		GLint posAttrib = glGetAttribLocation(current_shader, "in_position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-
-		GLint texcoordAttrib = glGetAttribLocation(current_shader, "in_texcoord");
-		glEnableVertexAttribArray(texcoordAttrib);
-		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-		GLint colAttrib = glGetAttribLocation(current_shader, "in_colour");
-		glEnableVertexAttribArray(colAttrib);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
-	}
 }
 
 void Vertex_Accel::start()
@@ -62,15 +41,20 @@ void Vertex_Accel::start(Image *image)
 {
 	this->image = image;
 
+	if (g.graphics.opengl) {
+		glBindVertexArray(image->internals->vao);
+		glBindBuffer(GL_ARRAY_BUFFER, image->internals->vbo);
+		glBindTexture(GL_TEXTURE_2D, image->internals->texture);
+	}
 #ifdef _MSC_VER
-	if (g.graphics.opengl == false) {
+	else {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetFVF(FVF);
 		m.effect->SetBool("use_tex", true);
-		m.effect->SetTexture("tex", image->video_texture);
+		m.effect->SetTexture("tex", image->internals->video_texture);
 		m.effect->Begin(&required_passes, 0);
-		m.d3d_device->SetTexture(0, image->video_texture);
+		m.d3d_device->SetTexture(0, image->internals->video_texture);
 	}
 #endif
 }
@@ -78,7 +62,7 @@ void Vertex_Accel::start(Image *image)
 void Vertex_Accel::end()
 {
 	if (g.graphics.opengl) {
-		GLint use_tex = glGetUniformLocation(current_shader, "use_tex");
+		GLint use_tex = glGetUniformLocation(m.current_shader, "use_tex");
 		if (image) {
 			glUniform1i(use_tex, true);
 		}

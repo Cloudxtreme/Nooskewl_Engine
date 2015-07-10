@@ -4,28 +4,36 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/error.h"
 
-class EXPORT Sample {
-public:
-	Sample(std::string filename) throw (Error);
-	~Sample();
+namespace Nooskewl_Engine {
 
-	static void update();
+	class EXPORT Sample {
+	public:
+		Sample(std::string filename) throw (Error);
+		~Sample();
 
-	bool play(float volume, bool loop);
+		static void update();
 
-private:
-	SDL_AudioSpec *spec;
-	Uint8 *data;
-	Uint32 length;
-};
+		bool play(float volume, bool loop);
 
-struct SampleInstance {
-	SDL_AudioSpec *spec;
-	Uint8 *data;
-	Uint32 length;
-	Uint32 offset;
-	bool loop;
-	float volume;
-};
+	private:
+		SDL_AudioSpec *spec;
+		Uint8 *data;
+		Uint32 length;
+	};
+
+	struct SampleInstance {
+		SDL_AudioSpec *spec;
+		Uint8 *data;
+		Uint32 length;
+		Uint32 offset;
+		bool loop;
+		float volume;
+	};
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // SAMPLE_H

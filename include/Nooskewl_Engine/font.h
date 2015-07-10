@@ -5,40 +5,52 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/types.h"
 
-class Image;
+namespace Nooskewl_Engine {
 
-class EXPORT Font {
-public:
-	static const int CHAR_DELAY = 50; // ms, for wrapped drawing with advancing text
+	class Image;
 
-	Font(std::string filename, int size) throw (Error);
-	~Font();
+	class EXPORT Font {
+	public:
+		static const int CHAR_DELAY = 50; // ms, for wrapped drawing with advancing text
 
-	void clear_cache();
+		Font(std::string filename, int size) throw (Error);
+		~Font();
 
-	int get_width(std::string text);
+		void clear_cache();
 
-	void draw(std::string text, Point<int> dest_position, SDL_Color colour);
-	// Returns number of characters drawn
-	int draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
+		int get_width(std::string text);
 
-private:
-	struct Glyph {
-		Image *image;
-		SDL_Color colour;
+		void draw(std::string text, Point<int> dest_position, SDL_Color colour);
+		// Returns number of characters drawn
+		int draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
+
+	private:
+		struct Glyph {
+			Image *image;
+			SDL_Color colour;
+		};
+
+		void cache(int ch, SDL_Color colour);
+		void cache(std::string text, SDL_Color colour);
+
+		SDL_RWops *file;
+		TTF_Font *font;
+		std::multimap<int, Glyph *> glyphs;
 	};
 
-	void cache(int ch, SDL_Color colour);
-	void cache(std::string text, SDL_Color colour);
+}
 
-	SDL_RWops *file;
-	TTF_Font *font;
-	std::multimap<int, Glyph *> glyphs;
-};
+#ifdef NOOSKEWL_ENGINE_BUILD
 
 void load_fonts() throw (Error);
 void release_fonts();
 void init_font() throw (Error);
 void shutdown_font();
+
+#endif
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // FONT_H

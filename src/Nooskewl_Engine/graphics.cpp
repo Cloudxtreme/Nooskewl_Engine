@@ -2,7 +2,6 @@
 #include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/log.h"
-#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
@@ -11,81 +10,7 @@
 static Image *window_image;
 static Sprite *speech_arrow;
 
-void init_graphics()
-{
-	// FIXME: exceptions!
-	try {
-		window_image = reference_image("window.tga");
-		speech_arrow = new Sprite("speech_arrow");
-		speech_arrow->start();
-		load_palette("nes.gpl");
-	}
-	catch (Error e) {
-		delete window_image;
-		window_image = NULL;
-		throw e;
-	}
-}
-
-void shutdown_graphics()
-{
-	release_image(window_image);
-}
-
-void update_graphics()
-{
-	speech_arrow->update();
-}
-
-void load_palette(std::string name)
-{
-	name = "palettes/" + name;
-
-	SDL_RWops *file = open_file(name);
-
-	char line[1000];
-
-	SDL_fgets(file, line, 1000);
-	if (strncmp(line, "GIMP Palette", 12)) {
-		SDL_RWclose(file);
-		throw LoadError("not a GIMP palette: " + name);
-	}
-
-	int line_count = 1;
-	int colour_count = 0;
-
-	while (SDL_fgets(file, line, 1000) != NULL) {
-		line_count++;
-		char *p = line;
-		while (*p != 0 && isspace(*p)) p++;
-		// Skip comments
-		if (*p == '#') {
-			continue;
-		}
-		int red, green, blue;
-		if (sscanf(line, "%d %d %d", &red, &green, &blue) == 3) {
-			g.graphics.colours[colour_count].r = red;
-			g.graphics.colours[colour_count].g = green;
-			g.graphics.colours[colour_count].b = blue;
-			g.graphics.colours[colour_count].a = 255;
-			colour_count++;
-		}
-		else {
-			infomsg("Syntax error on line %d of %s\n", line_count, name.c_str());
-		}
-	}
-
-	g.graphics.black.r = g.graphics.black.g = g.graphics.black.b = 0;
-	g.graphics.black.a = 255;
-	g.graphics.white.r = g.graphics.white.g = g.graphics.white.b = g.graphics.white.a = 255;
-
-	for (int i = 0; i < 4; i++) {
-		g.graphics.four_blacks[i] = g.graphics.black;
-		g.graphics.four_whites[i] = g.graphics.white;
-	}
-
-	SDL_RWclose(file);
-}
+namespace Nooskewl_Engine {
 
 void draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 {
@@ -176,4 +101,82 @@ void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool
 		speech_arrow->set_animation("arrow");
 		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-12, 0);
 	}
+}
+
+} // End namespace Nooskewl_Engine
+
+void init_graphics()
+{
+	// FIXME: exceptions!
+	try {
+		window_image = new Image("window.tga");
+		speech_arrow = new Sprite("speech_arrow");
+		speech_arrow->start();
+		load_palette("nes.gpl");
+	}
+	catch (Error e) {
+		delete window_image;
+		window_image = NULL;
+		throw e;
+	}
+}
+
+void shutdown_graphics()
+{
+	delete window_image;
+}
+
+void update_graphics()
+{
+	speech_arrow->update();
+}
+
+void load_palette(std::string name)
+{
+	name = "palettes/" + name;
+
+	SDL_RWops *file = open_file(name);
+
+	char line[1000];
+
+	SDL_fgets(file, line, 1000);
+	if (strncmp(line, "GIMP Palette", 12)) {
+		SDL_RWclose(file);
+		throw LoadError("not a GIMP palette: " + name);
+	}
+
+	int line_count = 1;
+	int colour_count = 0;
+
+	while (SDL_fgets(file, line, 1000) != NULL) {
+		line_count++;
+		char *p = line;
+		while (*p != 0 && isspace(*p)) p++;
+		// Skip comments
+		if (*p == '#') {
+			continue;
+		}
+		int red, green, blue;
+		if (sscanf(line, "%d %d %d", &red, &green, &blue) == 3) {
+			g.graphics.colours[colour_count].r = red;
+			g.graphics.colours[colour_count].g = green;
+			g.graphics.colours[colour_count].b = blue;
+			g.graphics.colours[colour_count].a = 255;
+			colour_count++;
+		}
+		else {
+			infomsg("Syntax error on line %d of %s\n", line_count, name.c_str());
+		}
+	}
+
+	g.graphics.black.r = g.graphics.black.g = g.graphics.black.b = 0;
+	g.graphics.black.a = 255;
+	g.graphics.white.r = g.graphics.white.g = g.graphics.white.b = g.graphics.white.a = 255;
+
+	for (int i = 0; i < 4; i++) {
+		g.graphics.four_blacks[i] = g.graphics.black;
+		g.graphics.four_whites[i] = g.graphics.white;
+	}
+
+	SDL_RWclose(file);
 }

@@ -8,6 +8,8 @@
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
 
+static std::vector<Image_Internals *> loaded_images;
+
 struct TGA_Header {
 	char idlength;
 	char colourmaptype;
@@ -120,7 +122,7 @@ Image::Image(SDL_Surface *surface) :
 	h = surface->h;
 
 	try {
-		upload(pixels);
+		internals = new Image_Internals(pixels, w, h);
 	}
 	catch (Error e) {
 		if (tmp) SDL_FreeSurface(tmp);
@@ -137,6 +139,128 @@ Image::~Image()
 
 void Image::release()
 {
+	if (filename == "--FROM SURFACE--") {
+		delete internals;
+		return;
+	}
+
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		Image_Internals *ii = loaded_images[i];
+		if (ii->filename == filename) {
+			ii->refcount--;
+			if (ii->refcount == 0) {
+				delete ii;
+				loaded_images.erase(loaded_images.begin()+i);
+				return;
+			}
+		}
+	}
+}
+
+void Image::reload()
+{
+	if (filename == "--FROM SURFACE--") {
+		return;
+	}
+
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		Image_Internals *ii = loaded_images[i];
+		if (ii->filename == filename) {
+			ii->refcount++;
+			internals = ii;
+			w = internals->w;
+			h = internals->h;
+			return;
+		}
+	}
+
+	internals = new Image_Internals(filename);
+	w = internals->w;
+	h = internals->h;
+	loaded_images.push_back(internals);
+}
+
+void Image::start()
+{
+	g.graphics.vertex_accel->start(this);
+}
+
+void Image::end()
+{
+	g.graphics.vertex_accel->end();
+}
+
+void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+{
+	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, dest_size, g.graphics.four_whites, flags);
+}
+
+void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+{
+	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, source_size, g.graphics.four_whites, flags);
+}
+
+void Image::draw(Point<int> dest_position, int flags)
+{
+	draw_region(Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
+}
+
+void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+{
+	start();
+	stretch_region(source_position, source_size, dest_position, dest_size, flags);
+	end();
+}
+
+void Image::draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+{
+	start();
+	draw_region(source_position, source_size, dest_position, flags);
+	end();
+}
+
+void Image::draw_single(Point<int> dest_position, int flags)
+{
+	start();
+	draw(dest_position, flags);
+	end();
+}
+
+void Image::release_all()
+{
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		loaded_images[i]->reload();
+	}
+}
+
+void Image::reload_all()
+{
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		loaded_images[i]->release();
+	}
+}
+
+Image_Internals::Image_Internals(std::string filename) :
+	filename(filename),
+	refcount(1)
+{
+	reload();
+}
+
+Image_Internals::Image_Internals(unsigned char *pixels, int w, int h) :
+	w(w),
+	h(h)
+{
+	upload(pixels);
+}
+
+Image_Internals::~Image_Internals()
+{
+	release();
+}
+
+void Image_Internals::release()
+{
 	if (g.graphics.opengl) {
 		glDeleteTextures(1, &texture);
 		glDeleteBuffers(1, &vbo);
@@ -149,7 +273,7 @@ void Image::release()
 #endif
 }
 
-void Image::reload()
+void Image_Internals::reload()
 {
 	SDL_RWops *file = open_file(filename);
 
@@ -281,59 +405,7 @@ void Image::reload()
 	SDL_RWclose(file);
 }
 
-void Image::start()
-{
-	if (g.graphics.opengl) {
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBindTexture(GL_TEXTURE_2D, texture);
-	}
-
-	g.graphics.vertex_accel->start(this);
-}
-
-void Image::end()
-{
-	g.graphics.vertex_accel->end();
-}
-
-void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
-{
-	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, dest_size, g.graphics.four_whites, flags);
-}
-
-void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
-{
-	g.graphics.vertex_accel->buffer(source_position, source_size, dest_position, source_size, g.graphics.four_whites, flags);
-}
-
-void Image::draw(Point<int> dest_position, int flags)
-{
-	draw_region(Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
-}
-
-void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
-{
-	start();
-	stretch_region(source_position, source_size, dest_position, dest_size, flags);
-	end();
-}
-
-void Image::draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
-{
-	start();
-	draw_region(source_position, source_size, dest_position, flags);
-	end();
-}
-
-void Image::draw_single(Point<int> dest_position, int flags)
-{
-	start();
-	draw(dest_position, flags);
-	end();
-}
-
-void Image::upload(unsigned char *pixels)
+void Image_Internals::upload(unsigned char *pixels)
 {
 	if (g.graphics.opengl) {
 		glGenVertexArrays(1, &vao);
@@ -368,6 +440,18 @@ void Image::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		GLint posAttrib = glGetAttribLocation(m.current_shader, "in_position");
+		glEnableVertexAttribArray(posAttrib);
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+
+		GLint texcoordAttrib = glGetAttribLocation(m.current_shader, "in_texcoord");
+		glEnableVertexAttribArray(texcoordAttrib);
+		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+		GLint colAttrib = glGetAttribLocation(m.current_shader, "in_colour");
+		glEnableVertexAttribArray(colAttrib);
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
 	}
 #ifdef _MSC_VER
 	else {
@@ -394,6 +478,4 @@ void Image::upload(unsigned char *pixels)
 		}
 	}
 #endif
-
-    g.graphics.vertex_accel->init_new_texture();
 }

@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/log.h"
 
+namespace Nooskewl_Engine {
+
 void errormsg(const char *fmt, ...)
 {
 	va_list v;
@@ -16,3 +18,5 @@ void infomsg(const char *fmt, ...)
 	vprintf(fmt, v);
 	va_end(v);
 }
+
+} // End namespace Nooskewl_Engine

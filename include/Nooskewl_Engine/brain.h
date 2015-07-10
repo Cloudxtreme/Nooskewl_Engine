@@ -3,14 +3,21 @@
 
 #include "Nooskewl_Engine/main.h"
 
-class EXPORT Brain {
-public:
-	bool l, r, u, d, b1;
+namespace Nooskewl_Engine {
 
-	Brain();
-	virtual ~Brain();
+	class EXPORT Brain {
+	public:
+		bool l, r, u, d, b1;
 
-	virtual void handle_event(TGUI_Event *event) = 0;
-};
+		Brain();
+		virtual ~Brain();
+
+		virtual void handle_event(TGUI_Event *event) = 0;
+	};
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // BRAIN_H

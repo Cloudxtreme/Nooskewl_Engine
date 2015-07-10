@@ -2,6 +2,8 @@
 
 static SDL_Joystick *joy;
 
+namespace Nooskewl_Engine {
+
 void init_nooskewl_engine(int argc, char **argv)
 {
 	g.audio.mute = check_args(argc, argv, "+mute");
@@ -132,3 +134,5 @@ void shutdown_nooskewl_engine()
 		SDL_JoystickClose(joy);
 	}	
 }
+
+} // End namespace Nooskewl_Engine

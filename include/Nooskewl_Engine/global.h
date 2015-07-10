@@ -8,31 +8,39 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 
-struct Global {
-	struct {
-		bool mute;
-	} audio;
-	struct {
-		int screen_w;
-		int screen_h;
-		bool opengl;
+namespace Nooskewl_Engine {
 
-		SDL_Colour colours[256];
-		SDL_Colour four_blacks[4];
-		SDL_Colour four_whites[4];
-		SDL_Colour black;
-		SDL_Colour white;
+	struct Global {
+		struct {
+			bool mute;
+		} audio;
+		struct {
+			int screen_w;
+			int screen_h;
+			bool opengl;
 
-		Font *font;
-		Font *bold_font;
+			SDL_Colour colours[256];
+			SDL_Colour four_blacks[4];
+			SDL_Colour four_whites[4];
+			SDL_Colour black;
+			SDL_Colour white;
 
-		Vertex_Accel *vertex_accel;
-	} graphics;
-	CPA *cpa;
-	Map *map;
-	Map_Entity *player;
-};
+			Font *font;
+			Font *bold_font;
+
+			Vertex_Accel *vertex_accel;
+		} graphics;
+		CPA *cpa;
+		Map *map;
+		Map_Entity *player;
+	};
 
 EXPORT extern Global g;
+
+}
+
+#ifdef NOOSKEWL_ENGINE_BUILD
+using namespace Nooskewl_Engine;
+#endif
 
 #endif // GLOBAL_H

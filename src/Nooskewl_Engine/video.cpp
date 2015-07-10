@@ -3,7 +3,6 @@
 #include "Nooskewl_Engine/global.h"
 #include "Nooskewl_Engine/log.h"
 #include "Nooskewl_Engine/module.h"
-#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/util.h"
 #include "Nooskewl_Engine/vertex_accel.h"
 #include "Nooskewl_Engine/video.h"
@@ -11,9 +10,8 @@
 // FIXME: put these something neat
 static SDL_Window *window;
 
-GLuint vertexShader;
-GLuint fragmentShader;
-GLuint current_shader;
+static GLuint vertexShader;
+static GLuint fragmentShader;
 static SDL_GLContext opengl_context;
 
 #ifdef _MSC_VER
@@ -22,6 +20,8 @@ static D3DPRESENT_PARAMETERS d3d_pp;
 static bool d3d_lost;
 static IDirect3D9 *d3d;
 #endif
+
+namespace Nooskewl_Engine {
 
 void clear(SDL_Colour colour)
 {
@@ -69,6 +69,76 @@ void flip()
 		}
 
 		m.d3d_device->BeginScene();
+	}
+#endif
+}
+
+void set_default_projection()
+{
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
+	glm::mat4 model = glm::mat4();
+
+	if (g.graphics.opengl) {
+		glViewport(0, 0, w, h);
+
+		GLint uni;
+
+		uni = glGetUniformLocation(m.current_shader, "proj");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+
+		uni = glGetUniformLocation(m.current_shader, "view");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+
+		uni = glGetUniformLocation(m.current_shader, "model");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+	}
+#ifdef _MSC_VER
+	else {
+		/* D3D pixels are slightly different than OpenGL */
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
+		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
+		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+	}
+#endif
+}
+
+} // End namespace Nooskewl_Engine
+
+void set_map_transition_projection(float angle)
+{
+	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
+	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
+
+	if (g.graphics.opengl) {
+		GLint uni;
+
+		uni = glGetUniformLocation(m.current_shader, "proj");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+
+		uni = glGetUniformLocation(m.current_shader, "view");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+
+		uni = glGetUniformLocation(m.current_shader, "model");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+	}
+#ifdef _MSC_VER
+	else {
+		/* D3D pixels are slightly different than OpenGL */
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
+		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 	}
 #endif
 }
@@ -160,11 +230,11 @@ void init_video(int argc, char **argv)
 			errormsg("Fragment shader error: %s\n", buffer);
 		}
 
-		current_shader = glCreateProgram();
-		glAttachShader(current_shader, vertexShader);
-		glAttachShader(current_shader, fragmentShader);
-		glLinkProgram(current_shader);
-		glUseProgram(current_shader);
+		m.current_shader = glCreateProgram();
+		glAttachShader(m.current_shader, vertexShader);
+		glAttachShader(m.current_shader, fragmentShader);
+		glLinkProgram(m.current_shader);
+		glUseProgram(m.current_shader);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -305,7 +375,7 @@ void shutdown_video()
 	delete g.graphics.vertex_accel;
 
 	if (g.graphics.opengl) {
-		glDeleteProgram(current_shader);
+		glDeleteProgram(m.current_shader);
 		glDeleteShader(fragmentShader);
 		glDeleteShader(vertexShader);
 
@@ -316,82 +386,14 @@ void shutdown_video()
 	SDL_Quit();
 }
 
-void set_default_projection()
-{
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-
-	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
-	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
-	glm::mat4 model = glm::mat4();
-
-	if (g.graphics.opengl) {
-		glViewport(0, 0, w, h);
-
-		GLint uni;
-
-		uni = glGetUniformLocation(current_shader, "proj");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
-
-		uni = glGetUniformLocation(current_shader, "view");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
-
-		uni = glGetUniformLocation(current_shader, "model");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-	}
-#ifdef _MSC_VER
-	else {
-		/* D3D pixels are slightly different than OpenGL */
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-
-		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
-		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-	}
-#endif
-}
-
-void set_map_transition_projection(float angle)
-{
-	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
-	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
-
-	if (g.graphics.opengl) {
-		GLint uni;
-
-		uni = glGetUniformLocation(current_shader, "proj");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
-
-		uni = glGetUniformLocation(current_shader, "view");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
-
-		uni = glGetUniformLocation(current_shader, "model");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-	}
-#ifdef _MSC_VER
-	else {
-		/* D3D pixels are slightly different than OpenGL */
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-
-		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
-		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-	}
-#endif
-}
-
 void release_graphics()
 {
 	release_fonts();
-	release_images();
+	Image::release_all();
 }
 
 void reload_graphics()
 {
 	load_fonts();
-	reload_images();
+	Image::reload_all();
 }

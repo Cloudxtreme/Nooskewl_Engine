@@ -3,23 +3,27 @@
 
 #include "Nooskewl_Engine/main.h"
 
-class Speech {
-public:
-	Speech(std::string text);
+namespace Nooskewl_Engine {
 
-	void start();
+	class Speech {
+	public:
+		Speech(std::string text);
 
-	// Return false when done
-	bool handle_event(TGUI_Event *event);
-	void draw();
+		void start();
 
-private:
-	std::string text;
-	int start_time;
-	int offset;
-	bool advance;
-	bool done;
-	int skip;
-};
+		// Return false when done
+		bool handle_event(TGUI_Event *event);
+		void draw();
+
+	private:
+		std::string text;
+		int start_time;
+		int offset;
+		bool advance;
+		bool done;
+		int skip;
+	};
+
+}
 
 #endif // SPEECH_H

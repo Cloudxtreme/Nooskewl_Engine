@@ -1,5 +1,4 @@
 #include "Nooskewl_Engine/log.h"
-#include "Nooskewl_Engine/resource_manager.h"
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/util.h"
 
@@ -12,7 +11,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 		std::string filename = std::string("sheets/tiles" + itos(i) + ".tga");
 		Image *image;
 		try {
-			image = reference_image(filename, true);
+			image = new Image(filename, true);
 		}
 		catch (Error e) {
 			if (i == 0) {
@@ -31,7 +30,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 	}
 	catch (Error e) {
 		for (size_t i = 0; i < sheets.size(); i++) {
-			release_image(sheets[i]);
+			delete sheets[i];
 		}
 		sheets.clear();
 		throw e;
@@ -74,7 +73,7 @@ Tilemap::Tilemap(int tile_size, std::string map_filename) :
 Tilemap::~Tilemap()
 {
 	for (size_t i = 0; i < sheets.size(); i++) {
-		release_image(sheets[i]);
+		delete sheets[i];
 	}
 
 	if (layers) {

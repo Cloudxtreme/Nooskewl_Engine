@@ -5,10 +5,14 @@
 
 #include "Nooskewl_Engine/main.h"
 
+#ifdef NOOSKEWL_ENGINE_BUILD
+
 #define snprintf c99_snprintf
 
-EXPORT int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
-EXPORT int c99_snprintf(char* str, int size, const char* format, ...);
+int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
+int c99_snprintf(char* str, int size, const char* format, ...);
+
+#endif
 
 #endif // _MSC_VER
 
