@@ -11,31 +11,25 @@ class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Font {
 public:
-	static const int CHAR_DELAY = 50; // ms, for wrapped drawing with advancing text
-
 	Font(std::string filename, int size) throw (Error);
 	~Font();
 
 	void clear_cache();
 
-	int get_width(std::string text);
+	int get_text_width(std::string text);
 
-	void draw(std::string text, Point<int> dest_position, SDL_Color colour);
-	// Returns number of characters drawn
-	int draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Color colour, bool &full);
+	void draw(SDL_Colour colour, std::string text, Point<int> dest_position);
+	// Returns number of characters drawn, plus whether or not it filled the max in bool &full
+	int draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool &full);
 
 private:
-	struct Glyph {
-		Image *image;
-		SDL_Color colour;
-	};
-
-	void cache(int ch, SDL_Color colour);
-	void cache(std::string text, SDL_Color colour);
+	void cache_glyph(int ch);
+	void cache_glyphs_if_needed(std::string text);
 
 	SDL_RWops *file;
 	TTF_Font *font;
-	std::multimap<int, Glyph *> glyphs;
+
+	std::map<int, Image *> glyphs;
 };
 
 } // End namespace Nooskewl_Engine

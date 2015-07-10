@@ -132,8 +132,9 @@ void Engine::draw()
 
 	g.map->draw();
 
-	g.graphics.font->draw("HELLO!", Point<int>(11, 11), g.graphics.black);
-	g.graphics.font->draw("HELLO!", Point<int>(10, 10), g.graphics.white);
+	g.graphics.font->draw(g.graphics.white, "This is the most insane time to live!", Point<int>(0, 0));
+	SDL_Colour green = { 0, 255, 0, 255 };
+	g.graphics.font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
 
 	flip();
 }

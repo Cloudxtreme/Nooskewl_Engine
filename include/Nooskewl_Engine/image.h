@@ -34,13 +34,17 @@ public:
 
 	void start();
 	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region_tinted(SDL_Colour colour, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
 	void draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
+	void draw_tinted(SDL_Colour colour, Point<int> dest_position, int flags = 0);
 	void draw(Point<int> dest_position, int flags = 0);
 	void end(); // call after every group of draws
 
 	// These ones call start/end automatically
 	void stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region_tinted_single(SDL_Colour colour, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
 	void draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
+	void draw_tinted_single(SDL_Colour, Point<int> dest_position, int flags = 0);
 	void draw_single(Point<int> dest_position, int flags = 0);
 
 private:

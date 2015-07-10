@@ -7,6 +7,8 @@ namespace Nooskewl_Engine {
 
 class Speech {
 public:
+	static const int TEXT_DELAY = 50; // millisecond
+
 	Speech(std::string text);
 
 	void start();

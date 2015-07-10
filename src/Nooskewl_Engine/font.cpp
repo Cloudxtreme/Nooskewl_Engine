@@ -11,8 +11,11 @@ using namespace Nooskewl_Engine;
 Font::Font(std::string filename, int size)
 {
 	filename = "fonts/" + filename;
+
 	file = open_file(filename);
+
 	font = TTF_OpenFontRW(file, true, size);
+
 	if (font == NULL) {
 		SDL_RWclose(file);
 		throw LoadError("TTF_OpenFontRW failed");
@@ -21,72 +24,65 @@ Font::Font(std::string filename, int size)
 
 Font::~Font()
 {
+	clear_cache();
+
 	if (font) {
 		TTF_CloseFont(font);
 	}
+
 	SDL_RWclose(file);
 }
 
 void Font::clear_cache()
 {
-	std::multimap<int, Glyph *>::iterator it = glyphs.begin();
-	while (it != glyphs.end()) {
-		std::pair<int, Glyph *> p = *it;
-		Glyph *g = p.second;
-		delete g->image;
-		delete g;
+	std::map<int, Image *>::iterator it;
+	for  (it = glyphs.begin(); it != glyphs.end(); it++) {
+		std::pair<int, Image *> p = *it;
+		delete p.second;
 		it = glyphs.erase(it);
 	}
 }
 
-int Font::get_width(std::string text)
+int Font::get_text_width(std::string text)
 {
-	cache(text, g.graphics.white);
+	cache_glyphs_if_needed(text);
+
 	const char *p = text.c_str();
 	int width = 0;
+
 	while (*p) {
-		std::pair<std::multimap<int, Glyph *>::const_iterator, std::multimap<int, Glyph *>::const_iterator> matches = glyphs.equal_range(*p);
-		const std::pair<int, Glyph *> pair = *matches.first;
-		Glyph *g = pair.second;
-		width += g->image->w;
+		Image *g = glyphs[*p];
+		width += g->w;
 		p++;
 	}
+
 	return width;
 }
 
-void Font::draw(std::string text, Point<int> dest_position, SDL_Color colour)
+void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
-	cache(text, colour);
+	cache_glyphs_if_needed(text);
+
 	const char *p = text.c_str();
+
 	while (*p) {
-		std::pair<std::multimap<int, Glyph *>::const_iterator, std::multimap<int, Glyph *>::const_iterator> matches = glyphs.equal_range(*p);
-		std::multimap<int, Glyph *>::const_iterator it = matches.first;
-		Glyph *found = NULL;
-		while (it != matches.second) {
-			const std::pair<int, Glyph *> pair = *it;
-			Glyph *g = pair.second;
-			if (memcmp(&g->colour, &colour, sizeof(SDL_Color)) == 0) {
-				found = g;
-				break;
-			}
-			it++;
-		}
-		if (found != NULL) {
-			found->image->start();
-			/* When we upload the glyph, it's right-side up, but OpenGL
-			 * expects it upside-down. It's quicker to just flip it
-			 * like this than to flip all the pixels.
-			 */
-			found->image->draw(dest_position, Image::FLIP_V);
-			found->image->end();
-			dest_position.x += found->image->w;
-		}
+		Image *g = glyphs[*p];
+
+		g->start();
+		/* When we upload the glyph, it's right-side up, but OpenGL
+		 * expects it upside-down. It's quicker to just flip it
+		 * like this than to flip all the pixels.
+		 */
+		g->draw_tinted(colour, dest_position, Image::FLIP_V);
+		g->end();
+
+		dest_position.x += g->w;
 
 		p++;
 	}
 }
 
-int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, SDL_Colour colour, bool &full)
+int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool &full)
 {
 	full = false;
 	const char *p = text.c_str();
@@ -104,7 +100,7 @@ int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int li
 	else {
 		elapsed = SDL_GetTicks() - started_time;
 	}
-	int chars_to_draw = elapsed / CHAR_DELAY;
+	int chars_to_draw = elapsed / delay;
 	int chars_drawn = 0;
 	while (done == false && lines < max_lines) {
 		int count = 0;
@@ -113,7 +109,7 @@ int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int li
 		int chars_drawn_this_time = 0;
 		while (p[count]) {
 			buf[0] = p[count];
-			this_w += get_width(buf);
+			this_w += get_text_width(buf);
 			if (this_w >= w) {
 				if (count == 0) {
 					done = true;
@@ -140,7 +136,7 @@ int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int li
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = std::string(p).substr(0, max);
-			draw(s, Point<int>(dest_position.x, curr_y), colour);
+			draw(colour, s, Point<int>(dest_position.x, curr_y));
 			p += max;
 			if (*p == ' ') p++;
 			chars_drawn = p - text.c_str();
@@ -167,56 +163,27 @@ int Font::draw_wrapped(std::string text, Point<int> dest_position, int w, int li
 	return chars_drawn;
 }
 
-void Font::cache(int ch, SDL_Color colour)
+void Font::cache_glyph(int ch)
 {
-	Glyph *g = new Glyph;
-	if (g == NULL) {
-		errormsg("Error caching glyph");
-		return;
-	}
-
-	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, colour);
+	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, g.graphics.white);
 	if (surface == NULL) {
 		errormsg("Error rendering glyph");
-		delete g;
 		return;
 	}
 
-	try {
-		g->image = new Image(surface);
-	}
-	catch (Error e) {
-		SDL_FreeSurface(surface);
-		delete g;
-		throw e;
-	}
+	Image *g = new Image(surface);
 
-	g->colour = colour;
+	SDL_FreeSurface(surface);
 
-	std::pair<int, Glyph *> p;
-	p.first = ch;
-	p.second = g;
-
-	glyphs.insert(p);
+	glyphs[ch] = g;
 }
 
-void Font::cache(std::string text, SDL_Color colour)
+void Font::cache_glyphs_if_needed(std::string text)
 {
 	const char *p = text.c_str();
 	while (*p) {
-		std::pair<std::multimap<int, Glyph *>::const_iterator, std::multimap<int, Glyph *>::const_iterator> matches = glyphs.equal_range(*p);
-		std::multimap<int, Glyph *>::const_iterator it = matches.first;
-		bool found = false;
-		while (it != matches.second) {
-			const std::pair<int, Glyph *> g = *it;
-			if (memcmp(&g.second->colour, &colour, sizeof(SDL_Color)) == 0) {
-					found = true;
-				break;
-			}
-			it++;
-		}
-		if (found == false) {
-			cache(*p, colour);
+		if (glyphs.find(*p) == glyphs.end()) {
+			cache_glyph(*p);
 		}
 		p++;
 	}

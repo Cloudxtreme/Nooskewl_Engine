@@ -42,7 +42,7 @@ void Speech::draw()
 	draw_window(Point<int>(5, g.graphics.screen_h/2), Size<int>(g.graphics.screen_w-10, g.graphics.screen_h/2-5), advance, done);
 
 	bool full;
-	int drawn = g.graphics.font->draw_wrapped(text.substr(offset), Point<int>(14, g.graphics.screen_h/2+9), g.graphics.screen_w-28, 14, 4, start_time, g.graphics.white, full);
+	int drawn = g.graphics.font->draw_wrapped(g.graphics.white, text.substr(offset), Point<int>(14, g.graphics.screen_h/2+9), g.graphics.screen_w-28, 14, 4, start_time, TEXT_DELAY, full);
 
 	if (full) {
 		if (unsigned(offset+drawn) >= text.length()) {
