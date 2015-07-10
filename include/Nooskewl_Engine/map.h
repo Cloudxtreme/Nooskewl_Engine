@@ -15,6 +15,11 @@ public:
 	Map(std::string map_name);
 	~Map();
 
+	void handle_event(TGUI_Event *event);
+	void update_camera();
+	bool update();
+	void draw();
+
 	void add_entity(Map_Entity *entity);
 	void add_speeches(std::vector<std::string> &speeches);
 	void change_map(std::string map_name, Point<int> position, Direction direction);
@@ -25,14 +30,7 @@ public:
 	Map_Entity *get_entity(int id);
 	std::string get_map_name();
 
-	void handle_event(TGUI_Event *event);
-	void update_camera();
-	bool update();
-	void draw();
-
 private:
-	void init(std::string map_name);
-
 	Tilemap *tilemap;
 	Point<int> offset;
 	std::vector<Map_Entity *> entities;

@@ -2,6 +2,7 @@
 #define STARSQUATTERS_H
 
 #ifdef _MSC_VER
+// Disable warnings about dll-interface
 #pragma warning(disable : 4251)
 
 #ifdef NOOSKEWL_ENGINE_BUILD
