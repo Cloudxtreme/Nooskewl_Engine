@@ -30,7 +30,6 @@ set(LIB_SRC
 	src/Nooskewl_Engine/engine.cpp
 	src/Nooskewl_Engine/font.cpp
 	src/Nooskewl_Engine/global.cpp
-	src/Nooskewl_Engine/graphics.cpp
 	src/Nooskewl_Engine/image.cpp
 	src/Nooskewl_Engine/load_dll.cpp
 	src/Nooskewl_Engine/log.cpp

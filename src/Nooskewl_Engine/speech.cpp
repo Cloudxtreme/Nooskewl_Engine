@@ -1,8 +1,7 @@
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/global.h"
-#include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/speech.h"
-#include "Nooskewl_Engine/video.h"
 
 using namespace Nooskewl_Engine;
 
@@ -39,7 +38,7 @@ bool Speech::handle_event(TGUI_Event *event)
 
 void Speech::draw()
 {
-	draw_window(Point<int>(5, g.screen_h/2), Size<int>(g.screen_w-10, g.screen_h/2-5), advance, done);
+	engine.draw_window(Point<int>(5, g.screen_h/2), Size<int>(g.screen_w-10, g.screen_h/2-5), advance, done);
 
 	bool full;
 	int drawn = g.font->draw_wrapped(g.white, text.substr(offset), Point<int>(14, g.screen_h/2+9), g.screen_w-28, 14, 4, start_time, TEXT_DELAY, full);

@@ -1,5 +1,5 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/global.h"
-#include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
 
@@ -28,10 +28,10 @@ static void draw_focus(TGUI_Widget *widget)
 	int y = widget->get_y(); // - padding_top;
 	int w = widget->get_width(); // + padding_left + padding_right;
 	int h = widget->get_height(); // + padding_top + padding_bottom;
-	draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
-	draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
-	draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);
-	draw_line(Point<int>(x, y+h), Point<int>(x, y), colour);
+	engine.draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
+	engine.draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
+	engine.draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);
+	engine.draw_line(Point<int>(x, y+h), Point<int>(x, y), colour);
 }
 
 SS_Widget::SS_Widget(int w, int h) :
@@ -71,11 +71,11 @@ void SS_Widget::draw()
 	SDL_Colour green = { 0, 255, 0, 255 };
 	SDL_Colour red = { 255, 0, 0, 255 };
 
-	draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), g.black);
-	draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? green : g.white);
+	engine.draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), g.black);
+	engine.draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? green : g.white);
 
 	if (event_x >= 0 || event_y >= 0) {
-		draw_quad(Point<int>(event_x, event_y)+Point<int>(calculated_x, calculated_y)-1, Size<int>(2, 2), red);
+		engine.draw_quad(Point<int>(event_x, event_y)+Point<int>(calculated_x, calculated_y)-1, Size<int>(2, 2), red);
 	}
 
 	if (gui->get_focus() == this) {

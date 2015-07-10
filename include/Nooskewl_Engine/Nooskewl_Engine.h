@@ -8,7 +8,6 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/global.h"
-#include "Nooskewl_Engine/graphics.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/load_dll.h"
