@@ -172,12 +172,6 @@ void Engine::init_video()
 
 	set_screen_size(w, h);
 
-	scale = h / 160 + 1;
-	screen_w = w / scale;
-	screen_h = h / scale;
-
-	infomsg("screen size=%dx%d scale=%d\n", screen_w, screen_h, scale);
-
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
@@ -497,10 +491,6 @@ void Engine::draw()
 
 	map->draw();
 
-	font->draw(white, "This is the most insane time to live!", Point<int>(0, 0));
-	SDL_Colour green = { 0, 255, 0, 255 };
-	font->draw(green, "This is the most insane time to live!", Point<int>(0, 15));
-
 	flip();
 }
 
@@ -576,7 +566,7 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
-	if ((float)w/285.0f > (float)h/160.0f) {
+	if ((float)w/285.0f >= (float)h/160.0f) {
 		scale = w / 285 + 1;
 	}
 	else {
@@ -623,10 +613,10 @@ void Engine::set_default_projection()
 
 void Engine::set_map_transition_projection(float angle)
 {
-	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+	glm::mat4 proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -(float)scale : (float)scale, (float)scale, 1.0f));
+	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
 
 	if (opengl) {
 		GLint uni;

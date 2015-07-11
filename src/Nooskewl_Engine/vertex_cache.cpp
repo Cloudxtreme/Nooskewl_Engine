@@ -201,6 +201,10 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 		dy -= 0.5f;
 		dx2 -= 0.5f;
 		dy2 -= 0.5f;
+		dx *= 4.0f;
+		dy *= 4.0f;
+		dx2 *= 4.0f;
+		dy2 *= 4.0f;
 	}
 
 	// Set vertex x, y
