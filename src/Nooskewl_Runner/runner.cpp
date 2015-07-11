@@ -4,7 +4,7 @@ using namespace Nooskewl_Engine;
 
 const Uint32 TICKS_PER_FRAME = (1000 / 60);
 
-bool run_main(int argc, char **argv);
+static bool run_main(int argc, char **argv);
 
 int main(int argc, char **argv)
 {
@@ -114,6 +114,8 @@ static bool run_main(int argc, char **argv)
 		}
 		last_frame = SDL_GetTicks();
 	}
+
+	noo.stop();
 
 	return true;
 }

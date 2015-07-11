@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/sample.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 
@@ -12,6 +13,7 @@ namespace Nooskewl_Engine {
 typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 
 void load_dll();
+void close_dll();
 
 #ifdef _MSC_VER
 /* MSVC doesn't have snprintf */
@@ -43,7 +45,7 @@ struct Module {
 
 class List_Directory {
 public:
-	List_Directory(std::string glob);
+	List_Directory(std::string filespec);
 	~List_Directory();
 
 	std::string next();
@@ -54,6 +56,9 @@ private:
 	bool done;
 	HANDLE handle;
 	WIN32_FIND_DATA ffd;
+#else
+	int i;
+	glob_t gl;
 #endif
 };
 
@@ -71,4 +76,4 @@ extern Module m;
 
 #endif
 
-#endif INTERNAL_H
+#endif // INTERNAL_H

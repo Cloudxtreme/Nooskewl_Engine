@@ -255,14 +255,14 @@ void Image::draw_single(Point<int> dest_position, int flags)
 void Image::release_all()
 {
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		loaded_images[i]->reload();
+		loaded_images[i]->release();
 	}
 }
 
 void Image::reload_all()
 {
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		loaded_images[i]->release();
+		loaded_images[i]->reload();
 	}
 }
 
@@ -277,6 +277,7 @@ Image::Internal::Internal(unsigned char *pixels, int w, int h) :
 	w(w),
 	h(h)
 {
+	filename = "--FROM SURFACE--";
 	upload(pixels);
 }
 

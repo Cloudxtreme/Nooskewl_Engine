@@ -5,61 +5,61 @@
 
 namespace Nooskewl_Engine {
 
+template<typename T> struct DLList_Node {
+	T data;
+	DLList_Node<T> *prev;
+	DLList_Node<T> *next;
+
+	DLList_Node(T data) :
+		prev(0),
+		next(0),
+		data(data)
+	{
+	}
+
+	void remove()
+	{
+		DLList_Node<T> *next = next;
+		prev->next = next;
+		if (next) {
+			next->prev = prev;
+		}
+	}
+
+	void insert_before(T data)
+	{
+		DLList_Node<T> *node = new DLList_Node<T>(data);
+		prev->next = node;
+		node->prev = prev;
+		node->next = this;
+		prev = node;
+	}
+
+	void insert_after(T data)
+	{
+		DLList_Node<T> *node = new DLList_Node<T>(data);
+		next->prev = node;
+		node->prev = this;
+		node->next = next;
+		next = node;
+	}
+};
+
 template<typename T> struct DLList {
-	template<typename T> struct Node {
-		T data;
-		Node<T> *prev;
-		Node<T> *next;
+	DLList_Node<T> *nodes;
 
-		Node::Node(T data) :
-			prev(0),
-			next(0),
-			data(data)
-		{
-		}
-
-		void Node::remove()
-		{
-			Node<T> *next = next;
-			prev->next = next;
-			if (next) {
-				next->prev = prev;
-			}
-		}
-
-		void Node::insert_before(T data)
-		{
-			Node<T> *node = new Node<T>(data);
-			prev->next = node;
-			node->prev = prev;
-			node->next = this;
-			prev = node;
-		}
-
-		void Node::insert_after(T data)
-		{
-			Node<T> *node = new Node<T>(data);
-			next->prev = node;
-			node->prev = this;
-			node->next = next;
-			next = node;
-		}
-	};
-
-	Node<T> *nodes;
-
-	DLList::DLList() :
+	DLList() :
 		nodes(0)
 	{
 	}
 
-	DLList::~DLList()
+	~DLList()
 	{
-		Node<T> *node = nodes;
-		Node<T> *last = node->prev;
+		DLList_Node<T> *node = nodes;
+		DLList_Node<T> *last = node->prev;
 		while (node != last) {
 			delete node->data;
-			Node<T> *next = node->next;
+			DLList_Node<T> *next = node->next;
 			delete node;
 			node = next;
 		}
@@ -69,18 +69,18 @@ template<typename T> struct DLList {
 		}
 	}
 
-	Node<T> *DLList::push_back(T data)
+	DLList_Node<T> *push_back(T data)
 	{
 		if (nodes == 0) {
-			nodes = new Node<T>(data);
+			nodes = new DLList_Node<T>(data);
 			return nodes;
 		}
 		else {
-			Node<T> *node = nodes;
+			DLList_Node<T> *node = nodes;
 			while (node->next) {
 				node = node->next;
 			}
-			node->next = new Node<T>(data);
+			node->next = new DLList_Node<T>(data);
 			node->next->prev = node;
 			return node->next;
 		}

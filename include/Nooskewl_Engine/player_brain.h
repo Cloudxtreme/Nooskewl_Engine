@@ -20,4 +20,4 @@ public:
 
 #endif
 
-#endif PLAYER_BRAIN_H
+#endif // PLAYER_BRAIN_H

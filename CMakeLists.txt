@@ -1,27 +1,15 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8)
 project(Nooskewl_Engine CXX)
 
 option(TRENTS_BUILD "Build my way" off)
 
 include_directories("include")
 
-if(NOT ("${USER_INCLUDE_PATH}" STREQUAL ""))
-	include_directories(${USER_INCLUDE_PATH})
-endif()
-if(NOT ("${USER_LIBRARY_PATH}" STREQUAL ""))
-	link_directories(${USER_LIBRARY_PATH})
-endif()
+set(USER_INCLUDE_PATH "" CACHE FILEPATH "Any extra include directories you want")
+set(USER_LIBRARY_PATH "" CACHE FILEPATH "Any extra library directories you want")
 
-if(WIN32)
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DWITH_SDL")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DWITH_SDL /DTGUI_DEBUG")
-	if(TRENTS_BUILD)
-		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /DTRENTS_BUILD")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DTRENTS_BUILD")
-	endif()
-	set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRT.lib")
-	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRT.lib")
-endif()
+include_directories(${USER_INCLUDE_PATH})
+link_directories(${USER_LIBRARY_PATH})
 
 set(LIB_SRC
 	src/Nooskewl_Engine/brain.cpp
@@ -50,8 +38,27 @@ set(RUNNER_SRC
 )
 
 add_library(Nooskewl_Engine SHARED ${LIB_SRC})
-set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DNOOSKEWL_ENGINE_BUILD")
-target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main glew32 zlib opengl32 d3d9 d3dx9 winmm)
 
 add_executable(Nooskewl_Runner ${RUNNER_SRC})
 target_link_libraries(Nooskewl_Runner Nooskewl_Engine)
+
+if(WIN32)
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DWITH_SDL")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DWITH_SDL")
+	if(TRENTS_BUILD)
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /DTRENTS_BUILD")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /DTRENTS_BUILD")
+	endif()
+	set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRT.lib")
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRT.lib")
+	set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DNOOSKEWL_ENGINE_BUILD")
+	target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main glew32 zlib opengl32 d3d9 d3dx9 winmm)
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_SDL")
+	if(TRENTS_BUILD)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTRENTS_BUILD")
+	endif()
+	set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "-DNOOSKEWL_ENGINE_BUILD")
+	target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main GLEW z)
+	set_target_properties(Nooskewl_Runner PROPERTIES LINK_FLAGS "-Wl,-rpath=.")
+endif()

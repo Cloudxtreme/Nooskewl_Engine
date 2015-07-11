@@ -5,9 +5,30 @@
 using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory) :
-	started(false),
-	current_animation(""),
-	current_image(NULL)
+	started(false)
+{
+	load(xml_filename, image_directory);
+}
+
+Sprite::Sprite(std::string image_directory) :
+	started(false)
+{
+	load(image_directory + "/animations.xml", image_directory);
+}
+
+Sprite::~Sprite()
+{
+	std::map<std::string, Animation *>::iterator it;
+	for (it = animations.begin(); it != animations.end(); it++) {
+		std::pair<std::string, Animation *> p = *it;
+		Animation *a = p.second;
+		for (size_t i = 0; i < a->images.size(); i++) {
+			delete a->images[i];
+		}
+	}
+}
+
+void Sprite::load(std::string xml_filename, std::string image_directory)
 {
 	xml_filename = "sprites/" + xml_filename;
 	image_directory = "sprites/" + image_directory;
@@ -78,23 +99,6 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory) :
 	}
 
 	delete xml;
-}
-
-Sprite::Sprite(std::string directory_name) :
-	Sprite(directory_name + "/animations.xml", directory_name)
-{
-}
-
-Sprite::~Sprite()
-{
-	std::map<std::string, Animation *>::iterator it;
-	for (it = animations.begin(); it != animations.end(); it++) {
-		std::pair<std::string, Animation *> p = *it;
-		Animation *a = p.second;
-		for (size_t i = 0; i < a->images.size(); i++) {
-			delete a->images[i];
-		}
-	}
 }
 
 bool Sprite::set_animation(std::string name)

@@ -10,6 +10,8 @@
 #else
 #define NOOSKEWL_ENGINE_EXPORT __declspec(dllimport)
 #endif
+#else
+#define NOOSKEWL_ENGINE_EXPORT
 #endif
 
 #include <cctype>
@@ -26,27 +28,26 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
+
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#ifdef _MSC_VER
+#if defined _MSC_VER
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_audio.h>
-#include <SDL/SDL_opengl.h>
-#include <SDL/SDL_rwops.h>
-#include <SDL/SDL_timer.h>
-#include <SDL/SDL_ttf.h>
-#else
-#include <SDL.h>
-#include <SDL_audio.h>
-#include <SDL_opengl.h>
-#include <SDL_rwops.h>
-#include <SDL_timer.h>
-#include <SDL_ttf.h>
+#elif defined __linux__
+#include <dlfcn.h>
+#include <glob.h>
 #endif
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_audio.h>
+#include <SDL2/SDL_opengl.h>
+#include <SDL2/SDL_rwops.h>
+#include <SDL2/SDL_timer.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <zlib.h>
 

@@ -44,24 +44,6 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	delete map;
-
-	delete window_image;
-
-	delete font;
-	delete bold_font;
-	TTF_Quit();
-
-	shutdown_video();
-	shutdown_audio();
-
-	delete cpa;
-
-	if (joy && SDL_JoystickGetAttached(joy)) {
-		SDL_JoystickClose(joy);
-	}
-
-	SDL_Quit();
 }
 
 void Engine::start(int argc, char **argv)
@@ -115,6 +97,30 @@ void Engine::start(int argc, char **argv)
 	player->load_sprite("player");
 	player->set_position(Point<int>(1, 3));
 	map->add_entity(player);
+}
+
+void Engine::stop()
+{
+	delete map;
+
+	delete window_image;
+
+	delete font;
+	delete bold_font;
+	TTF_Quit();
+
+	shutdown_video();
+	shutdown_audio();
+
+	delete cpa;
+
+	close_dll();
+
+	if (joy && SDL_JoystickGetAttached(joy)) {
+		SDL_JoystickClose(joy);
+	}
+
+	SDL_Quit();
 }
 
 void Engine::init_video()
@@ -184,9 +190,9 @@ void Engine::init_video()
 			"uniform mat4 model;"
 			"uniform mat4 view;"
 			"uniform mat4 proj;"
-			"in vec3 in_position;"
-			"in vec4 in_colour;"
-			"in vec2 in_texcoord;"
+			"attribute vec3 in_position;"
+			"attribute vec4 in_colour;"
+			"attribute vec2 in_texcoord;"
 			"varying vec4 colour;"
 			"varying vec2 texcoord;"
 			"void main() {"

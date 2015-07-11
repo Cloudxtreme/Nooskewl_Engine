@@ -75,4 +75,4 @@ private:
 
 } // End namespace Nooskewl_Engine
 
-#endif IMAGE_H
+#endif // IMAGE_H

@@ -1,6 +1,10 @@
 #!/bin/sh
 
-FILES=`find * -type f | sort`
+# This version runs on Windows using MSYS tools. You may need to change the
+# following path... Windows has a built-in find.exe that doesn't work with
+# this script.
+
+FILES=`/c/mingw/msys/1.0/bin/find * -type f | sort`
 
 echo "Writing header..."
 # the big space is a tab

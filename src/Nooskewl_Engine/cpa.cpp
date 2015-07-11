@@ -30,13 +30,14 @@ bool CPA::exists(std::string filename)
 
 CPA::CPA()
 {
-	List_Directory ld(".\\*.cpa");
+	List_Directory ld("*.cpa");
 	std::string filename;
-	SDL_RWops *file;
+	SDL_RWops *file = NULL;
 
 	while ((filename = ld.next()) != "") {
 		file = SDL_RWFromFile(filename.c_str(), "rb");
 		if (file != NULL) {
+			infomsg("Using %s\n", filename.c_str());
 			break;
 		}
 	}
@@ -106,6 +107,9 @@ CPA::CPA()
 		if (total_size > data_size) {
 			throw Error("Invalid CPA: total file sizes > data size");
 		}
+	}
+	else {
+		throw FileNotFoundError("No CPA archive found");
 	}
 }
 

@@ -37,6 +37,7 @@ public:
 	~Engine();
 
 	void start(int argc, char **argv);
+	void stop();
 
 	void handle_event(TGUI_Event *event);
 	bool update();

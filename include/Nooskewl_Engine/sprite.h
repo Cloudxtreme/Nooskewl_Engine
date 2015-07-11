@@ -10,7 +10,7 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT Sprite {
 public:
 	Sprite(std::string xml_filename, std::string image_directory);
-	Sprite(std::string directory_name);
+	Sprite(std::string image_directory);
 	~Sprite();
 
 	bool set_animation(std::string name);
@@ -29,6 +29,8 @@ private:
 		std::vector<Uint32> delays;
 		Uint32 total_delays;
 	};
+
+	void load(std::string xml_filename, std::string image_directory);
 
 	bool started;
 	Uint32 start_time;

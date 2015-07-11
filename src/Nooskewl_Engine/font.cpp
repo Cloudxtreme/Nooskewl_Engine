@@ -26,8 +26,6 @@ Font::~Font()
 	if (font) {
 		TTF_CloseFont(font);
 	}
-
-	SDL_RWclose(file);
 }
 
 void Font::clear_cache()
@@ -36,8 +34,8 @@ void Font::clear_cache()
 	for  (it = glyphs.begin(); it != glyphs.end(); it++) {
 		std::pair<int, Image *> p = *it;
 		delete p.second;
-		it = glyphs.erase(it);
 	}
+	glyphs.clear();
 }
 
 int Font::get_text_width(std::string text)

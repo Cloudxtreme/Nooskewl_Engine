@@ -3,29 +3,63 @@
 
 using namespace Nooskewl_Engine;
 
+#ifdef _MSC_VER
+HINSTANCE dll_handle;
+#else
+void *so_handle;
+#endif
+
 namespace Nooskewl_Engine {
 
 Module m;
 
 void load_dll()
 {
-	List_Directory ld(".\\*.dll");
+#ifdef _MSC_VER
+	List_Directory ld("*.dll");
+#else
+	List_Directory ld("*.so");
+#endif
 	std::string filename;
 
 	while ((filename = ld.next()) != "") {
-		HINSTANCE hGetProcIDDLL = LoadLibrary(filename.c_str());
+#ifdef _MSC_VER
+		dll_handle = LoadLibrary(filename.c_str());
 
-		if (!hGetProcIDDLL) {
-			throw FileNotFoundError("Couldn't load game.dll!");
+		if (!dll_handle) {
+			throw FileNotFoundError("Couldn't load DLL");
 		}
 
-		m.get_map_logic = (Map_Logic_Getter)GetProcAddress(hGetProcIDDLL, "get_map_logic");
+		m.get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "get_map_logic");
 		if (m.get_map_logic != NULL) {
+			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
+#else
+		so_handle = dlopen(filename.c_str(), RTLD_LAZY);
+
+		if (so_handle == NULL) {
+			throw FileNotFoundError("Couldn't load shared library");
+		}
+
+		m.get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "get_map_logic");
+		if (m.get_map_logic != NULL) {
+			infomsg("Using %s\n", filename.c_str());
+			return;
+		}
+#endif
 	}
 
-	throw FileNotFoundError("Couldn't find a game DLL!");
+	throw FileNotFoundError("Couldn't find a game DLL");
+}
+
+void close_dll()
+{
+#ifdef _MSC_VER
+	// FIXME!
+#else
+	dlclose(so_handle);
+#endif
 }
 
 #ifdef _MSC_VER
@@ -134,11 +168,11 @@ bool check_args(int argc, char **argv, std::string arg)
 }
 
 #ifdef _MSC_VER
-List_Directory::List_Directory(std::string glob) :
+List_Directory::List_Directory(std::string filespec) :
 	got_first(false),
 	done(false)
 {
-	handle = FindFirstFile(glob.c_str(), &ffd);
+	handle = FindFirstFile(filespec.c_str(), &ffd);
 	if (handle == 0) {
 		done = true;
 	}
@@ -165,6 +199,34 @@ std::string List_Directory::next()
 	}
 
 	return ffd.cFileName;
+}
+#else
+List_Directory::List_Directory(std::string filespec)
+{
+	gl.gl_pathv = NULL;
+
+	int ret = glob(filespec.c_str(), 0, NULL, &gl);
+
+	if (ret != 0) {
+		i = 0;
+	}
+}
+
+List_Directory::~List_Directory()
+{
+	free(gl.gl_pathv);
+}
+
+std::string List_Directory::next()
+{
+	if (i >= gl.gl_pathc) {
+		i = -1;
+	}
+
+	if (i < 0) {
+		return "";
+	}
+	return gl.gl_pathv[i++];
 }
 #endif // _MSC_VER
 
