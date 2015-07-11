@@ -131,7 +131,32 @@ void Engine::init_video()
 		flags |= SDL_WINDOW_OPENGL;
 	}
 
-	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
+	SDL_DisplayMode mode;
+	int win_w = 1280;
+	int win_h = 720;
+
+	// Find close 16:9 window size
+	for (int i = 0; i < SDL_GetNumVideoDisplays(); i++) {
+		if (SDL_GetCurrentDisplayMode(i, &mode) == 0) {
+			// Give room for toolbars and decorations
+			mode.w -= 256;
+			mode.h -= 256;
+			float w = (float)mode.w / 16.0f;;
+			float h = (float)mode.h / 9.0f;
+			if (w > h) {
+				win_w = mode.w;
+				win_h = mode.w * 9 / 16;
+			}
+			else {
+				win_w = mode.h * 16 / 9;
+				win_h = mode.h;
+			}
+		}
+	}
+
+	infomsg("Trying window size %dx%d\n", win_w, win_h);
+
+	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == NULL) {
 		throw Error("SDL_CreateWindow failed");
 	}
