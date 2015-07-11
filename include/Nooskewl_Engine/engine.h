@@ -17,6 +17,7 @@ public:
 	// Audio
 	bool mute;
 	// Graphics
+	int scale;
 	int screen_w;
 	int screen_h;
 	bool opengl;
@@ -44,6 +45,7 @@ public:
 	void clear(SDL_Colour colour);
 	void clear_depth_buffer(float value);
 	void flip();
+	void set_screen_size(int w, int h);
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
 

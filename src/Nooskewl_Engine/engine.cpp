@@ -126,18 +126,26 @@ void Engine::init_video()
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
 
-	screen_w = 285;
-	screen_h = 160;
-
 	int flags = SDL_WINDOW_RESIZABLE;
 	if (opengl) {
 		flags |= SDL_WINDOW_OPENGL;
 	}
 
-	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_w * 4, screen_h * 4, flags);
+	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, flags);
 	if (window == NULL) {
 		throw Error("SDL_CreateWindow failed");
 	}
+
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	set_screen_size(w, h);
+
+	scale = h / 160 + 1;
+	screen_w = w / scale;
+	screen_h = h / scale;
+
+	infomsg("screen size=%dx%d scale=%d\n", screen_w, screen_h, scale);
 
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
@@ -217,8 +225,8 @@ void Engine::init_video()
 		ZeroMemory(&d3d_pp, sizeof(d3d_pp));
 
 		d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
-		d3d_pp.BackBufferWidth = screen_w*4;
-		d3d_pp.BackBufferHeight = screen_h*4;
+		d3d_pp.BackBufferWidth = w;
+		d3d_pp.BackBufferHeight = h;
 		//d3d_pp.BackBufferCount = 1;
 		d3d_pp.Windowed = 1;
 		if (vsync) {
@@ -535,13 +543,25 @@ void Engine::flip()
 #endif
 }
 
+void Engine::set_screen_size(int w, int h)
+{
+	if ((float)w/285.0f > (float)h/160.0f) {
+		scale = w / 285 + 1;
+	}
+	else {
+		scale = h / 160 + 1;
+	}
+	screen_w = w / scale;
+	screen_h = h / scale;
+}
+
 void Engine::set_default_projection()
 {
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 
 	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
-	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3(4.0f, 4.0f, 4.0f));
+	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3((float)scale, (float)scale, 1.0f));
 	glm::mat4 model = glm::mat4();
 
 	if (opengl) {
@@ -575,7 +595,7 @@ void Engine::set_map_transition_projection(float angle)
 	glm::mat4 proj = glm::frustum(1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -4.0f : 4.0f, 4.0f, 4.0f));
+	model = glm::scale(model, glm::vec3(angle >= PI/2 ? -(float)scale : (float)scale, (float)scale, 1.0f));
 
 	if (opengl) {
 		GLint uni;
