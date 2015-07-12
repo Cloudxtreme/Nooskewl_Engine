@@ -323,7 +323,6 @@ void Map_Entity::draw(Point<int> draw_pos)
 
 void Map_Entity::stop_now()
 {
-	printf("stop_now\n");
 	stop_next_tile = false;
 	moving = false;
 	// FIXME: add all buttons here
