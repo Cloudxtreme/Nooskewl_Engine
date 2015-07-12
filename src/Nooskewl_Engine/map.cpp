@@ -10,7 +10,7 @@ Map::Map(std::string map_name) :
 	map_name(map_name),
 	new_map_name("")
 {
-	tilemap = new Tilemap(8, map_name);
+	tilemap = new Tilemap(noo.tile_size, map_name);
 
 	ml = m.get_map_logic(this);
 }
@@ -128,25 +128,25 @@ void Map::handle_event(TGUI_Event *event)
 				// activate pressed
 				e->stop();
 				Direction dir = e->get_direction();
-				Point<int> pos = e->get_position() * 8 + e->get_offset() * 8.0f;
-				Size<int> size(8, 8);
+				Point<int> pos = e->get_position() * noo.tile_size + e->get_offset() * (float)noo.tile_size;
+				Size<int> size(noo.tile_size, noo.tile_size);
 				// FIXME: more hardcoded tile sizes
 				switch (dir) {
 					case N:
-						pos.y -= 16;
-						size.h += 8;
+						pos.y -= noo.tile_size*2;
+						size.h += noo.tile_size;
 						break;
 					case E:
-						pos.x += 8;
-						size.w += 8;
+						pos.x += noo.tile_size;
+						size.w += noo.tile_size;
 						break;
 					case S:
-						pos.y += 8;
-						size.h += 8;
+						pos.y += noo.tile_size;
+						size.h += noo.tile_size;
 						break;
 					case W:
-						pos.x -= 16;
-						size.w += 8;
+						pos.x -= noo.tile_size*2;
+						size.w += noo.tile_size;
 						break;
 				}
 				for (size_t j = 0; j < entities.size(); j++) {

@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 
@@ -15,7 +16,7 @@ Map_Entity::Map_Entity(Brain *brain) :
 	offset(0.0f, 0.0f),
 	bounce(1),
 	solid(true),
-	size(8, 8),
+	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false)
 {
 	id = current_id++;
@@ -126,7 +127,7 @@ Size<int> Map_Entity::get_size()
 Point<int> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->h;
-		return Point<int>(position.x*8+int(offset.x*8.0f), (position.y+1)*8+int(offset.y*8.0f)-h);
+		return Point<int>(position.x*noo.tile_size+int(offset.x*(float)noo.tile_size), (position.y+1)*noo.tile_size+int(offset.y*(float)noo.tile_size)-h);
 }
 
 bool Map_Entity::is_solid()
@@ -136,7 +137,7 @@ bool Map_Entity::is_solid()
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
-	Point<int> pos = this->position * 8 + this->offset * 8.0f; // FIXME: tile size
+	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
 	if (pos.x > position.x+size.w || pos.x+this->size.w < position.x || pos.y > position.y+size.h || pos.y+this->size.h < position.y) {
 		return false;
 	}

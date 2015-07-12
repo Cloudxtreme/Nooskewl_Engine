@@ -38,7 +38,8 @@ namespace Nooskewl_Engine {
 
 Engine noo;
 
-Engine::Engine()
+Engine::Engine() :
+	tile_size(8)
 {
 }
 

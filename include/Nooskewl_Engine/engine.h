@@ -20,6 +20,7 @@ public:
 	int scale;
 	int screen_w;
 	int screen_h;
+	int tile_size;
 	bool fullscreen;
 	bool opengl;
 	SDL_Colour colours[256];
