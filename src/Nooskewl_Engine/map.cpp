@@ -35,9 +35,9 @@ void Map::add_entity(Map_Entity *entity)
 	entities.push_back(entity);
 }
 
-void Map::add_speeches(std::vector<std::string> &speeches)
+void Map::add_speech(std::string text)
 {
-	this->speeches.insert(this->speeches.begin(), speeches.begin(), speeches.end());
+	speeches.push_back(text);
 	if (speech == NULL) {
 		speech = new Speech(speeches[0]);
 		speech->start();
@@ -117,7 +117,46 @@ void Map::handle_event(TGUI_Event *event)
 	}
 	else {
 		for (size_t i = 0; i < entities.size(); i++) {
-			entities[i]->handle_event(event);
+			Map_Entity *e = entities[i];
+			bool is_player = e->get_id() == 0;
+			bool b1_down = is_player && e->get_brain()->b1;
+			e->handle_event(event);
+			if (ml && is_player && b1_down == false && e->get_brain()->b1) {
+				// activate pressed
+				e->stop();
+				Direction dir = e->get_direction();
+				Point<int> pos = e->get_position() * 8 + e->get_offset() * 8.0f;
+				Size<int> size(8, 8);
+				// FIXME: more hardcoded tile sizes
+				switch (dir) {
+					case N:
+						pos.y -= 16;
+						size.h += 8;
+						break;
+					case E:
+						pos.x += 8;
+						size.w += 8;
+						break;
+					case S:
+						pos.y += 8;
+						size.h += 8;
+						break;
+					case W:
+						pos.x -= 16;
+						size.w += 8;
+						break;
+				}
+				for (size_t j = 0; j < entities.size(); j++) {
+					Map_Entity *e2 = entities[j];
+					if (e2->get_id() == 0) {
+						continue;
+					}
+					if (e2->pixels_collide(pos, size)) {
+						ml->activate(this, e, e2);
+						break;
+					}
+				}
+			}
 		}
 	}
 }
@@ -160,17 +199,15 @@ bool Map::update()
 		ml->update(this);
 	}
 
-	if (speech == NULL) {
-		std::vector<Map_Entity *>::iterator it;
-		for (it = entities.begin(); it != entities.end();) {
-			Map_Entity *e = *it;
-			if (e->update(this) == false) {
-				delete e;
-				it = entities.erase(it);
-			}
-			else {
-				it++;
-			}
+	std::vector<Map_Entity *>::iterator it;
+	for (it = entities.begin(); it != entities.end();) {
+		Map_Entity *e = *it;
+		if (e->update(this, speech != NULL) == false) {
+			delete e;
+			it = entities.erase(it);
+		}
+		else {
+			it++;
 		}
 	}
 
