@@ -40,8 +40,12 @@ void Speech::draw()
 {
 	noo.draw_window(Point<int>(5, noo.screen_h/2), Size<int>(noo.screen_w-10, noo.screen_h/2-5), advance, done);
 
+	noo.font->enable_shadow(noo.black, Font::FULL_SHADOW);
+
 	bool full;
 	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(14, noo.screen_h/2+9), noo.screen_w-28, 14, 4, start_time, TEXT_DELAY, full);
+
+	noo.font->disable_shadow();
 
 	if (full) {
 		if (unsigned(offset+drawn) >= text.length()) {

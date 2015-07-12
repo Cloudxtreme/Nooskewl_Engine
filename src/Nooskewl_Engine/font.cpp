@@ -54,6 +54,17 @@ int Font::get_text_width(std::string text)
 	return width;
 }
 
+void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
+{
+	this->shadow_colour = shadow_colour,
+	this->shadow_type = shadow_type;
+}
+
+void Font::disable_shadow()
+{
+	this->shadow_type = NO_SHADOW;
+}
+
 void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
 	cache_glyphs_if_needed(text);
@@ -66,6 +77,19 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 		/* Glyphs appear to be rendered upside down, either by freetype or SDL... so we simple draw them flipped */
 
 		g->start();
+		if (shadow_type == DROP_SHADOW) {
+			g->draw_tinted(shadow_colour, dest_position+1, Image::FLIP_V);
+		}
+		else if (shadow_type == FULL_SHADOW) {
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, -1), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, -1), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, -1), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, 0), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 0), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, 1), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, 1), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 1), Image::FLIP_V);
+		}
 		g->draw_tinted(colour, dest_position, Image::FLIP_V);
 		g->end();
 

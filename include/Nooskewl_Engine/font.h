@@ -10,12 +10,21 @@ class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Font {
 public:
+	enum Shadow_Type {
+		NO_SHADOW,
+		DROP_SHADOW,
+		FULL_SHADOW
+	};
+
 	Font(std::string filename, int size);
 	~Font();
 
 	void clear_cache();
 
 	int get_text_width(std::string text);
+
+	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
+	void disable_shadow();
 
 	void draw(SDL_Colour colour, std::string text, Point<int> dest_position);
 	// Returns number of characters drawn, plus whether or not it filled the max in bool &full
@@ -29,6 +38,9 @@ private:
 	TTF_Font *font;
 
 	std::map<int, Image *> glyphs;
+
+	SDL_Colour shadow_colour;
+	Shadow_Type shadow_type;
 };
 
 } // End namespace Nooskewl_Engine
