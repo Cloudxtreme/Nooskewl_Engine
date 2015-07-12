@@ -27,6 +27,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 				d = true;
 				break;
 			case TGUIK_RETURN:
+			case TGUIK_SPACE:
 				b1 = true;
 				break;
 		}
@@ -46,6 +47,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 				d = false;
 				break;
 			case TGUIK_RETURN:
+			case TGUIK_SPACE:
 				b1 = false;
 				break;
 		}
