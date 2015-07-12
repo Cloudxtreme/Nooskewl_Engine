@@ -54,9 +54,12 @@ void Map::change_map(std::string map_name, Point<int> position, Direction direct
 bool Map::is_solid(int layer, Point<int> position, Size<int> size)
 {
 	for (size_t i = 0; i < entities.size(); i++) {
-		Point<int> p = entities[i]->get_position();
-		if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
-			return true;
+		Map_Entity *e = entities[i];
+		if (e->is_solid()) {
+			Point<int> p = e->get_position();
+			if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+				return true;
+			}
 		}
 	}
 	for (int y = 0; y < size.h; y++) {
