@@ -20,7 +20,7 @@ void Speech::start()
 
 bool Speech::handle_event(TGUI_Event *event)
 {
-	if (event->type == TGUI_KEY_DOWN || event->type == TGUI_JOY_DOWN || event->type == TGUI_MOUSE_DOWN) {
+	if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || event->type == TGUI_JOY_DOWN || event->type == TGUI_MOUSE_DOWN) {
 		if (done) {
 			return false;
 		}
@@ -40,7 +40,7 @@ void Speech::draw()
 {
 	noo.draw_window(Point<int>(5, noo.screen_h/2), Size<int>(noo.screen_w-10, noo.screen_h/2-5), advance, done);
 
-	noo.font->enable_shadow(noo.black, Font::FULL_SHADOW);
+	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
 
 	bool full;
 	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(14, noo.screen_h/2+9), noo.screen_w-28, 14, 4, start_time, TEXT_DELAY, full);
