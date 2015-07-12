@@ -99,6 +99,20 @@ public:
 		return *this;
 	}
 
+	inline Size<T> &operator+=(const Size<T> &rhs)
+	{
+		this->w += rhs.w;
+		this->h += rhs.h;
+		return *this;
+	}
+
+	inline Size<T> &operator-=(const Size<T> &rhs)
+	{
+		this->w -= rhs.w;
+		this->h -= rhs.h;
+		return *this;
+	}
+
 	inline Size<T> operator-()
 	{
 		Size<T> s;
