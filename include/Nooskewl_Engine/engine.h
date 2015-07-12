@@ -8,6 +8,7 @@
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
+#include "Nooskewl_Engine/widgets.h"
 
 namespace Nooskewl_Engine {
 
@@ -34,7 +35,7 @@ public:
 	CPA *cpa;
 	Map *map;
 	Map_Entity *player;
-	GUI *gui;
+	TGUI *gui;
 
 	Engine();
 	~Engine();
@@ -86,6 +87,9 @@ private:
 	Sprite *speech_arrow;
 
 	SDL_AudioDeviceID audio_device;
+
+	SS_Widget *main_widget;
+	SS_Text_Button *new_game;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

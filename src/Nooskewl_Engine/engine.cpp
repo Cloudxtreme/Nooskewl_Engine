@@ -39,7 +39,7 @@ namespace Nooskewl_Engine {
 Engine noo;
 
 Engine::Engine() :
-	map(0)
+	map(0),
 	tile_size(8)
 {
 }
@@ -93,20 +93,20 @@ void Engine::start(int argc, char **argv)
 	speech_arrow->start();
 	load_palette("nes.gpl");
 
-	/*
-	map = new Map("test.map");
-
-	Player_Brain *player_brain = new Player_Brain();
-	player = new Map_Entity(player_brain);
-	player->load_sprite("player");
-	player->set_position(Point<int>(1, 3));
-	map->add_entity(player);
-	*/
+	main_widget = new SS_Widget(1.0f, 1.0f);
+	new_game = new SS_Text_Button("New Game");
+	new_game->set_padding(0, 0, 100, 0);
+	new_game->set_centered_x(true);
+	new_game->set_parent(main_widget);
+	gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
+	gui->set_focus(new_game);
+	// FIXME: make sure delete gui deletes widget
 }
 
 void Engine::stop()
 {
 	delete map;
+	delete gui;
 
 	delete window_image;
 
@@ -462,14 +462,31 @@ void Engine::shutdown_audio()
 
 void Engine::handle_event(TGUI_Event *event)
 {
-	map->handle_event(event);
+	if (map) {
+		map->handle_event(event);
+	}
+	if (gui) {
+		gui->handle_event(event);
+		if (new_game->pressed()) {
+			delete gui;
+			gui = 0;
+
+			map = new Map("test.map");
+
+			Player_Brain *player_brain = new Player_Brain();
+			player = new Map_Entity(player_brain);
+			player->load_sprite("player");
+			player->set_position(Point<int>(1, 3));
+			map->add_entity(player);
+		}
+	}
 }
 
 bool Engine::update()
 {
 	speech_arrow->update();
 
-	if (map->update() == false) {
+	if (map && map->update() == false) {
 		std::string map_name;
 		Point<int> position;
 		Direction direction;
@@ -529,7 +546,12 @@ void Engine::draw()
 {
 	clear(black);
 
-	map->draw();
+	if (map) {
+		map->draw();
+	}
+	if (gui) {
+		gui->draw();
+	}
 
 	flip();
 }
@@ -618,6 +640,10 @@ void Engine::set_screen_size(int w, int h)
 	}
 	screen_w = w / scale;
 	screen_h = h / scale;
+
+	if (gui) {
+		gui->resize(screen_w, screen_h);
+	}
 }
 
 void Engine::set_default_projection()
@@ -716,19 +742,19 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	float angle = atan2(dy, dx);
 	float a1 = angle + PI / 2.0f;
 	float a2 = angle - PI / 2.0f;
-	float scale = 0.5f;
+	float scale = 0.5f * noo.scale;
 	Point<float> da = a;
 	Point<float> db = a;
 	Point<float> dc = b;
 	Point<float> dd = b;
-	da.x += cos(a1) * scale;
-	da.y += sin(a1) * scale;
-	db.x += cos(a2) * scale;
-	db.y += sin(a2) * scale;
-	dc.x += cos(a1) * scale;
-	dc.y += sin(a1) * scale;
-	dd.x += cos(a2) * scale;
-	dd.y += sin(a2) * scale;
+	da.x += cos(a1) * 0.5f;
+	da.y += sin(a1) * 0.5f;
+	db.x += cos(a2) * 0.5f;
+	db.y += sin(a2) * 0.5f;
+	dc.x += cos(a1) * 0.5f;
+	dc.y += sin(a1) * 0.5f;
+	dd.x += cos(a2) * 0.5f;
+	dd.y += sin(a2) * 0.5f;
 	if (opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
