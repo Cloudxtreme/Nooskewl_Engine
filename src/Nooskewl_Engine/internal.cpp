@@ -109,6 +109,19 @@ void infomsg(const char *fmt, ...)
 	va_end(v);
 }
 
+void printGLerror(const char *fmt, ...)
+{
+	if (glGetError() == GL_NO_ERROR) {
+		return;
+	}
+	va_list v;
+	va_start(v, fmt);
+	printf("OPENGL ERROR: ");
+	vprintf(fmt, v);
+	va_end(v);
+	printf("\n");
+}
+
 int SDL_fgetc(SDL_RWops *file)
 {
 	unsigned char c;

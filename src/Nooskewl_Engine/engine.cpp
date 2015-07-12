@@ -174,10 +174,12 @@ void Engine::init_video()
 
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
+		printf("opengl_context=%d\n", opengl_context);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
-		glewExperimental = 0;
-		glewInit();
+		glewExperimental = 1;
+		GLenum error = glewInit();
+		printf("glew returned %d\n", error);
 
 		const char *vertexSource =
 			"#version 110\n"
@@ -195,10 +197,14 @@ void Engine::init_video()
 			"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
 			"}";
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		printGLerror("glCreateShader");
 		glShaderSource(vertexShader, 1, &vertexSource, NULL);
+		printGLerror("glShaderSource");
 		glCompileShader(vertexShader);
+		printGLerror("glCompileShader");
 		GLint status;
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+		printGLerror("glGetShaderiv");
 		if (status != GL_TRUE) {
 			char buffer[512];
 			glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
@@ -221,9 +227,13 @@ void Engine::init_video()
 			"	}"
 			"}";
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		printGLerror("glCreateShader");
 		glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+		printGLerror("glShaderSource");
 		glCompileShader(fragmentShader);
+		printGLerror("glCompileShader");
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+		printGLerror("glGetShaderiv");
 		if (status != GL_TRUE) {
 			char buffer[512];
 			glGetShaderInfoLog(fragmentShader, 512, NULL, buffer);
@@ -232,12 +242,18 @@ void Engine::init_video()
 
 		m.current_shader = glCreateProgram();
 		glAttachShader(m.current_shader, vertexShader);
+		printGLerror("glAttachShader");
 		glAttachShader(m.current_shader, fragmentShader);
+		printGLerror("glAttachShader");
 		glLinkProgram(m.current_shader);
+		printGLerror("glLinkProgram");
 		glUseProgram(m.current_shader);
+		printGLerror("glUseProgram");
 
 		glEnable(GL_BLEND);
+		printGLerror("glEnable");
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		printGLerror("glBlendFunc");
 	}
 #ifdef _MSC_VER
 	else {
@@ -377,8 +393,11 @@ void Engine::shutdown_video()
 
 	if (opengl) {
 		glDeleteProgram(m.current_shader);
+		printGLerror("glDeleteProgram");
 		glDeleteShader(fragmentShader);
+		printGLerror("glDeleteShader");
 		glDeleteShader(vertexShader);
+		printGLerror("glDeleteShader");
 
 		SDL_GL_DeleteContext(opengl_context);
 	}
@@ -498,7 +517,9 @@ void Engine::clear(SDL_Colour colour)
 {
 	if (opengl) {
 		glClearColor(colour.r/255.0f, colour.g/255.0f, colour.b/255.0f, colour.a/255.0f);
+		printGLerror("glClearColor");
 		glClear(GL_COLOR_BUFFER_BIT);
+		printGLerror("glClear");
 	}
 #ifdef _MSC_VER
 	else {
@@ -511,7 +532,9 @@ void Engine::clear_depth_buffer(float value)
 {
 	if (opengl) {
 		glClearDepth(value);
+		printGLerror("glClearDepth");
 		glClear(GL_DEPTH_BUFFER_BIT);
+		printGLerror("glClear");
 	}
 #ifdef _MSC_VER
 	else {
@@ -587,17 +610,24 @@ void Engine::set_default_projection()
 
 	if (opengl) {
 		glViewport(0, 0, w, h);
+		printGLerror("glViewport");
 
 		GLint uni;
 
 		uni = glGetUniformLocation(m.current_shader, "proj");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+		printGLerror("glUniformMatrix4fv");
 
 		uni = glGetUniformLocation(m.current_shader, "view");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+		printGLerror("glUniformMatrix4fv");
 
 		uni = glGetUniformLocation(m.current_shader, "model");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+		printGLerror("glUniformMatrix4fv");
 	}
 #ifdef _MSC_VER
 	else {
@@ -622,13 +652,19 @@ void Engine::set_map_transition_projection(float angle)
 		GLint uni;
 
 		uni = glGetUniformLocation(m.current_shader, "proj");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+		printGLerror("glUniformMatrix4fv");
 
 		uni = glGetUniformLocation(m.current_shader, "view");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+		printGLerror("glUniformMatrix4fv");
 
 		uni = glGetUniformLocation(m.current_shader, "model");
+		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+		printGLerror("glUniformMatrix4fv");
 	}
 #ifdef _MSC_VER
 	else {
@@ -685,6 +721,7 @@ void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour
 {
 	if (opengl) {
 		glBindTexture(GL_TEXTURE_2D, 0);
+		printGLerror("glBindTexture");
 	}
 	m.vertex_cache->start();
 	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);

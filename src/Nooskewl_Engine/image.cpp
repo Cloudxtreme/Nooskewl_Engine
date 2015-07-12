@@ -290,7 +290,9 @@ void Image::Internal::release()
 {
 	if (noo.opengl) {
 		glDeleteTextures(1, &texture);
+		printGLerror("glDeleteTextures");
 		glDeleteBuffers(1, &vbo);
+		printGLerror("glDeleteBuffers");
 		glDeleteVertexArrays(1, &vao);
 	}
 #ifdef _MSC_VER
@@ -436,49 +438,48 @@ void Image::Internal::upload(unsigned char *pixels)
 {
 	if (noo.opengl) {
 		glGenVertexArrays(1, &vao);
-		if (vao == 0) {
-			throw GLError("glGenVertexArrays failed");
-		}
+		printGLerror("glBindVertexArrays");
 		glBindVertexArray(vao);
+		printGLerror("glBindVertexArray");
 
 		glGenBuffers(1, &vbo);
+		printGLerror("glGenBuffers");
 		if (vbo == 0) {
 			glDeleteVertexArrays(1, &vao);
+			printGLerror("glDeleteVertexArrays");
 			vao = 0;
 			throw GLError("glBenBuffers failed");
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		printGLerror("glBindBuffer");
 
 		glGenTextures(1, &texture);
+		printGLerror("glGenTextures");
 		if (texture == 0) {
 			glDeleteVertexArrays(1, &vao);
 			vao = 0;
 			glDeleteBuffers(1, &vbo);
+			printGLerror("glDeleteBuffers");
 			vbo = 0;
 			throw GLError("glGenTextures failed");
 		}
 
 		glBindTexture(GL_TEXTURE_2D, texture);
+		printGLerror("glBindTexture");
 		glActiveTexture(GL_TEXTURE0);
+		printGLerror("glActiveTexture");
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		printGLerror("glTexImage2D");
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		printGLerror("glTexParameteri");
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		printGLerror("glTexParameteri");
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-		GLint posAttrib = glGetAttribLocation(m.current_shader, "in_position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-
-		GLint texcoordAttrib = glGetAttribLocation(m.current_shader, "in_texcoord");
-		glEnableVertexAttribArray(texcoordAttrib);
-		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-		GLint colAttrib = glGetAttribLocation(m.current_shader, "in_colour");
-		glEnableVertexAttribArray(colAttrib);
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
+		printGLerror("glTexParameteri");
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		printGLerror("glTexParameteri");
 	}
 #ifdef _MSC_VER
 	else {

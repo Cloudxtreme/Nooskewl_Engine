@@ -42,9 +42,12 @@ void Vertex_Cache::start(Image *image)
 	this->image = image;
 
 	if (noo.opengl) {
-		glBindVertexArray(image->internal->vao);
-		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
 		glBindTexture(GL_TEXTURE_2D, image->internal->texture);
+		printGLerror("glBindTexture");
+		glBindVertexArray(image->internal->vao);
+		printGLerror("glBindVertexArray");
+		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
+		printGLerror("glBindBuffer");
 	}
 #ifdef _MSC_VER
 	else {
@@ -63,16 +66,41 @@ void Vertex_Cache::end()
 {
 	if (noo.opengl) {
 		GLint use_tex = glGetUniformLocation(m.current_shader, "use_tex");
+		printGLerror("glGetUniformLocation");
 		if (image) {
 			glUniform1i(use_tex, true);
 		}
 		else {
 			glUniform1i(use_tex, false);
 		}
+		printGLerror("glUniform1i");
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
+		printGLerror("glBufferData");
+	
+		GLint posAttrib = glGetAttribLocation(m.current_shader, "in_position");
+		printGLerror("glGetAttribLocation");
+		glEnableVertexAttribArray(posAttrib);
+		printGLerror("glEnableVertexAttribArray");
+		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+		printGLerror("glVertexAttribPointer");
+
+		GLint texcoordAttrib = glGetAttribLocation(m.current_shader, "in_texcoord");
+		printGLerror("glGetAttribLocation");
+		glEnableVertexAttribArray(texcoordAttrib);
+		printGLerror("glEnableVertexAttribArray");
+		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+		printGLerror("glVertexAttribPointer");
+
+		GLint colAttrib = glGetAttribLocation(m.current_shader, "in_colour");
+		printGLerror("glGetAttribLocation");
+		glEnableVertexAttribArray(colAttrib);
+		printGLerror("glEnableVertexAttribArray");
+		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
+		printGLerror("glVertexAttribPointer");
 
 		glDrawArrays(GL_TRIANGLES, 0, count);
+		printGLerror("glDrawArrays");
 	}
 #ifdef _MSC_VER
 	else {

@@ -27,6 +27,7 @@ int c99_snprintf(char* str, int size, const char* format, ...);
 
 void errormsg(const char *fmt, ...);
 void infomsg(const char *fmt, ...);
+void printGLerror(const char *fmt, ...);
 
 struct Module {
 	Map_Logic_Getter get_map_logic;
