@@ -106,6 +106,8 @@ void Engine::start(int argc, char **argv)
 void Engine::stop()
 {
 	delete map;
+	delete player;
+
 	delete gui;
 
 	delete window_image;
