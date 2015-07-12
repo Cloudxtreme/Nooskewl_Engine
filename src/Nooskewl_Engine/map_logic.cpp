@@ -17,3 +17,7 @@ void Map_Logic::trigger(Map *map, Map_Entity *entity)
 void Map_Logic::update(Map *map)
 {
 }
+
+void Map_Logic::activate(Map *map, Map_Entity *activator, Map_Entity *activated)
+{
+}
