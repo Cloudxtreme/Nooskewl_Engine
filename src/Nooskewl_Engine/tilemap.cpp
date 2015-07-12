@@ -84,7 +84,7 @@ Tilemap::~Tilemap()
 				delete[] layers[layer].tiles[row];
 				delete[] layers[layer].solids[row];
 			}
-			delete layers[layer].sheets;
+			delete[] layers[layer].sheets;
 			delete[] layers[layer].tiles;
 			delete[] layers[layer].solids;
 		}
