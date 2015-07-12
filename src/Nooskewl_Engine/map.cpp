@@ -130,7 +130,6 @@ void Map::handle_event(TGUI_Event *event)
 				Direction dir = e->get_direction();
 				Point<int> pos = e->get_position() * noo.tile_size + e->get_offset() * (float)noo.tile_size;
 				Size<int> size(noo.tile_size, noo.tile_size);
-				// FIXME: more hardcoded tile sizes
 				switch (dir) {
 					case N:
 						pos.y -= noo.tile_size*2;
@@ -226,13 +225,13 @@ bool Map::update()
 void Map::draw()
 {
 	// FIXME: fix layers
-	tilemap->draw(0, offset); // FIXME: pos
+	tilemap->draw(0, offset);
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		e->draw(e->get_draw_position() + offset);
 	}
-	tilemap->draw(1, offset); // FIXME: pos
+	tilemap->draw(1, offset);
 
 	if (speech) {
 		speech->draw();

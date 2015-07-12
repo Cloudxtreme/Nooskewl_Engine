@@ -58,7 +58,7 @@ void load_dll()
 void close_dll()
 {
 #ifdef _MSC_VER
-	// FIXME!
+	FreeLibrary(dll_handle);
 #else
 	dlclose(so_handle);
 #endif

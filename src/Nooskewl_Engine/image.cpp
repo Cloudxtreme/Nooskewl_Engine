@@ -67,7 +67,6 @@ static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 	}
 }
 
-// FIXME: MSVC inline
 static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 {
 	/* OpenGL expects upside down, so that's what we provide */

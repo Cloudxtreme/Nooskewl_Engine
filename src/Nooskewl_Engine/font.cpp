@@ -74,7 +74,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 	while (*p) {
 		Image *g = glyphs[*p];
 
-		/* Glyphs appear to be rendered upside down, either by freetype or SDL... so we simple draw them flipped */
+		/* Glyphs are rendered upside down, so we FLIP_V them rather than flip the memory which would be slow */
 
 		g->start();
 		if (shadow_type == DROP_SHADOW) {

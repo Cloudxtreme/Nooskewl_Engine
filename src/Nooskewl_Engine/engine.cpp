@@ -713,7 +713,6 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	float angle = atan2(dy, dx);
 	float a1 = angle + PI / 2.0f;
 	float a2 = angle - PI / 2.0f;
-	// FIXME: 4 hardcoded
 	float scale = 0.5f;
 	Point<float> da = a;
 	Point<float> db = a;
