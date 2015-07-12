@@ -19,6 +19,7 @@ Map::~Map()
 {
 	if (ml) {
 		ml->end(this);
+		delete ml;
 	}
 
 	delete tilemap;
