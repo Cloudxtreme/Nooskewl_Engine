@@ -49,6 +49,7 @@ Engine::~Engine()
 void Engine::start(int argc, char **argv)
 {
 	mute = check_args(argc, argv, "+mute");
+	fullscreen = check_args(argc, argv, "+fullscreen");
 	vsync = !check_args(argc, argv, "-vsync");
 #ifdef _MSC_VER
 	opengl = !check_args(argc, argv, "+d3d");
@@ -141,21 +142,33 @@ void Engine::init_video()
 	int win_w = 1280;
 	int win_h = 720;
 
-	// Find close 16:9 window size
-	for (int i = 0; i < SDL_GetNumVideoDisplays(); i++) {
-		if (SDL_GetCurrentDisplayMode(i, &mode) == 0) {
-			// Give room for toolbars and decorations
-			mode.w -= 256;
-			mode.h -= 256;
-			float w = (float)mode.w / 16.0f;;
-			float h = (float)mode.h / 9.0f;
-			if (w > h) {
-				win_w = mode.w;
-				win_h = mode.w * 9 / 16;
-			}
-			else {
-				win_w = mode.h * 16 / 9;
-				win_h = mode.h;
+	if (fullscreen) {
+		if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
+			win_w = mode.w;
+			win_h = mode.h;
+		}
+		else {
+			fullscreen = false;
+		}
+	}
+
+	if (fullscreen == false) {
+		// Find close 16:9 window size
+		for (int i = 0; i < 1/*SDL_GetNumVideoDisplays()*/; i++) {
+			if (SDL_GetCurrentDisplayMode(i, &mode) == 0) {
+				// Give room for toolbars and decorations
+				mode.w -= 256;
+				mode.h -= 256;
+				float w = (float)mode.w / 16.0f;;
+				float h = (float)mode.h / 9.0f;
+				if (w > h) {
+					win_w = mode.w;
+					win_h = mode.w * 9 / 16;
+				}
+				else {
+					win_w = mode.h * 16 / 9;
+					win_h = mode.h;
+				}
 			}
 		}
 	}
@@ -165,6 +178,10 @@ void Engine::init_video()
 	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == NULL) {
 		throw Error("SDL_CreateWindow failed");
+	}
+
+	if (fullscreen) {
+		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 	}
 
 	int w, h;
@@ -644,7 +661,7 @@ void Engine::set_default_projection()
 void Engine::set_map_transition_projection(float angle)
 {
 	glm::mat4 proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
-	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -2.0f));
+	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
 	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
 

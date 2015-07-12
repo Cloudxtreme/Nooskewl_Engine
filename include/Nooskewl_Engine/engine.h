@@ -20,6 +20,7 @@ public:
 	int scale;
 	int screen_w;
 	int screen_h;
+	bool fullscreen;
 	bool opengl;
 	SDL_Colour colours[256];
 	SDL_Colour four_blacks[4];
