@@ -76,7 +76,7 @@ private:
 	GLuint fragmentShader;
 	SDL_GLContext opengl_context;
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	HWND hwnd;
 	D3DPRESENT_PARAMETERS d3d_pp;
 	bool d3d_lost;

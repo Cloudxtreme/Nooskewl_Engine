@@ -27,7 +27,7 @@ void Vertex_Cache::start()
 {
 	this->image = 0;
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	if (noo.opengl == false) {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
@@ -51,7 +51,7 @@ void Vertex_Cache::start(Image *image)
 		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
 		printGLerror("glBindBuffer");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
@@ -104,7 +104,7 @@ void Vertex_Cache::end()
 		glDrawArrays(GL_TRIANGLES, 0, count);
 		printGLerror("glDrawArrays");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		for (unsigned int i = 0; i < required_passes; i++) {
 			m.effect->BeginPass(i);

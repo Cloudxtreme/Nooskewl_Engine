@@ -3,7 +3,7 @@
 
 using namespace Nooskewl_Engine;
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 HINSTANCE dll_handle;
 #else
 void *so_handle;
@@ -15,7 +15,7 @@ Module m;
 
 void load_dll()
 {
-#if defined _MSC_VER
+#if defined NOOSKEWL_ENGINE_WINDOWS
 	List_Directory ld("*.dll");
 #elif defined __APPLE__
 	List_Directory ld("*.dylib");
@@ -25,7 +25,7 @@ void load_dll()
 	std::string filename;
 
 	while ((filename = ld.next()) != "") {
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 		dll_handle = LoadLibrary(filename.c_str());
 
 		if (!dll_handle) {
@@ -57,14 +57,14 @@ void load_dll()
 
 void close_dll()
 {
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	FreeLibrary(dll_handle);
 #else
 	dlclose(so_handle);
 #endif
 }
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 
 int c99_vsnprintf(char* str, int size, const char* format, va_list ap)
 {
@@ -90,7 +90,7 @@ int c99_snprintf(char* str, int size, const char* format, ...)
     return count;
 }
 
-#endif // _MSC_VER
+#endif // NOOSKEWL_ENGINE_WINDOWS
 
 void errormsg(const char *fmt, ...)
 {
@@ -182,7 +182,7 @@ bool check_args(int argc, char **argv, std::string arg)
 	return false;
 }
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 List_Directory::List_Directory(std::string filespec) :
 	got_first(false),
 	done(false)
@@ -245,6 +245,6 @@ std::string List_Directory::next()
 
 	return gl.gl_pathv[i++];
 }
-#endif // _MSC_VER
+#endif // NOOSKEWL_ENGINE_WINDOWS
 
 } // End namespace Nooskewl_Engine

@@ -54,7 +54,7 @@ void Engine::start(int argc, char **argv)
 	mute = check_args(argc, argv, "+mute");
 	fullscreen = check_args(argc, argv, "+fullscreen");
 	vsync = !check_args(argc, argv, "-vsync");
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	opengl = !check_args(argc, argv, "+d3d");
 #else
 	opengl = true;
@@ -281,7 +281,7 @@ void Engine::init_video()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		printGLerror("glBlendFunc");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		hwnd = GetActiveWindow();
 
@@ -569,7 +569,7 @@ void Engine::clear(SDL_Colour colour)
 		glClear(GL_COLOR_BUFFER_BIT);
 		printGLerror("glClear");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		m.d3d_device->Clear(0, 0, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
 	}
@@ -584,7 +584,7 @@ void Engine::clear_depth_buffer(float value)
 		glClear(GL_DEPTH_BUFFER_BIT);
 		printGLerror("glClear");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		m.d3d_device->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, value, 0);
 	}
@@ -596,7 +596,7 @@ void Engine::flip()
 	if (opengl) {
 		SDL_GL_SwapWindow(window);
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		m.d3d_device->EndScene();
 
@@ -681,7 +681,7 @@ void Engine::set_default_projection()
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 		printGLerror("glUniformMatrix4fv");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		/* D3D pixels are slightly different than OpenGL */
 		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
@@ -718,7 +718,7 @@ void Engine::set_map_transition_projection(float angle)
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 		printGLerror("glUniformMatrix4fv");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		/* D3D pixels are slightly different than OpenGL */
 		int w, h;

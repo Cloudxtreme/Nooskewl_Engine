@@ -1,9 +1,10 @@
 #ifndef STARSQUATTERS_H
 #define STARSQUATTERS_H
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 // Disable warnings about dll-interface
 #pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 #define NOOSKEWL_ENGINE_EXPORT __declspec(dllexport)
@@ -38,7 +39,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#if defined _MSC_VER
+#if defined NOOSKEWL_ENGINE_WINDOWS
 #include <d3d9.h>
 #include <d3dx9.h>
 #else
@@ -59,7 +60,7 @@
 
 #ifdef NOOSKEWL_ENGINE_BUILD
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 #define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
 

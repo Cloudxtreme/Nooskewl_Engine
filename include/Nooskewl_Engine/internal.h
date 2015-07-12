@@ -15,7 +15,7 @@ typedef Map_Logic *(*Map_Logic_Getter)(Map *);
 void load_dll();
 void close_dll();
 
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 /* MSVC doesn't have snprintf */
 
 #define snprintf c99_snprintf
@@ -36,7 +36,7 @@ struct Module {
 	SDL_AudioSpec device_spec;
 	std::vector<SampleInstance *> playing_samples;
 	// graphics
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	IDirect3DDevice9 *d3d_device;
 	LPD3DXEFFECT effect;
 #endif
@@ -52,7 +52,7 @@ public:
 	std::string next();
 
 private:
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	bool got_first;
 	bool done;
 	HANDLE handle;

@@ -299,7 +299,7 @@ void Image::Internal::release()
 		printGLerror("glDeleteBuffers");
 		glDeleteVertexArrays(1, &vao);
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		video_texture->Release();
 	}
@@ -485,7 +485,7 @@ void Image::Internal::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		printGLerror("glTexParameteri");
 	}
-#ifdef _MSC_VER
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		int err = m.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
 		D3DLOCKED_RECT locked_rect;

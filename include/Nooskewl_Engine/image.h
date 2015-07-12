@@ -61,7 +61,7 @@ private:
 		int w, h;
 		int refcount;
 
-	#ifdef _MSC_VER
+	#ifdef NOOSKEWL_ENGINE_WINDOWS
 		LPDIRECT3DTEXTURE9 video_texture;
 	#endif
 		GLuint vao;
