@@ -22,6 +22,7 @@ public:
 	void clear_cache();
 
 	int get_text_width(std::string text);
+	int get_height();
 
 	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
 	void disable_shadow();
@@ -41,6 +42,8 @@ private:
 
 	SDL_Colour shadow_colour;
 	Shadow_Type shadow_type;
+
+	int height;
 };
 
 } // End namespace Nooskewl_Engine

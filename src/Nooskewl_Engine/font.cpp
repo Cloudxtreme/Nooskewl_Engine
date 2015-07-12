@@ -5,7 +5,8 @@
 
 using namespace Nooskewl_Engine;
 
-Font::Font(std::string filename, int size)
+Font::Font(std::string filename, int size) :
+	height(size)
 {
 	filename = "fonts/" + filename;
 
@@ -54,6 +55,11 @@ int Font::get_text_width(std::string text)
 	return width;
 }
 
+int Font::get_height()
+{
+	return height;
+}
+
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
 {
 	this->shadow_colour = shadow_colour,
@@ -78,6 +84,8 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 
 		g->start();
 		if (shadow_type == DROP_SHADOW) {
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 0), Image::FLIP_V);
+			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, 1), Image::FLIP_V);
 			g->draw_tinted(shadow_colour, dest_position+1, Image::FLIP_V);
 		}
 		else if (shadow_type == FULL_SHADOW) {
