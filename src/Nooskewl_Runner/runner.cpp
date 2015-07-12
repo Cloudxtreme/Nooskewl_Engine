@@ -46,20 +46,17 @@ static bool run_main(int argc, char **argv)
 			else if (sdl_event.type == SDL_WINDOWEVENT && sdl_event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				noo.set_screen_size(sdl_event.window.data1, sdl_event.window.data2);
 				noo.set_default_projection();
-				gui->resize(noo.screen_w, noo.screen_h);
 			}
 
 			// FIXME: move GUI into engine
 			TGUI_Event event = tgui_sdl_convert_event(&sdl_event);
 
 			if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
-				event.mouse.x /= 4;
-				event.mouse.y /= 4;
+				event.mouse.x /= noo.scale;
+				event.mouse.y /= noo.scale;
 			}
 
 			noo.handle_event(&event);
-
-			gui->handle_event(&event);
 		}
 
 		noo.draw();
