@@ -2,15 +2,16 @@
 
 using namespace Nooskewl_Engine;
 
-Brain::Brain() :
-	l(false),
-	r(false),
-	u(false),
-	d(false),
-	b1(false)
+Brain::Brain()
 {
+	reset_input();
 }
 
 Brain::~Brain()
 {
+}
+
+void Brain::reset_input()
+{
+	l = r = u = d = b1 = false;
 }
