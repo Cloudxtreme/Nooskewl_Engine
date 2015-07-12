@@ -32,7 +32,9 @@ void Vertex_Cache::start()
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
 		m.d3d_device->SetFVF(FVF);
+		m.effect->SetBool("use_tex", false);
 		m.effect->Begin(&required_passes, 0);
+		m.d3d_device->SetTexture(0, NULL);
 	}
 #endif
 }
