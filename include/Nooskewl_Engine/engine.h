@@ -6,6 +6,7 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
@@ -37,6 +38,7 @@ public:
 	Map *map;
 	Map_Entity *player;
 	TGUI *gui;
+	MML *music;
 
 	Engine();
 	~Engine();

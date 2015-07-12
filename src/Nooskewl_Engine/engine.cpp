@@ -102,6 +102,9 @@ void Engine::start(int argc, char **argv)
 	gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
 	gui->set_focus(new_game);
 	// FIXME: make sure delete gui deletes widget
+
+	music = new MML("title.mml");
+	music->play(true);
 }
 
 void Engine::stop()
