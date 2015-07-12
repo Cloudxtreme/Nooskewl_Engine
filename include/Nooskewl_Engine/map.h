@@ -21,7 +21,7 @@ public:
 	void draw();
 
 	void add_entity(Map_Entity *entity);
-	void add_speeches(std::vector<std::string> &speeches);
+	void add_speech(std::string text);
 	void change_map(std::string map_name, Point<int> position, Direction direction);
 
 	bool is_solid(int layer, Point<int> position, Size<int> size);
