@@ -225,14 +225,21 @@ bool Map::update()
 
 void Map::draw()
 {
-	// FIXME: fix layers
-	tilemap->draw(0, offset);
+	int nlayers = tilemap->get_layer_count();
+	int layer;
+
+	for (layer = 0; layer < nlayers/2; layer++) {
+		tilemap->draw(layer, offset);
+	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		e->draw(e->get_draw_position() + offset);
 	}
-	tilemap->draw(1, offset);
+
+	for (; layer < nlayers; layer++) {
+		tilemap->draw(layer, offset);
+	}
 
 	if (speech) {
 		speech->draw();
