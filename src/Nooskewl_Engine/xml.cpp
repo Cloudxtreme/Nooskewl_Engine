@@ -21,7 +21,7 @@ XML::XML(std::string filename) :
 	name = std::string("main");
 
 	file = open_file(filename);
-	if (file == NULL) {
+	if (file == 0) {
 		throw FileNotFoundError(filename);
 	}
 
@@ -113,7 +113,7 @@ void XML::read()
 	for (;;) {
 		std::string token;
 		token = read_token();
-		if (token == "(null)" || (!strncmp(token.c_str(), "</", 2))) {
+		if (token == "(0)" || (!strncmp(token.c_str(), "</", 2))) {
 			return;
 		}
 		if (token.c_str()[0] == '<') {
@@ -143,7 +143,7 @@ std::string XML::read_token()
 	for (;;) {
 		c = get();
 		if (c == EOF) {
-			return "(null)";
+			return "(0)";
 		}
 		if (!isspace(c)) {
 			break;
@@ -193,7 +193,7 @@ std::string XML::read_token()
 		return data;
 	}
 
-	return "(null)";
+	return "(0)";
 }
 
 std::string XML::get_token_name(std::string token)

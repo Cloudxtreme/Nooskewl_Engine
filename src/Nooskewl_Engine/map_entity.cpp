@@ -8,7 +8,7 @@ static int current_id;
 
 Map_Entity::Map_Entity(Brain *brain) :
 	direction(S),
-	sprite(NULL),
+	sprite(0),
 	brain(brain),
 	position(0, 0),
 	moving(false),

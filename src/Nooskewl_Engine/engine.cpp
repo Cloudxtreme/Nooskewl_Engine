@@ -39,6 +39,7 @@ namespace Nooskewl_Engine {
 Engine noo;
 
 Engine::Engine() :
+	map(0)
 	tile_size(8)
 {
 }
@@ -73,7 +74,7 @@ void Engine::start(int argc, char **argv)
 		joy = SDL_JoystickOpen(0);
 	}
 	else {
-		joy = NULL;
+		joy = 0;
 	}
 
 	cpa = new CPA();
@@ -92,6 +93,7 @@ void Engine::start(int argc, char **argv)
 	speech_arrow->start();
 	load_palette("nes.gpl");
 
+	/*
 	map = new Map("test.map");
 
 	Player_Brain *player_brain = new Player_Brain();
@@ -99,6 +101,7 @@ void Engine::start(int argc, char **argv)
 	player->load_sprite("player");
 	player->set_position(Point<int>(1, 3));
 	map->add_entity(player);
+	*/
 }
 
 void Engine::stop()
@@ -177,7 +180,7 @@ void Engine::init_video()
 	infomsg("Trying window size %dx%d\n", win_w, win_h);
 
 	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
-	if (window == NULL) {
+	if (window == 0) {
 		throw Error("SDL_CreateWindow failed");
 	}
 
@@ -216,7 +219,7 @@ void Engine::init_video()
 			"}";
 		vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		printGLerror("glCreateShader");
-		glShaderSource(vertexShader, 1, &vertexSource, NULL);
+		glShaderSource(vertexShader, 1, &vertexSource, 0);
 		printGLerror("glShaderSource");
 		glCompileShader(vertexShader);
 		printGLerror("glCompileShader");
@@ -225,7 +228,7 @@ void Engine::init_video()
 		printGLerror("glGetShaderiv");
 		if (status != GL_TRUE) {
 			char buffer[512];
-			glGetShaderInfoLog(vertexShader, 512, NULL, buffer);
+			glGetShaderInfoLog(vertexShader, 512, 0, buffer);
 			errormsg("Vertex shader error: %s\n", buffer);
 		}
 
@@ -246,7 +249,7 @@ void Engine::init_video()
 			"}";
 		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		printGLerror("glCreateShader");
-		glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+		glShaderSource(fragmentShader, 1, &fragmentSource, 0);
 		printGLerror("glShaderSource");
 		glCompileShader(fragmentShader);
 		printGLerror("glCompileShader");
@@ -254,7 +257,7 @@ void Engine::init_video()
 		printGLerror("glGetShaderiv");
 		if (status != GL_TRUE) {
 			char buffer[512];
-			glGetShaderInfoLog(fragmentShader, 512, NULL, buffer);
+			glGetShaderInfoLog(fragmentShader, 512, 0, buffer);
 			errormsg("Fragment shader error: %s\n", buffer);
 		}
 
@@ -277,7 +280,7 @@ void Engine::init_video()
 	else {
 		hwnd = GetActiveWindow();
 
-		if ((d3d = Direct3DCreate9(D3D_SDK_VERSION)) == NULL) {
+		if ((d3d = Direct3DCreate9(D3D_SDK_VERSION)) == 0) {
 			throw Error("Direct3D9CreateEx failed");
 		}
 
@@ -379,10 +382,10 @@ void Engine::init_video()
 			m.d3d_device,
 			shader_source,
 			strlen(shader_source),
-			NULL,
-			NULL,
+			0,
+			0,
 			D3DXSHADER_PACKMATRIX_ROWMAJOR,
-			NULL,
+			0,
 			&m.effect,
 			&errors
 			);
@@ -437,9 +440,9 @@ void Engine::init_audio()
 	desired.channels = 1;
 	desired.samples = 4096;
 	desired.callback = audio_callback;
-	desired.userdata = NULL;
+	desired.userdata = 0;
 
-	audio_device = SDL_OpenAudioDevice(NULL, false, &desired, &m.device_spec, 0);
+	audio_device = SDL_OpenAudioDevice(0, false, &desired, &m.device_spec, 0);
 
 	if (audio_device == 0) {
 		throw Error("init_audio failed");
@@ -541,7 +544,7 @@ void Engine::clear(SDL_Colour colour)
 	}
 #ifdef _MSC_VER
 	else {
-		m.d3d_device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
+		m.d3d_device->Clear(0, 0, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
 	}
 #endif
 }
@@ -556,7 +559,7 @@ void Engine::clear_depth_buffer(float value)
 	}
 #ifdef _MSC_VER
 	else {
-		m.d3d_device->Clear(0, NULL, D3DCLEAR_ZBUFFER, 0, value, 0);
+		m.d3d_device->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, value, 0);
 	}
 #endif
 }
@@ -587,7 +590,7 @@ void Engine::flip()
 			}
 		}
 		else {
-			HRESULT hr = m.d3d_device->Present(NULL, NULL, hwnd, NULL);
+			HRESULT hr = m.d3d_device->Present(0, 0, hwnd, 0);
 
 			if (hr == D3DERR_DEVICELOST) {
 				infomsg("D3D device lost\n");
@@ -806,7 +809,7 @@ void Engine::load_palette(std::string name)
 	int line_count = 1;
 	int colour_count = 0;
 
-	while (SDL_fgets(file, line, 1000) != NULL) {
+	while (SDL_fgets(file, line, 1000) != 0) {
 		line_count++;
 		char *p = line;
 		while (*p != 0 && isspace(*p)) p++;

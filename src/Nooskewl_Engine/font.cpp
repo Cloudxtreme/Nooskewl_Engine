@@ -13,7 +13,7 @@ Font::Font(std::string filename, int size)
 
 	font = TTF_OpenFontRW(file, true, size);
 
-	if (font == NULL) {
+	if (font == 0) {
 		SDL_RWclose(file);
 		throw LoadError("TTF_OpenFontRW failed");
 	}
@@ -183,7 +183,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 void Font::cache_glyph(int ch)
 {
 	SDL_Surface *surface = TTF_RenderGlyph_Solid(font, ch, noo.white);
-	if (surface == NULL) {
+	if (surface == 0) {
 		errormsg("Error rendering glyph");
 		return;
 	}

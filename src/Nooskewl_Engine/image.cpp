@@ -95,14 +95,14 @@ Image::Image(SDL_Surface *surface) :
 	filename("--FROM SURFACE--")
 {
 	unsigned char *pixels;
-	SDL_Surface *tmp = NULL;
+	SDL_Surface *tmp = 0;
 
 	if (surface->format->format == SDL_PIXELFORMAT_RGBA8888)
 		pixels = (unsigned char *)surface->pixels;
 	else {
 		SDL_PixelFormat format;
 		format.format = SDL_PIXELFORMAT_RGBA8888;
-		format.palette = NULL;
+		format.palette = 0;
 		format.BitsPerPixel = 32;
 		format.BytesPerPixel = 4;
 		format.Rmask = 0xff;
@@ -110,8 +110,8 @@ Image::Image(SDL_Surface *surface) :
 		format.Bmask = 0xff0000;
 		format.Amask = 0xff000000;
 		tmp = SDL_ConvertSurface(surface, &format, 0);
-		if (tmp == NULL) {
-			throw Error("SDL_ConvertSurface returned NULL");
+		if (tmp == 0) {
+			throw Error("SDL_ConvertSurface returned 0");
 		}
 		pixels = (unsigned char *)tmp->pixels;
 	}
@@ -329,7 +329,7 @@ void Image::Internal::reload()
 	h = header.height;
 
 	/* Allocate space for the image */
-	if ((pixels = new unsigned char[header.width*header.height*4]) == NULL) {
+	if ((pixels = new unsigned char[header.width*header.height*4]) == 0) {
 		SDL_RWclose(file);
 		throw MemoryError("malloc of image failed");
 	}
@@ -482,9 +482,9 @@ void Image::Internal::upload(unsigned char *pixels)
 	}
 #ifdef _MSC_VER
 	else {
-		int err = m.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, NULL);
+		int err = m.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
 		D3DLOCKED_RECT locked_rect;
-		if (video_texture->LockRect(0, &locked_rect, NULL, 0) == D3D_OK) {
+		if (video_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
 			for (int y = 0; y < h; y++) {
 				unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
 				for (int x = 0; x < w; x++) {

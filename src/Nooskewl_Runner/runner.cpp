@@ -23,35 +23,6 @@ static bool run_main(int argc, char **argv)
 {
 	noo.start(argc, argv);
 
-	MML *music = new MML("title.mml");
-	music->play(true);
-
-	SS_Widget *main_widget = new SS_Widget(1.0f, 1.0f);
-	SS_Widget *child1 = new SS_Widget(50, 50);
-	child1->set_parent(main_widget);
-	child1->set_padding(10);
-	child1->set_accepts_focus(true);
-	SS_Widget *child11 = new SS_Widget(20, 20);
-	child11->set_parent(child1);
-	SS_Widget *child2 = new SS_Widget(-1.0f, 75);
-	child2->set_parent(main_widget);
-	SS_Widget *child3 = new SS_Widget(1.0f, -1.0f);
-	child3->set_parent(main_widget);
-	SS_Widget *child4 = new SS_Widget(50, -1.0f);
-	child4->set_parent(child3);
-	child4->set_padding(10);
-	child4->set_float_right(true);
-	child4->set_accepts_focus(true);
-	SS_Widget *child5 = new SS_Widget(10, 10);
-	child5->set_parent(child3);
-	child5->set_padding(10);
-	child5->set_float_right(true);
-	child5->set_accepts_focus(true);
-	SS_Widget *child6 = new SS_Widget(0.25f, 1.0f);
-	child6->set_parent(child3);
-	child6->set_accepts_focus(true);
-	TGUI *gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
-
 	bool quit = false;
 	bool draw = false;
 	int accumulated_delay = 0;

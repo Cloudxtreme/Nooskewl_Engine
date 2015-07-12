@@ -12,13 +12,13 @@ static Uint8 *safe_find_char(Uint8 *haystack, char needle, Uint8 *end)
 		}
 		p++;
 	}
-	return NULL;
+	return 0;
 }
 
 SDL_RWops *CPA::open(std::string filename)
 {
 	if (!exists(filename)) {
-		return NULL;
+		return 0;
 	}
 	return SDL_RWFromMem(bytes+info[filename].first, info[filename].second);
 }
@@ -32,11 +32,11 @@ CPA::CPA()
 {
 	List_Directory ld("*.cpa");
 	std::string filename;
-	SDL_RWops *file = NULL;
+	SDL_RWops *file = 0;
 
 	while ((filename = ld.next()) != "") {
 		file = SDL_RWFromFile(filename.c_str(), "rb");
-		if (file != NULL) {
+		if (file != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			break;
 		}
@@ -59,7 +59,7 @@ CPA::CPA()
 
 		// Read the size of the data (ascii text followed by newline first thing in the file)
 		Uint8 *header_end = (Uint8 *)safe_find_char(bytes, '\n', bytes+size);
-		if (header_end == NULL) {
+		if (header_end == 0) {
 			throw Error("Invalid CPA: header not present");
 		}
 		int header_size = (header_end - bytes) + 1;
@@ -78,7 +78,7 @@ CPA::CPA()
 
 		while (p < bytes+size) {
 			Uint8 *end = (Uint8 *)safe_find_char(p, '\n', bytes+size);
-			if (end == NULL) {
+			if (end == 0) {
 				throw Error("Invalid CPA: corrupt info section");
 			}
 			int len = end-p;
@@ -88,7 +88,7 @@ CPA::CPA()
 				char size_text[1000];
 				char name_text[1000];
 				Uint8 *size_text_end = (Uint8 *)safe_find_char(p, '\t', bytes+size);
-				if (size_text_end == NULL || size_text_end - p > 999) {
+				if (size_text_end == 0 || size_text_end - p > 999) {
 					throw Error("Invalid CPA: corrupt info section");
 				}
 				memcpy(size_text, p, size_text_end-p);

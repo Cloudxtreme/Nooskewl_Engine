@@ -25,7 +25,7 @@ void Tween::update_tweens(Tweens tweens)
 			if (t->update(t) == false) {
 				t->started = false;
 				list->nodes = list->nodes->next;
-				if (list->nodes == NULL) {
+				if (list->nodes == 0) {
 					delete list;
 					it = tweens.erase(it);
 					continue;

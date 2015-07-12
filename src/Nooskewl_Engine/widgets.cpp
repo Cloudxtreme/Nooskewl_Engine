@@ -96,7 +96,7 @@ void SS_Widget::handle_event(TGUI_Event *event)
 			event_x = event_y = -1;
 		}
 	}
-	else if (owner != NULL) {
+	else if (owner != 0) {
 		got_event = false;
 		event_x = event_y = -1;
 	}

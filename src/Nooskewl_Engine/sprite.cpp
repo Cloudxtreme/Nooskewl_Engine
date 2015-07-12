@@ -57,9 +57,9 @@ void Sprite::load(std::string xml_filename, std::string image_directory)
 		}
 		XML *delays = anim->find("delays");
 		std::vector<Uint32> delays_vector;
-		if (delays == NULL) {
+		if (delays == 0) {
 			XML *delay = anim->find("delay");
-			if  (delay == NULL) {
+			if  (delay == 0) {
 				for (int i = 0; i < count; i++) {
 					delays_vector.push_back(100);
 				}				
@@ -74,7 +74,7 @@ void Sprite::load(std::string xml_filename, std::string image_directory)
 		else {
 			for (int i = 0; i < count; i++) {
 				XML *delay = delays->find(itos(i));
-				if (delay == NULL) {
+				if (delay == 0) {
 					delays_vector.push_back(100);
 				}
 				else {
@@ -94,7 +94,7 @@ void Sprite::load(std::string xml_filename, std::string image_directory)
 		if (first) {
 			first = false;
 			current_animation = anim->get_name();
-			current_image = a->images.size() > 0 ? a->images[0] : NULL;
+			current_image = a->images.size() > 0 ? a->images[0] : 0;
 		}
 	}
 

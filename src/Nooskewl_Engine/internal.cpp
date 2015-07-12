@@ -33,19 +33,19 @@ void load_dll()
 		}
 
 		m.get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "get_map_logic");
-		if (m.get_map_logic != NULL) {
+		if (m.get_map_logic != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
 #else
 		so_handle = dlopen(filename.c_str(), RTLD_LAZY);
 
-		if (so_handle == NULL) {
+		if (so_handle == 0) {
 			throw FileNotFoundError("Couldn't load shared library");
 		}
 
 		m.get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "get_map_logic");
-		if (m.get_map_logic != NULL) {
+		if (m.get_map_logic != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
@@ -145,7 +145,7 @@ char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max)
 			break;
 		}
 	}
-	if (c == 0) return NULL;
+	if (c == 0) return 0;
 	buf[c] = 0;
 	return buf;
 }
@@ -159,7 +159,7 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 SDL_RWops *open_file(std::string filename)
 {
 	SDL_RWops *file = noo.cpa->open(filename);
-	if (file == NULL) {
+	if (file == 0) {
 		throw FileNotFoundError(filename);
 	}
 	return file;
@@ -219,9 +219,9 @@ std::string List_Directory::next()
 List_Directory::List_Directory(std::string filespec) :
 	i(0)
 {
-	gl.gl_pathv = NULL;
+	gl.gl_pathv = 0;
 
-	int ret = glob(filespec.c_str(), 0, NULL, &gl);
+	int ret = glob(filespec.c_str(), 0, 0, &gl);
 
 	if (ret != 0) {
 		i = 0;

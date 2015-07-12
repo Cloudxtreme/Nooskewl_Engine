@@ -34,6 +34,7 @@ public:
 	CPA *cpa;
 	Map *map;
 	Map_Entity *player;
+	GUI *gui;
 
 	Engine();
 	~Engine();

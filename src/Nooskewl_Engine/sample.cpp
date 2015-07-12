@@ -12,7 +12,7 @@ Sample::Sample(std::string filename)
 
 	spec = SDL_LoadWAV_RW(file, true, &m.device_spec, &data, &length);
 
-	if (spec == NULL) {
+	if (spec == 0) {
 		SDL_RWclose(file);
 		throw LoadError("SDL_LoadWAV_RW failed");
 	}
@@ -40,7 +40,7 @@ bool Sample::play(float volume, bool loop)
 	}
 
 	SampleInstance *s = new SampleInstance();
-	if (s == NULL) {
+	if (s == 0) {
 		return false;
 	}
 

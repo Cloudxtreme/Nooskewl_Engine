@@ -6,7 +6,7 @@ using namespace Nooskewl_Engine;
 
 Map::Map(std::string map_name) :
 	offset(0, 0),
-	speech(NULL),
+	speech(0),
 	map_name(map_name),
 	new_map_name("")
 {
@@ -38,7 +38,7 @@ void Map::add_entity(Map_Entity *entity)
 void Map::add_speech(std::string text)
 {
 	speeches.push_back(text);
-	if (speech == NULL) {
+	if (speech == 0) {
 		speech = new Speech(speeches[0]);
 		speech->start();
 	}
@@ -95,7 +95,7 @@ Map_Entity *Map::get_entity(int id)
 			return entities[i];
 		}
 	}
-	return NULL;
+	return 0;
 }
 
 std::string Map::get_map_name()
@@ -114,7 +114,7 @@ void Map::handle_event(TGUI_Event *event)
 				speech->start();
 			}
 			else {
-				speech = NULL;
+				speech = 0;
 			}
 		}
 	}
@@ -204,7 +204,7 @@ bool Map::update()
 	std::vector<Map_Entity *>::iterator it;
 	for (it = entities.begin(); it != entities.end();) {
 		Map_Entity *e = *it;
-		if (e->update(this, speech != NULL) == false) {
+		if (e->update(this, speech != 0) == false) {
 			delete e;
 			it = entities.erase(it);
 		}

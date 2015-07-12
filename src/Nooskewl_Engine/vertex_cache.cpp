@@ -6,7 +6,7 @@
 using namespace Nooskewl_Engine;
 
 Vertex_Cache::Vertex_Cache() :
-	vertices(NULL),
+	vertices(0),
 	count(0),
 	total(0),
 	perspective_drawing(false)
@@ -25,7 +25,7 @@ void Vertex_Cache::init()
 
 void Vertex_Cache::start()
 {
-	this->image = NULL;
+	this->image = 0;
 
 #ifdef _MSC_VER
 	if (noo.opengl == false) {
@@ -335,13 +335,13 @@ void Vertex_Cache::maybe_resize_buffer(int increase)
 		return;
 	}
 
-	if (vertices == NULL) {
+	if (vertices == 0) {
 		vertices = (float *)malloc(sizeof(float)*9*increase);
 	}
 	else {
 		vertices = (float *)realloc(vertices, sizeof(float)*9*(total+increase));
 	}
-	if (vertices == NULL) {
+	if (vertices == 0) {
 		throw MemoryError("out of memory in maybe_resize_buffer");
 	}
 
