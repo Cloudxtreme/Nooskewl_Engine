@@ -20,6 +20,32 @@ private:
 	int event_x, event_y;
 };
 
+class NOOSKEWL_ENGINE_EXPORT SS_Button : public SS_Widget {
+public:
+	SS_Button(int w, int h);
+
+	void handle_event(TGUI_Event *event);
+
+	bool pressed();
+
+protected:
+	bool _pressed;
+};
+
+class NOOSKEWL_ENGINE_EXPORT SS_Text_Button : public SS_Button
+{
+public:
+	static const int PAD_X = 10;
+	static const int PAD_Y = 5;
+
+	SS_Text_Button(std::string text);
+
+	void draw();
+
+private:
+	std::string text;
+};
+
 } // End namespace Nooskewl_Engine
 
 #endif // WIDGETS_H

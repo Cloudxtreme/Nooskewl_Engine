@@ -67,16 +67,6 @@ SS_Widget::SS_Widget(float percent_w, int h) :
 
 void SS_Widget::draw()
 {
-	SDL_Colour green = { 0, 255, 0, 255 };
-	SDL_Colour red = { 255, 0, 0, 255 };
-
-	noo.draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), noo.black);
-	noo.draw_quad(Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2, got_event ? green : noo.white);
-
-	if (event_x >= 0 || event_y >= 0) {
-		noo.draw_quad(Point<int>(event_x, event_y)+Point<int>(calculated_x, calculated_y)-1, Size<int>(2, 2), red);
-	}
-
 	if (gui->get_focus() == this) {
 		draw_focus(this);
 	}
@@ -100,4 +90,50 @@ void SS_Widget::handle_event(TGUI_Event *event)
 		got_event = false;
 		event_x = event_y = -1;
 	}
+}
+
+// --
+
+SS_Button::SS_Button(int w, int h) :
+	SS_Widget(w, h),
+	_pressed(false)
+{
+}
+
+void SS_Button::handle_event(TGUI_Event *event)
+{
+	if (gui->get_event_owner(event) == this) {
+		if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || (event->type == TGUI_JOY_DOWN && (1/*FIXME*/)) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
+			_pressed = true;
+		}
+	}
+}
+
+bool SS_Button::pressed()
+{
+	bool p = _pressed;
+	_pressed = false;
+	return  p;
+}
+
+// --
+
+SS_Text_Button::SS_Text_Button(std::string text) :
+	SS_Button(0, 0),
+	text(text)
+{
+	w = noo.font->get_text_width(text) + PAD_X * 2;
+	h = noo.font->get_height() + PAD_Y * 2;
+	printf("w=%d h=%d\n", w, h);
+}
+
+void SS_Text_Button::draw()
+{
+	SDL_Colour test = { 255, 0, 255, 255 };
+	noo.draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), test);
+	noo.font->enable_shadow(noo.black, Font::FULL_SHADOW);
+	noo.font->draw(noo.white, text, Point<int>(calculated_x+PAD_X, calculated_y+PAD_Y-2));
+	noo.font->disable_shadow();
+
+	SS_Widget::draw();
 }
