@@ -18,7 +18,7 @@ public:
 	void stop();
 	void handle_event(TGUI_Event *event);
 	// return false to destroy
-	bool update(Map *map);
+	bool update(Map *map, bool can_move);
 	void draw(Point<int> draw_pos);
 
 	void load_sprite(std::string name);
@@ -29,16 +29,21 @@ public:
 	void set_solid(bool solid);
 
 	int get_id();
+	Brain *get_brain();
 	Direction get_direction();
 	Point<int> get_position();
+	Point<float> get_offset();
 	Size<int> get_size();
 	Point<int> get_draw_position();
 	bool is_solid();
-	// returns true if they overlap even if not solid so check is_solid()
-	bool collides(Point<int> position, Size<int> size, Point<int> &collide_pos);
+	// Positions in pixels
+	bool pixels_collide(Point<int> position, Size<int> size);
+	// Positions in tiles
+	bool tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos);
 
 private:
 	bool maybe_move(Map *map);
+	void stop_now();
 
 	int id;
 	Direction direction;
@@ -50,6 +55,8 @@ private:
 	Point<float> offset;
 	int bounce;
 	bool solid;
+	Size<int> size;
+	bool stop_next_tile;
 };
 
 } // End namespace Nooskewl_Engine

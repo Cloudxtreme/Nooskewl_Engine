@@ -14,7 +14,9 @@ Map_Entity::Map_Entity(Brain *brain) :
 	speed(0.1f),
 	offset(0.0f, 0.0f),
 	bounce(1),
-	solid(true)
+	solid(true),
+	size(8, 8),
+	stop_next_tile(false)
 {
 	id = current_id++;
 }
@@ -96,6 +98,11 @@ int Map_Entity::get_id()
 	return id;
 }
 
+Brain *Map_Entity::get_brain()
+{
+	return brain;
+}
+
 Direction Map_Entity::get_direction()
 {
 	return direction;
@@ -106,16 +113,20 @@ Point<int> Map_Entity::get_position()
 	return position;
 }
 
+Point<float> Map_Entity::get_offset()
+{
+	return offset;
+}
+
 Size<int> Map_Entity::get_size()
 {
-	// FIXME:
-	return Size<int>(8, 16);
+	return size;
 }
 
 Point<int> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->h;
-		return Point<int>((int)((position.x+offset.x)*8.0f), (int)((position.y+offset.y+1.0f)*8.0f-h));
+		return Point<int>(position.x*8+int(offset.x*8.0f), (position.y+1)*8+int(offset.y*8.0f)-h);
 }
 
 bool Map_Entity::is_solid()
@@ -123,7 +134,16 @@ bool Map_Entity::is_solid()
 	return solid;
 }
 
-bool Map_Entity::collides(Point<int> position, Size<int> size, Point<int> &collide_pos)
+bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
+{
+	Point<int> pos = this->position * 8 + this->offset * 8.0f; // FIXME: tile size
+	if (pos.x > position.x+size.w || pos.x+this->size.w < position.x || pos.y > position.y+size.h || pos.y+this->size.h < position.y) {
+		return false;
+	}
+	return true;
+}
+
+bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos)
 {
 	if (this->position.x >= position.x && this->position.x < position.x+size.w && this->position.y >= position.y && this->position.y < position.y+size.h) {
 		collide_pos = Point<int>(this->position.x-position.x, this->position.y-position.y);
@@ -134,9 +154,12 @@ bool Map_Entity::collides(Point<int> position, Size<int> size, Point<int> &colli
 
 void Map_Entity::stop()
 {
-	moving = false;
-	// FIXME: add all buttons here
-	brain->l = brain->r = brain->u = brain->d = brain->b1 = false;
+	if (moving) {
+		stop_next_tile = true;
+	}
+	else {
+		stop_now();
+	}
 }
 
 bool Map_Entity::maybe_move(Map *map)
@@ -145,6 +168,7 @@ bool Map_Entity::maybe_move(Map *map)
 		if (brain->l) {
 			if (map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
+				direction = W;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
 				sprite->set_animation("walk_w");
@@ -160,6 +184,7 @@ bool Map_Entity::maybe_move(Map *map)
 		else if (brain->r) {
 			if (map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
+				direction = E;
 				offset = Point<float>(-1, 0);
 				position += Point<int>(1, 0);
 				sprite->set_animation("walk_e");
@@ -175,6 +200,7 @@ bool Map_Entity::maybe_move(Map *map)
 		else if (brain->u) {
 			if (map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
 				moving = true;
+				direction = N;
 				offset = Point<float>(0, 1);
 				position += Point<int>(0, -1);
 				sprite->set_animation("walk_n");
@@ -190,6 +216,7 @@ bool Map_Entity::maybe_move(Map *map)
 		else if (brain->d) {
 			if (map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
 				moving = true;
+				direction = S;
 				offset = Point<float>(0, -1);
 				position += Point<int>(0, 1);
 				sprite->set_animation("walk_s");
@@ -213,7 +240,7 @@ void Map_Entity::handle_event(TGUI_Event *event)
 	}
 }
 
-bool Map_Entity::update(Map *map)
+bool Map_Entity::update(Map *map, bool can_move)
 {
 	if (moving == false) {
 		maybe_move(map);
@@ -225,7 +252,10 @@ bool Map_Entity::update(Map *map)
 			if (offset.x >= 0) {
 				offset.x = 0;
 				map->check_triggers(this);
-				if (maybe_move(map) == false) {
+				if (stop_next_tile) {
+					stop_now();
+				}
+				else if (maybe_move(map) == false) {
 					moving = false;
 					sprite->stop();
 					sprite->set_animation("stand_e");
@@ -237,7 +267,10 @@ bool Map_Entity::update(Map *map)
 			if (offset.x <= 0) {
 				offset.x = 0;
 				map->check_triggers(this);
-				if (maybe_move(map) == false) {
+				if (stop_next_tile) {
+					stop_now();
+				}
+				else if (maybe_move(map) == false) {
 					moving = false;
 					sprite->stop();
 					sprite->set_animation("stand_w");
@@ -249,7 +282,10 @@ bool Map_Entity::update(Map *map)
 			if (offset.y >= 0) {
 				offset.y = 0;
 				map->check_triggers(this);
-				if (maybe_move(map) == false) {
+				if (stop_next_tile) {
+					stop_now();
+				}
+				else if (maybe_move(map) == false) {
 					moving = false;
 					sprite->stop();
 					sprite->set_animation("stand_s");
@@ -261,7 +297,10 @@ bool Map_Entity::update(Map *map)
 			if (offset.y <= 0) {
 				offset.y = 0;
 				map->check_triggers(this);
-				if (maybe_move(map) == false) {
+				if (stop_next_tile) {
+					stop_now();
+				}
+				else if (maybe_move(map) == false) {
 					moving = false;
 					sprite->stop();
 					sprite->set_animation("stand_n");
@@ -279,4 +318,19 @@ void Map_Entity::draw(Point<int> draw_pos)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
 	sprite->get_current_image()->draw_single(Point<int>(draw_pos.x, draw_pos.y+add));
+}
+
+void Map_Entity::stop_now()
+{
+	printf("stop_now\n");
+	stop_next_tile = false;
+	moving = false;
+	// FIXME: add all buttons here
+	brain->l = brain->r = brain->u = brain->d = brain->b1 = false;
+	set_direction(direction);
+	sprite->stop();
+	sprite->reset();
+	if (brain) {
+		brain->reset_input();
+	}
 }
