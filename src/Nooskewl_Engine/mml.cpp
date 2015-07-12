@@ -120,7 +120,6 @@ MML::Internal::Track::Track(Type type, std::string text, std::vector< std::pair<
 	pitch_envelopes(pitch_envelopes),
 	dutycycles(dutycycles),
 	pad(pad),
-	loop(loop),
 	playing(false)
 {
 }

@@ -27,7 +27,11 @@
 #include <vector>
 
 #include <GL/glew.h>
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -37,7 +41,7 @@
 #if defined _MSC_VER
 #include <d3d9.h>
 #include <d3dx9.h>
-#elif defined __linux__
+#else
 #include <dlfcn.h>
 #include <glob.h>
 #endif

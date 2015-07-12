@@ -15,8 +15,10 @@ Module m;
 
 void load_dll()
 {
-#ifdef _MSC_VER
+#if defined _MSC_VER
 	List_Directory ld("*.dll");
+#elif defined __APPLE__
+	List_Directory ld("*.dylib");
 #else
 	List_Directory ld("*.so");
 #endif
@@ -201,7 +203,8 @@ std::string List_Directory::next()
 	return ffd.cFileName;
 }
 #else
-List_Directory::List_Directory(std::string filespec)
+List_Directory::List_Directory(std::string filespec) :
+	i(0)
 {
 	gl.gl_pathv = NULL;
 
@@ -226,6 +229,7 @@ std::string List_Directory::next()
 	if (i < 0) {
 		return "";
 	}
+
 	return gl.gl_pathv[i++];
 }
 #endif // _MSC_VER

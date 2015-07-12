@@ -1,0 +1,1 @@
+cmake .. -DTRENTS_BUILD=on -DUSER_INCLUDE_PATH="/Users/trent/code/local/include" -DUSER_LIBRARY_PATH="/Users/trent/code/local/lib" -DUSER_FRAMEWORK_PATH="/Users/trent/code/local/lib" -DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
