@@ -106,7 +106,6 @@ void Engine::start(int argc, char **argv)
 void Engine::stop()
 {
 	delete map;
-	printf("HERE del gui\n");
 	delete gui;
 
 	delete window_image;
@@ -181,8 +180,6 @@ void Engine::init_video()
 		}
 	}
 
-	infomsg("Trying window size %dx%d\n", win_w, win_h);
-
 	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == 0) {
 		throw Error("SDL_CreateWindow failed");
@@ -199,12 +196,13 @@ void Engine::init_video()
 
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
-		printf("opengl_context=%d\n", opengl_context);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
 		glewExperimental = 1;
 		GLenum error = glewInit();
-		printf("glew returned %d\n", error);
+		if (error != GL_NO_ERROR) {
+			throw Error("glewInit failed");
+		}
 
 		const char *vertexSource =
 			"#version 110\n"

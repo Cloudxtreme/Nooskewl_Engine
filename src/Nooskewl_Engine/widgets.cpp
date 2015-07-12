@@ -132,7 +132,6 @@ SS_Text_Button::SS_Text_Button(std::string text) :
 {
 	w = noo.font->get_text_width(text) + PAD_X * 2;
 	h = noo.font->get_height() + PAD_Y * 2;
-	printf("w=%d h=%d\n", w, h);
 }
 
 SS_Text_Button::~SS_Text_Button()
