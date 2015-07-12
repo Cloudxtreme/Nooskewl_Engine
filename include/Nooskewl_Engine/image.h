@@ -25,6 +25,7 @@ public:
 
 	static void release_all();
 	static void reload_all();
+	static int get_unfreed_count();
 
 	void release();
 	void reload();

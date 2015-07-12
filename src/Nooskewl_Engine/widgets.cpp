@@ -65,6 +65,10 @@ SS_Widget::SS_Widget(float percent_w, int h) :
 {
 }
 
+SS_Widget::~SS_Widget()
+{
+}
+
 void SS_Widget::draw()
 {
 	if (gui->get_focus() == this) {
@@ -100,6 +104,10 @@ SS_Button::SS_Button(int w, int h) :
 {
 }
 
+SS_Button::~SS_Button()
+{
+}
+
 void SS_Button::handle_event(TGUI_Event *event)
 {
 	if (gui->get_event_owner(event) == this) {
@@ -125,6 +133,10 @@ SS_Text_Button::SS_Text_Button(std::string text) :
 	w = noo.font->get_text_width(text) + PAD_X * 2;
 	h = noo.font->get_height() + PAD_Y * 2;
 	printf("w=%d h=%d\n", w, h);
+}
+
+SS_Text_Button::~SS_Text_Button()
+{
 }
 
 void SS_Text_Button::draw()

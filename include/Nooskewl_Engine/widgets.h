@@ -11,6 +11,7 @@ public:
 	SS_Widget(float percent_w, float percent_h);
 	SS_Widget(int w, float percent_h);
 	SS_Widget(float percent_w, int h);
+	virtual ~SS_Widget();
 
 	void draw();
 	void handle_event(TGUI_Event *event);
@@ -23,6 +24,7 @@ private:
 class NOOSKEWL_ENGINE_EXPORT SS_Button : public SS_Widget {
 public:
 	SS_Button(int w, int h);
+	virtual ~SS_Button();
 
 	void handle_event(TGUI_Event *event);
 
@@ -39,6 +41,7 @@ public:
 	static const int PAD_Y = 5;
 
 	SS_Text_Button(std::string text);
+	virtual ~SS_Text_Button();
 
 	void draw();
 

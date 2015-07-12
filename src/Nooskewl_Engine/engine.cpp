@@ -106,9 +106,11 @@ void Engine::start(int argc, char **argv)
 void Engine::stop()
 {
 	delete map;
+	printf("HERE del gui\n");
 	delete gui;
 
 	delete window_image;
+	delete speech_arrow;
 
 	delete font;
 	delete bold_font;
@@ -118,6 +120,8 @@ void Engine::stop()
 	shutdown_audio();
 
 	delete cpa;
+
+	infomsg("%d unfreed images\n", Image::get_unfreed_count());
 
 	close_dll();
 
@@ -756,22 +760,31 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	dd.x += cos(a2) * 0.5f;
 	dd.y += sin(a2) * 0.5f;
 	if (opengl) {
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
 	}
 	m.vertex_cache->start();
 	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
 	m.vertex_cache->end();
+	if (opengl) {
+		glEnable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
 }
 
 void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
 {
 	if (opengl) {
-		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisable(GL_TEXTURE_2D);
 		printGLerror("glBindTexture");
 	}
 	m.vertex_cache->start();
 	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
 	m.vertex_cache->end();
+	if (opengl) {
+		glEnable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
 }
 
 void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)

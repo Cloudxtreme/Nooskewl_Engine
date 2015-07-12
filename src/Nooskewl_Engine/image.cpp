@@ -265,6 +265,11 @@ void Image::reload_all()
 	}
 }
 
+int Image::get_unfreed_count()
+{
+	return loaded_images.size();
+}
+
 Image::Internal::Internal(std::string filename) :
 	filename(filename),
 	refcount(1)

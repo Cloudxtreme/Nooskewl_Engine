@@ -25,6 +25,7 @@ Sprite::~Sprite()
 		for (size_t i = 0; i < a->images.size(); i++) {
 			delete a->images[i];
 		}
+		delete a;
 	}
 }
 
@@ -86,11 +87,17 @@ void Sprite::load(std::string xml_filename, std::string image_directory)
 		for (size_t i = 0; i < delays_vector.size(); i++) {
 			total_delays += delays_vector[i];
 		}
-		Animation *a = new Animation();
-		a->images = images;
-		a->delays = delays_vector;
-		a->total_delays = total_delays;
-		animations[anim->get_name()] = a;
+		Animation *a;
+		if (animations.find(anim->get_name()) == animations.end()) {
+			a = new Animation();
+			a->images = images;
+			a->delays = delays_vector;
+			a->total_delays = total_delays;
+			animations[anim->get_name()] = a;
+		}
+		else {
+			throw Error("Duplicate animation!");
+		}
 		if (first) {
 			first = false;
 			current_animation = anim->get_name();
