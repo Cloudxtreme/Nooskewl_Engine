@@ -202,9 +202,14 @@ void Image::draw_region_tinted(SDL_Colour colour, Point<int> source_position, Si
 	m.vertex_cache->buffer(source_position, source_size, dest_position, source_size, colours, flags);
 }
 
+void Image::draw_region_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, int flags)
+{
+	m.vertex_cache->buffer_z(source_position, source_size, dest_position, z, source_size, noo.four_whites, flags);
+}
+
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
-	m.vertex_cache->buffer(source_position, source_size, dest_position, source_size, noo.four_whites, flags);
+	draw_region_z(source_position, source_size, dest_position, 0.0f, flags);
 }
 
 void Image::draw_tinted(SDL_Colour colour, Point<int> dest_position, int flags)
@@ -212,9 +217,14 @@ void Image::draw_tinted(SDL_Colour colour, Point<int> dest_position, int flags)
 	draw_region_tinted(colour, Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
 }
 
+void Image::draw_z(Point<int> dest_position, float z, int flags)
+{
+	draw_region_z(Point<int>(0, 0), Size<int>(w, h), dest_position, z, flags);
+}
+
 void Image::draw(Point<int> dest_position, int flags)
 {
-	draw_region(Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
+	draw_z(dest_position, 0.0f, flags);
 }
 
 void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
@@ -244,11 +254,17 @@ void Image::draw_tinted_single(SDL_Colour colour, Point<int> dest_position, int 
 	draw_tinted(colour, dest_position, flags);
 	end();
 }
-void Image::draw_single(Point<int> dest_position, int flags)
+
+void Image::draw_single_z(Point<int> dest_position, float z, int flags)
 {
 	start();
-	draw(dest_position, flags);
+	draw_z(dest_position, z, flags);
 	end();
+}
+
+void Image::draw_single(Point<int> dest_position, int flags)
+{
+	draw_single_z(dest_position, 0.0f, flags);
 }
 
 void Image::release_all()

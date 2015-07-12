@@ -49,8 +49,11 @@ public:
 	void draw();
 
 	void clear(SDL_Colour colour);
-	void clear_depth_buffer(float value);
 	void flip();
+
+	void clear_depth_buffer(float value);
+	void enable_depth_buffer(bool enable);
+
 	void set_screen_size(int w, int h);
 	void set_default_projection();
 	void set_map_transition_projection(float angle);

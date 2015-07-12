@@ -10,7 +10,7 @@ Map::Map(std::string map_name) :
 	map_name(map_name),
 	new_map_name("")
 {
-	tilemap = new Tilemap(noo.tile_size, map_name);
+	tilemap = new Tilemap(map_name);
 
 	ml = m.get_map_logic(this);
 }
@@ -104,6 +104,11 @@ std::string Map::get_map_name()
 	return map_name;
 }
 
+Tilemap *Map::get_tilemap()
+{
+	return tilemap;
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {
@@ -171,8 +176,8 @@ void Map::update_camera()
 		Point<int> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
 		offset = p - Point<int>(noo.screen_w, noo.screen_h) / 2 + sz / 2;
-		int max_x = (tilemap->get_width()*tilemap->get_tile_size()-noo.screen_w);
-		int max_y = (tilemap->get_height()*tilemap->get_tile_size()-noo.screen_h);
+		int max_x = (tilemap->get_width()*noo.tile_size-noo.screen_w);
+		int max_y = (tilemap->get_height()*noo.tile_size-noo.screen_h);
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
@@ -187,11 +192,11 @@ void Map::update_camera()
 		}
 		offset = -offset;
 		// Correct for small levels
-		if (tilemap->get_width()*tilemap->get_tile_size() < noo.screen_w) {
-			offset.x = (noo.screen_w - (tilemap->get_width() * tilemap->get_tile_size())) / 2;
+		if (tilemap->get_width()*noo.tile_size < noo.screen_w) {
+			offset.x = (noo.screen_w - (tilemap->get_width() * noo.tile_size)) / 2;
 		}
-		if (tilemap->get_height()*tilemap->get_tile_size() < noo.screen_h) {
-			offset.y = (noo.screen_h - (tilemap->get_height() * tilemap->get_tile_size())) / 2;
+		if (tilemap->get_height()*noo.tile_size < noo.screen_h) {
+			offset.y = (noo.screen_h - (tilemap->get_height() * noo.tile_size)) / 2;
 		}
 	}
 }
@@ -225,17 +230,24 @@ bool Map::update()
 
 void Map::draw()
 {
-	int nlayers = tilemap->get_layer_count();
+	int nlayers = tilemap->get_num_layers();
 	int layer;
 
 	for (layer = 0; layer < nlayers/2; layer++) {
 		tilemap->draw(layer, offset);
 	}
 
+	noo.enable_depth_buffer(true);
+	noo.clear_depth_buffer(1.0f);
+
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		e->draw(e->get_draw_position() + offset);
+		e->draw(this, e->get_draw_position() + offset);
 	}
+
+	tilemap->draw(layer++, offset, true);
+
+	noo.enable_depth_buffer(false);
 
 	for (; layer < nlayers; layer++) {
 		tilemap->draw(layer, offset);

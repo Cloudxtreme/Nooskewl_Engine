@@ -29,6 +29,7 @@ public:
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 	Map_Entity *get_entity(int id);
 	std::string get_map_name();
+	Tilemap *get_tilemap();
 
 private:
 	Tilemap *tilemap;

@@ -1,10 +1,10 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/tilemap.h"
 
 using namespace Nooskewl_Engine;
 
-Tilemap::Tilemap(int tile_size, std::string map_filename) :
-	tile_size(tile_size)
+Tilemap::Tilemap(std::string map_filename)
 {
 	map_filename = "maps/" + map_filename;
 
@@ -93,7 +93,7 @@ Tilemap::~Tilemap()
 	}
 }
 
-int Tilemap::get_layer_count()
+int Tilemap::get_num_layers()
 {
 	return num_layers;
 }
@@ -106,11 +106,6 @@ int Tilemap::get_width()
 int Tilemap::get_height()
 {
 	return height;
-}
-
-int Tilemap::get_tile_size()
-{
-	return tile_size;
 }
 
 bool Tilemap::is_solid(int layer, Point<int> position)
@@ -133,10 +128,10 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 	int start_layer = layer < 0 ? 0 : layer;
 	int end_layer = layer < 0 ? num_layers - 1 : layer;
 
-	int start_column = topleft.x / tile_size;
-	int end_column = bottomright.x / tile_size;
-	int start_row = topleft.y / tile_size;
-	int end_row = bottomright.y / tile_size;
+	int start_column = topleft.x / noo.tile_size;
+	int end_column = bottomright.x / noo.tile_size;
+	int start_row = topleft.y / noo.tile_size;
+	int end_row = bottomright.y / noo.tile_size;
 
 	start_column = MIN(width-1, MAX(0, start_column));
 	end_column = MIN(width-1, MAX(0, end_column));
@@ -158,14 +153,14 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 	return false;
 }
 
-void Tilemap::draw(int layer, Point<int> position)
+void Tilemap::draw(int layer, Point<int> position, bool set_z)
 {
 	Layer l = layers[layer];
 
 	for (size_t sheet = 0; sheet < l.sheets_used.size(); sheet++) {
 		int sheet_num = l.sheets_used[sheet];
 
-		int width_in_tiles = sheets[sheet_num]->w / tile_size;
+		int width_in_tiles = sheets[sheet_num]->w / noo.tile_size;
 
 		sheets[sheet_num]->start();
 
@@ -174,14 +169,15 @@ void Tilemap::draw(int layer, Point<int> position)
 				int s = l.sheets[row][col];
 				if (s == sheet_num) {
 					int tile = l.tiles[row][col];
-					int sx = tile % width_in_tiles * tile_size;
-					int sy = tile / width_in_tiles * tile_size;
-					int dx = position.x + col * tile_size;
-					int dy = position.y + row * tile_size;
-					sheets[s]->draw_region(
+					int sx = tile % width_in_tiles * noo.tile_size;
+					int sy = tile / width_in_tiles * noo.tile_size;
+					int dx = position.x + col * noo.tile_size;
+					int dy = position.y + row * noo.tile_size;
+					sheets[s]->draw_region_z(
 						Point<int>(sx, sy),
-						Size<int>(tile_size, tile_size),
+						Size<int>(noo.tile_size, noo.tile_size),
 						Point<int>(dx, dy),
+						set_z ? -(1.0f-((float)(row * noo.tile_size)/(float)(height*noo.tile_size))) : 0.0f,
 						0
 					);
 				}

@@ -11,19 +11,18 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT Tilemap
 {
 public:
-	Tilemap(int tile_size, std::string map_filename);
+	Tilemap(std::string map_filename);
 	~Tilemap();
 
-	int get_layer_count();
+	int get_num_layers();
 	int get_width();
 	int get_height();
-	int get_tile_size();
 
 	bool is_solid(int layer, Point<int> position);
 	// in pixels
 	bool collides(int layer, Point<int> topleft, Point<int> bottomright);
 
-	void draw(int layer, Point<int> position);
+	void draw(int layer, Point<int> position, bool set_z = false);
 
 private:
 	struct Layer
@@ -34,7 +33,6 @@ private:
 		std::vector<int> sheets_used;
 	};
 
-	int tile_size; // in pixels
 	std::vector<Image *> sheets;
 
 	std::vector<int> *sheets_used;

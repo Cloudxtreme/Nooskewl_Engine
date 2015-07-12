@@ -19,7 +19,8 @@ public:
 	void handle_event(TGUI_Event *event);
 	// return false to destroy
 	bool update(Map *map, bool can_move);
-	void draw(Point<int> draw_pos);
+	// draws with z values
+	void draw(Map *map, Point<int> draw_pos);
 
 	void load_sprite(std::string name);
 	void set_position(Point<int> position);

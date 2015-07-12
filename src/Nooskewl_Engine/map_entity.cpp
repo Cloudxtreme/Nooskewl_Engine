@@ -315,10 +315,11 @@ bool Map_Entity::update(Map *map, bool can_move)
 	return true;
 }
 
-void Map_Entity::draw(Point<int> draw_pos)
+void Map_Entity::draw(Map *map, Point<int> draw_pos)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
-	sprite->get_current_image()->draw_single(Point<int>(draw_pos.x, draw_pos.y+add));
+	// subtract 1 so tiles have precedence
+	sprite->get_current_image()->draw_single_z(Point<int>(draw_pos.x, draw_pos.y+add), -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(map->get_tilemap()->get_height()*noo.tile_size))));
 }
 
 void Map_Entity::stop_now()

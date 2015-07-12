@@ -591,6 +591,26 @@ void Engine::clear_depth_buffer(float value)
 #endif
 }
 
+void Engine::enable_depth_buffer(bool enable)
+{
+	if (opengl) {
+		if (enable) {
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(GL_TRUE);
+			glDepthFunc(GL_LESS);
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.1f);
+		}
+		else {
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_ALPHA_TEST);
+		}
+	}
+	else {
+		// FIXME
+	}
+}
+
 void Engine::flip()
 {
 	if (opengl) {

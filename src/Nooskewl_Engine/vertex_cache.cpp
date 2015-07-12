@@ -213,7 +213,7 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 	count += 6;
 }
 
-void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
+void Vertex_Cache::buffer_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
 {
 	maybe_resize_buffer(256);
 
@@ -252,7 +252,7 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 	vertices[9*(count+5)+1] = dy2;
 
 	for (int i = 0; i < 6; i++) {
-		vertices[9*(count+i)+2] = 0.0f; // set vertex z
+		vertices[9*(count+i)+2] = z; // set vertex z
 	}
 
 	if (image) {
@@ -323,6 +323,11 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 	vertices[9*(count+5)+5+3] = (float)vertex_colours[3].a / 255.0f;
 
 	count += 6;
+}
+
+void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4], int flags)
+{
+	buffer_z(source_position, source_size, dest_position, 0.0f, dest_size, vertex_colours, flags);
 }
 
 void Vertex_Cache::set_perspective_drawing(bool perspective_drawing)
