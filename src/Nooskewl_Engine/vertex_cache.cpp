@@ -138,7 +138,7 @@ void Vertex_Cache::buffer(Point<int> source_position, Size<int> source_size, Poi
 	vertices[9*(count+5)+1] = dd.y;
 
 	for (int i = 0; i < 6; i++) {
-		vertices[9*(count+i)+2] = -5.0f; // set vertex z
+		vertices[9*(count+i)+2] = 0.0f; // set vertex z
 	}
 
 	if (image) {
