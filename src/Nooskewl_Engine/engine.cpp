@@ -322,7 +322,7 @@ void Engine::init_video()
 		m.d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 		m.d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 		m.d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m.d3d_device->SetRenderState(D3DRS_ZENABLE, FALSE);
+		m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 
 		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
@@ -607,7 +607,19 @@ void Engine::enable_depth_buffer(bool enable)
 		}
 	}
 	else {
-		// FIXME
+		if (enable) {
+			m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+			m.d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+			m.d3d_device->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESS);
+			m.d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+			m.d3d_device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+			m.d3d_device->SetRenderState(D3DRS_ALPHAREF, 1);
+		}
+		else {
+			m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+			m.d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+			m.d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+		}
 	}
 }
 
