@@ -39,6 +39,7 @@ namespace Nooskewl_Engine {
 Engine noo;
 
 Engine::Engine() :
+	window_title("Nooskewl Engine"),
 	map(0),
 	tile_size(8)
 {
@@ -182,7 +183,7 @@ void Engine::init_video()
 		}
 	}
 
-	window = SDL_CreateWindow("SS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
+	window = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == 0) {
 		throw Error("SDL_CreateWindow failed");
 	}
@@ -475,7 +476,7 @@ void Engine::handle_event(TGUI_Event *event)
 			delete gui;
 			gui = 0;
 
-			map = new Map("test.map");
+			map = new Map("start.map");
 
 			Player_Brain *player_brain = new Player_Brain();
 			player = new Map_Entity(player_brain);
