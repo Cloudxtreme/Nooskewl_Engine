@@ -14,13 +14,13 @@ Map::Map(std::string map_name) :
 
 	a_star = new A_Star(tilemap);
 
-	ml = m.get_map_logic(this);
+	ml = m.get_map_logic(map_name);
 }
 
 Map::~Map()
 {
 	if (ml) {
-		ml->end(this);
+		ml->end();
 		delete ml;
 	}
 
@@ -82,7 +82,7 @@ bool Map::is_solid(int layer, Point<int> position, Size<int> size)
 void Map::check_triggers(Map_Entity *entity)
 {
 	if (ml) {
-		ml->trigger(this, entity);
+		ml->trigger(entity);
 	}
 }
 
@@ -174,7 +174,7 @@ void Map::handle_event(TGUI_Event *event)
 						continue;
 					}
 					if (e2->pixels_collide(pos, size)) {
-						ml->activate(this, e, e2);
+						ml->activate(e, e2);
 						break;
 					}
 				}
@@ -219,7 +219,7 @@ void Map::update_camera()
 bool Map::update()
 {
 	if (ml) {
-		ml->update(this);
+		ml->update();
 	}
 
 	std::vector<Map_Entity *>::iterator it;

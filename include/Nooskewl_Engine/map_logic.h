@@ -10,11 +10,11 @@ class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Logic {
 public:
-	virtual void start(Map *map);
-	virtual void end(Map *map);
-	virtual void trigger(Map *map, Map_Entity *entity);
-	virtual void update(Map *map);
-	virtual void activate(Map *map, Map_Entity *activator, Map_Entity *activated);
+	virtual void start();
+	virtual void end();
+	virtual void trigger(Map_Entity *entity);
+	virtual void update();
+	virtual void activate(Map_Entity *activator, Map_Entity *activated);
 };
 
 } // End namespace Nooskewl_Engine

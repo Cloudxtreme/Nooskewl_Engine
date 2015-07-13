@@ -10,7 +10,7 @@
 
 namespace Nooskewl_Engine {
 
-typedef Map_Logic *(*Map_Logic_Getter)(Map *);
+typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
 
 void load_dll();
 void close_dll();
