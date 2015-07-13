@@ -112,7 +112,7 @@ MO3_Button::~MO3_Button()
 void MO3_Button::handle_event(TGUI_Event *event)
 {
 	if (gui->get_event_owner(event) == this) {
-		if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || (event->type == TGUI_JOY_DOWN && (1/*FIXME*/)) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
+		if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
 			_pressed = true;
 		}
 	}

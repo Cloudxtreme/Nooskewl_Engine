@@ -40,8 +40,12 @@ Engine noo;
 
 Engine::Engine() :
 	window_title("Nooskewl Engine"),
+	joy_b1(10),
+	key_b1(TGUIK_SPACE),
 	map(0),
-	tile_size(8)
+	tile_size(8),
+	joy(0),
+	num_joysticks(0)
 {
 }
 
@@ -69,13 +73,6 @@ void Engine::start(int argc, char **argv)
 
 	if (SDL_Init(flags) != 0) {
 		throw Error("SDL_Init failed");
-	}
-
-	if (SDL_NumJoysticks() > 0) {
-		joy = SDL_JoystickOpen(0);
-	}
-	else {
-		joy = 0;
 	}
 
 	cpa = new CPA();
@@ -499,6 +496,8 @@ void Engine::handle_event(TGUI_Event *event)
 
 bool Engine::update()
 {
+	check_joysticks();
+
 	speech_arrow->update();
 
 	if (map && map->update() == false) {
@@ -935,6 +934,21 @@ void Engine::load_fonts()
 {
 	font = new Font("fff_majestica.ttf", 8);
 	bold_font = new Font("fff_majestica_bold.ttf", 8);
+}
+
+void Engine::check_joysticks()
+{
+	int nj = SDL_NumJoysticks();
+	if (nj != num_joysticks) {
+		num_joysticks = nj;
+		if (joy && SDL_JoystickGetAttached(joy)) {
+			SDL_JoystickClose(joy);
+		}
+		joy = 0;
+		if (num_joysticks > 0) {
+			joy = SDL_JoystickOpen(0);
+		}
+	}
 }
 
 } // End namespace Nooskewl_Engine

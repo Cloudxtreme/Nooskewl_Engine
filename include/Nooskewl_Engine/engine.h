@@ -34,6 +34,9 @@ public:
 	SDL_Colour magenta;
 	Font *font;
 	Font *bold_font;
+	// Input
+	int joy_b1;
+	int key_b1;
 	// Other
 	CPA *cpa;
 	Map *map;
@@ -73,6 +76,7 @@ private:
 	void init_audio();
 	void shutdown_audio();
 	void load_fonts();
+	void check_joysticks();
 
 	SDL_Window *window;
 
@@ -90,6 +94,8 @@ private:
 #endif
 
 	SDL_Joystick *joy;
+	int num_joysticks;
+
 	Image *window_image;
 	Sprite *speech_arrow;
 

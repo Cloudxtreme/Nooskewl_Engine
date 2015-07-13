@@ -14,43 +14,77 @@ Player_Brain::~Player_Brain()
 void Player_Brain::handle_event(TGUI_Event *event)
 {
 	if (event->type == TGUI_KEY_DOWN) {
-		switch (event->keyboard.code) {
-			case TGUIK_LEFT:
-				l = true;
-				break;
-			case TGUIK_RIGHT:
-				r = true;
-				break;
-			case TGUIK_UP:
-				u = true;
-				break;
-			case TGUIK_DOWN:
-				d = true;
-				break;
-			case TGUIK_RETURN:
-			case TGUIK_SPACE:
-				b1 = true;
-				break;
+		if (event->keyboard.code == TGUIK_LEFT) {
+			l = true;
+		}
+		else if (event->keyboard.code == TGUIK_RIGHT) {
+			r = true;
+		}
+		else if (event->keyboard.code == TGUIK_UP) {
+			u = true;
+		}
+		else if (event->keyboard.code == TGUIK_DOWN) {
+			d = true;
+		}
+		else if (event->keyboard.code == noo.key_b1) {
+			b1 = true;
 		}
 	}
 	else if (event->type == TGUI_KEY_UP) {
-		switch (event->keyboard.code) {
-			case TGUIK_LEFT:
+		if (event->keyboard.code == TGUIK_LEFT) {
+			l = false;
+		}
+		else if (event->keyboard.code == TGUIK_RIGHT) {
+			r = false;
+		}
+		else if (event->keyboard.code == TGUIK_UP) {
+			u = false;
+		}
+		else if (event->keyboard.code == TGUIK_DOWN) {
+			d = false;
+		}
+		else if (event->keyboard.code == noo.key_b1) {
+			b1 = false;
+		}
+	}
+	else if (event->type == TGUI_JOY_AXIS) {
+		if (event->joystick.axis == 0) {
+			if (event->joystick.value < -0.5f) {
+				l = true;
+			}
+			else {
 				l = false;
-				break;
-			case TGUIK_RIGHT:
+			}
+			if (event->joystick.value > 0.5f) {
+				r = true;
+			}
+			else {
 				r = false;
-				break;
-			case TGUIK_UP:
+			}
+		}
+		else {
+			if (event->joystick.value < -0.5f) {
+				u = true;
+			}
+			else {
 				u = false;
-				break;
-			case TGUIK_DOWN:
+			}
+			if (event->joystick.value > 0.5f) {
+				d = true;
+			}
+			else {
 				d = false;
-				break;
-			case TGUIK_RETURN:
-			case TGUIK_SPACE:
-				b1 = false;
-				break;
+			}
+		}
+	}
+	else if (event->type == TGUI_JOY_DOWN) {
+		if (event->joystick.button == noo.joy_b1) {
+			b1 = true;
+		}
+	}
+	else if (event->type == TGUI_JOY_UP) {
+		if (event->joystick.button == noo.joy_b1) {
+			b1 = false;
 		}
 	}
 	else if (event->type == TGUI_MOUSE_DOWN) {
