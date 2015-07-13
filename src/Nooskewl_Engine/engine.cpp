@@ -94,8 +94,8 @@ void Engine::start(int argc, char **argv)
 	speech_arrow->start();
 	load_palette("palette.gpl");
 
-	main_widget = new SS_Widget(1.0f, 1.0f);
-	new_game = new SS_Text_Button("New Game");
+	main_widget = new MO3_Widget(1.0f, 1.0f);
+	new_game = new MO3_Text_Button("New Game");
 	new_game->set_padding(0, 0, 100, 0);
 	new_game->set_centered_x(true);
 	new_game->set_parent(main_widget);
@@ -774,7 +774,7 @@ void Engine::set_map_transition_projection(float angle)
 #endif
 }
 
-void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
+void Engine::draw_line(SDL_Colour colour, Point<int> a, Point<int> b)
 {
 	SDL_Colour vertex_colours[4];
 	for (int i = 0; i < 4; i++) {
@@ -815,7 +815,7 @@ void Engine::draw_line(Point<int> a, Point<int> b, SDL_Colour colour)
 	}
 }
 
-void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4])
+void Engine::draw_quad(SDL_Colour vertex_colours[4], Point<int> dest_position, Size<int> dest_size)
 {
 	if (opengl) {
 		glDisable(GL_TEXTURE_2D);
@@ -830,13 +830,13 @@ void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour
 	}
 }
 
-void Engine::draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour)
+void Engine::draw_quad(SDL_Colour colour, Point<int> dest_position, Size<int> dest_size)
 {
 	static SDL_Colour vertex_colours[4];
 	for (int i = 0; i < 4; i++) {
 		vertex_colours[i] = colour;
 	}
-	draw_quad(dest_position, dest_size, vertex_colours);
+	draw_quad(vertex_colours, dest_position, dest_size);
 }
 
 void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle)
@@ -851,7 +851,7 @@ void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arr
 		vertex_colours[i].a = 220;
 	}
 
-	draw_quad(dest_position+1, dest_size-2, vertex_colours);
+	draw_quad(vertex_colours, dest_position+1, dest_size-2);
 
 	window_image->start();
 	window_image->draw_region(Point<int>(0, 0), Size<int>(6, 6), dest_position, 0); // top left
@@ -920,6 +920,11 @@ void Engine::load_palette(std::string name)
 		four_blacks[i] = black;
 		four_whites[i] = white;
 	}
+
+	magenta.r = 255;
+	magenta.g = 0;
+	magenta.b = 255;
+	magenta.a = 255;
 
 	SDL_RWclose(file);
 }

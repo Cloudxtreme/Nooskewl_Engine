@@ -31,6 +31,7 @@ public:
 	SDL_Colour four_whites[4];
 	SDL_Colour black;
 	SDL_Colour white;
+	SDL_Colour magenta;
 	Font *font;
 	Font *bold_font;
 	// Other
@@ -60,9 +61,9 @@ public:
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
 
-	void draw_line(Point<int> a, Point<int> b, SDL_Colour colour);
-	void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour vertex_colours[4]);
-	void draw_quad(Point<int> dest_position, Size<int> dest_size, SDL_Colour colour);
+	void draw_line(SDL_Colour colour, Point<int> a, Point<int> b);
+	void draw_quad(SDL_Colour vertex_colours[4], Point<int> dest_position, Size<int> dest_size);
+	void draw_quad(SDL_Colour colour, Point<int> dest_position, Size<int> dest_size);
 	void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);
 	void load_palette(std::string name);
 
@@ -94,8 +95,8 @@ private:
 
 	SDL_AudioDeviceID audio_device;
 
-	SS_Widget *main_widget;
-	SS_Text_Button *new_game;
+	MO3_Widget *main_widget;
+	MO3_Text_Button *new_game;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
