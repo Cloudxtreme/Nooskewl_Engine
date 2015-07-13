@@ -3,18 +3,21 @@
 using namespace Nooskewl_Engine;
 
 A_Star::A_Star(Tilemap *tilemap) :
-	tilemap(tilemap)
+	tilemap(tilemap),
+	final_node(0)
 {
 }
 
 A_Star::~A_Star()
 {
+	delete final_node;
 	destroy_nodes(open);
 	destroy_nodes(closed);
 }
 
 std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 {
+	delete final_node;
 	destroy_nodes(open);
 	destroy_nodes(closed);
 
@@ -31,6 +34,7 @@ std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 		open.pop_front();
 
 		if (node->position == goal) {
+			final_node = node;
 			std::list<Node *> path;
 			while (node->parent != NULL) {
 				path.push_front(node);

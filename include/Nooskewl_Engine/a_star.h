@@ -30,6 +30,7 @@ private:
 	void branch(Node *node, Point<int> offset, Point<int> goal);
 
 	Tilemap *tilemap;
+	Node *final_node;
 
 	std::list<Node *> open;
 	std::list<Node *> closed;

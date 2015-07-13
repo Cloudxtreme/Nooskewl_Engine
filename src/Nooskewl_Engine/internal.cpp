@@ -257,7 +257,7 @@ static BITMAPINFO *get_bitmap_info(int w, int h)
 	BITMAPINFO *bi;
 	int i;
 
-	bi = (BITMAPINFO *)malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+	bi = (BITMAPINFO *)new Uint8[sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256];
 
 	ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
 
@@ -294,7 +294,7 @@ static void stretch_blit_to_hdc(BYTE *pixels, int w, int h, HDC dc, int src_x, i
 		StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h, src_x, bottom_up_src_y, src_w, src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
 	}
 
-	free(bi);
+	delete[] bi;
 }
 
 HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocus, bool is_cursor)
@@ -311,7 +311,7 @@ HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocu
 	HBITMAP hOldXorMaskBitmap;
 	HICON icon;
 
-	Uint8 *tmp = (Uint8 *)malloc(w * h * 4);
+	Uint8 *tmp = new Uint8[w * h * 4];
 	for (y = 0; y < h; y++) {
 		Uint8 *src = data + y * (w * 4);
 		Uint8 *dst = tmp + (h-y-1) * (w * 4); // flip y
@@ -395,7 +395,7 @@ HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocu
 	DeleteObject(and_mask);
 	DeleteObject(xor_mask);
 
-	free(tmp);
+	delete[] tmp;
 
 	return icon;
 }

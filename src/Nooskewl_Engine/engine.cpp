@@ -110,6 +110,8 @@ void Engine::start(int argc, char **argv)
 
 void Engine::end()
 {
+	delete music;
+
 	if (map) {
 		map->end();
 	}
@@ -986,7 +988,7 @@ void Engine::set_mouse_cursor()
 	int w, h;
 	unsigned char *pixels = Image::read_tga("graphics/mouse_cursor.tga", &w, &h);
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, w, h, 0, 0, true);
-	free(pixels);
+	delete[] pixels;
 #endif
 }
 
