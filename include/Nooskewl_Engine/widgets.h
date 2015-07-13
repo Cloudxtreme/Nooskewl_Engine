@@ -40,6 +40,7 @@ public:
 	static const int PAD_X = 10;
 	static const int PAD_Y = 5;
 
+	SS_Text_Button(std::string, Size<int> size); // < 0 = don't care
 	SS_Text_Button(std::string text);
 	virtual ~SS_Text_Button();
 
