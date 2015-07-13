@@ -481,9 +481,10 @@ void Engine::handle_event(TGUI_Event *event)
 	}
 	if (gui) {
 		gui->handle_event(event);
-		if (new_game->pressed()) {
+		if (new_game && new_game->pressed()) {
 			delete gui;
 			gui = 0;
+			new_game = 0;
 
 			map = new Map("start.map");
 
