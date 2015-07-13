@@ -146,9 +146,6 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		int chars_drawn_this_time = 0;
 		while (p[count]) {
 			buf[0] = p[count];
-			if (this_w > max_width) {
-				max_width = this_w;
-			}
 			this_w += get_text_width(buf);
 			if (this_w >= w) {
 				if (count == 0) {
@@ -176,6 +173,10 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = std::string(p).substr(0, max);
+			int line_w = get_text_width(s);
+			if (line_w > max_width) {
+				max_width = line_w;
+			}
 			if (dry_run == false) {
 				draw(colour, s, Point<int>(dest_position.x, curr_y));
 			}
