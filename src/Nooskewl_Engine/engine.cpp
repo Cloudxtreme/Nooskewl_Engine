@@ -616,6 +616,7 @@ void Engine::enable_depth_buffer(bool enable)
 			glDisable(GL_ALPHA_TEST);
 		}
 	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		if (enable) {
 			m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
@@ -631,6 +632,7 @@ void Engine::enable_depth_buffer(bool enable)
 			m.d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 		}
 	}
+#endif
 }
 
 void Engine::flip()
