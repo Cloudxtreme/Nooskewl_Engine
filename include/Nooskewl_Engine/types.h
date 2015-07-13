@@ -151,6 +151,20 @@ public:
 		this->y = (T)p.y;
 	}
 
+	float length()
+	{
+		float dx = (float)x;
+		float dy = (float)y;
+		return sqrtf(dx*dx + dy*dy);
+	}
+
+	float angle()
+	{
+		float dx = (float)x;
+		float dy = (float)y;
+		return atan2(dy, dx);
+	}
+
 	inline void operator=(const Point<T> &from)
 	{
 		x = from.x;
