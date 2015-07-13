@@ -29,6 +29,8 @@ public:
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
+	void disable_input();
+	void enable_input();
 
 	int get_id();
 	Brain *get_brain();
@@ -63,6 +65,7 @@ private:
 	Size<int> size;
 	bool stop_next_tile;
 	bool sitting;
+	bool input_disabled;
 };
 
 } // End namespace Nooskewl_Engine

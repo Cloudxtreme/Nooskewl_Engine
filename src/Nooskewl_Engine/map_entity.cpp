@@ -18,7 +18,8 @@ Map_Entity::Map_Entity(Brain *brain) :
 	solid(true),
 	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false),
-	sitting(false)
+	sitting(false),
+	input_disabled(false)
 {
 	id = current_id++;
 }
@@ -119,6 +120,17 @@ void Map_Entity::set_sitting(bool sitting)
 	if (sitting) {
 		moving = false;
 	}
+	set_direction(direction);
+}
+
+void Map_Entity::disable_input()
+{
+	input_disabled = true;
+}
+
+void Map_Entity::enable_input()
+{
+	input_disabled = false;
 }
 
 int Map_Entity::get_id()
@@ -204,7 +216,7 @@ bool Map_Entity::maybe_move(Map *map)
 {
 	bool ret = false;
 
-	if (brain) {
+	if (!input_disabled && brain) {
 		if (brain->l) {
 			if (!sitting && map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
