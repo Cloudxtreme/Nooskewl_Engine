@@ -62,14 +62,9 @@ void Speech::draw()
 		}
 	}
 
-	SDL_Colour shadow_colour = noo.colours[44]; // the blue used to draw the window
-	shadow_colour.r /= 2;
-	shadow_colour.g /= 2;
-	shadow_colour.b /= 2;
-
 	noo.draw_window(Point<int>(win_x, win_y), Size<int>(win_w, win_h), !done, done);
 
-	noo.font->enable_shadow(shadow_colour, Font::DROP_SHADOW);
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 
 	noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
 

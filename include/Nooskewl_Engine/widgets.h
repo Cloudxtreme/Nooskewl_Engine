@@ -51,6 +51,7 @@ private:
 	void set_default_colours();
 
 	SDL_Colour button_colour;
+	SDL_Colour button_border;
 	SDL_Colour text_colour;
 	std::string text;
 };

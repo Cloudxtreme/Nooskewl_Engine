@@ -925,6 +925,10 @@ void Engine::load_palette(std::string name)
 
 	black.r = black.g = black.b = 0;
 	black.a = 255;
+
+	shadow_colour = black;
+	shadow_colour.a /= 2;
+
 	white.r = white.g = white.b = white.a = 255;
 
 	for (int i = 0; i < 4; i++) {

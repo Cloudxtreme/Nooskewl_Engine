@@ -27,6 +27,7 @@ public:
 	bool fullscreen;
 	bool opengl;
 	SDL_Colour colours[256];
+	SDL_Colour shadow_colour;
 	SDL_Colour four_blacks[4];
 	SDL_Colour four_whites[4];
 	SDL_Colour black;

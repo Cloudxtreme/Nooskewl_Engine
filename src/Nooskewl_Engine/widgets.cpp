@@ -149,8 +149,9 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
-	noo.draw_quad(button_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
-	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
+	noo.draw_quad(button_border, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.draw_quad(button_colour, Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2);
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	noo.font->draw(text_colour, text, Point<int>(calculated_x+PAD_X, calculated_y+PAD_Y+noo.font->get_descent()));
 	noo.font->disable_shadow();
 
@@ -160,6 +161,10 @@ void MO3_Text_Button::draw()
 void MO3_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
+	button_border = noo.magenta;
+	button_border.r /= 2;
+	button_border.g /= 2;
+	button_border.b /= 2;
 	text_colour = noo.white;
 }
 
@@ -231,7 +236,7 @@ MO3_Label::MO3_Label(std::string text, int max_w) :
 
 void MO3_Label::draw()
 {
-	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	bool full;
 	int num_lines, width;
 	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
