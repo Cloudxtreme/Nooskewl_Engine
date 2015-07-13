@@ -186,6 +186,12 @@ void Engine::init_video()
 		}
 	}
 
+	if (win_w > 1280 && win_h > 720) {
+		// Huge windows are annoying
+		win_w = 1280;
+		win_h = 720;
+	}
+
 	window = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == 0) {
 		throw Error("SDL_CreateWindow failed");
