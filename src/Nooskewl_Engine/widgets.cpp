@@ -131,19 +131,15 @@ MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
 	MO3_Button(size.w, size.h),
 	text(text)
 {
-	if (size.w < 0) {
-		w = noo.font->get_text_width(text) + PAD_X * 2;
-	}
-	if (size.h < 0) {
-		h = noo.font->get_height() + PAD_Y * 2;
-	}
-
+	set_size(size);
 	set_default_colours();
 }
 
 MO3_Text_Button::MO3_Text_Button(std::string text) :
-	MO3_Text_Button(text, Size<int>(-1, -1))
+	MO3_Button(-1, -1),
+	text(text)
 {
+	set_size(Size<int>(-1, -1));
 	set_default_colours();
 }
 
@@ -165,6 +161,16 @@ void MO3_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
 	text_colour = noo.white;
+}
+
+void MO3_Text_Button::set_size(Size<int> size)
+{
+	if (size.w < 0) {
+		w = noo.font->get_text_width(text) + PAD_X * 2;
+	}
+	if (size.h < 0) {
+		h = noo.font->get_height() + PAD_Y * 2;
+	}
 }
 
 // --

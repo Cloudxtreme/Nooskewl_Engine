@@ -47,6 +47,7 @@ public:
 	void draw();
 
 private:
+	void set_size(Size<int> size);
 	void set_default_colours();
 
 	SDL_Colour button_colour;
