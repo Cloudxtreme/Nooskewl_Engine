@@ -108,7 +108,9 @@ void Engine::start(int argc, char **argv)
 
 void Engine::end()
 {
-	map->end();
+	if (map) {
+		map->end();
+	}
 	delete map;
 	delete player;
 
