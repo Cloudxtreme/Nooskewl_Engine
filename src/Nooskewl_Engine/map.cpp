@@ -19,10 +19,7 @@ Map::Map(std::string map_name) :
 
 Map::~Map()
 {
-	if (ml) {
-		ml->end();
-		delete ml;
-	}
+	delete ml;
 
 	delete tilemap;
 
@@ -32,6 +29,20 @@ Map::~Map()
 		if (entities[i]->get_id() != 0) {
 			delete entities[i];
 		}
+	}
+}
+
+void Map::start()
+{
+	if (ml) {
+		ml->start();
+	}
+}
+
+void Map::end()
+{
+	if (ml) {
+		ml->end();
 	}
 }
 

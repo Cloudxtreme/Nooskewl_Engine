@@ -16,6 +16,9 @@ public:
 	Map(std::string map_name);
 	~Map();
 
+	void start();
+	void end();
+
 	void handle_event(TGUI_Event *event);
 	void update_camera();
 	bool update();
