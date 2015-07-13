@@ -89,6 +89,8 @@ void Engine::start(int argc, char **argv)
 	window_image = new Image("window.tga");
 	speech_arrow = new Sprite("speech_arrow");
 	speech_arrow->start();
+	logo = new Image("logo.tga");
+
 	load_palette("palette.gpl");
 
 	main_widget = new MO3_Widget(1.0f, 1.0f);
@@ -104,7 +106,7 @@ void Engine::start(int argc, char **argv)
 	music->play(true);
 }
 
-void Engine::stop()
+void Engine::end()
 {
 	delete map;
 	delete player;
@@ -113,6 +115,7 @@ void Engine::stop()
 
 	delete window_image;
 	delete speech_arrow;
+	delete logo;
 
 	delete font;
 	delete bold_font;
@@ -565,6 +568,11 @@ void Engine::draw()
 	}
 	if (gui) {
 		gui->draw();
+	}
+	if (new_game != NULL) {
+		int x = noo.screen_w / 2 - logo->w / 2;
+		int y = noo.screen_h / 3 - logo->h / 2;
+		logo->draw_single(Point<int>(x, y), 0);
 	}
 
 	flip();

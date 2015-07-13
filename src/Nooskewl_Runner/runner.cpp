@@ -83,7 +83,7 @@ static bool run_main(int argc, char **argv)
 		last_frame = SDL_GetTicks();
 	}
 
-	noo.stop();
+	noo.end();
 
 	return true;
 }

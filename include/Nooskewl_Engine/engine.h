@@ -48,7 +48,7 @@ public:
 	~Engine();
 
 	void start(int argc, char **argv);
-	void stop();
+	void end();
 
 	void handle_event(TGUI_Event *event);
 	bool update();
@@ -103,6 +103,8 @@ private:
 
 	MO3_Widget *main_widget;
 	MO3_Text_Button *new_game;
+
+	Image *logo;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
