@@ -44,21 +44,26 @@ Tilemap::Tilemap(std::string map_filename)
 	layers = new Layer[num_layers];
 
 	for (int layer = 0; layer < num_layers; layer++) {
-		layers[layer].sheets = new int *[height];
-		layers[layer].tiles = new int *[height];
-		layers[layer].solids = new bool *[height];
 		layers[layer].sheets_used = std::vector<int>();
+		layers[layer].sheet = new int *[height];
+		layers[layer].x = new int *[height];
+		layers[layer].y = new int *[height];
+		layers[layer].solid = new bool *[height];
 		for (int row = 0; row < height; row++) {
-			layers[layer].sheets[row] = new int[width];
-			layers[layer].tiles[row] = new int[width];
-			layers[layer].solids[row] = new bool[width];
+			layers[layer].sheet[row] = new int[width];
+			layers[layer].x[row] = new int[width];
+			layers[layer].y[row] = new int[width];
+			layers[layer].solid[row] = new bool[width];
 			for (int col = 0; col < width; col++) {
-				layers[layer].tiles[row][col] = (int16_t)SDL_ReadLE16(f);
-				layers[layer].sheets[row][col] = (char)SDL_fgetc(f);
-				layers[layer].solids[row][col] = SDL_fgetc(f) != 0;
+				layers[layer].x[row][col] = (char)SDL_fgetc(f);
+				layers[layer].y[row][col] = (char)SDL_fgetc(f);
+				layers[layer].sheet[row][col] = (char)SDL_fgetc(f);
+				layers[layer].solid[row][col] = SDL_fgetc(f) != 0;
+				if (layers[layer].sheet[row][col] != 0 && layers[layer].sheet[row][col] != -1) {
+				}
 
-				if (layers[layer].tiles[row][col] >= 0 && std::find(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end(), layers[layer].sheets[row][col]) == layers[layer].sheets_used.end()) {
-					layers[layer].sheets_used.push_back(layers[layer].sheets[row][col]);
+				if (layers[layer].x[row][col] >= 0 && std::find(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end(), layers[layer].sheet[row][col]) == layers[layer].sheets_used.end()) {
+					layers[layer].sheets_used.push_back(layers[layer].sheet[row][col]);
 				}
 			}
 		}
@@ -80,13 +85,15 @@ Tilemap::~Tilemap()
 	if (layers) {
 		for (int layer = 0; layer < num_layers; layer++) {
 			for (int row = 0; row < height; row++) {
-				delete[] layers[layer].sheets[row];
-				delete[] layers[layer].tiles[row];
-				delete[] layers[layer].solids[row];
+				delete[] layers[layer].sheet[row];
+				delete[] layers[layer].x[row];
+				delete[] layers[layer].y[row];
+				delete[] layers[layer].solid[row];
 			}
-			delete[] layers[layer].sheets;
-			delete[] layers[layer].tiles;
-			delete[] layers[layer].solids;
+			delete[] layers[layer].sheet;
+			delete[] layers[layer].x;
+			delete[] layers[layer].y;
+			delete[] layers[layer].solid;
 		}
 
 		delete[] layers;
@@ -115,7 +122,7 @@ bool Tilemap::is_solid(int layer, Point<int> position)
 
 	for (int i = start_layer; i <= end_layer; i++) {
 		Layer l = layers[i];
-		if (l.solids[position.y][position.x]) {
+		if (l.solid[position.y][position.x]) {
 			return true;
 		}
 	}
@@ -143,7 +150,7 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 
 		for (int row = start_row; row <= end_row; row++) {
 			for (int column = start_column; column <= end_column; column++) {
-				if (l.solids[row][column]) {
+				if (l.solid[row][column]) {
 					return true;
 				}
 			}
@@ -166,11 +173,12 @@ void Tilemap::draw(int layer, Point<int> position, bool set_z)
 
 		for (int row = 0; row < height; row++) {
 			for (int col = 0; col < width; col++) {
-				int s = l.sheets[row][col];
+				int s = l.sheet[row][col];
 				if (s == sheet_num) {
-					int tile = l.tiles[row][col];
-					int sx = tile % width_in_tiles * noo.tile_size;
-					int sy = tile / width_in_tiles * noo.tile_size;
+					int x = l.x[row][col];
+					int y = l.y[row][col];
+					int sx = x * noo.tile_size;
+					int sy = y * noo.tile_size;
 					int dx = position.x + col * noo.tile_size;
 					int dy = position.y + row * noo.tile_size;
 					sheets[s]->draw_region_z(
