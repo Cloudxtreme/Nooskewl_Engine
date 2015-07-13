@@ -92,7 +92,7 @@ void Engine::start(int argc, char **argv)
 	window_image = new Image("window.tga");
 	speech_arrow = new Sprite("speech_arrow");
 	speech_arrow->start();
-	load_palette("nes.gpl");
+	load_palette("palette.gpl");
 
 	main_widget = new SS_Widget(1.0f, 1.0f);
 	new_game = new SS_Text_Button("New Game");
