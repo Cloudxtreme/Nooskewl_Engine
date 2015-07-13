@@ -97,7 +97,7 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 		return;
 	}
 
-	int new_cost = node->cost_from_start + 1;
+	float new_cost = node->cost_from_start + 1.0f;
 	bool in_open = false;
 	bool in_closed = false;
 	Node *new_node = find_in_list(new_position, open);

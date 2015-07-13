@@ -410,7 +410,7 @@ void Map_Entity::follow_path()
 	path.pop_front();
 	int dx = node->position.x - position.x;
 	int dy = node->position.y - position.y;
-	if (fabs(dx)+fabs(dy) != 1) {
+	if (abs(dx)+abs(dy) != 1) {
 		end_a_star();
 		stop_now();
 		return;

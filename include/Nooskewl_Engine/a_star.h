@@ -12,9 +12,9 @@ public:
 	struct Node {
 		Node *parent;
 		Point<int> position;
-		int cost_from_start;
-		int cost_to_goal;
-		int total_cost;
+		float cost_from_start;
+		float cost_to_goal;
+		float total_cost;
 	};
 
 	A_Star(Tilemap *tilemap);
