@@ -37,24 +37,24 @@ Tilemap::Tilemap(std::string map_filename)
 		throw e;
 	}
 
-	width = SDL_ReadLE16(f);
-	height = SDL_ReadLE16(f);
+	size.w = SDL_ReadLE16(f);
+	size.h = SDL_ReadLE16(f);
 	num_layers = SDL_fgetc(f);
 
 	layers = new Layer[num_layers];
 
 	for (int layer = 0; layer < num_layers; layer++) {
 		layers[layer].sheets_used = std::vector<int>();
-		layers[layer].sheet = new int *[height];
-		layers[layer].x = new int *[height];
-		layers[layer].y = new int *[height];
-		layers[layer].solid = new bool *[height];
-		for (int row = 0; row < height; row++) {
-			layers[layer].sheet[row] = new int[width];
-			layers[layer].x[row] = new int[width];
-			layers[layer].y[row] = new int[width];
-			layers[layer].solid[row] = new bool[width];
-			for (int col = 0; col < width; col++) {
+		layers[layer].sheet = new int *[size.h];
+		layers[layer].x = new int *[size.h];
+		layers[layer].y = new int *[size.h];
+		layers[layer].solid = new bool *[size.h];
+		for (int row = 0; row < size.h; row++) {
+			layers[layer].sheet[row] = new int[size.w];
+			layers[layer].x[row] = new int[size.w];
+			layers[layer].y[row] = new int[size.w];
+			layers[layer].solid[row] = new bool[size.w];
+			for (int col = 0; col < size.w; col++) {
 				layers[layer].x[row][col] = (char)SDL_fgetc(f);
 				layers[layer].y[row][col] = (char)SDL_fgetc(f);
 				layers[layer].sheet[row][col] = (char)SDL_fgetc(f);
@@ -84,7 +84,7 @@ Tilemap::~Tilemap()
 
 	if (layers) {
 		for (int layer = 0; layer < num_layers; layer++) {
-			for (int row = 0; row < height; row++) {
+			for (int row = 0; row < size.h; row++) {
 				delete[] layers[layer].sheet[row];
 				delete[] layers[layer].x[row];
 				delete[] layers[layer].y[row];
@@ -105,14 +105,9 @@ int Tilemap::get_num_layers()
 	return num_layers;
 }
 
-int Tilemap::get_width()
+Size<int> Tilemap::get_size()
 {
-	return width;
-}
-
-int Tilemap::get_height()
-{
-	return height;
+	return size;
 }
 
 bool Tilemap::is_solid(int layer, Point<int> position)
@@ -140,10 +135,10 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 	int start_row = topleft.y / noo.tile_size;
 	int end_row = bottomright.y / noo.tile_size;
 
-	start_column = MIN(width-1, MAX(0, start_column));
-	end_column = MIN(width-1, MAX(0, end_column));
-	start_row = MIN(height-1, MAX(0, start_row));
-	end_row = MIN(height-1, MAX(0, end_row));
+	start_column = MIN(size.w-1, MAX(0, start_column));
+	end_column = MIN(size.w-1, MAX(0, end_column));
+	start_row = MIN(size.h-1, MAX(0, start_row));
+	end_row = MIN(size.h-1, MAX(0, end_row));
 
 	for (int i = start_layer; i <= end_layer; i++) {
 		Layer l = layers[i];
@@ -167,12 +162,10 @@ void Tilemap::draw(int layer, Point<int> position, bool set_z)
 	for (size_t sheet = 0; sheet < l.sheets_used.size(); sheet++) {
 		int sheet_num = l.sheets_used[sheet];
 
-		int width_in_tiles = sheets[sheet_num]->w / noo.tile_size;
-
 		sheets[sheet_num]->start();
 
-		for (int row = 0; row < height; row++) {
-			for (int col = 0; col < width; col++) {
+		for (int row = 0; row < size.h; row++) {
+			for (int col = 0; col < size.w; col++) {
 				int s = l.sheet[row][col];
 				if (s == sheet_num) {
 					int x = l.x[row][col];
@@ -185,7 +178,7 @@ void Tilemap::draw(int layer, Point<int> position, bool set_z)
 						Point<int>(sx, sy),
 						Size<int>(noo.tile_size, noo.tile_size),
 						Point<int>(dx, dy),
-						set_z ? -(1.0f-((float)(row * noo.tile_size)/(float)(height*noo.tile_size))) : 0.0f,
+						set_z ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) : 0.0f,
 						0
 					);
 				}

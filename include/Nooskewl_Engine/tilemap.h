@@ -15,8 +15,7 @@ public:
 	~Tilemap();
 
 	int get_num_layers();
-	int get_width();
-	int get_height();
+	Size<int> get_size();
 
 	// in tiles
 	bool is_solid(int layer, Point<int> position);
@@ -37,8 +36,7 @@ private:
 
 	std::vector<Image *> sheets;
 
-	int width; // in tiles
-	int height; // in tiles
+	Size<int> size; // in tiles
 	int num_layers;
 
 	Layer *layers;
