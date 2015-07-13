@@ -27,13 +27,13 @@ static void draw_focus(TGUI_Widget *widget)
 	int y = widget->get_y(); // - padding_top;
 	int w = widget->get_width(); // + padding_left + padding_right;
 	int h = widget->get_height(); // + padding_top + padding_bottom;
-	noo.draw_line(Point<int>(x, y), Point<int>(x+w, y), colour);
-	noo.draw_line(Point<int>(x+w, y), Point<int>(x+w, y+h), colour);
-	noo.draw_line(Point<int>(x+w, y+h), Point<int>(x, y+h), colour);
-	noo.draw_line(Point<int>(x, y+h), Point<int>(x, y), colour);
+	noo.draw_line(colour, Point<int>(x, y), Point<int>(x+w, y));
+	noo.draw_line(colour, Point<int>(x+w, y), Point<int>(x+w, y+h));
+	noo.draw_line(colour, Point<int>(x+w, y+h), Point<int>(x, y+h));
+	noo.draw_line(colour, Point<int>(x, y+h), Point<int>(x, y));
 }
 
-SS_Widget::SS_Widget(int w, int h) :
+MO3_Widget::MO3_Widget(int w, int h) :
 	TGUI_Widget(w, h),
 	got_event(false),
 	event_x(-1),
@@ -41,7 +41,7 @@ SS_Widget::SS_Widget(int w, int h) :
 {
 }
 
-SS_Widget::SS_Widget(float percent_w, float percent_h) :
+MO3_Widget::MO3_Widget(float percent_w, float percent_h) :
 	TGUI_Widget(percent_w, percent_h),
 	got_event(false),
 	event_x(-1),
@@ -49,7 +49,7 @@ SS_Widget::SS_Widget(float percent_w, float percent_h) :
 {
 }
 
-SS_Widget::SS_Widget(int w, float percent_h) :
+MO3_Widget::MO3_Widget(int w, float percent_h) :
 	TGUI_Widget(w, percent_h),
 	got_event(false),
 	event_x(-1),
@@ -57,7 +57,7 @@ SS_Widget::SS_Widget(int w, float percent_h) :
 {
 }
 
-SS_Widget::SS_Widget(float percent_w, int h) :
+MO3_Widget::MO3_Widget(float percent_w, int h) :
 	TGUI_Widget(percent_w, h),
 	got_event(false),
 	event_x(-1),
@@ -65,18 +65,18 @@ SS_Widget::SS_Widget(float percent_w, int h) :
 {
 }
 
-SS_Widget::~SS_Widget()
+MO3_Widget::~MO3_Widget()
 {
 }
 
-void SS_Widget::draw()
+void MO3_Widget::draw()
 {
 	if (gui->get_focus() == this) {
 		draw_focus(this);
 	}
 }
 
-void SS_Widget::handle_event(TGUI_Event *event)
+void MO3_Widget::handle_event(TGUI_Event *event)
 {
 	TGUI_Widget *owner = gui->get_event_owner(event);
 	if (owner == this) {
@@ -98,18 +98,18 @@ void SS_Widget::handle_event(TGUI_Event *event)
 
 // --
 
-SS_Button::SS_Button(int w, int h) :
-	SS_Widget(w, h),
+MO3_Button::MO3_Button(int w, int h) :
+	MO3_Widget(w, h),
 	_pressed(false)
 {
 	accepts_focus = true;
 }
 
-SS_Button::~SS_Button()
+MO3_Button::~MO3_Button()
 {
 }
 
-void SS_Button::handle_event(TGUI_Event *event)
+void MO3_Button::handle_event(TGUI_Event *event)
 {
 	if (gui->get_event_owner(event) == this) {
 		if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || (event->type == TGUI_JOY_DOWN && (1/*FIXME*/)) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
@@ -118,7 +118,7 @@ void SS_Button::handle_event(TGUI_Event *event)
 	}
 }
 
-bool SS_Button::pressed()
+bool MO3_Button::pressed()
 {
 	bool p = _pressed;
 	_pressed = false;
@@ -127,8 +127,8 @@ bool SS_Button::pressed()
 
 // --
 
-SS_Text_Button::SS_Text_Button(std::string text, Size<int> size) :
-	SS_Button(size.w, size.h),
+MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
+	MO3_Button(size.w, size.h),
 	text(text)
 {
 	if (size.w < 0) {
@@ -137,24 +137,90 @@ SS_Text_Button::SS_Text_Button(std::string text, Size<int> size) :
 	if (size.h < 0) {
 		h = noo.font->get_height() + PAD_Y * 2;
 	}
+
+	set_default_colours();
 }
 
-SS_Text_Button::SS_Text_Button(std::string text) :
-	SS_Text_Button(text, Size<int>(-1, -1))
+MO3_Text_Button::MO3_Text_Button(std::string text) :
+	MO3_Text_Button(text, Size<int>(-1, -1))
+{
+	set_default_colours();
+}
+
+MO3_Text_Button::~MO3_Text_Button()
 {
 }
 
-SS_Text_Button::~SS_Text_Button()
+void MO3_Text_Button::draw()
 {
-}
-
-void SS_Text_Button::draw()
-{
-	SDL_Colour test = { 255, 0, 255, 255 };
-	noo.draw_quad(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), test);
-	noo.font->enable_shadow(noo.black, Font::FULL_SHADOW);
-	noo.font->draw(noo.white, text, Point<int>(calculated_x+PAD_X, calculated_y+PAD_Y-2));
+	noo.draw_quad(button_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
+	noo.font->draw(text_colour, text, Point<int>(calculated_x+PAD_X, calculated_y+PAD_Y+noo.font->get_descent()));
 	noo.font->disable_shadow();
 
-	SS_Widget::draw();
+	MO3_Widget::draw();
+}
+
+void MO3_Text_Button::set_default_colours()
+{
+	button_colour = noo.magenta;
+	text_colour = noo.white;
+}
+
+// --
+
+MO3_Window::MO3_Window(int w, int h) :
+	MO3_Widget(w, h)
+{
+	set_default_colours();
+}
+
+MO3_Window::MO3_Window(float percent_w, float percent_h) :
+	MO3_Widget(percent_w, percent_h)
+{
+	set_default_colours();
+}
+
+MO3_Window::MO3_Window(int w, float percent_h) :
+	MO3_Widget(w, percent_h)
+{
+	set_default_colours();
+}
+
+MO3_Window::MO3_Window(float percent_w, int h) :
+	MO3_Widget(percent_w, h)
+{
+	set_default_colours();
+}
+
+MO3_Window::~MO3_Window()
+{
+}
+
+void MO3_Window::draw()
+{
+	noo.draw_quad(background_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+}
+
+void MO3_Window::set_default_colours()
+{
+	background_colour = noo.magenta;
+}
+
+// --
+
+MO3_Label::MO3_Label(std::string text, int max_w) :
+	MO3_Widget(0, 0),
+	text(text),
+	max_w(max_w)
+{
+	colour = noo.white;
+}
+
+void MO3_Label::draw()
+{
+	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
+	bool full;
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, noo.font->get_height()+1, -1, -1, 0, full);
+	noo.font->disable_shadow();
 }

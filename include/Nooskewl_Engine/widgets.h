@@ -5,13 +5,13 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_ENGINE_EXPORT SS_Widget : public TGUI_Widget {
+class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
 public:
-	SS_Widget(int w, int h);
-	SS_Widget(float percent_w, float percent_h);
-	SS_Widget(int w, float percent_h);
-	SS_Widget(float percent_w, int h);
-	virtual ~SS_Widget();
+	MO3_Widget(int w, int h);
+	MO3_Widget(float percent_w, float percent_h);
+	MO3_Widget(int w, float percent_h);
+	MO3_Widget(float percent_w, int h);
+	virtual ~MO3_Widget();
 
 	void draw();
 	void handle_event(TGUI_Event *event);
@@ -21,10 +21,10 @@ private:
 	int event_x, event_y;
 };
 
-class NOOSKEWL_ENGINE_EXPORT SS_Button : public SS_Widget {
+class NOOSKEWL_ENGINE_EXPORT MO3_Button : public MO3_Widget {
 public:
-	SS_Button(int w, int h);
-	virtual ~SS_Button();
+	MO3_Button(int w, int h);
+	virtual ~MO3_Button();
 
 	void handle_event(TGUI_Event *event);
 
@@ -34,20 +34,54 @@ protected:
 	bool _pressed;
 };
 
-class NOOSKEWL_ENGINE_EXPORT SS_Text_Button : public SS_Button
+class NOOSKEWL_ENGINE_EXPORT MO3_Text_Button : public MO3_Button
 {
 public:
 	static const int PAD_X = 10;
 	static const int PAD_Y = 5;
 
-	SS_Text_Button(std::string, Size<int> size); // < 0 = don't care
-	SS_Text_Button(std::string text);
-	virtual ~SS_Text_Button();
+	MO3_Text_Button(std::string, Size<int> size); // < 0 = don't care
+	MO3_Text_Button(std::string text);
+	virtual ~MO3_Text_Button();
+
+	void draw();
+
+private:
+	void set_default_colours();
+
+	SDL_Colour button_colour;
+	SDL_Colour text_colour;
+	std::string text;
+};
+
+class NOOSKEWL_ENGINE_EXPORT MO3_Window : public MO3_Widget
+{
+public:
+	MO3_Window(int w, int h);
+	MO3_Window(float percent_w, float percent_h);
+	MO3_Window(int w, float percent_h);
+	MO3_Window(float percent_w, int h);
+	virtual ~MO3_Window();
+
+	void draw();
+
+private:
+	void set_default_colours();
+
+	SDL_Colour background_colour;
+};
+
+class NOOSKEWL_ENGINE_EXPORT MO3_Label : public MO3_Widget
+{
+public:
+	MO3_Label(std::string text, int max_w);
 
 	void draw();
 
 private:
 	std::string text;
+	int max_w;
+	SDL_Colour colour;
 };
 
 } // End namespace Nooskewl_Engine

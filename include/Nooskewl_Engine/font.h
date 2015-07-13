@@ -23,6 +23,7 @@ public:
 
 	int get_text_width(std::string text);
 	int get_height();
+	int get_descent();
 
 	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
 	void disable_shadow();

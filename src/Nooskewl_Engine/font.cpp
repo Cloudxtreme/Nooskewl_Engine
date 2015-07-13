@@ -60,6 +60,11 @@ int Font::get_height()
 	return height;
 }
 
+int Font::get_descent()
+{
+	return TTF_FontDescent(font);
+}
+
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
 {
 	this->shadow_colour = shadow_colour,
@@ -125,7 +130,13 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 	else {
 		elapsed = SDL_GetTicks() - started_time;
 	}
-	int chars_to_draw = elapsed / delay;
+	int chars_to_draw;
+	if (delay == 0) {
+		chars_to_draw = 1000000;
+	}
+	else {
+		chars_to_draw = elapsed / delay;
+	}
 	int chars_drawn = 0;
 	while (done == false && lines < max_lines) {
 		int count = 0;
