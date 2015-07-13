@@ -102,6 +102,7 @@ SS_Button::SS_Button(int w, int h) :
 	SS_Widget(w, h),
 	_pressed(false)
 {
+	accepts_focus = true;
 }
 
 SS_Button::~SS_Button()
