@@ -286,43 +286,7 @@ int Image::get_unfreed_count()
 	return loaded_images.size();
 }
 
-Image::Internal::Internal(std::string filename) :
-	filename(filename),
-	refcount(1)
-{
-	reload();
-}
-
-Image::Internal::Internal(unsigned char *pixels, int w, int h) :
-	w(w),
-	h(h)
-{
-	filename = "--FROM SURFACE--";
-	upload(pixels);
-}
-
-Image::Internal::~Internal()
-{
-	release();
-}
-
-void Image::Internal::release()
-{
-	if (noo.opengl) {
-		glDeleteTextures(1, &texture);
-		printGLerror("glDeleteTextures");
-		glDeleteBuffers(1, &vbo);
-		printGLerror("glDeleteBuffers");
-		glDeleteVertexArrays(1, &vao);
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		video_texture->Release();
-	}
-#endif
-}
-
-void Image::Internal::reload()
+unsigned char *Image::read_tga(std::string filename, int *out_w, int *out_h)
 {
 	SDL_RWops *file = open_file(filename);
 
@@ -346,8 +310,9 @@ void Image::Internal::reload()
 	header.bitsperpixel = SDL_fgetc(file);
 	header.imagedescriptor = SDL_fgetc(file);
 
-	w = header.width;
-	h = header.height;
+	int w, h;
+	*out_w = w = header.width;
+	*out_h = h = header.height;
 
 	/* Allocate space for the image */
 	if ((pixels = new unsigned char[header.width*header.height*4]) == 0) {
@@ -440,18 +405,60 @@ void Image::Internal::reload()
 		}
 	}
 
+	SDL_RWclose(file);
+
+	return pixels;
+}
+
+Image::Internal::Internal(std::string filename) :
+	filename(filename),
+	refcount(1)
+{
+	reload();
+}
+
+Image::Internal::Internal(unsigned char *pixels, int w, int h) :
+	w(w),
+	h(h)
+{
+	filename = "--FROM SURFACE--";
+	upload(pixels);
+}
+
+Image::Internal::~Internal()
+{
+	release();
+}
+
+void Image::Internal::release()
+{
+	if (noo.opengl) {
+		glDeleteTextures(1, &texture);
+		printGLerror("glDeleteTextures");
+		glDeleteBuffers(1, &vbo);
+		printGLerror("glDeleteBuffers");
+		glDeleteVertexArrays(1, &vao);
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		video_texture->Release();
+	}
+#endif
+}
+
+void Image::Internal::reload()
+{
+	unsigned char *pixels = Image::read_tga(filename, &w, &h);
+
 	try {
 		upload(pixels);
 	}
 	catch (Error e) {
 		delete[] pixels;
-		SDL_RWclose(file);
 		throw e;
 	}
 
 	delete[] pixels;
-
-	SDL_RWclose(file);
 }
 
 void Image::Internal::upload(unsigned char *pixels)

@@ -26,6 +26,7 @@ public:
 	static void release_all();
 	static void reload_all();
 	static int get_unfreed_count();
+	static unsigned char *read_tga(std::string filename, int *w, int *h);
 
 	void release();
 	void reload();
