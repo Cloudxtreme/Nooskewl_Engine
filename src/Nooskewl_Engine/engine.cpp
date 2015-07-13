@@ -77,6 +77,8 @@ void Engine::start(int argc, char **argv)
 
 	cpa = new CPA();
 
+	set_mouse_cursor();
+
 	init_audio();
 	init_video();
 
@@ -126,6 +128,10 @@ void Engine::end()
 
 	shutdown_video();
 	shutdown_audio();
+
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	DestroyIcon(mouse_cursor);
+#endif
 
 	delete cpa;
 
@@ -479,6 +485,12 @@ void Engine::shutdown_audio()
 
 void Engine::handle_event(TGUI_Event *event)
 {
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	if (event->type == TGUI_MOUSE_AXIS || event->type == TGUI_MOUSE_DOWN || event->type == TGUI_MOUSE_UP) {
+		SetCursor(mouse_cursor);
+	}
+#endif
+
 	if (gui) {
 		gui->handle_event(event);
 		if (new_game && new_game->pressed()) {
@@ -965,6 +977,17 @@ void Engine::check_joysticks()
 			joy = SDL_JoystickOpen(0);
 		}
 	}
+}
+
+void Engine::set_mouse_cursor()
+{
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	// Note: this needs to be a specific size on Windows, 32x32 works for me
+	int w, h;
+	unsigned char *pixels = Image::read_tga("graphics/mouse_cursor.tga", &w, &h);
+	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, w, h, 0, 0, true);
+	free(pixels);
+#endif
 }
 
 } // End namespace Nooskewl_Engine

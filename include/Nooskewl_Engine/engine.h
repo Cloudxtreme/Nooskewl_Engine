@@ -81,6 +81,7 @@ private:
 	void shutdown_audio();
 	void load_fonts();
 	void check_joysticks();
+	void set_mouse_cursor();
 
 	SDL_Window *window;
 
@@ -89,13 +90,6 @@ private:
 	GLuint vertexShader;
 	GLuint fragmentShader;
 	SDL_GLContext opengl_context;
-
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	HWND hwnd;
-	D3DPRESENT_PARAMETERS d3d_pp;
-	bool d3d_lost;
-	IDirect3D9 *d3d;
-#endif
 
 	SDL_Joystick *joy;
 	int num_joysticks;
@@ -108,6 +102,14 @@ private:
 	MO3_Text_Button *new_game;
 
 	Image *logo;
+
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	HWND hwnd;
+	D3DPRESENT_PARAMETERS d3d_pp;
+	bool d3d_lost;
+	IDirect3D9 *d3d;
+	HICON mouse_cursor;
+#endif
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

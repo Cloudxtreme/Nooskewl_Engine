@@ -71,6 +71,10 @@ SDL_RWops *open_file(std::string filename);
 std::string itos(int i);
 bool check_args(int argc, char **argv, std::string arg);
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocus, bool is_cursor);
+#endif
+
 extern Module m;
 
 } // End namespace Nooskewl_Engine

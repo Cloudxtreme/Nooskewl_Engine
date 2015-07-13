@@ -247,4 +247,158 @@ std::string List_Directory::next()
 }
 #endif // NOOSKEWL_ENGINE_WINDOWS
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+/* The following Windows icon creation code comes from Allegro, http://liballeg.org */
+
+#define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+
+static BITMAPINFO *get_bitmap_info(int w, int h)
+{
+	BITMAPINFO *bi;
+	int i;
+
+	bi = (BITMAPINFO *)malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * 256);
+
+	ZeroMemory(&bi->bmiHeader, sizeof(BITMAPINFOHEADER));
+
+	bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bi->bmiHeader.biBitCount = 32;
+	bi->bmiHeader.biPlanes = 1;
+	bi->bmiHeader.biWidth = w;
+	bi->bmiHeader.biHeight = -h;
+	bi->bmiHeader.biClrUsed = 256;
+	bi->bmiHeader.biCompression = BI_RGB;
+
+	for (i = 0; i < 256; i++) {
+		bi->bmiColors[i].rgbRed = 0;
+		bi->bmiColors[i].rgbGreen = 0;
+		bi->bmiColors[i].rgbBlue = 0;
+		bi->bmiColors[i].rgbReserved = 0;
+	}
+
+	return bi;
+}
+
+static void stretch_blit_to_hdc(BYTE *pixels, int w, int h, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
+{
+	const int bitmap_h = h;
+	const int bottom_up_src_y = bitmap_h - src_y - src_h;
+	BITMAPINFO *bi;
+
+	bi = get_bitmap_info(w, h);
+
+	if (bottom_up_src_y == 0 && src_x == 0 && src_h != bitmap_h) {
+		StretchDIBits(dc, dest_x, dest_h+dest_y-1, dest_w, -dest_h, src_x, bitmap_h - src_y + 1, src_w, -src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
+	}
+	else {
+		StretchDIBits(dc, dest_x, dest_y, dest_w, dest_h, src_x, bottom_up_src_y, src_w, src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
+	}
+
+	free(bi);
+}
+
+HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocus, bool is_cursor)
+{
+	int x, y;
+	int sys_sm_cx, sys_sm_cy;
+	HDC h_dc;
+	HDC h_and_dc;
+	HDC h_xor_dc;
+	ICONINFO iconinfo;
+	HBITMAP and_mask;
+	HBITMAP xor_mask;
+	HBITMAP hOldAndMaskBitmap;
+	HBITMAP hOldXorMaskBitmap;
+	HICON icon;
+
+	Uint8 *tmp = (Uint8 *)malloc(w * h * 4);
+	for (y = 0; y < h; y++) {
+		Uint8 *src = data + y * (w * 4);
+		Uint8 *dst = tmp + (h-y-1) * (w * 4); // flip y
+		for (x = 0; x < w; x++) {
+			Uint8 r = *src++;
+			Uint8 g = *src++;
+			Uint8 b = *src++;
+			Uint8 a = *src++;
+			*dst++ = b;
+			*dst++ = g;
+			*dst++ = r;
+			*dst++ = a;
+		}
+	}
+
+	if (is_cursor) {
+		sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
+		sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
+	}
+	else {
+		sys_sm_cx = GetSystemMetrics(SM_CXICON);
+		sys_sm_cy = GetSystemMetrics(SM_CYICON);
+	}
+
+	/* Create bitmap */
+	h_dc = GetDC(wnd);
+	h_xor_dc = CreateCompatibleDC(h_dc);
+	h_and_dc = CreateCompatibleDC(h_dc);
+
+	/* Prepare AND (monochrome) and XOR (colour) mask */
+	and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, NULL);
+	xor_mask = CreateCompatibleBitmap(h_dc, sys_sm_cx, sys_sm_cy);
+	hOldAndMaskBitmap = (HBITMAP) SelectObject(h_and_dc, and_mask);
+	hOldXorMaskBitmap = (HBITMAP) SelectObject(h_xor_dc, xor_mask);
+
+	/* Create transparent cursor */
+	for (y = 0; y < sys_sm_cy; y++) {
+		for (x = 0; x < sys_sm_cx; x++) {
+			SetPixel(h_and_dc, x, y, WINDOWS_RGB(255, 255, 255));
+			SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+		}
+	}
+
+	stretch_blit_to_hdc((BYTE *)tmp, w, h, h_xor_dc, 0, 0, w, h, 0, 0, w, h);
+
+	/* Make cursor background transparent */
+	for (y = 0; y < h; y++) {
+		Uint8 *p = tmp + y * (w * 4);
+		for (x = 0; x < w; x++) {
+
+			Uint8 b = *p++;
+			Uint8 g = *p++;
+			Uint8 r = *p++;
+			Uint8 a = *p++;
+
+			if (a != 0) {
+				/* Don't touch XOR value */
+				SetPixel(h_and_dc, x, y, 0);
+			}
+			else {
+				/* No need to touch AND value */
+				SetPixel(h_xor_dc, x, y, WINDOWS_RGB(0, 0, 0));
+			}
+		}
+	}
+
+	SelectObject(h_and_dc, hOldAndMaskBitmap);
+	SelectObject(h_xor_dc, hOldXorMaskBitmap);
+	DeleteDC(h_and_dc);
+	DeleteDC(h_xor_dc);
+	ReleaseDC(wnd, h_dc);
+
+	iconinfo.fIcon = is_cursor ? false : true;
+	iconinfo.xHotspot = xfocus;
+	iconinfo.yHotspot = yfocus;
+	iconinfo.hbmMask = and_mask;
+	iconinfo.hbmColor = xor_mask;
+
+	icon = CreateIconIndirect(&iconinfo);
+
+	DeleteObject(and_mask);
+	DeleteObject(xor_mask);
+
+	free(tmp);
+
+	return icon;
+}
+#endif
+
 } // End namespace Nooskewl_Engine
