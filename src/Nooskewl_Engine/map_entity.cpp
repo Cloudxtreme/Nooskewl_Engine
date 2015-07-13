@@ -19,7 +19,8 @@ Map_Entity::Map_Entity(Brain *brain) :
 	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false),
 	sitting(false),
-	input_disabled(false)
+	input_disabled(false),
+	following_path(false)
 {
 	id = current_id++;
 }
@@ -123,6 +124,15 @@ void Map_Entity::set_sitting(bool sitting)
 	set_direction(direction);
 }
 
+void Map_Entity::set_path(std::list<A_Star::Node *> path)
+{
+	if (path.size() > 0) {
+		this->path = path;
+		following_path = true;
+		follow_path();
+	}
+}
+
 void Map_Entity::disable_input()
 {
 	input_disabled = true;
@@ -204,7 +214,7 @@ bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &
 
 void Map_Entity::stop()
 {
-	if (moving) {
+	if (following_path == false && moving) {
 		stop_next_tile = true;
 	}
 	else {
@@ -212,13 +222,13 @@ void Map_Entity::stop()
 	}
 }
 
-bool Map_Entity::maybe_move(Map *map)
+bool Map_Entity::maybe_move()
 {
 	bool ret = false;
 
-	if (!input_disabled && brain) {
+	if ((following_path || input_disabled == false) && brain) {
 		if (brain->l) {
-			if (!sitting && map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
@@ -227,7 +237,7 @@ bool Map_Entity::maybe_move(Map *map)
 			set_direction(W);
 		}
 		else if (brain->r) {
-			if (!sitting && map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = E;
 				offset = Point<float>(-1, 0);
@@ -237,7 +247,7 @@ bool Map_Entity::maybe_move(Map *map)
 			set_direction(E);
 		}
 		else if (brain->u) {
-			if (!sitting && map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = N;
 				offset = Point<float>(0, 1);
@@ -247,7 +257,7 @@ bool Map_Entity::maybe_move(Map *map)
 			set_direction(N);
 		}
 		else if (brain->d) {
-			if (!sitting && map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = S;
 				offset = Point<float>(0, -1);
@@ -267,15 +277,15 @@ bool Map_Entity::maybe_move(Map *map)
 
 void Map_Entity::handle_event(TGUI_Event *event)
 {
-	if (brain) {
+	if (following_path == false && brain) {
 		brain->handle_event(event);
 	}
 }
 
-bool Map_Entity::update(Map *map, bool can_move)
+bool Map_Entity::update(bool can_move)
 {
 	if (moving == false) {
-		maybe_move(map);
+		maybe_move();
 	}
 
 	if (moving) {
@@ -283,14 +293,19 @@ bool Map_Entity::update(Map *map, bool can_move)
 			offset.x += speed;
 			if (offset.x >= 0) {
 				offset.x = 0;
-				map->check_triggers(this);
+				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
 				}
-				else if (maybe_move(map) == false) {
-					moving = false;
-					sprite->stop();
-					sprite->set_animation("stand_e");
+				else {
+					if (following_path) {
+						follow_path();
+					}
+					else if (maybe_move() == false) {
+						moving = false;
+						sprite->stop();
+						sprite->set_animation("stand_e");
+					}
 				}
 			}
 		}
@@ -298,14 +313,19 @@ bool Map_Entity::update(Map *map, bool can_move)
 			offset.x -= speed;
 			if (offset.x <= 0) {
 				offset.x = 0;
-				map->check_triggers(this);
+				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
 				}
-				else if (maybe_move(map) == false) {
-					moving = false;
-					sprite->stop();
-					sprite->set_animation("stand_w");
+				else {
+					if (following_path) {
+						follow_path();
+					}
+					else if (maybe_move() == false) {
+						moving = false;
+						sprite->stop();
+						sprite->set_animation("stand_w");
+					}
 				}
 			}
 		}
@@ -313,14 +333,19 @@ bool Map_Entity::update(Map *map, bool can_move)
 			offset.y += speed;
 			if (offset.y >= 0) {
 				offset.y = 0;
-				map->check_triggers(this);
+				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
 				}
-				else if (maybe_move(map) == false) {
-					moving = false;
-					sprite->stop();
-					sprite->set_animation("stand_s");
+				else {
+					if (following_path) {
+						follow_path();
+					}
+					else if (maybe_move() == false) {
+						moving = false;
+						sprite->stop();
+						sprite->set_animation("stand_s");
+					}
 				}
 			}
 		}
@@ -328,14 +353,19 @@ bool Map_Entity::update(Map *map, bool can_move)
 			offset.y -= speed;
 			if (offset.y <= 0) {
 				offset.y = 0;
-				map->check_triggers(this);
+				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
 				}
-				else if (maybe_move(map) == false) {
-					moving = false;
-					sprite->stop();
-					sprite->set_animation("stand_n");
+				else {
+					if (following_path) {
+						follow_path();
+					}
+					else if (maybe_move() == false) {
+						moving = false;
+						sprite->stop();
+						sprite->set_animation("stand_n");
+					}
 				}
 			}
 		}
@@ -346,18 +376,20 @@ bool Map_Entity::update(Map *map, bool can_move)
 	return true;
 }
 
-void Map_Entity::draw(Map *map, Point<int> draw_pos)
+void Map_Entity::draw(Point<int> draw_pos)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
 	// subtract 1 so tiles have precedence
-	sprite->get_current_image()->draw_single_z(Point<int>(draw_pos.x, draw_pos.y+add), -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(map->get_tilemap()->get_height()*noo.tile_size))));
+	sprite->get_current_image()->draw_single_z(Point<int>(draw_pos.x, draw_pos.y+add), -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))));
 }
 
 void Map_Entity::stop_now()
 {
+	if (following_path) {
+		end_a_star();
+	}
 	stop_next_tile = false;
 	moving = false;
-	// FIXME: add all buttons here
 	brain->l = brain->r = brain->u = brain->d = brain->b1 = false;
 	set_direction(direction);
 	sprite->stop();
@@ -365,4 +397,47 @@ void Map_Entity::stop_now()
 	if (brain) {
 		brain->reset_input();
 	}
+}
+
+void Map_Entity::follow_path()
+{
+	if (path.size() == 0) {
+		end_a_star();
+		stop_now();
+		return;
+	}
+	A_Star::Node *node = path.front();
+	path.pop_front();
+	int dx = node->position.x - position.x;
+	int dy = node->position.y - position.y;
+	if (fabs(dx)+fabs(dy) != 1) {
+		end_a_star();
+		stop_now();
+		return;
+	}
+
+	brain->l = brain->r = brain->u = brain->d = false;
+
+	if (dx < 0) {
+		brain->l = true;
+	}
+	else if (dx > 0) {
+		brain->r = true;
+	}
+	else if (dy < 0) {
+		brain->u = true;
+	}
+	else {
+		brain->d = true;
+	}
+
+	moving = true;
+
+	maybe_move();
+}
+
+void Map_Entity::end_a_star()
+{
+	following_path = false;
+	path.clear();
 }

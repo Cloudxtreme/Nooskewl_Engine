@@ -1,6 +1,7 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/map_logic.h"
@@ -30,6 +31,8 @@ public:
 	Map_Entity *get_entity(int id);
 	std::string get_map_name();
 	Tilemap *get_tilemap();
+	Point<int> get_offset();
+	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal);
 
 private:
 	Tilemap *tilemap;
@@ -45,6 +48,8 @@ private:
 	Direction new_map_direction;
 
 	Map_Logic *ml;
+
+	A_Star *a_star;
 };
 
 } // End namespace Nooskewl_Engine

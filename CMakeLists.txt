@@ -13,6 +13,7 @@ include_directories(${USER_INCLUDE_PATH})
 link_directories(${USER_LIBRARY_PATH})
 
 set(LIB_SRC
+	src/Nooskewl_Engine/a_star.cpp
 	src/Nooskewl_Engine/brain.cpp
 	src/Nooskewl_Engine/cpa.cpp
 	src/Nooskewl_Engine/engine.cpp

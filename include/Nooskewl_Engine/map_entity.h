@@ -2,6 +2,7 @@
 #define MAP_ENTITY_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
@@ -18,9 +19,9 @@ public:
 	void stop();
 	void handle_event(TGUI_Event *event);
 	// return false to destroy
-	bool update(Map *map, bool can_move);
+	bool update(bool can_move);
 	// draws with z values
-	void draw(Map *map, Point<int> draw_pos);
+	void draw(Point<int> draw_pos);
 
 	void load_sprite(std::string name);
 	void set_position(Point<int> position);
@@ -29,6 +30,8 @@ public:
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
+	void set_path(std::list<A_Star::Node *> path);
+
 	void disable_input();
 	void enable_input();
 
@@ -49,8 +52,10 @@ public:
 	bool tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos);
 
 private:
-	bool maybe_move(Map *map);
+	bool maybe_move();
 	void stop_now();
+	void follow_path();
+	void end_a_star();
 
 	int id;
 	Direction direction;
@@ -66,6 +71,9 @@ private:
 	bool stop_next_tile;
 	bool sitting;
 	bool input_disabled;
+
+	bool following_path;
+	std::list<A_Star::Node *> path;
 };
 
 } // End namespace Nooskewl_Engine

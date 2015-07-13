@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/player_brain.h"
 
 using namespace Nooskewl_Engine;
@@ -50,6 +51,18 @@ void Player_Brain::handle_event(TGUI_Event *event)
 			case TGUIK_SPACE:
 				b1 = false;
 				break;
+		}
+	}
+	else if (event->type == TGUI_MOUSE_DOWN) {
+		Point<int> map_offset = noo.map->get_offset();
+		Point<int> click(event->mouse.x, event->mouse.y);
+		Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
+		click -= map_offset;
+		if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
+			std::list<A_Star::Node *> path = noo.map->find_path(noo.player->get_position(), click / noo.tile_size);
+			if (path.size() > 0) {
+				noo.player->set_path(path);
+			}
 		}
 	}
 }

@@ -12,6 +12,8 @@ Map::Map(std::string map_name) :
 {
 	tilemap = new Tilemap(map_name);
 
+	a_star = new A_Star(tilemap);
+
 	ml = m.get_map_logic(this);
 }
 
@@ -23,6 +25,8 @@ Map::~Map()
 	}
 
 	delete tilemap;
+
+	delete a_star;
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (entities[i]->get_id() != 0) {
@@ -109,6 +113,16 @@ Tilemap *Map::get_tilemap()
 	return tilemap;
 }
 
+Point<int> Map::get_offset()
+{
+	return offset;
+}
+
+std::list<A_Star::Node *> Map::find_path(Point<int> start, Point<int> goal)
+{
+	return a_star->find_path(start, goal);
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {
@@ -176,8 +190,9 @@ void Map::update_camera()
 		Point<int> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
 		offset = p - Point<int>(noo.screen_w, noo.screen_h) / 2 + sz / 2;
-		int max_x = (tilemap->get_width()*noo.tile_size-noo.screen_w);
-		int max_y = (tilemap->get_height()*noo.tile_size-noo.screen_h);
+		Size<int> tilemap_size = tilemap->get_size();
+		int max_x = (tilemap_size.w*noo.tile_size-noo.screen_w);
+		int max_y = (tilemap_size.h*noo.tile_size-noo.screen_h);
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
@@ -192,11 +207,11 @@ void Map::update_camera()
 		}
 		offset = -offset;
 		// Correct for small levels
-		if (tilemap->get_width()*noo.tile_size < noo.screen_w) {
-			offset.x = (noo.screen_w - (tilemap->get_width() * noo.tile_size)) / 2;
+		if (tilemap_size.w*noo.tile_size < noo.screen_w) {
+			offset.x = (noo.screen_w - (tilemap_size.w * noo.tile_size)) / 2;
 		}
-		if (tilemap->get_height()*noo.tile_size < noo.screen_h) {
-			offset.y = (noo.screen_h - (tilemap->get_height() * noo.tile_size)) / 2;
+		if (tilemap_size.h*noo.tile_size < noo.screen_h) {
+			offset.y = (noo.screen_h - (tilemap_size.h * noo.tile_size)) / 2;
 		}
 	}
 }
@@ -210,7 +225,7 @@ bool Map::update()
 	std::vector<Map_Entity *>::iterator it;
 	for (it = entities.begin(); it != entities.end();) {
 		Map_Entity *e = *it;
-		if (e->update(this, speech != 0) == false) {
+		if (e->update(speech != 0) == false) {
 			delete e;
 			it = entities.erase(it);
 		}
@@ -242,7 +257,7 @@ void Map::draw()
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		e->draw(this, e->get_draw_position() + offset);
+		e->draw(e->get_draw_position() + offset);
 	}
 
 	tilemap->draw(layer++, offset, true);
