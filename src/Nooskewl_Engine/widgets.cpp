@@ -127,12 +127,21 @@ bool SS_Button::pressed()
 
 // --
 
-SS_Text_Button::SS_Text_Button(std::string text) :
-	SS_Button(0, 0),
+SS_Text_Button::SS_Text_Button(std::string text, Size<int> size) :
+	SS_Button(size.w, size.h),
 	text(text)
 {
-	w = noo.font->get_text_width(text) + PAD_X * 2;
-	h = noo.font->get_height() + PAD_Y * 2;
+	if (size.w < 0) {
+		w = noo.font->get_text_width(text) + PAD_X * 2;
+	}
+	if (size.h < 0) {
+		h = noo.font->get_height() + PAD_Y * 2;
+	}
+}
+
+SS_Text_Button::SS_Text_Button(std::string text) :
+	SS_Text_Button(text, Size<int>(-1, -1))
+{
 }
 
 SS_Text_Button::~SS_Text_Button()
