@@ -30,7 +30,7 @@ public:
 
 	void draw(SDL_Colour colour, std::string text, Point<int> dest_position);
 	// Returns number of characters drawn, plus whether or not it filled the max in bool &full
-	int draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool &full);
+	int draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width);
 
 private:
 	void cache_glyph(int ch);

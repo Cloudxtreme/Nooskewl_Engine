@@ -221,12 +221,19 @@ MO3_Label::MO3_Label(std::string text, int max_w) :
 	max_w(max_w)
 {
 	colour = noo.white;
+	bool full;
+	int num_lines, width;
+	int line_height = noo.font->get_height() + 1;
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
+	w = width;
+	h = line_height * num_lines;
 }
 
 void MO3_Label::draw()
 {
 	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
 	bool full;
-	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, noo.font->get_height()+1, -1, -1, 0, full);
+	int num_lines, width;
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
 	noo.font->disable_shadow();
 }

@@ -43,7 +43,8 @@ void Speech::draw()
 	noo.font->enable_shadow(noo.black, Font::DROP_SHADOW);
 
 	bool full;
-	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(14, noo.screen_h/2+9), noo.screen_w-28, 14, 4, start_time, TEXT_DELAY, full);
+	int num_lines, width;
+	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(14, noo.screen_h/2+9), noo.screen_w-28, 14, 4, start_time, TEXT_DELAY, false, full, num_lines, width);
 
 	noo.font->disable_shadow();
 

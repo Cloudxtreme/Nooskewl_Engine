@@ -112,7 +112,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 	}
 }
 
-int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool &full)
+int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width)
 {
 	full = false;
 	const char *p = text.c_str();
@@ -138,6 +138,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		chars_to_draw = elapsed / delay;
 	}
 	int chars_drawn = 0;
+	int max_width = 0;
 	while (done == false && lines < max_lines) {
 		int count = 0;
 		int max = 0;
@@ -145,6 +146,9 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		int chars_drawn_this_time = 0;
 		while (p[count]) {
 			buf[0] = p[count];
+			if (this_w > max_width) {
+				max_width = this_w;
+			}
 			this_w += get_text_width(buf);
 			if (this_w >= w) {
 				if (count == 0) {
@@ -172,7 +176,9 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = std::string(p).substr(0, max);
-			draw(colour, s, Point<int>(dest_position.x, curr_y));
+			if (dry_run == false) {
+				draw(colour, s, Point<int>(dest_position.x, curr_y));
+			}
 			p += max;
 			if (*p == ' ') p++;
 			chars_drawn = p - text.c_str();
@@ -195,6 +201,9 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 			done = true;
 		}
 	}
+
+	width = max_width;
+	num_lines = lines;
 
 	return chars_drawn;
 }
