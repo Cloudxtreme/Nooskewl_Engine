@@ -28,15 +28,19 @@ public:
 	void set_bounce(int bounce);
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
+	void set_sitting(bool sitting);
 
 	int get_id();
 	Brain *get_brain();
+	Sprite *get_sprite();
 	Direction get_direction();
 	Point<int> get_position();
 	Point<float> get_offset();
 	Size<int> get_size();
 	Point<int> get_draw_position();
 	bool is_solid();
+	bool is_sitting();
+
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
 	// Positions in tiles
@@ -58,6 +62,7 @@ private:
 	bool solid;
 	Size<int> size;
 	bool stop_next_tile;
+	bool sitting;
 };
 
 } // End namespace Nooskewl_Engine

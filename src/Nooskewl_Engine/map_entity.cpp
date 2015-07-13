@@ -17,7 +17,8 @@ Map_Entity::Map_Entity(Brain *brain) :
 	bounce(1),
 	solid(true),
 	size(noo.tile_size, noo.tile_size),
-	stop_next_tile(false)
+	stop_next_tile(false),
+	sitting(false)
 {
 	id = current_id++;
 }
@@ -54,6 +55,8 @@ void Map_Entity::set_direction(Direction direction)
 	this->direction = direction;
 	std::string animation_name;
 	if (moving) {
+		sprite->start();
+
 		switch (direction) {
 			case N:
 				animation_name = "walk_n";
@@ -66,6 +69,22 @@ void Map_Entity::set_direction(Direction direction)
 				break;
 			default:
 				animation_name = "walk_w";
+				break;
+		}
+	}
+	else if (sitting) {
+		switch (direction) {
+			case N:
+				animation_name = "sit_n";
+				break;
+			case E:
+				animation_name = "sit_e";
+				break;
+			case S:
+				animation_name = "sit_s";
+				break;
+			default:
+				animation_name = "sit_w";
 				break;
 		}
 	}
@@ -94,6 +113,14 @@ void Map_Entity::set_solid(bool solid)
 	this->solid = solid;
 }
 
+void Map_Entity::set_sitting(bool sitting)
+{
+	this->sitting = sitting;
+	if (sitting) {
+		moving = false;
+	}
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -102,6 +129,11 @@ int Map_Entity::get_id()
 Brain *Map_Entity::get_brain()
 {
 	return brain;
+}
+
+Sprite *Map_Entity::get_sprite()
+{
+	return sprite;
 }
 
 Direction Map_Entity::get_direction()
@@ -135,6 +167,11 @@ bool Map_Entity::is_solid()
 	return solid;
 }
 
+bool Map_Entity::is_sitting()
+{
+	return sitting;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -165,73 +202,55 @@ void Map_Entity::stop()
 
 bool Map_Entity::maybe_move(Map *map)
 {
+	bool ret = false;
+
 	if (brain) {
 		if (brain->l) {
-			if (map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
-				direction = W;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
-				sprite->set_animation("walk_w");
-				sprite->reset();
-				sprite->start();
-				return true;
+				ret = true;
 			}
-			else {
-				sprite->set_animation("stand_w");
-			}
-			direction = W;
+			set_direction(W);
 		}
 		else if (brain->r) {
-			if (map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = E;
 				offset = Point<float>(-1, 0);
 				position += Point<int>(1, 0);
-				sprite->set_animation("walk_e");
-				sprite->reset();
-				sprite->start();
-				return true;
+				ret = true;
 			}
-			else {
-				sprite->set_animation("stand_e");
-			}
-			direction = E;
+			set_direction(E);
 		}
 		else if (brain->u) {
-			if (map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
+			if (!sitting && map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = N;
 				offset = Point<float>(0, 1);
 				position += Point<int>(0, -1);
-				sprite->set_animation("walk_n");
-				sprite->reset();
-				sprite->start();
-				return true;
+				ret = true;
 			}
-			else {
-				sprite->set_animation("stand_n");
-			}
-			direction = N;
+			set_direction(N);
 		}
 		else if (brain->d) {
-			if (map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
+			if (!sitting && map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = S;
 				offset = Point<float>(0, -1);
 				position += Point<int>(0, 1);
-				sprite->set_animation("walk_s");
-				sprite->reset();
-				sprite->start();
-				return true;
+				ret = true;
 			}
-			else {
-				sprite->set_animation("stand_s");
-			}
-			direction = S;
+			set_direction(S);
+		}
+		else if (brain->b1 && sitting) {
+			sitting = false;
+			set_direction(direction);
 		}
 	}
-	return false;
+
+	return ret;
 }
 
 void Map_Entity::handle_event(TGUI_Event *event)
