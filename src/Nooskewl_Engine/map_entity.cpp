@@ -432,6 +432,7 @@ void Map_Entity::follow_path()
 	}
 
 	moving = true;
+	sitting = false;
 
 	maybe_move();
 }
