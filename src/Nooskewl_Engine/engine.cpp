@@ -108,6 +108,7 @@ void Engine::start(int argc, char **argv)
 
 void Engine::end()
 {
+	map->end();
 	delete map;
 	delete player;
 
@@ -484,6 +485,7 @@ void Engine::handle_event(TGUI_Event *event)
 			new_game = 0;
 
 			map = new Map("start.map");
+			map->start();
 
 			Player_Brain *player_brain = new Player_Brain();
 			player = new Map_Entity(player_brain);
@@ -511,6 +513,7 @@ bool Engine::update()
 		if (map_name != "") {
 			Map *old_map = map;
 			map = new Map(map_name);
+			map->start();
 			map->add_entity(player);
 
 			// draw transition
@@ -549,6 +552,7 @@ bool Engine::update()
 
 			set_default_projection();
 
+			old_map->end();
 			delete old_map;
 		}
 		else {
@@ -850,36 +854,34 @@ void Engine::draw_quad(SDL_Colour colour, Point<int> dest_position, Size<int> de
 
 void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle)
 {
-	SDL_Colour vertex_colours[4];
+	SDL_Colour colour = colours[44]; // blue
+	colour.a = 240;
 
-	// Blue shades in NES palette
-	vertex_colours[0] = vertex_colours[1] = colours[47];
-	vertex_colours[2] = vertex_colours[3] = colours[44];
+	draw_quad(colour, dest_position+1, dest_size-2);
 
-	for (int i = 0; i < 4; i++) {
-		vertex_colours[i].a = 220;
-	}
-
-	draw_quad(vertex_colours, dest_position+1, dest_size-2);
+	int iw = window_image->w;
+	int sz = iw / 3;
 
 	window_image->start();
-	window_image->draw_region(Point<int>(0, 0), Size<int>(6, 6), dest_position, 0); // top left
-	window_image->draw_region(Point<int>(6, 0), Size<int>(6, 6), Point<int>(dest_position.x+dest_size.w-6, dest_position.y), 0); // top right
-	window_image->draw_region(Point<int>(6, 6), Size<int>(6, 6), dest_position+dest_size-6, 0); // bottom right
-	window_image->draw_region(Point<int>(0, 6), Size<int>(6, 6), Point<int>(dest_position.x, dest_position.y+dest_size.h-6), 0); // bottom left
-	window_image->stretch_region(Point<int>(5, 1), Size<int>(2, 4), Point<int>(dest_position.x+6, dest_position.y+1), Size<int>(dest_size.w-12, 4), 0); // top
-	window_image->stretch_region(Point<int>(5, 7), Size<int>(2, 4), Point<int>(dest_position.x+6, dest_position.y+dest_size.h-5), Size<int>(dest_size.w-12, 4), 0); // bottom
-	window_image->stretch_region(Point<int>(1, 5), Size<int>(4, 2), Point<int>(dest_position.x+1, dest_position.y+6), Size<int>(4, dest_size.h-12), 0); // left
-	window_image->stretch_region(Point<int>(7, 5), Size<int>(4, 2), Point<int>(dest_position.x+dest_size.w-5, dest_position.y+6), Size<int>(4, dest_size.h-12), 0); // right
+	window_image->draw_region(Point<int>(0, 0), Size<int>(sz, sz), dest_position, 0); // top left
+	window_image->draw_region(Point<int>(iw-sz, 0), Size<int>(sz, sz), Point<int>(dest_position.x+dest_size.w-sz, dest_position.y), 0); // top right
+	window_image->draw_region(Point<int>(iw-sz, iw-sz), Size<int>(sz, sz), dest_position+dest_size-sz, 0); // bottom right
+	window_image->draw_region(Point<int>(0, iw-sz), Size<int>(sz, sz), Point<int>(dest_position.x, dest_position.y+dest_size.h-sz), 0); // bottom left
+	window_image->stretch_region(Point<int>(sz, 0), Size<int>(sz, sz), Point<int>(dest_position.x+sz, dest_position.y), Size<int>(dest_size.w-sz*2, sz), 0); // top
+	window_image->stretch_region(Point<int>(sz, iw-sz), Size<int>(sz, sz), Point<int>(dest_position.x+sz, dest_position.y+dest_size.h-sz), Size<int>(dest_size.w-sz*2, sz), 0); // bottom
+	window_image->stretch_region(Point<int>(0, sz), Size<int>(sz, sz), Point<int>(dest_position.x, dest_position.y+sz), Size<int>(sz, dest_size.h-sz*2), 0); // left
+	window_image->stretch_region(Point<int>(iw-sz, sz), Size<int>(sz, sz), Point<int>(dest_position.x+dest_size.w-sz, dest_position.y+sz), Size<int>(sz, dest_size.h-sz*2), 0); // right
 	window_image->end();
 
 	if (circle) {
 		speech_arrow->set_animation("circle");
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-12, 0);
+		Image *i = speech_arrow->get_current_image();
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w+sz, i->h+sz), 0);
 	}
 	else if (arrow) {
 		speech_arrow->set_animation("arrow");
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-12, 0);
+		Image *i = speech_arrow->get_current_image();
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w+sz, i->h+sz), 0);
 	}
 }
 
@@ -940,8 +942,8 @@ void Engine::load_palette(std::string name)
 
 void Engine::load_fonts()
 {
-	font = new Font("fff_majestica.ttf", 8);
-	bold_font = new Font("fff_majestica_bold.ttf", 8);
+	font = new Font("fff_majestica.ttf", 9);
+	bold_font = new Font("fff_majestica_bold.ttf", 9);
 }
 
 void Engine::check_joysticks()

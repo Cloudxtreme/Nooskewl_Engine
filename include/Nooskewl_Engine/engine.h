@@ -44,6 +44,9 @@ public:
 	TGUI *gui;
 	MML *music;
 
+	// Don't use this stuff...
+	Image *window_image;
+
 	Engine();
 	~Engine();
 
@@ -96,7 +99,6 @@ private:
 	SDL_Joystick *joy;
 	int num_joysticks;
 
-	Image *window_image;
 	Sprite *speech_arrow;
 
 	SDL_AudioDeviceID audio_device;

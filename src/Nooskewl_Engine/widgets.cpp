@@ -205,7 +205,7 @@ MO3_Window::~MO3_Window()
 
 void MO3_Window::draw()
 {
-	noo.draw_quad(background_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.draw_window(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), false, false);
 }
 
 void MO3_Window::set_default_colours()
