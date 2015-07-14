@@ -7,6 +7,9 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
 public:
+	static const int PAD_X = 5;
+	static const int PAD_Y = 5;
+
 	MO3_Widget(int w, int h);
 	MO3_Widget(float percent_w, float percent_h);
 	MO3_Widget(int w, float percent_h);
@@ -37,9 +40,6 @@ protected:
 class NOOSKEWL_ENGINE_EXPORT MO3_Text_Button : public MO3_Button
 {
 public:
-	static const int PAD_X = 10;
-	static const int PAD_Y = 5;
-
 	MO3_Text_Button(std::string, Size<int> size); // < 0 = don't care
 	MO3_Text_Button(std::string text);
 	virtual ~MO3_Text_Button();
@@ -51,7 +51,6 @@ private:
 	void set_default_colours();
 
 	SDL_Colour button_colour;
-	SDL_Colour button_border;
 	SDL_Colour text_colour;
 	std::string text;
 };

@@ -27,10 +27,7 @@ static void draw_focus(TGUI_Widget *widget)
 	int y = widget->get_y(); // - padding_top;
 	int w = widget->get_width(); // + padding_left + padding_right;
 	int h = widget->get_height(); // + padding_top + padding_bottom;
-	noo.draw_line(colour, Point<int>(x, y), Point<int>(x+w, y));
-	noo.draw_line(colour, Point<int>(x+w, y), Point<int>(x+w, y+h));
-	noo.draw_line(colour, Point<int>(x+w, y+h), Point<int>(x, y+h));
-	noo.draw_line(colour, Point<int>(x, y+h), Point<int>(x, y));
+	noo.draw_rectangle<int>(colour, Point<int>(x, y), Size<int>(w, h));
 }
 
 MO3_Widget::MO3_Widget(int w, int h) :
@@ -149,11 +146,9 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
-	noo.draw_quad(button_border, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
-	noo.draw_quad(button_colour, Point<int>(calculated_x, calculated_y)+1, Size<int>(calculated_w, calculated_h)-2);
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-	noo.font->draw(text_colour, text, Point<int>(calculated_x+PAD_X, calculated_y+PAD_Y+noo.font->get_descent()));
-	noo.font->disable_shadow();
+	noo.draw_quad<int>(button_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.draw_rectangle<int>(noo.white, Point<int>(calculated_x+1, calculated_y+1), Size<int>(calculated_w-2, calculated_h-2));
+	noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+PAD_Y));
 
 	MO3_Widget::draw();
 }
@@ -161,10 +156,6 @@ void MO3_Text_Button::draw()
 void MO3_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
-	button_border = noo.magenta;
-	button_border.r /= 2;
-	button_border.g /= 2;
-	button_border.b /= 2;
 	text_colour = noo.white;
 }
 
@@ -229,16 +220,14 @@ MO3_Label::MO3_Label(std::string text, int max_w) :
 	bool full;
 	int num_lines, width;
 	int line_height = noo.font->get_height() + 1;
-	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
 	w = width;
 	h = line_height * num_lines;
 }
 
 void MO3_Label::draw()
 {
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	bool full;
 	int num_lines, width;
-	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y+noo.font->get_descent()), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
-	noo.font->disable_shadow();
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
 }
