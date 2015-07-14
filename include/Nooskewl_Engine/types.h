@@ -17,6 +17,18 @@ public:
 		this->h = h;
 	}
 
+	Size(const Size<int> &s)
+	{
+		this->w = (T)s.w;
+		this->h = (T)s.h;
+	}
+
+	Size(const Size<float> &s)
+	{
+		this->w = (T)s.w;
+		this->h = (T)s.h;
+	}
+
 	Size() {}
 
 	float length()
@@ -30,7 +42,7 @@ public:
 	{
 		float dx = (float)w;
 		float dy = (float)h;
-		return atan2(dy, dx);
+		return atan2f(dy, dx);
 	}
 
 	void operator=(const Size<T> &from)
@@ -162,7 +174,7 @@ public:
 	{
 		float dx = (float)x;
 		float dy = (float)y;
-		return atan2(dy, dx);
+		return atan2f(dy, dx);
 	}
 
 	inline void operator=(const Point<T> &from)
