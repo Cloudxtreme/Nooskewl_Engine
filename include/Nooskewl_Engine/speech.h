@@ -19,6 +19,7 @@ public:
 
 private:
 	std::string text;
+	std::string name;
 	int start_time;
 	int offset;
 	bool advance;

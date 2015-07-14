@@ -16,13 +16,14 @@ public:
 		FULL_SHADOW
 	};
 
-	Font(std::string filename, int size);
+	Font(std::string filename, int size, int actual_size);
 	~Font();
 
 	void clear_cache();
 
 	int get_text_width(std::string text);
 	int get_height();
+	int get_ascent();
 	int get_descent();
 
 	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
@@ -33,17 +34,19 @@ public:
 	int draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width);
 
 private:
-	void cache_glyph(int ch);
+	void cache_glyph(Uint32 ch);
 	void cache_glyphs_if_needed(std::string text);
 
 	SDL_RWops *file;
 	TTF_Font *font;
 
-	std::map<int, Image *> glyphs;
+	std::map<Uint32, Image *> glyphs;
 
 	SDL_Colour shadow_colour;
 	Shadow_Type shadow_type;
 
+	int size;
+	int actual_size;
 	int height;
 };
 
