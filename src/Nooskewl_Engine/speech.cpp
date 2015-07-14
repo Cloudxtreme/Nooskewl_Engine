@@ -11,6 +11,11 @@ Speech::Speech(std::string text) :
 	advance(false),
 	done(false)
 {
+	size_t pipe = text.find('|');
+	if (pipe != std::string::npos) {
+		offset = pipe+1;
+		name = text.substr(0, pipe);
+	}
 }
 
 void Speech::start()
@@ -40,8 +45,8 @@ void Speech::draw()
 {
 	int deco_size = noo.window_image->w / 3;
 	int inner_pad = deco_size;
-	int pad = int(noo.screen_h * 0.02f);
-	int line_height = noo.font->get_height() + 8;
+	int pad = 0;
+	int line_height = noo.font->get_height() + 3;
 	int win_w = noo.screen_w - pad * 2;
 	int win_h = line_height * 3 + (deco_size + inner_pad) * 2;
 	int win_x = pad;
@@ -50,7 +55,7 @@ void Speech::draw()
 
 	bool full;
 	int num_lines, width;
-	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, true, full, num_lines, width);
+	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad + 2), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, true, full, num_lines, width);
 
 	if (full) {
 		if (unsigned(offset+drawn) >= text.length()) {
@@ -62,11 +67,16 @@ void Speech::draw()
 		}
 	}
 
+	if (name != "") {
+		int name_len = noo.font->get_text_width(name);
+		int name_w = name_len + (deco_size + inner_pad) * 2;
+		int name_h = noo.font->get_height() + (deco_size + inner_pad) * 2;
+		int name_x = win_x;
+		int name_y = win_y - name_h;
+		noo.draw_window(Point<int>(name_x, name_y), Size<int>(name_w, name_h), false, false);
+		noo.font->draw(noo.white, name, Point<int>(name_x+pad, name_y+pad));
+	}
 	noo.draw_window(Point<int>(win_x, win_y), Size<int>(win_w, win_h), !done, done);
 
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-
 	noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
-
-	noo.font->disable_shadow();
 }
