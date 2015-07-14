@@ -45,7 +45,8 @@ Engine::Engine() :
 	map(0),
 	tile_size(8),
 	joy(0),
-	num_joysticks(0)
+	num_joysticks(0),
+	language("English")
 {
 }
 
@@ -97,7 +98,7 @@ void Engine::start(int argc, char **argv)
 
 	main_widget = new MO3_Widget(1.0f, 1.0f);
 	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, 100, 0);
+	new_game->set_padding(0, 0, noo.screen_h - noo.screen_h / 6 - new_game->get_height(), 0);
 	new_game->set_centered_x(true);
 	new_game->set_parent(main_widget);
 	gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
@@ -803,91 +804,14 @@ void Engine::set_map_transition_projection(float angle)
 #endif
 }
 
-void Engine::draw_line(SDL_Colour colour, Point<int> a, Point<int> b)
-{
-	SDL_Colour vertex_colours[4];
-	for (int i = 0; i < 4; i++) {
-		vertex_colours[i] = colour;
-	}
-	float x1 = (float)a.x;
-	float y1 = (float)a.y;
-	float x2 = (float)b.x;
-	float y2 = (float)b.y;
-	float dx = x2 - x1;
-	float dy = y2 - y1;
-	float angle = atan2(dy, dx);
-	float a1 = angle + PI / 2.0f;
-	float a2 = angle - PI / 2.0f;
-	float scale = 0.5f * noo.scale;
-	Point<float> da = a;
-	Point<float> db = a;
-	Point<float> dc = b;
-	Point<float> dd = b;
-	da.x += cos(a1) * 0.5f;
-	da.y += sin(a1) * 0.5f;
-	db.x += cos(a2) * 0.5f;
-	db.y += sin(a2) * 0.5f;
-	dc.x += cos(a1) * 0.5f;
-	dc.y += sin(a1) * 0.5f;
-	dd.x += cos(a2) * 0.5f;
-	dd.y += sin(a2) * 0.5f;
-	if (opengl) {
-		glDisable(GL_TEXTURE_2D);
-		printGLerror("glBindTexture");
-	}
-	m.vertex_cache->start();
-	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), da, dc, dd, db, vertex_colours, 0);
-	m.vertex_cache->end();
-	if (opengl) {
-		glEnable(GL_TEXTURE_2D);
-		printGLerror("glBindTexture");
-	}
-}
-
-void Engine::draw_quad(SDL_Colour vertex_colours[4], Point<int> dest_position, Size<int> dest_size)
-{
-	if (opengl) {
-		glDisable(GL_TEXTURE_2D);
-		printGLerror("glBindTexture");
-	}
-	m.vertex_cache->start();
-	m.vertex_cache->buffer(Point<int>(0, 0), Size<int>(0, 0), dest_position, dest_size, vertex_colours, 0);
-	m.vertex_cache->end();
-	if (opengl) {
-		glEnable(GL_TEXTURE_2D);
-		printGLerror("glBindTexture");
-	}
-}
-
-void Engine::draw_quad(SDL_Colour colour, Point<int> dest_position, Size<int> dest_size)
-{
-	static SDL_Colour vertex_colours[4];
-	for (int i = 0; i < 4; i++) {
-		vertex_colours[i] = colour;
-	}
-	draw_quad(vertex_colours, dest_position, dest_size);
-}
-
 void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle)
 {
 	SDL_Colour colour = colours[44]; // blue
-	colour.a = 240;
 
-	draw_quad(colour, dest_position+1, dest_size-2);
+	draw_quad<int>(colour, dest_position, dest_size);
+	draw_rectangle<int>(white, dest_position+1, dest_size-2);
 
-	int iw = window_image->w;
-	int sz = iw / 3;
-
-	window_image->start();
-	window_image->draw_region(Point<int>(0, 0), Size<int>(sz, sz), dest_position, 0); // top left
-	window_image->draw_region(Point<int>(iw-sz, 0), Size<int>(sz, sz), Point<int>(dest_position.x+dest_size.w-sz, dest_position.y), 0); // top right
-	window_image->draw_region(Point<int>(iw-sz, iw-sz), Size<int>(sz, sz), dest_position+dest_size-sz, 0); // bottom right
-	window_image->draw_region(Point<int>(0, iw-sz), Size<int>(sz, sz), Point<int>(dest_position.x, dest_position.y+dest_size.h-sz), 0); // bottom left
-	window_image->stretch_region(Point<int>(sz, 0), Size<int>(sz, sz), Point<int>(dest_position.x+sz, dest_position.y), Size<int>(dest_size.w-sz*2, sz), 0); // top
-	window_image->stretch_region(Point<int>(sz, iw-sz), Size<int>(sz, sz), Point<int>(dest_position.x+sz, dest_position.y+dest_size.h-sz), Size<int>(dest_size.w-sz*2, sz), 0); // bottom
-	window_image->stretch_region(Point<int>(0, sz), Size<int>(sz, sz), Point<int>(dest_position.x, dest_position.y+sz), Size<int>(sz, dest_size.h-sz*2), 0); // left
-	window_image->stretch_region(Point<int>(iw-sz, sz), Size<int>(sz, sz), Point<int>(dest_position.x+dest_size.w-sz, dest_position.y+sz), Size<int>(sz, dest_size.h-sz*2), 0); // right
-	window_image->end();
+	int sz = 3;
 
 	if (circle) {
 		speech_arrow->set_animation("circle");
@@ -962,8 +886,15 @@ void Engine::load_palette(std::string name)
 
 void Engine::load_fonts()
 {
-	font = new Font("fff_majestica.ttf", 9);
-	bold_font = new Font("fff_majestica_bold.ttf", 9);
+	int actual_size;
+	if (language == "English") {
+		actual_size = 5;
+	}
+	else {
+		actual_size = 7;
+	}
+	font = new Font("fff_minute.ttf", 8, actual_size);
+	bold_font = new Font("fff_minute_bold.ttf", 8, actual_size);
 }
 
 void Engine::check_joysticks()

@@ -5,6 +5,7 @@
 #include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/sprite.h"
@@ -39,6 +40,7 @@ public:
 	int joy_b1;
 	int key_b1;
 	// Other
+	std::string language;
 	CPA *cpa;
 	Map *map;
 	Map_Entity *player;
@@ -68,9 +70,6 @@ public:
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
 
-	void draw_line(SDL_Colour colour, Point<int> a, Point<int> b);
-	void draw_quad(SDL_Colour vertex_colours[4], Point<int> dest_position, Size<int> dest_size);
-	void draw_quad(SDL_Colour colour, Point<int> dest_position, Size<int> dest_size);
 	void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);
 	void load_palette(std::string name);
 
@@ -110,6 +109,85 @@ private:
 	IDirect3D9 *d3d;
 	HICON mouse_cursor;
 #endif
+
+public:
+	/* Template functions */
+
+	template<typename T> void draw_line(SDL_Colour colour, Point<T> a, Point<T> b)
+	{
+		float thickness = 1.0f; // FIXME
+		float half_thickness = 0.5f;
+		SDL_Colour vertex_colours[4];
+		for (int i = 0; i < 4; i++) {
+			vertex_colours[i] = colour;
+		}
+		float dx = float(a.x - b.x);
+		float dy = float(a.y - b.y);
+		float angle = atan2f(dy, dx);
+		/* Make 4 points for thickness */
+		float a1 = angle + PI / 2.0f;
+		float a2 = angle - PI / 2.0f;
+		Point<float> da = a;
+		Point<float> db = a;
+		Point<float> dc = b;
+		Point<float> dd = b;
+		da.x += cos(a1) * half_thickness;
+		da.y += sin(a1) * half_thickness;
+		db.x += cos(a2) * half_thickness;
+		db.y += sin(a2) * half_thickness;
+		dc.x += cos(a1) * half_thickness;
+		dc.y += sin(a1) * half_thickness;
+		dd.x += cos(a2) * half_thickness;
+		dd.y += sin(a2) * half_thickness;
+		if (opengl) {
+			glDisable(GL_TEXTURE_2D);
+			printGLerror("glBindTexture");
+		}
+		m.vertex_cache->start();
+		m.vertex_cache->buffer<float>(Point<float>(0, 0), Size<float>(0, 0), da, dc, dd, db, vertex_colours, 0);
+		m.vertex_cache->end();
+		if (opengl) {
+			glEnable(GL_TEXTURE_2D);
+			printGLerror("glBindTexture");
+		}
+	}
+
+	template<typename T> void draw_rectangle(SDL_Colour colour, Point<T> pos, Size<T> size)
+	{
+		float thickness = 1.0f; // FIXME
+		float half_thickness = thickness / 2.0f;
+		Point<float> fpos = pos;
+		Size<float> fsize = size;
+		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness)); // top
+		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness)); // bottom
+		// left and right are a pixel short so there's no overlap
+		noo.draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+1), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-1)); // left
+		noo.draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+1), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-1)); // right
+	}
+
+	template<typename T> void draw_quad(SDL_Colour vertex_colours[4], Point<T> dest_position, Size<T> dest_size)
+	{
+		if (opengl) {
+			glDisable(GL_TEXTURE_2D);
+			printGLerror("glBindTexture");
+		}
+		m.vertex_cache->start();
+		m.vertex_cache->buffer<T>(Point<T>(0, 0), Size<T>(0, 0), dest_position, dest_size, vertex_colours, 0);
+		m.vertex_cache->end();
+		if (opengl) {
+			glEnable(GL_TEXTURE_2D);
+			printGLerror("glBindTexture");
+		}
+	}
+
+	template<typename T> void draw_quad(SDL_Colour colour, Point<T> dest_position, Size<T> dest_size)
+	{
+		static SDL_Colour vertex_colours[4];
+		for (int i = 0; i < 4; i++) {
+			vertex_colours[i] = colour;
+		}
+		draw_quad<T>(vertex_colours, dest_position, dest_size);
+	}
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
