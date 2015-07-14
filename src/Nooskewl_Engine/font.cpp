@@ -45,14 +45,13 @@ void Font::clear_cache()
 
 int Font::get_text_width(std::string text)
 {
-	cache_glyphs_if_needed(text);
+	cache_glyphs(text);
 
 	int width = 0;
+	int offset = 0;
+	int ch;
 
-	int len = utf8_len(text);
-
-	for (int i = 0; i < len; i++) {
-		Uint32 ch = utf8_char(text, i);
+	while ((ch = utf8_char_next(text, offset)) != 0) {
 		Image *g = glyphs[ch];
 		width += g->w;
 	}
@@ -88,15 +87,14 @@ void Font::disable_shadow()
 
 void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
-	cache_glyphs_if_needed(text);
+	cache_glyphs(text);
 
 	dest_position.y += (actual_size - height);
 
-	int len = utf8_len(text);
+	int offset = 0;
+	int ch;
 
-	for (int i = 0; i < len; i++) {
-		Uint32 ch = utf8_char(text, i);
-
+	while ((ch = utf8_char_next(text, offset)) != 0) {
 		Image *g = glyphs[ch];
 
 		/* Glyphs are rendered upside down, so we FLIP_V them rather than flip the memory which would be slow */
@@ -232,6 +230,10 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 
 void Font::cache_glyph(Uint32 ch)
 {
+	if (glyphs.find(ch) != glyphs.end()) {
+		return;
+	}
+
 	std::string s = utf8_char_to_string(ch);
 	SDL_Surface *surface = TTF_RenderUTF8_Solid(font, s.c_str(), noo.white);
 	if (surface == 0) {
@@ -246,13 +248,11 @@ void Font::cache_glyph(Uint32 ch)
 	glyphs[ch] = g;
 }
 
-void Font::cache_glyphs_if_needed(std::string text)
+void Font::cache_glyphs(std::string text)
 {
-	int len = utf8_len(text);
-	for (int i = 0; i < len; i++) {
-		int ch = utf8_char(text, i);
-		if (glyphs.find(ch) == glyphs.end()) {
-			cache_glyph(ch);
-		}
+	int offset = 0;
+	int ch;
+	while ((ch = utf8_char_next(text, offset)) != 0) {
+		cache_glyph(ch);
 	}
 }

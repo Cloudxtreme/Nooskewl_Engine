@@ -35,7 +35,7 @@ public:
 
 private:
 	void cache_glyph(Uint32 ch);
-	void cache_glyphs_if_needed(std::string text);
+	void cache_glyphs(std::string text);
 
 	SDL_RWops *file;
 	TTF_Font *font;
