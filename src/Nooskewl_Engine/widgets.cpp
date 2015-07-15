@@ -189,14 +189,18 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
+	bool focussed = gui->get_focus() == this;
 	Point<int> offset(0, 0);
-	if (_pressed && _hover) {
-		offset = Point<int>(1, 1);
-		noo.draw_9patch(button_image_pressed, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
-	}
-	else if (gui->get_focus() == this) {
+
+	if (focussed) {
 		enable_focus_shader(true);
-		noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
+		if (_pressed && _hover) {
+			offset = Point<int>(1, 1);
+			noo.draw_9patch(button_image_pressed, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
+		}
+		else {
+			noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
+		}
 		enable_focus_shader(false);
 	}
 	else {
