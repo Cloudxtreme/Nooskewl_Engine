@@ -587,6 +587,30 @@ void Engine::draw()
 	if (map) {
 		map->draw();
 	}
+	if (new_game != NULL) {
+		int scale1 = 4;
+		int x1 = -logo->size.w / 2 * scale1;
+		int y1 = -logo->size.h / 2 * scale1;
+		int scale2 = 8;
+		int x2 = -logo->size.w / 4 * scale2;
+		int y2 = -logo->size.h / 4 * scale2;
+		int dx1 = x1 + logo->size.w / 2 * scale1;
+		int dy2 = y2 + logo->size.h / 4 * scale2;
+		float p1 = (SDL_GetTicks() % 20000) / 20000.0f * 2.0f;
+		if (p1 >= 1.0f) {
+			p1 = 1.0f - (p1 - 1.0f);
+		}
+		float p2 = (SDL_GetTicks() % 30000) / 30000.0f * 2.0f;
+		if (p2 >= 1.0f) {
+			p2 = 1.0f - (p2 - 1.0f);
+		}
+		SDL_Colour tint1 = noo.white;
+		tint1.a = 32;
+		logo->stretch_region_tinted_single(tint1, Point<float>(0, 0), logo->size, Point<float>(x1 + (dx1 - x1) * p1, (float)y1), logo->size * scale1);
+		SDL_Colour tint2 = noo.white;
+		tint2.a = 64;
+		logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), logo->size * scale2);
+	}
 	if (gui) {
 		gui->draw();
 	}
