@@ -36,11 +36,6 @@ struct Module {
 	SDL_AudioSpec device_spec;
 	std::vector<SampleInstance *> playing_samples;
 	// graphics
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	IDirect3DDevice9 *d3d_device;
-	LPD3DXEFFECT effect;
-#endif
-	GLuint current_shader;
 	Vertex_Cache *vertex_cache;
 };
 
