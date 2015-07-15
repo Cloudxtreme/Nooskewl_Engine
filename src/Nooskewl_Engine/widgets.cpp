@@ -189,16 +189,18 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
+	Point<int> offset(0, 0);
 	if (_pressed && _hover) {
-		noo.draw_9patch(button_image_pressed, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+		offset = Point<int>(1, 1);
+		noo.draw_9patch(button_image_pressed, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 	}
 	else if (gui->get_focus() == this) {
 		enable_focus_shader(true);
-		noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+		noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 		enable_focus_shader(false);
 	}
 	else {
-		noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+		noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 	}
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	if (_pressed && _hover) {
@@ -206,10 +208,10 @@ void MO3_Text_Button::draw()
 		colour.r = Uint8(colour.r * 0.75f);
 		colour.r = Uint8(colour.g * 0.75f);
 		colour.r = Uint8(colour.b * 0.75f);
-		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y));
 	}
 	else {
-		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y));
 	}
 	noo.font->disable_shadow();
 }
