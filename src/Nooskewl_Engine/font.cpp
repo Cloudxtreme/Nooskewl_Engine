@@ -61,7 +61,7 @@ int Font::get_text_width(std::string text)
 
 int Font::get_height()
 {
-	return actual_size;
+	return height;
 }
 
 int Font::get_ascent()
@@ -72,6 +72,11 @@ int Font::get_ascent()
 int Font::get_descent()
 {
 	return TTF_FontDescent(font);
+}
+
+int Font::get_padding()
+{
+	return height - size;
 }
 
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
@@ -89,7 +94,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
 	cache_glyphs(text);
 
-	dest_position.y += (actual_size - height);
+	dest_position.y += (actual_size - size);
 
 	int offset = 0;
 	int ch;
@@ -124,6 +129,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 
 int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width)
 {
+printf("x=%d\n", dest_position.x);
 	full = false;
 	char buf[2] = { 0 };
 	int curr_y = dest_position.y;
@@ -193,6 +199,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 			}
 			if (dry_run == false) {
 				draw(colour, s, Point<int>(dest_position.x, curr_y));
+				printf("drew at %d\n", dest_position.x);
 			}
 			total_position += max;
 			p = utf8_substr(text, total_position);

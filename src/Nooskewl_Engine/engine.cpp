@@ -89,7 +89,6 @@ void Engine::start(int argc, char **argv)
 
 	load_fonts();
 
-	window_image = new Image("window.tga");
 	speech_arrow = new Sprite("speech_arrow");
 	speech_arrow->start();
 	logo = new Image("logo.tga");
@@ -121,7 +120,6 @@ void Engine::end()
 
 	delete gui;
 
-	delete window_image;
 	delete speech_arrow;
 	delete logo;
 
@@ -811,17 +809,15 @@ void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arr
 	draw_quad<int>(colour, dest_position, dest_size);
 	draw_rectangle<int>(white, dest_position+1, dest_size-2);
 
-	int sz = 3;
-
 	if (circle) {
 		speech_arrow->set_animation("circle");
 		Image *i = speech_arrow->get_current_image();
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w+sz, i->h+sz), 0);
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w, i->h), 0);
 	}
 	else if (arrow) {
 		speech_arrow->set_animation("arrow");
 		Image *i = speech_arrow->get_current_image();
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w+sz, i->h+sz), 0);
+		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w, i->h), 0);
 	}
 }
 

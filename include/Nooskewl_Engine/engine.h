@@ -47,9 +47,6 @@ public:
 	TGUI *gui;
 	MML *music;
 
-	// Don't use this stuff...
-	Image *window_image;
-
 	Engine();
 	~Engine();
 
@@ -113,10 +110,9 @@ private:
 public:
 	/* Template functions */
 
-	template<typename T> void draw_line(SDL_Colour colour, Point<T> a, Point<T> b)
+	template<typename T> void draw_line(SDL_Colour colour, Point<T> a, Point<T> b, float thickness = 1.0f)
 	{
-		float thickness = 1.0f; // FIXME
-		float half_thickness = 0.5f;
+		float half_thickness = thickness / 2.0f;
 		SDL_Colour vertex_colours[4];
 		for (int i = 0; i < 4; i++) {
 			vertex_colours[i] = colour;
@@ -152,17 +148,16 @@ public:
 		}
 	}
 
-	template<typename T> void draw_rectangle(SDL_Colour colour, Point<T> pos, Size<T> size)
+	template<typename T> void draw_rectangle(SDL_Colour colour, Point<T> pos, Size<T> size, float thickness = 1.0f)
 	{
-		float thickness = 1.0f; // FIXME
 		float half_thickness = thickness / 2.0f;
 		Point<float> fpos = pos;
 		Size<float> fsize = size;
-		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness)); // top
-		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness)); // bottom
+		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness), thickness); // top
+		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness), thickness); // bottom
 		// left and right are a pixel short so there's no overlap
-		noo.draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+1), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-1)); // left
-		noo.draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+1), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-1)); // right
+		noo.draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+thickness), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-thickness), thickness); // left
+		noo.draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
 	}
 
 	template<typename T> void draw_quad(SDL_Colour vertex_colours[4], Point<T> dest_position, Size<T> dest_size)

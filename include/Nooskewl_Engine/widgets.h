@@ -7,8 +7,8 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
 public:
-	static const int PAD_X = 5;
-	static const int PAD_Y = 5;
+	static const int PAD_X = 2;
+	static const int PAD_Y = 2;
 
 	MO3_Widget(int w, int h);
 	MO3_Widget(float percent_w, float percent_h);

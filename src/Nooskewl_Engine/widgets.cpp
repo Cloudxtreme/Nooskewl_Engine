@@ -17,17 +17,13 @@ static void draw_focus(TGUI_Widget *widget)
 	SDL_Colour colour;
 	colour.r = 255;
 	colour.g = 255;
-	colour.b = 0;
+	colour.b = 255;
 	colour.a = int(alpha * 255.0f);
-	int padding_left = widget->get_padding_left();
-	int padding_right = widget->get_padding_right();
-	int padding_top = widget->get_padding_top();
-	int padding_bottom = widget->get_padding_bottom();
-	int x = widget->get_x(); // - padding_left;
-	int y = widget->get_y(); // - padding_top;
-	int w = widget->get_width(); // + padding_left + padding_right;
-	int h = widget->get_height(); // + padding_top + padding_bottom;
-	noo.draw_rectangle<int>(colour, Point<int>(x, y), Size<int>(w, h));
+	float x = (float)widget->get_x();
+	float y = (float)widget->get_y();
+	float w = (float)widget->get_width();
+	float h = (float)widget->get_height();
+	noo.draw_rectangle<float>(colour, Point<float>(x, y), Size<float>(w, h), 1.0f);
 }
 
 MO3_Widget::MO3_Widget(int w, int h) :
@@ -162,7 +158,7 @@ void MO3_Text_Button::set_default_colours()
 void MO3_Text_Button::set_size(Size<int> size)
 {
 	if (size.w < 0) {
-		w = noo.font->get_text_width(text) + PAD_X * 2;
+		w = noo.font->get_text_width(text) + PAD_X * 2 + noo.font->get_padding() * 2;
 	}
 	if (size.h < 0) {
 		h = noo.font->get_height() + PAD_Y * 2;
