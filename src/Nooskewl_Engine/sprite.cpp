@@ -4,16 +4,18 @@
 
 using namespace Nooskewl_Engine;
 
-Sprite::Sprite(std::string xml_filename, std::string image_directory) :
-	started(false)
+Sprite::Sprite(std::string xml_filename, std::string image_directory)
 {
 	load(xml_filename, image_directory);
+	stop();
+	reset();
 }
 
-Sprite::Sprite(std::string image_directory) :
-	started(false)
+Sprite::Sprite(std::string image_directory)
 {
 	load(image_directory + "/animations.xml", image_directory);
+	stop();
+	reset();
 }
 
 Sprite::~Sprite()
@@ -101,7 +103,6 @@ void Sprite::load(std::string xml_filename, std::string image_directory)
 		if (first) {
 			first = false;
 			current_animation = anim->get_name();
-			current_image = a->images.size() > 0 ? a->images[0] : 0;
 		}
 	}
 
@@ -122,22 +123,23 @@ bool Sprite::set_animation(std::string name)
 void Sprite::start()
 {
 	started = true;
-	update();
+	start_time = SDL_GetTicks();
 }
 
 void Sprite::stop()
 {
 	started = false;
+	end_time = SDL_GetTicks();
 }
 
 void Sprite::reset()
 {
-	start_time = 0;
+	start_time = SDL_GetTicks();
 }
 
-void Sprite::update()
+Image *Sprite::get_current_image()
 {
-	Uint32 now = SDL_GetTicks();
+	Uint32 now = started ? SDL_GetTicks() : end_time;
 	Uint32 elapsed = now - start_time;
 
 	Animation *anim = animations[current_animation];
@@ -156,10 +158,5 @@ void Sprite::update()
 		}
 	}
 
-	current_image = anim->images[frame];
-}
-
-Image *Sprite::get_current_image()
-{
-	return current_image;
+	return anim->images[frame];
 }

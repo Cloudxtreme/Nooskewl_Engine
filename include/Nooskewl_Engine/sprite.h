@@ -19,7 +19,6 @@ public:
 	void stop();
 	// set to frame 0
 	void reset();
-	void update();
 
 	Image *get_current_image();
 
@@ -34,13 +33,11 @@ private:
 
 	bool started;
 	Uint32 start_time;
+	Uint32 end_time;
 
 	// "" when not set
 	std::string current_animation;
-
 	std::map<std::string, Animation *> animations;
-
-	Image *current_image;
 };
 
 } // End namespace Nooskewl_Engine
