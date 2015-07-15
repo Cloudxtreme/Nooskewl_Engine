@@ -51,9 +51,9 @@ bool Sample::play(float volume, bool loop)
 	s->loop = loop;
 	s->volume = volume;
 
-	SDL_LockMutex(m.sample_mutex);
+	SDL_LockMutex(m.mixer_mutex);
 	m.playing_samples.push_back(s);
-	SDL_UnlockMutex(m.sample_mutex);
+	SDL_UnlockMutex(m.mixer_mutex);
 
 	return true;
 }

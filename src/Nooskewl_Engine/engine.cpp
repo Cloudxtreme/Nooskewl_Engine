@@ -10,7 +10,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 {
 	memset(stream, m.device_spec.silence, stream_length);
 
-	SDL_LockMutex(m.sample_mutex);
+	SDL_LockMutex(m.mixer_mutex);
 	std::vector<SampleInstance *>::iterator it;
 	for (it = m.playing_samples.begin(); it != m.playing_samples.end();) {
 		SampleInstance *s = *it;
@@ -33,7 +33,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 			it++;
 		}
 	}
-	SDL_UnlockMutex(m.sample_mutex);
+	SDL_UnlockMutex(m.mixer_mutex);
 
 	MML::mix(stream, stream_length);
 }
@@ -347,7 +347,7 @@ void Engine::init_audio()
 		return;
 	}
 
-	m.sample_mutex = SDL_CreateMutex();
+	m.mixer_mutex = SDL_CreateMutex();
 
 	SDL_AudioSpec desired;
 	desired.freq = 44100;
@@ -372,7 +372,7 @@ void Engine::shutdown_audio()
 		SDL_CloseAudioDevice(audio_device);
 	}
 
-	SDL_DestroyMutex(m.sample_mutex);
+	SDL_DestroyMutex(m.mixer_mutex);
 }
 
 void Engine::handle_event(TGUI_Event *event)

@@ -745,6 +745,8 @@ void MML::mix(Uint8 *buf, int stream_length)
 {
 	Uint8 *tmp = new Uint8[stream_length];
 
+	SDL_LockMutex(m.mixer_mutex);
+
 	for (size_t i = 0; i < loaded_mml.size(); i++) {
 		std::vector<Internal::Track *> &tracks = loaded_mml[i]->tracks;
 		for (size_t track = 0; track < tracks.size(); track++) {
@@ -756,6 +758,8 @@ void MML::mix(Uint8 *buf, int stream_length)
 		}
 	}
 
+	SDL_UnlockMutex(m.mixer_mutex);
+
 	delete[] tmp;
 }
 
@@ -763,17 +767,24 @@ MML::MML(std::string filename) :
 	name(filename)
 {
 	internal = new MML::Internal(filename);
+	SDL_LockMutex(m.mixer_mutex);
 	loaded_mml.push_back(internal);
+	SDL_UnlockMutex(m.mixer_mutex);
 }
 
 MML::~MML()
 {
+	SDL_LockMutex(m.mixer_mutex);
+
 	for (size_t i = 0; i < loaded_mml.size(); i++) {
 		if (loaded_mml[i] == internal) {
 			loaded_mml.erase(loaded_mml.begin()+i);
 			break;
 		}
 	}
+
+	SDL_UnlockMutex(m.mixer_mutex);
+
 	delete internal;
 }
 

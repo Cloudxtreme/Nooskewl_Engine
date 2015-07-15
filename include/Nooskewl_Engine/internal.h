@@ -30,7 +30,7 @@ void printGLerror(const char *fmt, ...);
 struct Module {
 	Map_Logic_Getter get_map_logic;
 	// audio
-	SDL_mutex *sample_mutex;
+	SDL_mutex *mixer_mutex;
 	SDL_AudioSpec device_spec;
 	std::vector<SampleInstance *> playing_samples;
 	// graphics
