@@ -860,8 +860,6 @@ std::string Engine::load_text(std::string filename)
 
 	std::string s = buf;
 
-	printf("s='%s'\n", s.c_str());
-
 	delete[] buf;
 
 	return s;
