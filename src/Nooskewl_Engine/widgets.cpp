@@ -4,20 +4,17 @@
 
 using namespace Nooskewl_Engine;
 
-Image *MO3_Widget::focus_image;
 Image *MO3_Widget::button_image;
 Image *MO3_Widget::button_image_pressed;
 
 void MO3_Widget::static_start()
 {
-	focus_image = new Image("gui_focus.tga");
 	button_image = new Image("button.tga");
 	button_image_pressed = new Image("button_pressed.tga");
 }
 
 void MO3_Widget::static_end()
 {
-	delete focus_image;
 	delete button_image;
 	delete button_image_pressed;
 }

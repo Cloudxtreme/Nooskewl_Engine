@@ -18,7 +18,6 @@ public:
 	virtual ~MO3_Widget();
 
 protected:
-	static Image *focus_image;
 	static Image *button_image;
 	static Image *button_image_pressed;
 };
