@@ -111,6 +111,13 @@ public:
 		return *this;
 	}
 
+	inline Size<T> &operator-=(const Size<T> &rhs)
+	{
+		this->w -= rhs.w;
+		this->h -= rhs.h;
+		return *this;
+	}
+
 	inline Size<T> &operator+=(const Size<T> &rhs)
 	{
 		this->w += rhs.w;
@@ -118,11 +125,42 @@ public:
 		return *this;
 	}
 
-	inline Size<T> &operator-=(const Size<T> &rhs)
+	inline Size<T> &operator/=(const Size<T> &rhs)
 	{
-		this->w -= rhs.w;
-		this->h -= rhs.h;
+		this->w /= rhs.w;
+		this->h /= rhs.h;
 		return *this;
+	}
+
+	inline Size<T> &operator*=(const Size<T> &rhs)
+	{
+		this->w *= rhs.w;
+		this->h *= rhs.h;
+		return *this;
+	}
+
+	inline Size<T> operator-(const Size<T> &rhs)
+	{
+		Size<T> s(this->w - rhs.w, this->h - rhs.h);
+		return s;
+	}
+
+	inline Size<T> operator+(const Size<T> &rhs)
+	{
+		Size<T> s(this->w + rhs.w, this->w + rhs.h);
+		return s;
+	}
+
+	inline Size<T> operator/(const Size<T> &rhs)
+	{
+		Size<T> s(this->w / rhs.w, this->w / rhs.h);
+		return s;
+	}
+
+	inline Size<T> operator*(const Size<T> &rhs)
+	{
+		Size<T> s(this->w * rhs.w, this->w * rhs.h);
+		return s;
 	}
 
 	inline Size<T> operator-()
