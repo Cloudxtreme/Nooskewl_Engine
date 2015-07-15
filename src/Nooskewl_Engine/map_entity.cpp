@@ -371,8 +371,6 @@ bool Map_Entity::update(bool can_move)
 		}
 	}
 
-	sprite->update();
-
 	return true;
 }
 

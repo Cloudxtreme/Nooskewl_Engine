@@ -7,8 +7,9 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
 public:
-	static const int PAD_X = 2;
-	static const int PAD_Y = 2;
+	static void static_start();
+	static void static_end();
+	static void draw_focus(TGUI_Widget *widget);
 
 	MO3_Widget(int w, int h);
 	MO3_Widget(float percent_w, float percent_h);
@@ -19,9 +20,12 @@ public:
 	void draw();
 	void handle_event(TGUI_Event *event);
 
-private:
+protected:
 	bool got_event;
 	int event_x, event_y;
+
+	static Image *focus_image;
+	static Image *button_image;
 };
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Button : public MO3_Widget {
@@ -53,6 +57,7 @@ private:
 	SDL_Colour button_colour;
 	SDL_Colour text_colour;
 	std::string text;
+	int padding;
 };
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Window : public MO3_Widget

@@ -4,7 +4,21 @@
 
 using namespace Nooskewl_Engine;
 
-static void draw_focus(TGUI_Widget *widget)
+Image *MO3_Widget::focus_image;
+Image *MO3_Widget::button_image;
+
+void MO3_Widget::static_start()
+{
+	focus_image = new Image("gui_focus.tga");
+	button_image = new Image("button.tga");
+}
+
+void MO3_Widget::static_end()
+{
+	delete button_image;
+}
+
+void MO3_Widget::draw_focus(TGUI_Widget *widget)
 {
 	float f = (SDL_GetTicks() % 1000) / 1000.0f;
 	float alpha;
@@ -19,11 +33,7 @@ static void draw_focus(TGUI_Widget *widget)
 	colour.g = 255;
 	colour.b = 255;
 	colour.a = int(alpha * 255.0f);
-	float x = (float)widget->get_x();
-	float y = (float)widget->get_y();
-	float w = (float)widget->get_width();
-	float h = (float)widget->get_height();
-	noo.draw_rectangle<float>(colour, Point<float>(x, y), Size<float>(w, h), 1.0f);
+	noo.draw_9patch_tinted(colour, focus_image, Point<int>(widget->get_x(), widget->get_y()), Size<int>(widget->get_width(), widget->get_height()));
 }
 
 MO3_Widget::MO3_Widget(int w, int h) :
@@ -124,6 +134,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
 	MO3_Button(size.w, size.h),
 	text(text)
 {
+	padding = button_image->w / 3;
 	set_size(size);
 	set_default_colours();
 }
@@ -132,6 +143,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text) :
 	MO3_Button(-1, -1),
 	text(text)
 {
+	padding = button_image->w / 3;
 	set_size(Size<int>(-1, -1));
 	set_default_colours();
 }
@@ -142,9 +154,8 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
-	noo.draw_quad<int>(button_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
-	noo.draw_rectangle<int>(noo.white, Point<int>(calculated_x+1, calculated_y+1), Size<int>(calculated_w-2, calculated_h-2));
-	noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+PAD_Y));
+	noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
 
 	MO3_Widget::draw();
 }
@@ -158,10 +169,10 @@ void MO3_Text_Button::set_default_colours()
 void MO3_Text_Button::set_size(Size<int> size)
 {
 	if (size.w < 0) {
-		w = noo.font->get_text_width(text) + PAD_X * 2 + noo.font->get_padding() * 2;
+		w = noo.font->get_text_width(text) + padding * 2 + noo.font->get_padding() * 2;
 	}
 	if (size.h < 0) {
-		h = noo.font->get_height() + PAD_Y * 2;
+		h = noo.font->get_height() + padding * 2;
 	}
 }
 
@@ -197,7 +208,7 @@ MO3_Window::~MO3_Window()
 
 void MO3_Window::draw()
 {
-	noo.draw_window(Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h), false, false);
+	noo.draw_9patch(noo.window_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 }
 
 void MO3_Window::set_default_colours()
