@@ -122,12 +122,18 @@ bool Sprite::set_animation(std::string name)
 
 void Sprite::start()
 {
+	if (started == true) {
+		return;
+	}
 	started = true;
 	start_time = SDL_GetTicks();
 }
 
 void Sprite::stop()
 {
+	if (started == false) {
+		return;
+	}
 	started = false;
 	end_time = SDL_GetTicks();
 }
