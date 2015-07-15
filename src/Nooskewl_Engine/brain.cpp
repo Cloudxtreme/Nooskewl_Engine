@@ -4,14 +4,14 @@ using namespace Nooskewl_Engine;
 
 Brain::Brain()
 {
-	reset_input();
+	reset();
 }
 
 Brain::~Brain()
 {
 }
 
-void Brain::reset_input()
+void Brain::reset()
 {
 	l = r = u = d = b1 = false;
 }

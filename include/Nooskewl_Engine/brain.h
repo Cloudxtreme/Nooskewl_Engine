@@ -13,7 +13,7 @@ public:
 	virtual ~Brain();
 
 	virtual void handle_event(TGUI_Event *event) = 0;
-	void reset_input();
+	virtual void reset();
 };
 
 } // End namespace Nooskewl_Engine

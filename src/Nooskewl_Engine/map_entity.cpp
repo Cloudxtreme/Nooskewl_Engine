@@ -398,7 +398,7 @@ void Map_Entity::stop_now()
 	sprite->stop();
 	sprite->reset();
 	if (brain) {
-		brain->reset_input();
+		brain->reset();
 	}
 }
 

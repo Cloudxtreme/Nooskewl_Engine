@@ -396,6 +396,7 @@ void Engine::handle_event(TGUI_Event *event)
 			player = new Map_Entity(player_brain);
 			player->load_sprite("player");
 			map = new Map("start.map");
+			player->get_brain()->reset();
 			map->add_entity(player);
 			map->start();
 			map->update_camera();
@@ -427,6 +428,7 @@ bool Engine::update()
 			Map *old_map = map;
 			last_map_name = old_map->get_map_name();
 			map = new Map(map_name);
+			player->get_brain()->reset();
 			map->add_entity(player);
 			map->start();
 			map->update_camera();

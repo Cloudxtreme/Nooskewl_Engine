@@ -13,6 +13,8 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Map {
 public:
+	static const float PAN_BACK_SPEED;
+
 	static void new_game_started();
 
 	Map(std::string map_name);
@@ -29,6 +31,8 @@ public:
 	void add_entity(Map_Entity *entity);
 	void add_speech(std::string text);
 	void change_map(std::string map_name, Point<int> position, Direction direction);
+	void set_panning(bool panning);
+	void set_pan(Point<float> pan);
 
 	bool is_solid(int layer, Point<int> position, Size<int> size);
 	void check_triggers(Map_Entity *entity);
@@ -42,6 +46,9 @@ public:
 private:
 	Tilemap *tilemap;
 	Point<int> offset;
+	bool panning;
+	Point<float> pan;
+	float pan_angle;
 	std::vector<Map_Entity *> entities;
 
 	std::vector<std::string> speeches;

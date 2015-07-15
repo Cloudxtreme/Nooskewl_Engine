@@ -12,6 +12,14 @@ public:
 		~Player_Brain();
 
 		void handle_event(TGUI_Event *event);
+		void reset();
+
+private:
+	static const int TOLERANCE = 5;
+
+	bool pressed;
+	bool dragged;
+	Point<int> pressed_pos;
 };
 
 } // End namespace Nooskewl_Engine

@@ -4,6 +4,8 @@
 
 using namespace Nooskewl_Engine;
 
+const float Map::PAN_BACK_SPEED = 2.0f;
+
 void Map::new_game_started()
 {
 	Map_Entity::new_game_started();
@@ -11,6 +13,7 @@ void Map::new_game_started()
 
 Map::Map(std::string map_name) :
 	offset(0, 0),
+	panning(false),
 	speech(0),
 	map_name(map_name),
 	new_map_name("")
@@ -70,6 +73,24 @@ void Map::change_map(std::string map_name, Point<int> position, Direction direct
 	new_map_name = map_name;
 	new_map_position = position;
 	new_map_direction = direction;
+}
+
+void Map::set_panning(bool panning)
+{
+	this->panning = panning;
+	if (panning == false) {
+		if (pan.length() < 5) {
+			pan = Point<int>(0, 0);
+		}
+		else {
+			pan_angle = -pan.angle();
+		}
+	}
+}
+
+void Map::set_pan(Point<float> pan)
+{
+	this->pan = pan;
 }
 
 bool Map::is_solid(int layer, Point<int> position, Size<int> size)
@@ -206,6 +227,7 @@ void Map::update_camera()
 		Point<int> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
 		offset = p - noo.screen_size / 2 + sz / 2;
+		offset += pan;
 		Size<int> tilemap_size = tilemap->get_size();
 		int max_x = (tilemap_size.w*noo.tile_size-noo.screen_size.w);
 		int max_y = (tilemap_size.h*noo.tile_size-noo.screen_size.h);
@@ -251,6 +273,34 @@ bool Map::update()
 	}
 
 	update_camera();
+
+	// Reset pan gradually when the user lets go of mouse
+	if (panning == false && (pan.x != 0.0f || pan.y != 0.0f)) {
+		if (pan.x < 0.0f) {
+			pan.x += cos(pan_angle) * PAN_BACK_SPEED;
+			if (pan.x > 0.0f) {
+				pan.x = 0.0f;
+			}
+		}
+		else if (pan.x > 0.0f) {
+			pan.x += cos(pan_angle) * PAN_BACK_SPEED;
+			if (pan.x < 0.0f) {
+				pan.x = 0.0f;
+			}
+		}
+		if (pan.y < 0.0f) {
+			pan.y += sin(pan_angle) * PAN_BACK_SPEED;
+			if (pan.y > 0.0f) {
+				pan.y = 0.0f;
+			}
+		}
+		else if (pan.y > 0.0f) {
+			pan.y += sin(pan_angle) * PAN_BACK_SPEED;
+			if (pan.y < 0.0f) {
+				pan.y = 0.0f;
+			}
+		}
+	}
 
 	if (new_map_name != "") {
 		return false;

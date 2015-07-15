@@ -3,7 +3,9 @@
 
 using namespace Nooskewl_Engine;
 
-Player_Brain::Player_Brain()
+Player_Brain::Player_Brain() :
+	pressed(false),
+	dragged(false)
 {
 }
 
@@ -88,15 +90,67 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		}
 	}
 	else if (event->type == TGUI_MOUSE_DOWN) {
-		Point<int> map_offset = noo.map->get_offset();
-		Point<int> click(event->mouse.x, event->mouse.y);
-		Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
-		click -= map_offset;
-		if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
-			std::list<A_Star::Node *> path = noo.map->find_path(noo.player->get_position(), click / noo.tile_size);
-			if (path.size() > 0) {
-				noo.player->set_path(path);
+		pressed = true;
+		pressed_pos = Point<int>(event->mouse.x, event->mouse.y);
+	}
+	else if (event->type == TGUI_MOUSE_UP) {
+		if (pressed) {
+			if (dragged == false) {
+				Point<int> mouse_pos(event->mouse.x, event->mouse.y);
+				float moved_distance = (mouse_pos-pressed_pos).length();
+				if (moved_distance < (float)TOLERANCE) {
+					Point<int> map_offset = noo.map->get_offset();
+					Point<int> click(event->mouse.x, event->mouse.y);
+					Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
+					click -= map_offset;
+					if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
+						std::list<A_Star::Node *> path = noo.map->find_path(noo.player->get_position(), click / noo.tile_size);
+						if (path.size() > 0) {
+							noo.player->set_path(path);
+						}
+					}
+				}
 			}
 		}
+		pressed = false;
+		dragged = false;
+		noo.map->set_panning(false);
 	}
+	else if (event->type == TGUI_MOUSE_AXIS) {
+		Point<int> mouse_pos(event->mouse.x, event->mouse.y);
+		if (pressed == true && dragged == false) {
+			float distance = (mouse_pos-pressed_pos).length();
+			if (distance >= TOLERANCE) {
+				dragged = true;
+			}
+		}
+		if (dragged) {
+			Point<int> moved = pressed_pos - mouse_pos;
+			if (abs(moved.x) > noo.screen_size.w / 2) {
+				if (moved.x < 0) {
+					moved.x = -noo.screen_size.w / 2;
+				}
+				else {
+					moved.x = noo.screen_size.w / 2;
+				}
+			}
+			if (abs(moved.y) > noo.screen_size.h / 2) {
+				if (moved.y < 0) {
+					moved.y = -noo.screen_size.h / 2;
+				}
+				else {
+					moved.y = noo.screen_size.h / 2;
+				}
+			}
+			noo.map->set_panning(true);
+			noo.map->set_pan(moved);
+		}
+	}
+}
+
+void Player_Brain::reset()
+{
+	Brain::reset();
+
+	pressed = dragged = false;
 }

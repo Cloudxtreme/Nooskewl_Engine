@@ -87,24 +87,29 @@ void MO3_Button::handle_event(TGUI_Event *event)
 			_hover = true;
 		}
 		else {
+			_pressed = false;
 			_hover = false;
 		}
 	}
 	if (gui->get_event_owner(event) == this) {
 		if (event->type == TGUI_KEY_DOWN) {
-			if (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE) {
+			if (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == noo.key_b1) {
 				_pressed = true;
+				_hover = true;
 			}
 			else {
 				_pressed = false;
+				_hover = false;
 			}
 		}
 		else if (event->type == TGUI_JOY_DOWN) {
 			if (event->joystick.button == noo.joy_b1) {
 				_pressed = true;
+				_hover = true;
 			}
 			else {
 				_pressed = false;
+				_hover = false;
 			}
 		}
 		else if (event->type == TGUI_MOUSE_DOWN) {
@@ -116,21 +121,25 @@ void MO3_Button::handle_event(TGUI_Event *event)
 			}
 		}
 		else if (event->type == TGUI_KEY_UP) {
-			if (_pressed && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) {
+			if (_pressed && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == noo.key_b1)) {
 				_released = true;
+				_hover = false;
 				noo.button_mml->play(false);
 			}
 			else {
 				_pressed = false;
+				_hover = false;
 			}
 		}
 		else if (event->type == TGUI_JOY_UP) {
 			if (_pressed && (event->joystick.button == noo.joy_b1)) {
 				_released = true;
+				_hover = false;
 				noo.button_mml->play(false);
 			}
 			else {
 				_pressed = false;
+				_hover = false;
 			}
 		}
 		else if (event->type == TGUI_MOUSE_UP) {
@@ -146,12 +155,15 @@ void MO3_Button::handle_event(TGUI_Event *event)
 	else {
 		if (event->type == TGUI_KEY_UP) {
 			_pressed = false;
+			_hover = false;
 		}
 		else if (event->type == TGUI_JOY_UP) {
 			_pressed = false;
+			_hover = false;
 		}
 		else if (event->type == TGUI_MOUSE_UP) {
 			_pressed = false;
+			_hover = false;
 		}
 	}
 }
@@ -159,7 +171,9 @@ void MO3_Button::handle_event(TGUI_Event *event)
 bool MO3_Button::pressed()
 {
 	bool r = _released;
-	_released = false;
+	if (_released) {
+		_pressed = _released = _hover = false;
+	}
 	return r;
 }
 
