@@ -9,7 +9,11 @@ class Speech {
 public:
 	static const int TEXT_DELAY = 50; // millisecond
 
+	static void static_start();
+	static void static_end();
+
 	Speech(std::string text);
+	~Speech();
 
 	void start();
 
@@ -25,6 +29,8 @@ private:
 	bool advance;
 	bool done;
 	int skip;
+
+	static Sprite *speech_advance;
 };
 
 } // End namespace Nooskewl_Engine
