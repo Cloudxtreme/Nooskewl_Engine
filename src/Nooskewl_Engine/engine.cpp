@@ -47,6 +47,7 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
+	did_intro(false),
 
 default_opengl_vertex_source(
 	"#version 110\n"
@@ -242,6 +243,8 @@ void Engine::start(int argc, char **argv)
 
 	music = new MML("title.mml");
 	music->play(true);
+
+	intro_start = SDL_GetTicks();
 }
 
 void Engine::end()
@@ -588,9 +591,23 @@ void Engine::draw()
 		gui->draw();
 	}
 	if (new_game != NULL) {
-		int x = screen_w / 2 - logo->w / 2;
-		int y = screen_h / 3 - logo->h / 2;
-		logo->draw_single(Point<int>(x, y), 0);
+		if (did_intro == false) {
+			int max = logo->w * 16 - logo->w;
+			float p = (SDL_GetTicks() - intro_start) / 2000.0f;
+			if (p > 1.0f) {
+				p = 1.0f;
+				did_intro = true;
+			}
+			int w = int((1.0f - p) * max + logo->w);
+			int x = screen_w / 2 - w / 2;
+			int y = screen_h / 3 - w / 2;
+			logo->stretch_region_single(Point<int>(0, 0), Size<int>(logo->w, logo->h), Point<int>(x, y), Size<int>(w, w));
+		}
+		else {
+			int x = screen_w / 2 - logo->w / 2;
+			int y = screen_h / 3 - logo->h / 2;
+			logo->stretch_region_single(Point<int>(0, 0), Size<int>(logo->w, logo->h), Point<int>(x, y), Size<int>(logo->w, logo->h));
+		}
 	}
 
 	flip();

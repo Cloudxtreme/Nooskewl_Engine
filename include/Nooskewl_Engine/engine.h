@@ -113,14 +113,6 @@ private:
 
 	bool vsync;
 
-	std::string default_opengl_vertex_source;
-	std::string default_opengl_fragment_source;
-	std::string brighten_opengl_fragment_source;
-	std::string default_d3d_vertex_source;
-	std::string default_d3d_fragment_source;
-	std::string brighten_d3d_fragment_source;
-	std::string d3d_technique_source;
-
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
@@ -138,6 +130,8 @@ private:
 	MO3_Text_Button *new_game;
 
 	Image *logo;
+	bool did_intro;
+	Uint32 intro_start;
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	HWND hwnd;
@@ -146,6 +140,14 @@ private:
 	IDirect3D9 *d3d;
 	HICON mouse_cursor;
 #endif
+
+	std::string default_opengl_vertex_source;
+	std::string default_opengl_fragment_source;
+	std::string brighten_opengl_fragment_source;
+	std::string default_d3d_vertex_source;
+	std::string default_d3d_fragment_source;
+	std::string brighten_d3d_fragment_source;
+	std::string d3d_technique_source;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
