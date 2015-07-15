@@ -94,10 +94,47 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
 	cache_glyphs(text);
 
-	dest_position.y += (actual_size - size);
+	Point<int> pos = dest_position;
+	pos.y += (actual_size - size);
 
 	int offset = 0;
 	int ch;
+
+	// Optionally draw a shadow
+	if (shadow_type != NO_SHADOW) {
+		noo.enable_depth_buffer(true);
+		noo.clear_depth_buffer(1.0f);
+
+		while ((ch = utf8_char_next(text, offset)) != 0) {
+			Image *g = glyphs[ch];
+
+			g->start();
+
+			if (shadow_type == DROP_SHADOW) {
+				g->draw_tinted(shadow_colour, pos+Point<int>(1, 0), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(0, 1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+1, Image::FLIP_V);
+			}
+			else if (shadow_type == FULL_SHADOW) {
+				g->draw_tinted(shadow_colour, pos+Point<int>(-1, -1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(0, -1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(1, -1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(-1, 0), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(1, 0), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(-1, 1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(0, 1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(1, 1), Image::FLIP_V);
+			}
+			g->end();
+
+			pos.x += g->w;
+		}
+
+		noo.enable_depth_buffer(false);
+	}
+
+	pos.x = dest_position.x;
+	offset = 0;
 
 	while ((ch = utf8_char_next(text, offset)) != 0) {
 		Image *g = glyphs[ch];
@@ -105,25 +142,10 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 		/* Glyphs are rendered upside down, so we FLIP_V them rather than flip the memory which would be slow */
 
 		g->start();
-		if (shadow_type == DROP_SHADOW) {
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 0), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, 1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+1, Image::FLIP_V);
-		}
-		else if (shadow_type == FULL_SHADOW) {
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, -1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, -1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, -1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, 0), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 0), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(-1, 1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(0, 1), Image::FLIP_V);
-			g->draw_tinted(shadow_colour, dest_position+Point<int>(1, 1), Image::FLIP_V);
-		}
-		g->draw_tinted(colour, dest_position, Image::FLIP_V);
+		g->draw_tinted(colour, pos, Image::FLIP_V);
 		g->end();
 
-		dest_position.x += g->w;
+		pos.x += g->w;
 	}
 }
 
