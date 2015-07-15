@@ -4,8 +4,6 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/brain.h"
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-
 namespace Nooskewl_Engine {
 
 class Player_Brain : public Brain {
@@ -17,7 +15,5 @@ public:
 };
 
 } // End namespace Nooskewl_Engine
-
-#endif
 
 #endif // PLAYER_BRAIN_H

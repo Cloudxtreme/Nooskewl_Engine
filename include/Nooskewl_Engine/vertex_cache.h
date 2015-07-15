@@ -20,7 +20,8 @@ public:
 	void end();
 	void maybe_resize_buffer(int increase);
 
-	void set_perspective_drawing(bool perspective_drawing);
+	void enable_perspective_drawing(int screen_w, int screen_h);
+	void disable_perspective_drawing();
 
 private:
 	float *vertices;
@@ -30,6 +31,8 @@ private:
 	bool perspective_drawing;
 
 	unsigned int required_passes;
+
+	int screen_w, screen_h;
 
 public:
 	/* Template functions */
@@ -136,10 +139,10 @@ public:
 		float dy2 = dy + (float)dest_size.h;
 
 		if (perspective_drawing) {
-			dx /= (float)noo.screen_w;
-			dy /= (float)noo.screen_h;
-			dx2 /= (float)noo.screen_w;
-			dy2 /= (float)noo.screen_h;
+			dx /= (float)screen_w;
+			dy /= (float)screen_h;
+			dx2 /= (float)screen_w;
+			dy2 /= (float)screen_h;
 			dx -= 0.5f;
 			dy -= 0.5f;
 			dx2 -= 0.5f;

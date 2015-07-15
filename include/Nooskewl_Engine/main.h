@@ -1,5 +1,5 @@
-#ifndef STARSQUATTERS_H
-#define STARSQUATTERS_H
+#ifndef MAIN_H
+#define MAIN_H
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 // Disable warnings about dll-interface
@@ -58,18 +58,8 @@
 
 #include <tgui3.h>
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-#define FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
-#endif
-
-#define PI ((float)M_PI)
-
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-#endif
 
 namespace Nooskewl_Engine {
 
@@ -82,4 +72,4 @@ enum Direction {
 
 } // End namespace Nooskewl_Engine
 
-#endif // STARSQUATTERS_H
+#endif // MAIN_H

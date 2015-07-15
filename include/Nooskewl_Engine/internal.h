@@ -6,8 +6,6 @@
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
-#ifdef NOOSKEWL_ENGINE_BUILD
-
 namespace Nooskewl_Engine {
 
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
@@ -78,7 +76,5 @@ HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocu
 extern Module m;
 
 } // End namespace Nooskewl_Engine
-
-#endif
 
 #endif // INTERNAL_H

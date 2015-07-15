@@ -103,10 +103,10 @@ void Engine::start(int argc, char **argv)
 
 	main_widget = new MO3_Widget(1.0f, 1.0f);
 	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, noo.screen_h - noo.screen_h / 6 - new_game->get_height(), 0);
+	new_game->set_padding(0, 0, screen_h - screen_h / 6 - new_game->get_height(), 0);
 	new_game->set_centered_x(true);
 	new_game->set_parent(main_widget);
-	gui = new TGUI(main_widget, noo.screen_w, noo.screen_h);
+	gui = new TGUI(main_widget, screen_w, screen_h);
 	gui->set_focus(new_game);
 	// FIXME: make sure delete gui deletes widget
 
@@ -556,11 +556,11 @@ bool Engine::update()
 					player->set_direction(direction);
 				}
 
-				set_map_transition_projection((float)elapsed / duration * PI);
+				set_map_transition_projection((float)elapsed / duration * M_PI);
 
 				clear(black);
 
-				m.vertex_cache->set_perspective_drawing(true);
+				m.vertex_cache->enable_perspective_drawing(screen_w, screen_h);
 				if (moved_player) {
 					map->update_camera();
 					map->draw();
@@ -569,7 +569,7 @@ bool Engine::update()
 					old_map->update_camera();
 					old_map->draw();
 				}
-				m.vertex_cache->set_perspective_drawing(false);
+				m.vertex_cache->disable_perspective_drawing();
 
 				flip();
 			}
@@ -598,8 +598,8 @@ void Engine::draw()
 		gui->draw();
 	}
 	if (new_game != NULL) {
-		int x = noo.screen_w / 2 - logo->w / 2;
-		int y = noo.screen_h / 3 - logo->h / 2;
+		int x = screen_w / 2 - logo->w / 2;
+		int y = screen_h / 3 - logo->h / 2;
 		logo->draw_single(Point<int>(x, y), 0);
 	}
 
@@ -777,7 +777,7 @@ void Engine::set_map_transition_projection(float angle)
 	glm::mat4 proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(angle >= M_PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
 
 	if (opengl) {
 		GLint uni;
