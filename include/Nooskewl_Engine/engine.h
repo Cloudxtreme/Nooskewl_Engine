@@ -175,7 +175,7 @@ public:
 			printGLerror("glBindTexture");
 		}
 		m.vertex_cache->start();
-		m.vertex_cache->buffer<float>(vertex_colours, Point<float>(0, 0), Size<float>(0, 0), da, dc, dd, db, 0);
+		m.vertex_cache->cache(vertex_colours, Point<float>(0, 0), Size<float>(0, 0), da, dc, dd, db, 0);
 		m.vertex_cache->end();
 		if (opengl) {
 			glEnable(GL_TEXTURE_2D);
@@ -202,7 +202,7 @@ public:
 			printGLerror("glBindTexture");
 		}
 		m.vertex_cache->start();
-		m.vertex_cache->buffer<T>(vertex_colours, Point<T>(0, 0), Size<T>(0, 0), dest_position, dest_size, 0);
+		m.vertex_cache->cache(vertex_colours, Point<T>(0, 0), Size<T>(0, 0), dest_position, dest_size, 0);
 		m.vertex_cache->end();
 		if (opengl) {
 			glEnable(GL_TEXTURE_2D);

@@ -728,11 +728,6 @@ void Engine::set_default_projection()
 	model = glm::mat4();
 	view = glm::scale(glm::mat4(), glm::vec3((float)scale, (float)scale, 1.0f));
 	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	/* D3D pixels are slightly different than OpenGL */
-	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-	proj *= d3d_fix;
-#endif
 
 	update_projection();
 }
@@ -743,22 +738,16 @@ void Engine::set_map_transition_projection(float angle)
 	model = glm::scale(model, glm::vec3(angle >= M_PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	/* D3D pixels are slightly different than OpenGL */
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-	proj *= d3d_fix;
-#endif
 
 	update_projection();
 }
 
 void Engine::update_projection()
 {
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
 	if (opengl) {
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
 		glViewport(0, 0, w, h);
 		printGLerror("glViewport");
 
@@ -781,9 +770,12 @@ void Engine::update_projection()
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
+		/* D3D pixels are slightly different than OpenGL */
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
 		current_shader.d3d_effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
 		current_shader.d3d_effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
+		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
 	}
 #endif
 }
