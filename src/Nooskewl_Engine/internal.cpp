@@ -327,6 +327,7 @@ HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfo
 		}
 	}
 
+	/*
 	if (is_cursor) {
 		sys_sm_cx = GetSystemMetrics(SM_CXCURSOR);
 		sys_sm_cy = GetSystemMetrics(SM_CYCURSOR);
@@ -335,6 +336,10 @@ HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfo
 		sys_sm_cx = GetSystemMetrics(SM_CXICON);
 		sys_sm_cy = GetSystemMetrics(SM_CYICON);
 	}
+	*/
+
+	sys_sm_cx = size.w;
+	sys_sm_cy = size.h;
 
 	/* Create bitmap */
 	h_dc = GetDC(wnd);
