@@ -37,7 +37,7 @@ void Vertex_Cache::start(bool repeat)
 	if (noo.opengl == false) {
 		noo.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		noo.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetFVF(FVF);
+		noo.d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
 		noo.current_shader.d3d_effect->SetBool("use_tex", false);
 		noo.current_shader.d3d_effect->Begin(&required_passes, 0);
 		noo.d3d_device->SetTexture(0, NULL);
@@ -62,7 +62,7 @@ void Vertex_Cache::start(Image *image, bool repeat)
 	else {
 		noo.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
 		noo.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetFVF(FVF);
+		noo.d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
 		noo.current_shader.d3d_effect->SetBool("use_tex", true);
 		noo.current_shader.d3d_effect->SetTexture("tex", image->internal->video_texture);
 		noo.current_shader.d3d_effect->Begin(&required_passes, 0);

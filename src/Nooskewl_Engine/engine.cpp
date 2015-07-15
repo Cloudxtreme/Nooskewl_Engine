@@ -546,7 +546,7 @@ bool Engine::update()
 					player->set_direction(direction);
 				}
 
-				set_map_transition_projection((float)elapsed / duration * M_PI);
+				set_map_transition_projection((float)elapsed / duration * (float)M_PI);
 
 				clear(black);
 
@@ -740,7 +740,7 @@ void Engine::set_default_projection()
 void Engine::set_map_transition_projection(float angle)
 {
 	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
+	model = glm::scale(model, glm::vec3(angle >= M_PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 #ifdef NOOSKEWL_ENGINE_WINDOWS

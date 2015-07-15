@@ -6,7 +6,7 @@ using namespace Nooskewl_Engine;
 
 std::vector<MML::Internal *> MML::loaded_mml;
 
-#define TWO_PI (2.0f * M_PI)
+#define TWO_PI (2.0f * (float)M_PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((short)(f*32767))
 
@@ -281,8 +281,8 @@ void MML::Internal::Track::sawtooth(short *buf, size_t samples, float t, float f
 
 	for (i = 0; i < samples; i++) {
 		float w = TWO_PI * get_frequency(frequency);
-		float tx = w * (t + i * dt) + M_PI + phase;
-		float tu = fmod(tx/M_PI, 2.0f);
+		float tx = w * (t + i * dt) + (float)M_PI + phase;
+		float tu = fmod(tx/(float)M_PI, 2.0f);
 
 		buf[i] = TO_INT16((-1.0f + tu) * get_volume());
 
@@ -311,8 +311,8 @@ void MML::Internal::Track::triangle(short *buf, size_t samples, float t, float f
 
 	for (i = 0; i < samples; i++) {
 		float w = TWO_PI * get_frequency(frequency);
-		float tx = w * (t + i * dt) + M_PI/2.0f + phase;
-		float tu = fmod(tx/M_PI, 2.0f);
+		float tx = w * (t + i * dt) + (float)M_PI/2.0f + phase;
+		float tu = fmod(tx/(float)M_PI, 2.0f);
 
 		if (tu <= 1.0f)
 			buf[i] = TO_INT16((1.0f - 2.0f * tu) * get_volume());
