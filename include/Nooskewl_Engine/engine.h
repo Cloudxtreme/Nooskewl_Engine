@@ -86,6 +86,7 @@ public:
 	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
 
 	void load_palette(std::string name);
+	std::string load_text(std::string filename);
 
 private:
 	void init_video();

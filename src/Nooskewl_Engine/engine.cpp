@@ -51,129 +51,7 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
-	did_intro(false),
-
-default_opengl_vertex_source(
-	"#version 110\n"
-	"uniform mat4 model;"
-	"uniform mat4 view;"
-	"uniform mat4 proj;"
-	"attribute vec3 in_position;"
-	"attribute vec4 in_colour;"
-	"attribute vec2 in_texcoord;"
-	"varying vec4 colour;"
-	"varying vec2 texcoord;"
-	"void main() {"
-	"	colour = in_colour;"
-	"	texcoord = in_texcoord;"
-	"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
-	"}"),
-
-default_opengl_fragment_source(
-	"#version 110\n"
-	"uniform sampler2D tex;"
-	"uniform bool use_tex;"
-	"varying vec4 colour;"
-	"varying vec2 texcoord;"
-	"void main()"
-	"{"
-	"	if (use_tex) {"
-	"		gl_FragColor = texture2D(tex, texcoord) * colour;"
-	"	}"
-	"	else {"
-	"		gl_FragColor = colour;"
-	"	}"
-	"}"),
-
-brighten_opengl_fragment_source(
-	"#version 110\n"
-	"uniform sampler2D tex;"
-	"uniform bool use_tex;"
-	"uniform float add;"
-	"varying vec4 colour;"
-	"varying vec2 texcoord;"
-	"void main()"
-	"{"
-	"	vec4 result;"
-	"	if (use_tex) {"
-	"		result = texture2D(tex, texcoord) * colour;"
-	"	}"
-	"	else {"
-	"		result = colour;"
-	"	}"
-	"	result.r = clamp(result.r + add, 0.0, 1.0);"
-	"	result.g = clamp(result.g + add, 0.0, 1.0);"
-	"	result.b = clamp(result.b + add, 0.0, 1.0);"
-	"	gl_FragColor = result;"
-	"}"),
-
-default_d3d_vertex_source(
-	"struct VS_INPUT"
-	"{"
-	"   float4 Position  : POSITION0;"
-	"   float2 TexCoord  : TEXCOORD0;"
-	"   float4 Color	 : TEXCOORD1;"
-	"};"
-	"struct VS_OUTPUT"
-	"{"
-	"   float4 Position  : POSITION0;"
-	"   float4 Color	 : COLOR0;"
-	"   float2 TexCoord  : TEXCOORD0;"
-	"};"
-	""
-	"float4x4 proj;"
-	"float4x4 view;"
-	"float4x4 model;"
-	""
-	"VS_OUTPUT vs_main(VS_INPUT Input)"
-	"{"
-	"   VS_OUTPUT Output;"
-	"   Output.Color = Input.Color;"
-	"   Output.TexCoord = Input.TexCoord;"
-	"   Output.Position = mul(Input.Position, mul(model, mul(view, proj)));"
-	"   return Output;"
-	"}"),
-
-default_d3d_fragment_source(
-	"bool use_tex;"
-	"texture tex;"
-	"sampler2D s = sampler_state {"
-	"   texture = <tex>;"
-	"};"
-	""
-	"float4 ps_main(VS_OUTPUT Input) : COLOR0"
-	"{"
-	"   if (use_tex) {"
-	"	  return Input.Color * tex2D(s, Input.TexCoord);"
-	"   }"
-	"   else {"
-	"	  return Input.Color;"
-	"   }"
-	"}"),
-
-brighten_d3d_fragment_source(
-	"bool use_tex;"
-	"float add;"
-	"texture tex;"
-	"sampler2D s = sampler_state {"
-	"   texture = <tex>;"
-	"};"
-	""
-	"float4 ps_main(VS_OUTPUT Input) : COLOR0"
-	"{"
-	"	float4 result;"
-	"   if (use_tex) {"
-	"	  result = Input.Color * tex2D(s, Input.TexCoord);"
-	"   }"
-	"   else {"
-	"	  result = Input.Color;"
-	"   }"
-	"	result.r = clamp(result.r + add, 0.0f, 1.0f);"
-	"	result.g = clamp(result.g + add, 0.0f, 1.0f);"
-	"	result.b = clamp(result.b + add, 0.0f, 1.0f);"
-	"	return result;"
-	"}")
-
+	did_intro(false)
 {
 }
 
@@ -424,14 +302,19 @@ void Engine::init_video()
 	}
 #endif
 
-	if (opengl) {
-		default_shader = new Shader(true, default_opengl_vertex_source, default_opengl_fragment_source);
-		brighten_shader = new Shader(true, default_opengl_vertex_source, brighten_opengl_fragment_source);
-	}
-	else {
-		default_shader = new Shader(false, default_d3d_vertex_source, default_d3d_fragment_source);
-		brighten_shader = new Shader(false, default_d3d_vertex_source, brighten_d3d_fragment_source);
-	}
+	std::string default_vertex_source;
+	std::string default_fragment_source;
+	std::string brighten_fragment_source;
+
+	std::string tag = opengl ? "glsl" : "hlsl";
+
+	default_vertex_source = load_text("shaders/" + tag + "/default_vertex.txt");
+	default_fragment_source = load_text("shaders/" + tag + "/default_fragment.txt");
+	brighten_fragment_source = load_text("shaders/" + tag + "/brighten_fragment.txt");
+
+	default_shader = new Shader(opengl, default_vertex_source, default_fragment_source);
+	brighten_shader = new Shader(opengl, default_vertex_source, brighten_fragment_source);
+
 	current_shader = default_shader;
 	current_shader->use();
 
@@ -959,6 +842,29 @@ void Engine::load_palette(std::string name)
 	magenta.a = 255;
 
 	SDL_RWclose(file);
+}
+
+std::string Engine::load_text(std::string filename)
+{
+	SDL_RWops *file = open_file(filename);
+
+	Sint64 size = SDL_RWsize(file);
+
+	char *buf = new char[(size_t)size+1];
+
+	if (SDL_RWread(file, buf, 1, (size_t)size) != (size_t)size) {
+		throw LoadError(filename);
+	}
+
+	buf[size] = 0;
+
+	std::string s = buf;
+
+	printf("s='%s'\n", s.c_str());
+
+	delete[] buf;
+
+	return s;
 }
 
 void Engine::load_fonts()
