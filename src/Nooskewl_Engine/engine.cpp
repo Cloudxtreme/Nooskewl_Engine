@@ -46,7 +46,139 @@ Engine::Engine() :
 	tile_size(8),
 	joy(0),
 	num_joysticks(0),
-	language("English")
+	language("English"),
+
+default_opengl_vertex_source(
+	"#version 110\n"
+	"uniform mat4 model;"
+	"uniform mat4 view;"
+	"uniform mat4 proj;"
+	"attribute vec3 in_position;"
+	"attribute vec4 in_colour;"
+	"attribute vec2 in_texcoord;"
+	"varying vec4 colour;"
+	"varying vec2 texcoord;"
+	"void main() {"
+	"	colour = in_colour;"
+	"	texcoord = in_texcoord;"
+	"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
+	"}"),
+
+default_opengl_fragment_source(
+	"#version 110\n"
+	"uniform sampler2D tex;"
+	"uniform bool use_tex;"
+	"varying vec4 colour;"
+	"varying vec2 texcoord;"
+	"void main()"
+	"{"
+	"	if (use_tex) {"
+	"		gl_FragColor = texture2D(tex, texcoord) * colour;"
+	"	}"
+	"	else {"
+	"		gl_FragColor = colour;"
+	"	}"
+	"}"),
+
+brighten_opengl_fragment_source(
+	"#version 110\n"
+	"uniform sampler2D tex;"
+	"uniform bool use_tex;"
+	"uniform float add;"
+	"varying vec4 colour;"
+	"varying vec2 texcoord;"
+	"void main()"
+	"{"
+	"	vec4 result;"
+	"	if (use_tex) {"
+	"		result = texture2D(tex, texcoord) * colour;"
+	"	}"
+	"	else {"
+	"		result = colour;"
+	"	}"
+	"	result.r = clamp(result.r + add, 0.0, 1.0);"
+	"	result.g = clamp(result.g + add, 0.0, 1.0);"
+	"	result.b = clamp(result.b + add, 0.0, 1.0);"
+	"	gl_FragColor = result;"
+	"}"),
+
+default_d3d_vertex_source(
+	"struct VS_INPUT"
+	"{"
+	"   float4 Position  : POSITION0;"
+	"   float2 TexCoord  : TEXCOORD0;"
+	"   float4 Color	 : TEXCOORD1;"
+	"};"
+	"struct VS_OUTPUT"
+	"{"
+	"   float4 Position  : POSITION0;"
+	"   float4 Color	 : COLOR0;"
+	"   float2 TexCoord  : TEXCOORD0;"
+	"};"
+	""
+	"float4x4 proj;"
+	"float4x4 view;"
+	"float4x4 model;"
+	""
+	"VS_OUTPUT vs_main(VS_INPUT Input)"
+	"{"
+	"   VS_OUTPUT Output;"
+	"   Output.Color = Input.Color;"
+	"   Output.TexCoord = Input.TexCoord;"
+	"   Output.Position = mul(Input.Position, mul(model, mul(view, proj)));"
+	"   return Output;"
+	"}"),
+
+default_d3d_fragment_source(
+	"bool use_tex;"
+	"texture tex;"
+	"sampler2D s = sampler_state {"
+	"   texture = <tex>;"
+	"};"
+	""
+	"float4 ps_main(VS_OUTPUT Input) : COLOR0"
+	"{"
+	"   if (use_tex) {"
+	"	  return Input.Color * tex2D(s, Input.TexCoord);"
+	"   }"
+	"   else {"
+	"	  return Input.Color;"
+	"   }"
+	"}"),
+
+brighten_d3d_fragment_source(
+	"bool use_tex;"
+	"float add;"
+	"texture tex;"
+	"sampler2D s = sampler_state {"
+	"   texture = <tex>;"
+	"};"
+	""
+	"float4 ps_main(VS_OUTPUT Input) : COLOR0"
+	"{"
+	"	float4 result;"
+	"   if (use_tex) {"
+	"	  result = Input.Color * tex2D(s, Input.TexCoord);"
+	"   }"
+	"   else {"
+	"	  result = Input.Color;"
+	"   }"
+	"	result.r = clamp(result.r + add, 0.0f, 1.0f);"
+	"	result.g = clamp(result.g + add, 0.0f, 1.0f);"
+	"	result.b = clamp(result.b + add, 0.0f, 1.0f);"
+	"	return result;"
+	"}"),
+
+d3d_technique_source(
+	"technique TECH"
+	"{"
+	"		pass p1"
+	"		{"
+	"				VertexShader = compile vs_2_0 vs_main();"
+	"				PixelShader = compile ps_2_0 ps_main();"
+	"		}"
+	"}")
+
 {
 }
 
@@ -91,12 +223,10 @@ void Engine::start(int argc, char **argv)
 
 	logo = new Image("logo.tga");
 	window_image = new Image("window.tga");
-	window_image = new Image("window.tga");
 	window_image_with_name = new Image("window_with_name.tga");
 	name_box_image = new Image("name_box.tga");
 
 	load_palette("palette.gpl");
-
 
 	MO3_Widget::static_start();
 	Speech::static_start();
@@ -237,75 +367,6 @@ void Engine::init_video()
 			throw Error("glewInit failed");
 		}
 
-		const char *vertexSource =
-			"#version 110\n"
-			"uniform mat4 model;"
-			"uniform mat4 view;"
-			"uniform mat4 proj;"
-			"attribute vec3 in_position;"
-			"attribute vec4 in_colour;"
-			"attribute vec2 in_texcoord;"
-			"varying vec4 colour;"
-			"varying vec2 texcoord;"
-			"void main() {"
-			"	colour = in_colour;"
-			"	texcoord = in_texcoord;"
-			"	gl_Position = proj * view * model * vec4(in_position, 1.0);"
-			"}";
-		vertexShader = glCreateShader(GL_VERTEX_SHADER);
-		printGLerror("glCreateShader");
-		glShaderSource(vertexShader, 1, &vertexSource, 0);
-		printGLerror("glShaderSource");
-		glCompileShader(vertexShader);
-		printGLerror("glCompileShader");
-		GLint status;
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
-		printGLerror("glGetShaderiv");
-		if (status != GL_TRUE) {
-			char buffer[512];
-			glGetShaderInfoLog(vertexShader, 512, 0, buffer);
-			errormsg("Vertex shader error: %s\n", buffer);
-		}
-
-		const char *fragmentSource =
-			"#version 110\n"
-			"uniform sampler2D tex;"
-			"uniform bool use_tex;"
-			"varying vec4 colour;"
-			"varying vec2 texcoord;"
-			"void main()"
-			"{"
-			"	if (use_tex) {"
-			"		gl_FragColor = texture2D(tex, texcoord) * colour;"
-			"	}"
-			"	else {"
-			"		gl_FragColor = colour;"
-			"	}"
-			"}";
-		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-		printGLerror("glCreateShader");
-		glShaderSource(fragmentShader, 1, &fragmentSource, 0);
-		printGLerror("glShaderSource");
-		glCompileShader(fragmentShader);
-		printGLerror("glCompileShader");
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
-		printGLerror("glGetShaderiv");
-		if (status != GL_TRUE) {
-			char buffer[512];
-			glGetShaderInfoLog(fragmentShader, 512, 0, buffer);
-			errormsg("Fragment shader error: %s\n", buffer);
-		}
-
-		m.current_shader = glCreateProgram();
-		glAttachShader(m.current_shader, vertexShader);
-		printGLerror("glAttachShader");
-		glAttachShader(m.current_shader, fragmentShader);
-		printGLerror("glAttachShader");
-		glLinkProgram(m.current_shader);
-		printGLerror("glLinkProgram");
-		glUseProgram(m.current_shader);
-		printGLerror("glUseProgram");
-
 		glEnable(GL_BLEND);
 		printGLerror("glEnable");
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -316,7 +377,7 @@ void Engine::init_video()
 		hwnd = GetActiveWindow();
 
 		if ((d3d = Direct3DCreate9(D3D_SDK_VERSION)) == 0) {
-			throw Error("Direct3D9CreateEx failed");
+			throw Error("Direct3D9Create failed");
 		}
 
 		ZeroMemory(&d3d_pp, sizeof(d3d_pp));
@@ -339,103 +400,33 @@ void Engine::init_video()
 		d3d_pp.hDeviceWindow = hwnd;
 
 		HRESULT hr;
-		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&m.d3d_device)) != D3D_OK) {
-			if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&m.d3d_device)) != D3D_OK) {
+		if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&d3d_device)) != D3D_OK) {
+			if ((hr = d3d->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hwnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE | D3DCREATE_MULTITHREADED, &d3d_pp, (LPDIRECT3DDEVICE9 *)&d3d_device)) != D3D_OK) {
 				throw Error("Unable to create D3D device");
 			}
 		}
 
-		m.d3d_device->BeginScene();
+		d3d_device->BeginScene();
 
-		m.d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		m.d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		m.d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		m.d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		m.d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 
-		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
 		}
-		if (m.d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
 		}
-
-		static const char *shader_source =
-			"struct VS_INPUT\n"
-			"{\n"
-			"   float4 Position  : POSITION0;\n"
-			"   float2 TexCoord  : TEXCOORD0;\n"
-			"   float4 Color	 : TEXCOORD1;\n"
-			"};\n"
-			"struct VS_OUTPUT\n"
-			"{\n"
-			"   float4 Position  : POSITION0;\n"
-			"   float4 Color	 : COLOR0;\n"
-			"   float2 TexCoord  : TEXCOORD0;\n"
-			"};\n"
-			"\n"
-			"float4x4 proj;\n"
-			"float4x4 view;\n"
-			"float4x4 model;\n"
-			"\n"
-			"VS_OUTPUT vs_main(VS_INPUT Input)\n"
-			"{\n"
-			"   VS_OUTPUT Output;\n"
-			"   Output.Color = Input.Color;\n"
-			"   Output.TexCoord = Input.TexCoord;\n"
-			"   Output.Position = mul(Input.Position, mul(model, mul(view, proj)));\n"
-			"   return Output;\n"
-			"}\n"
-			"bool use_tex;\n"
-			"texture tex;\n"
-			"sampler2D s = sampler_state {\n"
-			"   texture = <tex>;\n"
-			"};\n"
-			"\n"
-			"float4 ps_main(VS_OUTPUT Input) : COLOR0\n"
-			"{\n"
-			"   if (use_tex) {\n"
-			"	  return Input.Color * tex2D(s, Input.TexCoord);\n"
-			"   }\n"
-			"   else {\n"
-			"	  return Input.Color;\n"
-			"   }\n"
-			"}\n"
-			"technique TECH\n"
-			"{\n"
-			"		pass p1\n"
-			"		{\n"
-			"				VertexShader = compile vs_2_0 vs_main();\n"
-			"				PixelShader = compile ps_2_0 ps_main();\n"
-			"		}\n"
-			"}\n";
-
-		LPD3DXBUFFER errors;
-
-		DWORD ok = D3DXCreateEffect(
-			m.d3d_device,
-			shader_source,
-			strlen(shader_source),
-			0,
-			0,
-			D3DXSHADER_PACKMATRIX_ROWMAJOR,
-			0,
-			&m.effect,
-			&errors
-			);
-
-		if (ok != D3D_OK) {
-			char *msg = (char *)errors->GetBufferPointer();
-			throw Error("Shader error: " + std::string(msg));
-		}
-
-		D3DXHANDLE hTech;
-		hTech = m.effect->GetTechniqueByName("TECH");
-		m.effect->ValidateTechnique(hTech);
-		m.effect->SetTechnique(hTech);
 	}
 #endif
+
+	current_shader = create_shader(default_opengl_vertex_source, default_opengl_fragment_source, default_d3d_vertex_source, default_d3d_fragment_source);
+	brighten_shader = create_shader(default_opengl_vertex_source, brighten_opengl_fragment_source, default_d3d_vertex_source, brighten_d3d_fragment_source);
+	noo.use_shader(current_shader);
 
 	set_default_projection();
 
@@ -447,15 +438,14 @@ void Engine::shutdown_video()
 {
 	delete m.vertex_cache;
 
-	if (opengl) {
-		glDeleteProgram(m.current_shader);
-		printGLerror("glDeleteProgram");
-		glDeleteShader(fragmentShader);
-		printGLerror("glDeleteShader");
-		glDeleteShader(vertexShader);
-		printGLerror("glDeleteShader");
+	destroy_shader(current_shader);
+	destroy_shader(brighten_shader);
 
+	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
+	}
+	else {
+		// FIXME!!!
 	}
 
 	SDL_DestroyWindow(window);
@@ -616,7 +606,7 @@ void Engine::clear(SDL_Colour colour)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		m.d3d_device->Clear(0, 0, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
+		d3d_device->Clear(0, 0, D3DCLEAR_TARGET, D3DCOLOR_RGBA(colour.r, colour.g, colour.b, colour.a), 0.0f, 0);
 	}
 #endif
 }
@@ -631,7 +621,7 @@ void Engine::clear_depth_buffer(float value)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		m.d3d_device->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, value, 0);
+		d3d_device->Clear(0, 0, D3DCLEAR_ZBUFFER, 0, value, 0);
 	}
 #endif
 }
@@ -654,17 +644,17 @@ void Engine::enable_depth_buffer(bool enable)
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		if (enable) {
-			m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-			m.d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-			m.d3d_device->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESS);
-			m.d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-			m.d3d_device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
-			m.d3d_device->SetRenderState(D3DRS_ALPHAREF, 1);
+			d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+			d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+			d3d_device->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESS);
+			d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+			d3d_device->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+			d3d_device->SetRenderState(D3DRS_ALPHAREF, 1);
 		}
 		else {
-			m.d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-			m.d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-			m.d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
+			d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+			d3d_device->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+			d3d_device->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 		}
 	}
 #endif
@@ -677,12 +667,12 @@ void Engine::flip()
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		m.d3d_device->EndScene();
+		d3d_device->EndScene();
 
 		if (d3d_lost) {
-			HRESULT hr = m.d3d_device->TestCooperativeLevel();
+			HRESULT hr = d3d_device->TestCooperativeLevel();
 			if (hr == D3DERR_DEVICENOTRESET) {
-				hr = m.d3d_device->Reset(&d3d_pp);
+				hr = d3d_device->Reset(&d3d_pp);
 				if (hr != D3D_OK) {
 					infomsg("Device couldn't be reset!\n");
 				}
@@ -696,7 +686,7 @@ void Engine::flip()
 			}
 		}
 		else {
-			HRESULT hr = m.d3d_device->Present(0, 0, hwnd, 0);
+			HRESULT hr = d3d_device->Present(0, 0, hwnd, 0);
 
 			if (hr == D3DERR_DEVICELOST) {
 				infomsg("D3D device lost\n");
@@ -709,7 +699,7 @@ void Engine::flip()
 			}
 		}
 
-		m.d3d_device->BeginScene();
+		d3d_device->BeginScene();
 	}
 #endif
 }
@@ -735,78 +725,65 @@ void Engine::set_default_projection()
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 
-	glm::mat4 proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
-	glm::mat4 view = glm::scale(glm::mat4(), glm::vec3((float)scale, (float)scale, 1.0f));
-	glm::mat4 model = glm::mat4();
+	model = glm::mat4();
+	view = glm::scale(glm::mat4(), glm::vec3((float)scale, (float)scale, 1.0f));
+	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	/* D3D pixels are slightly different than OpenGL */
+	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+	proj *= d3d_fix;
+#endif
 
+	update_projection();
+}
+
+void Engine::set_map_transition_projection(float angle)
+{
+	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
+	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
+	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	/* D3D pixels are slightly different than OpenGL */
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+	proj *= d3d_fix;
+#endif
+
+	update_projection();
+}
+
+void Engine::update_projection()
+{
 	if (opengl) {
+		int w, h;
+		SDL_GetWindowSize(window, &w, &h);
 		glViewport(0, 0, w, h);
 		printGLerror("glViewport");
 
 		GLint uni;
 
-		uni = glGetUniformLocation(m.current_shader, "proj");
+		uni = glGetUniformLocation(current_shader.opengl_shader, "model");
 		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
 		printGLerror("glUniformMatrix4fv");
 
-		uni = glGetUniformLocation(m.current_shader, "view");
+		uni = glGetUniformLocation(current_shader.opengl_shader, "view");
 		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
 		printGLerror("glUniformMatrix4fv");
 
-		uni = glGetUniformLocation(m.current_shader, "model");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-		printGLerror("glUniformMatrix4fv");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		/* D3D pixels are slightly different than OpenGL */
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-
-		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
-		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-	}
-#endif
-}
-
-void Engine::set_map_transition_projection(float angle)
-{
-	glm::mat4 proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
-	glm::mat4 view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
-	glm::mat4 model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
-
-	if (opengl) {
-		GLint uni;
-
-		uni = glGetUniformLocation(m.current_shader, "proj");
+		uni = glGetUniformLocation(current_shader.opengl_shader, "proj");
 		printGLerror("glGetUniformLocation");
 		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
 		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(m.current_shader, "view");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
-		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(m.current_shader, "model");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-		printGLerror("glUniformMatrix4fv");
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		/* D3D pixels are slightly different than OpenGL */
-		int w, h;
-		SDL_GetWindowSize(window, &w, &h);
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-
-		m.effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
-		m.effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		m.effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+		current_shader.d3d_effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+		current_shader.d3d_effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(proj));
 	}
 #endif
 }
@@ -826,13 +803,13 @@ void Engine::draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_p
 	image->draw_region_tinted(tint, Point<int>(0, w-size), dim, Point<int>(dest_position.x, dest_position.y+dest_size.h-size)); // bottom left
 
 	// Sides
-	image->stretch_region_tinted(tint, Point<int>(size, 0), dim, Point<int>(dest_position.x+size, dest_position.y), Size<int>(dest_size.w-size*2, size)); // top
-	image->stretch_region_tinted(tint, Point<int>(0, size), dim, Point<int>(dest_position.x, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // left
-	image->stretch_region_tinted(tint, Point<int>(w-size, size), dim, Point<int>(dest_position.x+dest_size.w-size, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // right
-	image->stretch_region_tinted(tint, Point<int>(size, w-size), dim, Point<int>(dest_position.x+size, dest_position.y+dest_size.h-size), Size<int>(dest_size.w-size*2, size)); // bottom
+	image->stretch_region_tinted_repeat(tint, Point<int>(size, 0), dim, Point<int>(dest_position.x+size, dest_position.y), Size<int>(dest_size.w-size*2, size)); // top
+	image->stretch_region_tinted_repeat(tint, Point<int>(0, size), dim, Point<int>(dest_position.x, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // left
+	image->stretch_region_tinted_repeat(tint, Point<int>(w-size, size), dim, Point<int>(dest_position.x+dest_size.w-size, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // right
+	image->stretch_region_tinted_repeat(tint, Point<int>(size, w-size), dim, Point<int>(dest_position.x+size, dest_position.y+dest_size.h-size), Size<int>(dest_size.w-size*2, size)); // bottom
 
 	// Middle
-	image->stretch_region_tinted(tint, Point<int>(size, size), dim, dest_position+dim, dest_size-dim*2);
+	image->stretch_region_tinted_repeat(tint, Point<int>(size, size), dim, dest_position+dim, dest_size-dim*2);
 
 	image->end();
 }
@@ -899,6 +876,117 @@ void Engine::load_palette(std::string name)
 	magenta.a = 255;
 
 	SDL_RWclose(file);
+}
+
+Engine::Shader Engine::create_shader(std::string opengl_vertex_source, std::string opengl_fragment_source, std::string d3d_vertex_source, std::string d3d_fragment_source)
+{
+	Shader shader;
+
+	if (opengl) {
+		GLint status;
+
+		char *p = (char *)opengl_vertex_source.c_str();
+
+		shader.opengl_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+		printGLerror("glCreateShader");
+		glShaderSource(shader.opengl_vertex_shader, 1, &p, 0);
+		printGLerror("glShaderSource");
+		glCompileShader(shader.opengl_vertex_shader);
+		printGLerror("glCompileShader");
+		glGetShaderiv(shader.opengl_vertex_shader, GL_COMPILE_STATUS, &status);
+		printGLerror("glGetShaderiv");
+		if (status != GL_TRUE) {
+			char buffer[512];
+			glGetShaderInfoLog(shader.opengl_vertex_shader, 512, 0, buffer);
+			errormsg("Vertex shader error: %s\n", buffer);
+		}
+
+		p = (char *)opengl_fragment_source.c_str();
+
+		shader.opengl_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+		printGLerror("glCreateShader");
+		glShaderSource(shader.opengl_fragment_shader, 1, &p, 0);
+		printGLerror("glShaderSource");
+		glCompileShader(shader.opengl_fragment_shader);
+		printGLerror("glCompileShader");
+		glGetShaderiv(shader.opengl_fragment_shader, GL_COMPILE_STATUS, &status);
+		printGLerror("glGetShaderiv");
+		if (status != GL_TRUE) {
+			char buffer[512];
+			glGetShaderInfoLog(shader.opengl_fragment_shader, 512, 0, buffer);
+			errormsg("Fragment shader error: %s\n", buffer);
+		}
+
+		shader.opengl_shader = glCreateProgram();
+		glAttachShader(shader.opengl_shader, shader.opengl_vertex_shader);
+		printGLerror("glAttachShader");
+		glAttachShader(shader.opengl_shader, shader.opengl_fragment_shader);
+		printGLerror("glAttachShader");
+		glLinkProgram(shader.opengl_shader);
+		printGLerror("glLinkProgram");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		LPD3DXBUFFER errors;
+
+		std::string shader_source = d3d_vertex_source + d3d_fragment_source + d3d_technique_source;
+
+		DWORD result = D3DXCreateEffect(d3d_device, shader_source.c_str(), shader_source.length(), 0, 0, D3DXSHADER_PACKMATRIX_ROWMAJOR, 0, &shader.d3d_effect, &errors);
+
+		if (result != D3D_OK) {
+			char *msg = (char *)errors->GetBufferPointer();
+			throw Error("Shader error: " + std::string(msg));
+		}
+
+		shader.d3d_technique = shader.d3d_effect->GetTechniqueByName("TECH");
+		shader.d3d_effect->ValidateTechnique(shader.d3d_technique);
+		shader.d3d_effect->SetTechnique(shader.d3d_technique);
+	}
+#endif
+
+	return shader;
+}
+
+void Engine::use_shader(Shader shader)
+{
+	if (opengl) {
+		glUseProgram(shader.opengl_shader);
+		printGLerror("glUseProgram");
+	}
+
+	update_projection();
+}
+
+void Engine::destroy_shader(Shader shader)
+{
+	if (opengl) {
+		glDeleteShader(shader.opengl_vertex_shader);
+		printGLerror("glDeleteShader");
+		glDeleteShader(shader.opengl_fragment_shader);
+		printGLerror("glDeleteShader");
+		glDeleteProgram(shader.opengl_shader);
+		printGLerror("glDeleteProgram");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		shader.d3d_effect->Release();
+	}
+#endif
+}
+
+void Engine::set_shader_float(Shader shader, std::string name, float value)
+{
+	if (opengl) {
+		GLint uni = glGetUniformLocation(shader.opengl_shader, name.c_str());
+		printGLerror("glGetUniformLocation");
+		glUniform1f(uni, value);
+		printGLerror("glUniform1f");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		shader.d3d_effect->SetFloat(name.c_str(), value);
+	}
+#endif
 }
 
 void Engine::load_fonts()
