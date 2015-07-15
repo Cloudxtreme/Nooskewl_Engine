@@ -6,6 +6,11 @@ using namespace Nooskewl_Engine;
 
 static int current_id;
 
+void Map_Entity::new_game_started()
+{
+	current_id = 0;
+}
+
 Map_Entity::Map_Entity(Brain *brain) :
 	direction(S),
 	sprite(0),
@@ -374,11 +379,11 @@ bool Map_Entity::update(bool can_move)
 	return true;
 }
 
-void Map_Entity::draw(Point<int> draw_pos)
+void Map_Entity::draw(Point<int> draw_pos, bool use_depth_buffer)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
 	// subtract 1 so tiles have precedence
-	sprite->get_current_image()->draw_single_z(Point<int>(draw_pos.x, draw_pos.y+add), -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))));
+	sprite->get_current_image()->draw_single_z(Point<int>(draw_pos.x, draw_pos.y+add), use_depth_buffer ? -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.0001f : 0.0f);
 }
 
 void Map_Entity::stop_now()

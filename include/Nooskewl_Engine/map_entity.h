@@ -13,6 +13,8 @@ class Map;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
+	static void new_game_started();
+
 	Map_Entity(Brain *brain);
 	~Map_Entity();
 
@@ -21,7 +23,7 @@ public:
 	// return false to destroy
 	bool update(bool can_move);
 	// draws with z values
-	void draw(Point<int> draw_pos);
+	void draw(Point<int> draw_pos, bool use_depth_buffer = true);
 
 	void load_sprite(std::string name);
 	void set_position(Point<int> position);
