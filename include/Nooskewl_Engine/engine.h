@@ -29,6 +29,8 @@ public:
 	/* Publicly accessible variables */
 	// Audio
 	bool mute;
+	MML *music;
+	MML *button_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
 	int scale;
@@ -63,7 +65,6 @@ public:
 	Map *map;
 	Map_Entity *player;
 	TGUI *gui;
-	MML *music;
 
 	Engine();
 	~Engine();
@@ -107,6 +108,7 @@ private:
 	void check_joysticks();
 	void set_mouse_cursor();
 	void update_projection();
+	void setup_title_screen();
 
 	SDL_Window *window;
 

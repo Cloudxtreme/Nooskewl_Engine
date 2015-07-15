@@ -232,17 +232,11 @@ void Engine::start(int argc, char **argv)
 	MO3_Widget::static_start();
 	Speech::static_start();
 
-	main_widget = new MO3_Widget(1.0f, 1.0f);
-	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height(), 0);
-	new_game->set_centered_x(true);
-	new_game->set_parent(main_widget);
-	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
-	gui->set_focus(new_game);
-	// FIXME: make sure delete gui deletes widget
+	setup_title_screen();
 
 	music = new MML("title.mml");
 	music->play(true);
+	button_mml = new MML("button.mml");
 
 	intro_start = SDL_GetTicks();
 }
@@ -250,6 +244,7 @@ void Engine::start(int argc, char **argv)
 void Engine::end()
 {
 	delete music;
+	delete button_mml;
 
 	if (map) {
 		map->end();
@@ -515,6 +510,12 @@ void Engine::handle_event(TGUI_Event *event)
 	}
 	else if (map) {
 		map->handle_event(event);
+
+		if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
+			delete map;
+			map = 0;
+			setup_title_screen();
+		}
 	}
 }
 
@@ -1137,6 +1138,17 @@ void Engine::update_projection()
 		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
 	}
 #endif
+}
+
+void Engine::setup_title_screen()
+{
+	main_widget = new MO3_Widget(1.0f, 1.0f);
+	new_game = new MO3_Text_Button("New Game");
+	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height(), 0);
+	new_game->set_centered_x(true);
+	new_game->set_parent(main_widget);
+	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
+	gui->set_focus(new_game);
 }
 
 } // End namespace Nooskewl_Engine
