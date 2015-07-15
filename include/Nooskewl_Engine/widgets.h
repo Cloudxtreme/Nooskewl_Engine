@@ -26,6 +26,7 @@ protected:
 
 	static Image *focus_image;
 	static Image *button_image;
+	static Image *button_image_pressed;
 };
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Button : public MO3_Widget {
@@ -39,6 +40,8 @@ public:
 
 protected:
 	bool _pressed;
+	bool _released;
+	bool _hover;
 };
 
 class NOOSKEWL_ENGINE_EXPORT MO3_Text_Button : public MO3_Button

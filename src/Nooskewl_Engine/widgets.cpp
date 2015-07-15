@@ -6,11 +6,13 @@ using namespace Nooskewl_Engine;
 
 Image *MO3_Widget::focus_image;
 Image *MO3_Widget::button_image;
+Image *MO3_Widget::button_image_pressed;
 
 void MO3_Widget::static_start()
 {
 	focus_image = new Image("gui_focus.tga");
 	button_image = new Image("button.tga");
+	button_image_pressed = new Image("button_pressed.tga");
 }
 
 void MO3_Widget::static_end()
@@ -20,7 +22,7 @@ void MO3_Widget::static_end()
 
 void MO3_Widget::draw_focus(TGUI_Widget *widget)
 {
-	float f = (SDL_GetTicks() % 1000) / 1000.0f;
+	float f = (SDL_GetTicks() % 500) / 500.0f;
 	float alpha;
 	if (f >= 0.5f) {
 		alpha = 1.0f - ((f - 0.5f) / 0.5f);
@@ -103,7 +105,9 @@ void MO3_Widget::handle_event(TGUI_Event *event)
 
 MO3_Button::MO3_Button(int w, int h) :
 	MO3_Widget(w, h),
-	_pressed(false)
+	_pressed(false),
+	_released(false),
+	_hover(false)
 {
 	accepts_focus = true;
 }
@@ -114,18 +118,82 @@ MO3_Button::~MO3_Button()
 
 void MO3_Button::handle_event(TGUI_Event *event)
 {
+	if (event->type == TGUI_MOUSE_AXIS) {
+		if (event->mouse.x >= calculated_x && event->mouse.x < calculated_x+calculated_w && event->mouse.y >= calculated_y && event->mouse.y < calculated_y+calculated_h) {
+			_hover = true;
+		}
+		else {
+			_hover = false;
+		}
+	}
 	if (gui->get_event_owner(event) == this) {
-		if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
-			_pressed = true;
+		if (event->type == TGUI_KEY_DOWN) {
+			if (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE) {
+				_pressed = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+		else if (event->type == TGUI_JOY_DOWN) {
+			if (event->joystick.button == noo.joy_b1) {
+				_pressed = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+		else if (event->type == TGUI_MOUSE_DOWN) {
+			if (event->mouse.button == 1) {
+				_pressed = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+		else if (event->type == TGUI_KEY_UP) {
+			if (_pressed && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) {
+				_released = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+		else if (event->type == TGUI_JOY_UP) {
+			if (_pressed && (event->joystick.button == noo.joy_b1)) {
+				_released = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+		else if (event->type == TGUI_MOUSE_UP) {
+			if (_pressed && (event->mouse.button == 1)) {
+				_released = true;
+			}
+			else {
+				_pressed = false;
+			}
+		}
+	}
+	else {
+		if (event->type == TGUI_KEY_UP) {
+			_pressed = false;
+		}
+		else if (event->type == TGUI_JOY_UP) {
+			_pressed = false;
+		}
+		else if (event->type == TGUI_MOUSE_UP) {
+			_pressed = false;
 		}
 	}
 }
 
 bool MO3_Button::pressed()
 {
-	bool p = _pressed;
-	_pressed = false;
-	return  p;
+	bool r = _released;
+	_released = false;
+	return r;
 }
 
 // --
@@ -154,8 +222,15 @@ MO3_Text_Button::~MO3_Text_Button()
 
 void MO3_Text_Button::draw()
 {
-	noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	if (_pressed && _hover) {
+		noo.draw_9patch(button_image_pressed, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	}
+	else {
+		noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	}
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+	noo.font->disable_shadow();
 
 	MO3_Widget::draw();
 }
@@ -236,5 +311,7 @@ void MO3_Label::draw()
 {
 	bool full;
 	int num_lines, width;
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
+	noo.font->disable_shadow();
 }
