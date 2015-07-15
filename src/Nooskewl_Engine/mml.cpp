@@ -6,7 +6,7 @@ using namespace Nooskewl_Engine;
 
 std::vector<MML::Internal *> MML::loaded_mml;
 
-#define TWOPI (2.0f * PI)
+#define TWO_PI (2.0f * M_PI)
 #define STREAM_FREQUENCY 44100
 #define TO_INT16(f) ((short)(f*32767))
 
@@ -236,12 +236,12 @@ void MML::Internal::Track::pulse(short *buf, size_t samples, float t, float freq
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		float w = TWOPI * get_frequency(frequency);
+		float w = TWO_PI * get_frequency(frequency);
 		float ti = t + i * dt;
-		float a = fmod(w * ti + phase, TWOPI);
+		float a = fmod(w * ti + phase, TWO_PI);
 		float x;
 
-		if (a < TWOPI*get_dutycycle()) {
+		if (a < TWO_PI*get_dutycycle()) {
 			x = 1;
 		}
 		else {
@@ -260,13 +260,13 @@ void MML::Internal::Track::noise(short *buf, size_t samples, float t, float freq
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		float w = TWOPI * get_frequency(frequency);
+		float w = TWO_PI * get_frequency(frequency);
 		float ti = t + i * dt;
-		float a = fmod(w * ti + phase, TWOPI);
+		float a = fmod(w * ti + phase, TWO_PI);
 
 		float r = (rand() % 255 / 255.0f); // FIXME: use different rand
 
-		float v = fmodf(a, TWOPI) / TWOPI * get_volume();
+		float v = fmodf(a, TWO_PI) / TWO_PI * get_volume();
 
 		buf[i] = TO_INT16(r * v);
 
@@ -280,9 +280,9 @@ void MML::Internal::Track::sawtooth(short *buf, size_t samples, float t, float f
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		float w = TWOPI * get_frequency(frequency);
-		float tx = w * (t + i * dt) + PI + phase;
-		float tu = fmod(tx/PI, 2.0f);
+		float w = TWO_PI * get_frequency(frequency);
+		float tx = w * (t + i * dt) + M_PI + phase;
+		float tu = fmod(tx/M_PI, 2.0f);
 
 		buf[i] = TO_INT16((-1.0f + tu) * get_volume());
 
@@ -296,7 +296,7 @@ void MML::Internal::Track::sine(short *buf, size_t samples, float t, float frequ
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		float w = TWOPI * get_frequency(frequency);
+		float w = TWO_PI * get_frequency(frequency);
 		float ti = t + i * dt;
 		buf[i] = TO_INT16(sin(w * ti + phase) * get_volume());
 
@@ -310,9 +310,9 @@ void MML::Internal::Track::triangle(short *buf, size_t samples, float t, float f
 	unsigned i;
 
 	for (i = 0; i < samples; i++) {
-		float w = TWOPI * get_frequency(frequency);
-		float tx = w * (t + i * dt) + PI/2.0f + phase;
-		float tu = fmod(tx/PI, 2.0f);
+		float w = TWO_PI * get_frequency(frequency);
+		float tx = w * (t + i * dt) + M_PI/2.0f + phase;
+		float tu = fmod(tx/M_PI, 2.0f);
 
 		if (tu <= 1.0f)
 			buf[i] = TO_INT16((1.0f - 2.0f * tu) * get_volume());

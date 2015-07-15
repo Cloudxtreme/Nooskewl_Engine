@@ -3,6 +3,10 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+#define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+#endif
+
 using namespace Nooskewl_Engine;
 
 Vertex_Cache::Vertex_Cache() :
@@ -124,9 +128,16 @@ void Vertex_Cache::end()
 	count = 0;
 }
 
-void Vertex_Cache::set_perspective_drawing(bool perspective_drawing)
+void Vertex_Cache::enable_perspective_drawing(int screen_w, int screen_h)
 {
-	this->perspective_drawing = perspective_drawing;
+	perspective_drawing = true;
+	this->screen_w = screen_w;
+	this->screen_h = screen_h;
+}
+
+void Vertex_Cache::disable_perspective_drawing()
+{
+	perspective_drawing = false;
 }
 
 void Vertex_Cache::maybe_resize_buffer(int increase)

@@ -156,8 +156,8 @@ public:
 		float dy = float(a.y - b.y);
 		float angle = atan2f(dy, dx);
 		/* Make 4 points for thickness */
-		float a1 = angle + PI / 2.0f;
-		float a2 = angle - PI / 2.0f;
+		float a1 = angle + M_PI / 2.0f;
+		float a2 = angle - M_PI / 2.0f;
 		Point<float> da = a;
 		Point<float> db = a;
 		Point<float> dc = b;
@@ -188,11 +188,11 @@ public:
 		float half_thickness = thickness / 2.0f;
 		Point<float> fpos = pos;
 		Size<float> fsize = size;
-		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness), thickness); // top
-		noo.draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness), thickness); // bottom
+		draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness), thickness); // top
+		draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness), thickness); // bottom
 		// left and right are a pixel short so there's no overlap
-		noo.draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+thickness), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-thickness), thickness); // left
-		noo.draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
+		draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+thickness), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-thickness), thickness); // left
+		draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
 	}
 
 	template<typename T> void draw_quad(SDL_Colour vertex_colours[4], Point<T> dest_position, Size<T> dest_size)

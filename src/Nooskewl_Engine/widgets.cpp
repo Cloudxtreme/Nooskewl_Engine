@@ -200,7 +200,16 @@ void MO3_Text_Button::draw()
 		noo.draw_9patch(button_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 	}
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-	noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+	if (_pressed && _hover) {
+		SDL_Colour colour = text_colour;
+		colour.r *= 0.75f;
+		colour.g *= 0.75f;
+		colour.b *= 0.75f;
+		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+	}
+	else {
+		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2, calculated_y+padding));
+	}
 	noo.font->disable_shadow();
 }
 
