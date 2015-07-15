@@ -117,6 +117,7 @@ void MO3_Button::handle_event(TGUI_Event *event)
 		else if (event->type == TGUI_KEY_UP) {
 			if (_pressed && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) {
 				_released = true;
+				noo.button_mml->play(false);
 			}
 			else {
 				_pressed = false;
@@ -125,6 +126,7 @@ void MO3_Button::handle_event(TGUI_Event *event)
 		else if (event->type == TGUI_JOY_UP) {
 			if (_pressed && (event->joystick.button == noo.joy_b1)) {
 				_released = true;
+				noo.button_mml->play(false);
 			}
 			else {
 				_pressed = false;
@@ -133,6 +135,7 @@ void MO3_Button::handle_event(TGUI_Event *event)
 		else if (event->type == TGUI_MOUSE_UP) {
 			if (_pressed && (event->mouse.button == 1)) {
 				_released = true;
+				noo.button_mml->play(false);
 			}
 			else {
 				_pressed = false;

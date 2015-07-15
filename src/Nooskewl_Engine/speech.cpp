@@ -42,7 +42,8 @@ void Speech::start()
 
 bool Speech::handle_event(TGUI_Event *event)
 {
-	if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == TGUIK_SPACE)) || event->type == TGUI_JOY_DOWN || event->type == TGUI_MOUSE_DOWN) {
+	if ((event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b1) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
+		noo.button_mml->play(false);
 		if (done) {
 			return false;
 		}
@@ -91,7 +92,7 @@ void Speech::draw()
 	if (name != "") {
 		int name_len = noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2 + noo.font->get_padding() * 2;
-		int name_h = noo.font->get_height() + pad * 2 + pad; // cover the top line of the window
+		int name_h = noo.font->get_height() + pad * 2; // cover the top line of the window
 		int name_x = win_x;
 		int name_y = win_y - name_h + pad;
 		noo.draw_9patch(noo.name_box_image, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
