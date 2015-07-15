@@ -1,5 +1,9 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+#define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
+#endif
+
 using namespace Nooskewl_Engine;
 
 static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
@@ -168,16 +172,6 @@ brighten_d3d_fragment_source(
 	"	result.g = clamp(result.g + add, 0.0f, 1.0f);"
 	"	result.b = clamp(result.b + add, 0.0f, 1.0f);"
 	"	return result;"
-	"}"),
-
-d3d_technique_source(
-	"technique TECH"
-	"{"
-	"		pass p1"
-	"		{"
-	"				VertexShader = compile vs_2_0 vs_main();"
-	"				PixelShader = compile ps_2_0 ps_main();"
-	"		}"
 	"}")
 
 {
@@ -419,12 +413,27 @@ void Engine::init_video()
 		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
 			infomsg("SetSamplerState failed\n");
 		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+
+		d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
 	}
 #endif
 
-	current_shader = create_shader(default_opengl_vertex_source, default_opengl_fragment_source, default_d3d_vertex_source, default_d3d_fragment_source);
-	brighten_shader = create_shader(default_opengl_vertex_source, brighten_opengl_fragment_source, default_d3d_vertex_source, brighten_d3d_fragment_source);
-	noo.use_shader(current_shader);
+	if (opengl) {
+		default_shader = new Shader(true, default_opengl_vertex_source, default_opengl_fragment_source);
+		brighten_shader = new Shader(true, default_opengl_vertex_source, brighten_opengl_fragment_source);
+	}
+	else {
+		default_shader = new Shader(false, default_d3d_vertex_source, default_d3d_fragment_source);
+		brighten_shader = new Shader(false, default_d3d_vertex_source, brighten_d3d_fragment_source);
+	}
+	current_shader = default_shader;
+	current_shader->use();
 
 	set_default_projection();
 
@@ -436,8 +445,8 @@ void Engine::shutdown_video()
 {
 	delete m.vertex_cache;
 
-	destroy_shader(current_shader);
-	destroy_shader(brighten_shader);
+	delete default_shader;
+	delete brighten_shader;
 
 	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
@@ -952,117 +961,6 @@ void Engine::load_palette(std::string name)
 	SDL_RWclose(file);
 }
 
-Engine::Shader Engine::create_shader(std::string opengl_vertex_source, std::string opengl_fragment_source, std::string d3d_vertex_source, std::string d3d_fragment_source)
-{
-	Shader shader;
-
-	if (opengl) {
-		GLint status;
-
-		char *p = (char *)opengl_vertex_source.c_str();
-
-		shader.opengl_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-		printGLerror("glCreateShader");
-		glShaderSource(shader.opengl_vertex_shader, 1, &p, 0);
-		printGLerror("glShaderSource");
-		glCompileShader(shader.opengl_vertex_shader);
-		printGLerror("glCompileShader");
-		glGetShaderiv(shader.opengl_vertex_shader, GL_COMPILE_STATUS, &status);
-		printGLerror("glGetShaderiv");
-		if (status != GL_TRUE) {
-			char buffer[512];
-			glGetShaderInfoLog(shader.opengl_vertex_shader, 512, 0, buffer);
-			errormsg("Vertex shader error: %s\n", buffer);
-		}
-
-		p = (char *)opengl_fragment_source.c_str();
-
-		shader.opengl_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-		printGLerror("glCreateShader");
-		glShaderSource(shader.opengl_fragment_shader, 1, &p, 0);
-		printGLerror("glShaderSource");
-		glCompileShader(shader.opengl_fragment_shader);
-		printGLerror("glCompileShader");
-		glGetShaderiv(shader.opengl_fragment_shader, GL_COMPILE_STATUS, &status);
-		printGLerror("glGetShaderiv");
-		if (status != GL_TRUE) {
-			char buffer[512];
-			glGetShaderInfoLog(shader.opengl_fragment_shader, 512, 0, buffer);
-			errormsg("Fragment shader error: %s\n", buffer);
-		}
-
-		shader.opengl_shader = glCreateProgram();
-		glAttachShader(shader.opengl_shader, shader.opengl_vertex_shader);
-		printGLerror("glAttachShader");
-		glAttachShader(shader.opengl_shader, shader.opengl_fragment_shader);
-		printGLerror("glAttachShader");
-		glLinkProgram(shader.opengl_shader);
-		printGLerror("glLinkProgram");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		LPD3DXBUFFER errors;
-
-		std::string shader_source = d3d_vertex_source + d3d_fragment_source + d3d_technique_source;
-
-		DWORD result = D3DXCreateEffect(d3d_device, shader_source.c_str(), shader_source.length(), 0, 0, D3DXSHADER_PACKMATRIX_ROWMAJOR, 0, &shader.d3d_effect, &errors);
-
-		if (result != D3D_OK) {
-			char *msg = (char *)errors->GetBufferPointer();
-			throw Error("Shader error: " + std::string(msg));
-		}
-
-		shader.d3d_technique = shader.d3d_effect->GetTechniqueByName("TECH");
-		shader.d3d_effect->ValidateTechnique(shader.d3d_technique);
-		shader.d3d_effect->SetTechnique(shader.d3d_technique);
-	}
-#endif
-
-	return shader;
-}
-
-void Engine::use_shader(Shader shader)
-{
-	if (opengl) {
-		glUseProgram(shader.opengl_shader);
-		printGLerror("glUseProgram");
-	}
-
-	update_projection();
-}
-
-void Engine::destroy_shader(Shader shader)
-{
-	if (opengl) {
-		glDeleteShader(shader.opengl_vertex_shader);
-		printGLerror("glDeleteShader");
-		glDeleteShader(shader.opengl_fragment_shader);
-		printGLerror("glDeleteShader");
-		glDeleteProgram(shader.opengl_shader);
-		printGLerror("glDeleteProgram");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		shader.d3d_effect->Release();
-	}
-#endif
-}
-
-void Engine::set_shader_float(Shader shader, std::string name, float value)
-{
-	if (opengl) {
-		GLint uni = glGetUniformLocation(shader.opengl_shader, name.c_str());
-		printGLerror("glGetUniformLocation");
-		glUniform1f(uni, value);
-		printGLerror("glUniform1f");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		shader.d3d_effect->SetFloat(name.c_str(), value);
-	}
-#endif
-}
-
 void Engine::load_fonts()
 {
 	int actual_size;
@@ -1110,34 +1008,13 @@ void Engine::update_projection()
 	if (opengl) {
 		glViewport(0, 0, w, h);
 		printGLerror("glViewport");
-
-		GLint uni;
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "model");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "view");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
-		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "proj");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
-		printGLerror("glUniformMatrix4fv");
 	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		/* D3D pixels are slightly different than OpenGL */
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
 
-		current_shader.d3d_effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-		current_shader.d3d_effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
-	}
-#endif
+	current_shader->set_matrix("model", glm::value_ptr(model));
+	current_shader->set_matrix("view", glm::value_ptr(view));
+
+	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+	current_shader->set_matrix("proj", glm::value_ptr(opengl ? proj : d3d_fix * proj));
 }
 
 void Engine::setup_title_screen()

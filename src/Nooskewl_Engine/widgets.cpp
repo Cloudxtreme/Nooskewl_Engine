@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
 
@@ -21,7 +22,7 @@ void MO3_Widget::static_end()
 
 void MO3_Widget::enable_focus_shader(bool enable)
 {
-	static Engine::Shader bak;
+	static Shader *bak;
 
 	if (enable) {
 		float add = (SDL_GetTicks() % 500) / 500.0f * 2.0f;
@@ -31,12 +32,12 @@ void MO3_Widget::enable_focus_shader(bool enable)
 		add *= 0.5f;
 		bak = noo.current_shader;
 		noo.current_shader = noo.brighten_shader;
-		noo.use_shader(noo.current_shader);
-		noo.set_shader_float(noo.current_shader, "add", add);
+		noo.current_shader->use();
+		noo.current_shader->set_float("add", add);
 	}
 	else {
 		noo.current_shader = bak;
-		noo.use_shader(noo.current_shader);
+		noo.current_shader->use();
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/mml.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
@@ -16,16 +17,6 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Engine {
 public:
-	struct Shader {
-		GLuint opengl_vertex_shader;
-		GLuint opengl_fragment_shader;
-		GLuint opengl_shader;
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-		LPD3DXEFFECT d3d_effect;
-		D3DXHANDLE d3d_technique;
-#endif
-	};
-
 	/* Publicly accessible variables */
 	// Audio
 	bool mute;
@@ -50,9 +41,9 @@ public:
 	Image *window_image;
 	Image *window_image_with_name;
 	Image *name_box_image;
-	Shader current_shader;
-	Shader default_shader;
-	Shader brighten_shader;
+	Shader *current_shader;
+	Shader *default_shader;
+	Shader *brighten_shader;
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	IDirect3DDevice9 *d3d_device;
 #endif
@@ -85,6 +76,7 @@ public:
 	void set_screen_size(int w, int h);
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
+	void update_projection();
 
 	void draw_line(SDL_Colour colour, Point<float> a, Point<float> b, float thickness = 1.0f);
 	void draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> size, float thickness = 1.0f);
@@ -94,10 +86,6 @@ public:
 	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
 
 	void load_palette(std::string name);
-	Shader create_shader(std::string opengl_vertex_source, std::string opengl_fragment_source, std::string d3d_vertex_source, std::string d3d_fragment_source);
-	void use_shader(Shader shader);
-	void destroy_shader(Shader shader);
-	void set_shader_float(Shader shader, std::string name, float value);
 
 private:
 	void init_video();
@@ -107,7 +95,6 @@ private:
 	void load_fonts();
 	void check_joysticks();
 	void set_mouse_cursor();
-	void update_projection();
 	void setup_title_screen();
 
 	SDL_Window *window;
@@ -118,8 +105,6 @@ private:
 	glm::mat4 view;
 	glm::mat4 proj;
 
-	GLuint default_opengl_vertex_shader;
-	GLuint default_opengl_fragment_shader;
 	SDL_GLContext opengl_context;
 
 	SDL_Joystick *joy;

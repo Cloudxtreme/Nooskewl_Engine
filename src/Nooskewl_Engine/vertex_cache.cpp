@@ -3,10 +3,6 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-#define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
-#endif
-
 using namespace Nooskewl_Engine;
 
 Vertex_Cache::Vertex_Cache() :
@@ -32,76 +28,41 @@ void Vertex_Cache::start(bool repeat)
 {
 	image = 0;
 	this->repeat = repeat;
-
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	if (noo.opengl == false) {
-		noo.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
-		noo.current_shader.d3d_effect->SetBool("use_tex", false);
-		noo.current_shader.d3d_effect->Begin(&required_passes, 0);
-		noo.d3d_device->SetTexture(0, NULL);
-	}
-#endif
+	noo.current_shader->set_bool("use_tex", false);
+	noo.current_shader->set_texture("tex", 0);
 }
 
 void Vertex_Cache::start(Image *image, bool repeat)
 {
 	this->image = image;
 	this->repeat = repeat;
-
-	if (noo.opengl) {
-		glBindTexture(GL_TEXTURE_2D, image->internal->texture);
-		printGLerror("glBindTexture");
-		glBindVertexArray(image->internal->vao);
-		printGLerror("glBindVertexArray");
-		glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
-		printGLerror("glBindBuffer");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		noo.d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT);
-		noo.d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
-		noo.current_shader.d3d_effect->SetBool("use_tex", true);
-		noo.current_shader.d3d_effect->SetTexture("tex", image->internal->video_texture);
-		noo.current_shader.d3d_effect->Begin(&required_passes, 0);
-		noo.d3d_device->SetTexture(0, image->internal->video_texture);
-	}
-#endif
+	noo.current_shader->set_bool("use_tex", true);
+	noo.current_shader->set_texture("tex", image);
 }
 
 void Vertex_Cache::end()
 {
 	if (noo.opengl) {
-		GLint use_tex = glGetUniformLocation(noo.current_shader.opengl_shader, "use_tex");
-		printGLerror("glGetUniformLocation");
-		if (image) {
-			glUniform1i(use_tex, true);
-		}
-		else {
-			glUniform1i(use_tex, false);
-		}
-		printGLerror("glUniform1i");
+		GLuint opengl_shader = noo.current_shader->get_opengl_shader();
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
 		printGLerror("glBufferData");
 	
-		GLint posAttrib = glGetAttribLocation(noo.current_shader.opengl_shader, "in_position");
+		GLint posAttrib = glGetAttribLocation(opengl_shader, "in_position");
 		printGLerror("glGetAttribLocation");
 		glEnableVertexAttribArray(posAttrib);
 		printGLerror("glEnableVertexAttribArray");
 		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
 		printGLerror("glVertexAttribPointer");
 
-		GLint texcoordAttrib = glGetAttribLocation(noo.current_shader.opengl_shader, "in_texcoord");
+		GLint texcoordAttrib = glGetAttribLocation(opengl_shader, "in_texcoord");
 		printGLerror("glGetAttribLocation");
 		glEnableVertexAttribArray(texcoordAttrib);
 		printGLerror("glEnableVertexAttribArray");
 		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 		printGLerror("glVertexAttribPointer");
 
-		GLint colAttrib = glGetAttribLocation(noo.current_shader.opengl_shader, "in_colour");
+		GLint colAttrib = glGetAttribLocation(opengl_shader, "in_colour");
 		printGLerror("glGetAttribLocation");
 		glEnableVertexAttribArray(colAttrib);
 		printGLerror("glEnableVertexAttribArray");
@@ -113,15 +74,18 @@ void Vertex_Cache::end()
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
+		LPD3DXEFFECT d3d_effect = noo.current_shader->get_d3d_effect();
+		unsigned int required_passes;
+		d3d_effect->Begin(&required_passes, 0);
 		for (unsigned int i = 0; i < required_passes; i++) {
-			noo.current_shader.d3d_effect->BeginPass(i);
+			d3d_effect->BeginPass(i);
 			if (noo.d3d_device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, count / 3, (void *)vertices, 9*sizeof(float)) != D3D_OK) {
 				infomsg("DrawPrimitiveUP failed\n");
 				return;
 			}
-			noo.current_shader.d3d_effect->EndPass();
+			d3d_effect->EndPass();
 		}
-		noo.current_shader.d3d_effect->End();
+		d3d_effect->End();
 	}
 #endif
 

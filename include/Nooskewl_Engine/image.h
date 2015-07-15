@@ -9,7 +9,7 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Image {
 public:
-	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Cache;
+	friend class NOOSKEWL_ENGINE_EXPORT Shader;
 
 	enum Flags {
 		FLIP_H = 1,

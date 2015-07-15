@@ -36,10 +36,6 @@ private:
 	bool perspective_drawing;
 	bool repeat;
 
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	unsigned int required_passes;
-#endif
-
 	Size<int> screen_size;
 };
 

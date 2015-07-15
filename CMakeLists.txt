@@ -26,6 +26,7 @@ set(LIB_SRC
 	src/Nooskewl_Engine/mml.cpp
 	src/Nooskewl_Engine/player_brain.cpp
 	src/Nooskewl_Engine/sample.cpp
+	src/Nooskewl_Engine/shader.cpp
 	src/Nooskewl_Engine/speech.cpp
 	src/Nooskewl_Engine/sprite.cpp
 	src/Nooskewl_Engine/tilemap.cpp
