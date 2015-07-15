@@ -151,7 +151,6 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 
 int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width)
 {
-printf("x=%d\n", dest_position.x);
 	full = false;
 	char buf[2] = { 0 };
 	int curr_y = dest_position.y;
@@ -221,7 +220,6 @@ printf("x=%d\n", dest_position.x);
 			}
 			if (dry_run == false) {
 				draw(colour, s, Point<int>(dest_position.x, curr_y));
-				printf("drew at %d\n", dest_position.x);
 			}
 			total_position += max;
 			p = utf8_substr(text, total_position);
