@@ -12,9 +12,9 @@ public:
 	struct Node {
 		Node *parent;
 		Point<int> position;
-		float cost_from_start;
-		float cost_to_goal;
-		float total_cost;
+		int cost_from_start;
+		int cost_to_goal;
+		int total_cost;
 	};
 
 	A_Star(Tilemap *tilemap);
@@ -28,6 +28,7 @@ private:
 	void add_to_open(Node *node);
 	void destroy_nodes(std::list<Node *> &list);
 	void branch(Node *node, Point<int> offset, Point<int> goal);
+	int heuristic(Point<int> start, Point<int> end);
 
 	Tilemap *tilemap;
 	Node *final_node;

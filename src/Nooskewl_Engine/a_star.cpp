@@ -25,7 +25,7 @@ std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 	start_node->parent = NULL;
 	start_node->position = start;
 	start_node->cost_from_start = 0;
-	start_node->cost_to_goal = (goal-start).length();
+	start_node->cost_to_goal = heuristic(start, goal);
 	start_node->total_cost = start_node->cost_from_start + start_node->cost_to_goal;
 	open.push_back(start_node);
 
@@ -101,7 +101,7 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 		return;
 	}
 
-	float new_cost = node->cost_from_start + 1.0f;
+	int new_cost = node->cost_from_start + 1;
 	bool in_open = false;
 	bool in_closed = false;
 	Node *new_node = find_in_list(new_position, open);
@@ -126,7 +126,7 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 		}
 		new_node->parent = node;
 		new_node->cost_from_start = new_cost;
-		new_node->cost_to_goal = (goal-new_node->position).length();
+		new_node->cost_to_goal = heuristic(new_node->position, goal);
 		new_node->total_cost = new_node->cost_from_start + new_node->cost_to_goal;
 		if (in_closed) {
 			remove_from_list(new_node, closed);
@@ -139,4 +139,9 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 			add_to_open(new_node);
 		}
 	}
+}
+
+int A_Star::heuristic(Point<int> start, Point<int> end)
+{
+	return abs(start.x - end.x) + abs(start.y - end.y);
 }
