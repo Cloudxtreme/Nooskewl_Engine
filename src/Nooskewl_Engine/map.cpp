@@ -212,14 +212,14 @@ void Map::update_camera()
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
-		else if (offset.x > max_x) {
-			offset.x = max_x;
+		else if (offset.x >= max_x) {
+			offset.x = max_x - 1;
 		}
 		if (offset.y < 0) {
 			offset.y = 0;
 		}
-		else if (offset.y > max_y) {
-			offset.y = max_y;
+		else if (offset.y >= max_y) {
+			offset.y = max_y -1;
 		}
 		offset = -offset;
 		// Correct for small levels

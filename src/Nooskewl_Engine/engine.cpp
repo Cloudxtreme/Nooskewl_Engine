@@ -48,6 +48,7 @@ Engine::Engine() :
 	joy_b1(10),
 	key_b1(TGUIK_SPACE),
 	map(0),
+	last_map_name(""),
 	tile_size(8),
 	joy(0),
 	num_joysticks(0),
@@ -391,14 +392,13 @@ void Engine::handle_event(TGUI_Event *event)
 
 			Map::new_game_started();
 
-			map = new Map("start.map");
-			map->start();
-
 			Player_Brain *player_brain = new Player_Brain();
 			player = new Map_Entity(player_brain);
 			player->load_sprite("player");
-			player->set_position(Point<int>(1, 3));
+			map = new Map("start.map");
 			map->add_entity(player);
+			map->start();
+			map->update_camera();
 		}
 	}
 	else if (map) {
@@ -425,9 +425,11 @@ bool Engine::update()
 		map->get_new_map_details(map_name, position, direction);
 		if (map_name != "") {
 			Map *old_map = map;
+			last_map_name = old_map->get_map_name();
 			map = new Map(map_name);
-			map->start();
 			map->add_entity(player);
+			map->start();
+			map->update_camera();
 
 			// draw transition
 

@@ -54,6 +54,7 @@ public:
 	std::string language;
 	CPA *cpa;
 	Map *map;
+	std::string last_map_name;
 	Map_Entity *player;
 	TGUI *gui;
 
