@@ -13,6 +13,8 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Map {
 public:
+	static void new_game_started();
+
 	Map(std::string map_name);
 	~Map();
 
@@ -22,7 +24,7 @@ public:
 	void handle_event(TGUI_Event *event);
 	void update_camera();
 	bool update();
-	void draw();
+	void draw(bool use_depth_buffer = true);
 
 	void add_entity(Map_Entity *entity);
 	void add_speech(std::string text);

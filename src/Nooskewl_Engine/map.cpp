@@ -4,6 +4,11 @@
 
 using namespace Nooskewl_Engine;
 
+void Map::new_game_started()
+{
+	Map_Entity::new_game_started();
+}
+
 Map::Map(std::string map_name) :
 	offset(0, 0),
 	speech(0),
@@ -254,7 +259,7 @@ bool Map::update()
 	return true;
 }
 
-void Map::draw()
+void Map::draw(bool use_depth_buffer)
 {
 	int nlayers = tilemap->get_num_layers();
 	int layer;
@@ -263,17 +268,21 @@ void Map::draw()
 		tilemap->draw(layer, offset);
 	}
 
-	noo.enable_depth_buffer(true);
-	noo.clear_depth_buffer(1.0f);
+	if (use_depth_buffer) {
+		noo.enable_depth_buffer(true);
+		noo.clear_depth_buffer(1.0f);
+	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		e->draw(e->get_draw_position() + offset);
+		e->draw(e->get_draw_position() + offset, use_depth_buffer);
 	}
 
-	tilemap->draw(layer++, offset, true);
+	tilemap->draw(layer++, offset, use_depth_buffer);
 
-	noo.enable_depth_buffer(false);
+	if (use_depth_buffer) {
+		noo.enable_depth_buffer(false);
+	}
 
 	for (; layer < nlayers; layer++) {
 		tilemap->draw(layer, offset);
