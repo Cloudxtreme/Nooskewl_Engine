@@ -43,6 +43,7 @@ namespace Nooskewl_Engine {
 Engine noo;
 
 Engine::Engine() :
+	music(0),
 	window_title("Nooskewl Engine"),
 	joy_b1(10),
 	key_b1(TGUIK_SPACE),
@@ -106,8 +107,6 @@ void Engine::start(int argc, char **argv)
 
 	setup_title_screen();
 
-	music = new MML("title.mml");
-	music->play(true);
 	button_mml = new MML("button.mml");
 
 	intro_start = SDL_GetTicks();
@@ -390,6 +389,8 @@ void Engine::handle_event(TGUI_Event *event)
 			gui = 0;
 			new_game = 0;
 
+			Map::new_game_started();
+
 			map = new Map("start.map");
 			map->start();
 
@@ -406,6 +407,8 @@ void Engine::handle_event(TGUI_Event *event)
 		if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
 			delete map;
 			map = 0;
+			delete player;
+			player = 0;
 			setup_title_screen();
 		}
 	}
@@ -449,11 +452,11 @@ bool Engine::update()
 				m.vertex_cache->enable_perspective_drawing(screen_size);
 				if (moved_player) {
 					map->update_camera();
-					map->draw();
+					map->draw(true);
 				}
 				else {
 					old_map->update_camera();
-					old_map->draw();
+					old_map->draw(true);
 				}
 				m.vertex_cache->disable_perspective_drawing();
 
@@ -508,6 +511,8 @@ void Engine::draw()
 		gui->draw();
 	}
 	if (new_game != NULL) {
+		play_music("title.mml");
+
 		if (did_intro == false) {
 			int max_w = logo->size.w * 16 - logo->size.w;
 			int max_h = logo->size.h * 16 - logo->size.h;
@@ -863,6 +868,16 @@ std::string Engine::load_text(std::string filename)
 	delete[] buf;
 
 	return s;
+}
+
+void Engine::play_music(std::string name)
+{
+	if (music && music->get_name() == name) {
+		return;
+	}
+	delete noo.music;
+	noo.music = new MML(name);
+	noo.music->play(true);
 }
 
 void Engine::load_fonts()

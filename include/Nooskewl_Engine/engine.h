@@ -87,6 +87,7 @@ public:
 
 	void load_palette(std::string name);
 	std::string load_text(std::string filename);
+	void play_music(std::string name);
 
 private:
 	void init_video();

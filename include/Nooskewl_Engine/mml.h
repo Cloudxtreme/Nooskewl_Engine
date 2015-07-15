@@ -15,6 +15,7 @@ public:
 
 	void play(bool loop);
 	void stop();
+	std::string get_name(); // returns same thing passed to constructor
 
 private:
 	class Internal {
@@ -96,6 +97,8 @@ private:
 	Internal *internal;
 
 	static std::vector<Internal *> loaded_mml;
+
+	std::string name;
 };
 
 } // End namespace Nooskewl_Engine

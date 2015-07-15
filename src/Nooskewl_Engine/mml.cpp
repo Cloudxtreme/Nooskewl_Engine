@@ -759,7 +759,8 @@ void MML::mix(Uint8 *buf, int stream_length)
 	delete[] tmp;
 }
 
-MML::MML(std::string filename)
+MML::MML(std::string filename) :
+	name(filename)
 {
 	internal = new MML::Internal(filename);
 	loaded_mml.push_back(internal);
@@ -796,4 +797,9 @@ void MML::stop()
 	for (size_t i = 0; i < tracks.size(); i++) {
 		tracks[i]->stop();
 	}
+}
+
+std::string MML::get_name()
+{
+	return name;
 }
