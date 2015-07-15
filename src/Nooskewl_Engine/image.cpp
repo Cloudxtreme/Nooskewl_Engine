@@ -116,11 +116,10 @@ Image::Image(SDL_Surface *surface) :
 		pixels = (unsigned char *)tmp->pixels;
 	}
 
-	w = surface->w;
-	h = surface->h;
+	size = Size<int>(surface->w, surface->h);
 
 	try {
-		internal = new Internal(pixels, w, h);
+		internal = new Internal(pixels, size);
 	}
 	catch (Error e) {
 		if (tmp) SDL_FreeSurface(tmp);
@@ -168,15 +167,13 @@ void Image::reload()
 		if (ii->filename == filename) {
 			ii->refcount++;
 			internal = ii;
-			w = internal->w;
-			h = internal->h;
+			size = internal->size;
 			return;
 		}
 	}
 
 	internal = new Internal(filename);
-	w = internal->w;
-	h = internal->h;
+	size = internal->size;
 	loaded_images.push_back(internal);
 }
 
@@ -255,12 +252,12 @@ void Image::draw_region(Point<int> source_position, Size<int> source_size, Point
 
 void Image::draw_z(Point<int> dest_position, float z, int flags)
 {
-	draw_region_z(Point<int>(0, 0), Size<int>(w, h), dest_position, z, flags);
+	draw_region_z(Point<int>(0, 0), size, dest_position, z, flags);
 }
 
 void Image::draw_tinted(SDL_Colour tint, Point<int> dest_position, int flags)
 {
-	draw_region_tinted(tint, Point<int>(0, 0), Size<int>(w, h), dest_position, flags);
+	draw_region_tinted(tint, Point<int>(0, 0), size, dest_position, flags);
 }
 
 void Image::draw(Point<int> dest_position, int flags)
@@ -341,7 +338,7 @@ int Image::get_unfreed_count()
 	return loaded_images.size();
 }
 
-unsigned char *Image::read_tga(std::string filename, int *out_w, int *out_h)
+unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 {
 	SDL_RWops *file = open_file(filename);
 
@@ -366,8 +363,8 @@ unsigned char *Image::read_tga(std::string filename, int *out_w, int *out_h)
 	header.imagedescriptor = SDL_fgetc(file);
 
 	int w, h;
-	*out_w = w = header.width;
-	*out_h = h = header.height;
+	out_size.w = w = header.width;
+	out_size.h = h = header.height;
 
 	/* Allocate space for the image */
 	if ((pixels = new unsigned char[header.width*header.height*4]) == 0) {
@@ -472,9 +469,8 @@ Image::Internal::Internal(std::string filename) :
 	reload();
 }
 
-Image::Internal::Internal(unsigned char *pixels, int w, int h) :
-	w(w),
-	h(h)
+Image::Internal::Internal(unsigned char *pixels, Size<int> size) :
+	size(size)
 {
 	filename = "--FROM SURFACE--";
 	upload(pixels);
@@ -503,7 +499,7 @@ void Image::Internal::release()
 
 void Image::Internal::reload()
 {
-	unsigned char *pixels = Image::read_tga(filename, &w, &h);
+	unsigned char *pixels = Image::read_tga(filename, size);
 
 	try {
 		upload(pixels);
@@ -551,7 +547,7 @@ void Image::Internal::upload(unsigned char *pixels)
 		glActiveTexture(GL_TEXTURE0);
 		printGLerror("glActiveTexture");
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.w, size.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		printGLerror("glTexImage2D");
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -565,12 +561,12 @@ void Image::Internal::upload(unsigned char *pixels)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		int err = noo.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
+		int err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
 		D3DLOCKED_RECT locked_rect;
 		if (video_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
-			for (int y = 0; y < h; y++) {
+			for (int y = 0; y < size.h; y++) {
 				unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
-				for (int x = 0; x < w; x++) {
+				for (int x = 0; x < size.w; x++) {
 					unsigned char r = *pixels++;
 					unsigned char g = *pixels++;
 					unsigned char b = *pixels++;

@@ -200,10 +200,10 @@ void Map::update_camera()
 	if (player) {
 		Point<int> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
-		offset = p - Point<int>(noo.screen_w, noo.screen_h) / 2 + sz / 2;
+		offset = p - noo.screen_size / 2 + sz / 2;
 		Size<int> tilemap_size = tilemap->get_size();
-		int max_x = (tilemap_size.w*noo.tile_size-noo.screen_w);
-		int max_y = (tilemap_size.h*noo.tile_size-noo.screen_h);
+		int max_x = (tilemap_size.w*noo.tile_size-noo.screen_size.w);
+		int max_y = (tilemap_size.h*noo.tile_size-noo.screen_size.h);
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
@@ -218,11 +218,11 @@ void Map::update_camera()
 		}
 		offset = -offset;
 		// Correct for small levels
-		if (tilemap_size.w*noo.tile_size < noo.screen_w) {
-			offset.x = (noo.screen_w - (tilemap_size.w * noo.tile_size)) / 2;
+		if (tilemap_size.w*noo.tile_size < noo.screen_size.w) {
+			offset.x = (noo.screen_size.w - (tilemap_size.w * noo.tile_size)) / 2;
 		}
-		if (tilemap_size.h*noo.tile_size < noo.screen_h) {
-			offset.y = (noo.screen_h - (tilemap_size.h * noo.tile_size)) / 2;
+		if (tilemap_size.h*noo.tile_size < noo.screen_size.h) {
+			offset.y = (noo.screen_size.h - (tilemap_size.h * noo.tile_size)) / 2;
 		}
 	}
 }

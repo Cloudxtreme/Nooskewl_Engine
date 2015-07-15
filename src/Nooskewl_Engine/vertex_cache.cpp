@@ -128,11 +128,10 @@ void Vertex_Cache::end()
 	count = 0;
 }
 
-void Vertex_Cache::enable_perspective_drawing(int screen_w, int screen_h)
+void Vertex_Cache::enable_perspective_drawing(Size<int> screen_size)
 {
 	perspective_drawing = true;
-	this->screen_w = screen_w;
-	this->screen_h = screen_h;
+	this->screen_size = screen_size;
 }
 
 void Vertex_Cache::disable_perspective_drawing()
@@ -165,10 +164,10 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 	if (image) {
 		float sx = (float)source_position.x;
 		float sy = (float)source_position.y;
-		float tu = sx / (float)image->w;
-		float tv = sy / (float)image->h;
-		float tu2 = tu + (float)source_size.w / (float)image->w;
-		float tv2 = tv + (float)source_size.h / (float)image->h;
+		float tu = sx / (float)image->size.w;
+		float tv = sy / (float)image->size.h;
+		float tu2 = tu + (float)source_size.w / (float)image->size.w;
+		float tv2 = tv + (float)source_size.h / (float)image->size.h;
 
 		tv = 1.0f - tv;
 		tv2 = 1.0f - tv2;
@@ -242,10 +241,10 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 	float dy2 = dy + (float)dest_size.h;
 
 	if (perspective_drawing) {
-		dx /= (float)screen_w;
-		dy /= (float)screen_h;
-		dx2 /= (float)screen_w;
-		dy2 /= (float)screen_h;
+		dx /= (float)screen_size.w;
+		dy /= (float)screen_size.h;
+		dx2 /= (float)screen_size.w;
+		dy2 /= (float)screen_size.h;
 		dx -= 0.5f;
 		dy -= 0.5f;
 		dx2 -= 0.5f;
@@ -278,18 +277,18 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 		float tu, tv, tu2, tv2;
 
 		if (repeat) {
-			tu = (float)source_position.x / image->w;
-			tv = (float)source_position.y / image->h;
+			tu = (float)source_position.x / image->size.w;
+			tv = (float)source_position.y / image->size.h;
 			tu2 = tu + (float)dest_size.w / source_size.w;
 			tv2 = tv + (float)dest_size.h / source_size.w;
 		}
 		else {
 			float sx = (float)source_position.x;
 			float sy = (float)source_position.y;
-			tu = sx / (float)image->w;
-			tv = sy / (float)image->h;
-			tu2 = tu + (float)source_size.w / (float)image->w;
-			tv2 = tv + (float)source_size.h / (float)image->h;
+			tu = sx / (float)image->size.w;
+			tv = sy / (float)image->size.h;
+			tu2 = tu + (float)source_size.w / (float)image->size.w;
+			tv2 = tv + (float)source_size.h / (float)image->size.h;
 
 			tv = 1.0f - tv;
 			tv2 = 1.0f - tv2;

@@ -45,6 +45,11 @@ public:
 		return atan2f(dy, dx);
 	}
 
+	T area()
+	{
+		return w * h;
+	}
+
 	void operator=(const Size<T> &from)
 	{
 		w = from.w;

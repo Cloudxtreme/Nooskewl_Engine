@@ -234,10 +234,10 @@ void Engine::start(int argc, char **argv)
 
 	main_widget = new MO3_Widget(1.0f, 1.0f);
 	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, screen_h - screen_h / 6 - new_game->get_height(), 0);
+	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height(), 0);
 	new_game->set_centered_x(true);
 	new_game->set_parent(main_widget);
-	gui = new TGUI(main_widget, screen_w, screen_h);
+	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
 	gui->set_focus(new_game);
 	// FIXME: make sure delete gui deletes widget
 
@@ -553,7 +553,7 @@ bool Engine::update()
 
 				clear(black);
 
-				m.vertex_cache->enable_perspective_drawing(screen_w, screen_h);
+				m.vertex_cache->enable_perspective_drawing(screen_size);
 				if (moved_player) {
 					map->update_camera();
 					map->draw();
@@ -592,21 +592,25 @@ void Engine::draw()
 	}
 	if (new_game != NULL) {
 		if (did_intro == false) {
-			int max = logo->w * 16 - logo->w;
+			int max_w = logo->size.w * 16 - logo->size.w;
+			int max_h = logo->size.h * 16 - logo->size.h;
 			float p = (SDL_GetTicks() - intro_start) / 2000.0f;
 			if (p > 1.0f) {
 				p = 1.0f;
 				did_intro = true;
 			}
-			int w = int((1.0f - p) * max + logo->w);
-			int x = screen_w / 2 - w / 2;
-			int y = screen_h / 3 - w / 2;
-			logo->stretch_region_single(Point<int>(0, 0), Size<int>(logo->w, logo->h), Point<int>(x, y), Size<int>(w, w));
+			int w = int((1.0f - p) * max_w + logo->size.w);
+			int h = int((1.0f - p) * max_h + logo->size.h);
+			Point<int> pos;
+			pos.x = screen_size.w / 2 - w / 2;
+			pos.y = screen_size.h / 3 - h / 2;
+			logo->stretch_region_single(Point<int>(0, 0), logo->size, pos, Size<int>(w, h));
 		}
 		else {
-			int x = screen_w / 2 - logo->w / 2;
-			int y = screen_h / 3 - logo->h / 2;
-			logo->stretch_region_single(Point<int>(0, 0), Size<int>(logo->w, logo->h), Point<int>(x, y), Size<int>(logo->w, logo->h));
+			Point<int> pos;
+			pos.x = screen_size.w / 2 - logo->size.w / 2;
+			pos.y = screen_size.h / 3 - logo->size.h / 2;
+			logo->draw_single(pos);
 		}
 	}
 
@@ -729,11 +733,11 @@ void Engine::set_screen_size(int w, int h)
 	else {
 		scale = h / 160 + 1;
 	}
-	screen_w = w / scale;
-	screen_h = h / scale;
+	screen_size.w = w / scale;
+	screen_size.h = h / scale;
 
 	if (gui) {
-		gui->resize(screen_w, screen_h);
+		gui->resize(screen_size.w, screen_size.h);
 	}
 }
 
@@ -835,8 +839,8 @@ void Engine::draw_quad(SDL_Colour colour, Point<float> dest_position, Size<float
 
 void Engine::draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size)
 {
-	int w = image->w;
-	int size = image->w / 3;
+	int w = image->size.w;
+	int size = image->size.w / 3;
 	Size<int> dim(size, size);
 
 	image->start();
@@ -1066,9 +1070,9 @@ void Engine::set_mouse_cursor()
 {
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	// Note: this needs to be a specific size on Windows, 32x32 works for me
-	int w, h;
-	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", &w, &h);
-	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, w, h, 0, 0, true);
+	Size<int> size;
+	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", size);
+	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, true);
 	delete[] pixels;
 #endif
 }

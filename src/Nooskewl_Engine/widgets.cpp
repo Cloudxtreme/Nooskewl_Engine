@@ -168,7 +168,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
 	MO3_Button(size.w, size.h),
 	text(text)
 {
-	padding = button_image->w / 3;
+	padding = button_image->size.w / 3;
 	set_size(size);
 	set_default_colours();
 }
@@ -177,7 +177,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text) :
 	MO3_Button(-1, -1),
 	text(text)
 {
-	padding = button_image->w / 3;
+	padding = button_image->size.w / 3;
 	set_size(Size<int>(-1, -1));
 	set_default_colours();
 }

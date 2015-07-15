@@ -17,7 +17,7 @@ public:
 	};
 
 	std::string filename;
-	int w, h;
+	Size<int> size;
 
 	Image(std::string filename, bool is_absolute_path = false);
 	Image(SDL_Surface *surface);
@@ -26,7 +26,7 @@ public:
 	static void release_all();
 	static void reload_all();
 	static int get_unfreed_count();
-	static unsigned char *read_tga(std::string filename, int *w, int *h);
+	static unsigned char *read_tga(std::string filename, Size<int> &out_size);
 
 	void release();
 	void reload();
@@ -58,7 +58,7 @@ public:
 private:
 	struct Internal {
 		Internal(std::string filename);
-		Internal(unsigned char *pixels, int w, int h);
+		Internal(unsigned char *pixels, Size<int> size);
 		~Internal();
 
 		void upload(unsigned char *pixels);
@@ -67,7 +67,7 @@ private:
 		void reload();
 
 		std::string filename;
-		int w, h;
+		Size<int> size;
 		int refcount;
 
 	#ifdef NOOSKEWL_ENGINE_WINDOWS

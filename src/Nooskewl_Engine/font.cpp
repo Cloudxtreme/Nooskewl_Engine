@@ -53,7 +53,7 @@ int Font::get_text_width(std::string text)
 
 	while ((ch = utf8_char_next(text, offset)) != 0) {
 		Image *g = glyphs[ch];
-		width += g->w;
+		width += g->size.w;
 	}
 
 	return width;
@@ -127,7 +127,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 			}
 			g->end();
 
-			pos.x += g->w;
+			pos.x += g->size.w;
 		}
 
 		noo.enable_depth_buffer(false);
@@ -145,7 +145,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 		g->draw_tinted(colour, pos, Image::FLIP_V);
 		g->end();
 
-		pos.x += g->w;
+		pos.x += g->size.w;
 	}
 }
 
@@ -186,7 +186,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		while (ch) {
 			cache_glyph(ch);
 			Image *g = glyphs[ch];
-			this_w += g->w;
+			this_w += g->size.w;
 			if (this_w >= w) {
 				if (count == 0) {
 					done = true;

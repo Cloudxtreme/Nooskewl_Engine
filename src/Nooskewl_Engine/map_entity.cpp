@@ -180,7 +180,7 @@ Size<int> Map_Entity::get_size()
 
 Point<int> Map_Entity::get_draw_position()
 {
-		int h = sprite->get_current_image()->h;
+		int h = sprite->get_current_image()->size.h;
 		return Point<int>(position.x*noo.tile_size+int(offset.x*(float)noo.tile_size), (position.y+1)*noo.tile_size+int(offset.y*(float)noo.tile_size)-h);
 }
 

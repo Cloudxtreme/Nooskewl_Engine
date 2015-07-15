@@ -252,7 +252,7 @@ std::string List_Directory::next()
 
 #define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 
-static BITMAPINFO *get_bitmap_info(int w, int h)
+static BITMAPINFO *get_bitmap_info(Size<int> size)
 {
 	BITMAPINFO *bi;
 	int i;
@@ -264,8 +264,8 @@ static BITMAPINFO *get_bitmap_info(int w, int h)
 	bi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bi->bmiHeader.biBitCount = 32;
 	bi->bmiHeader.biPlanes = 1;
-	bi->bmiHeader.biWidth = w;
-	bi->bmiHeader.biHeight = -h;
+	bi->bmiHeader.biWidth = size.w;
+	bi->bmiHeader.biHeight = -size.h;
 	bi->bmiHeader.biClrUsed = 256;
 	bi->bmiHeader.biCompression = BI_RGB;
 
@@ -279,13 +279,13 @@ static BITMAPINFO *get_bitmap_info(int w, int h)
 	return bi;
 }
 
-static void stretch_blit_to_hdc(BYTE *pixels, int w, int h, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
+static void stretch_blit_to_hdc(BYTE *pixels, Size<int> size, HDC dc, int src_x, int src_y, int src_w, int src_h, int dest_x, int dest_y, int dest_w, int dest_h)
 {
-	const int bitmap_h = h;
+	const int bitmap_h = size.h;
 	const int bottom_up_src_y = bitmap_h - src_y - src_h;
 	BITMAPINFO *bi;
 
-	bi = get_bitmap_info(w, h);
+	bi = get_bitmap_info(size);
 
 	if (bottom_up_src_y == 0 && src_x == 0 && src_h != bitmap_h) {
 		StretchDIBits(dc, dest_x, dest_h+dest_y-1, dest_w, -dest_h, src_x, bitmap_h - src_y + 1, src_w, -src_h, pixels, bi, DIB_RGB_COLORS, SRCCOPY);
@@ -297,7 +297,7 @@ static void stretch_blit_to_hdc(BYTE *pixels, int w, int h, HDC dc, int src_x, i
 	delete[] bi;
 }
 
-HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocus, bool is_cursor)
+HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor)
 {
 	int x, y;
 	int sys_sm_cx, sys_sm_cy;
@@ -311,11 +311,11 @@ HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocu
 	HBITMAP hOldXorMaskBitmap;
 	HICON icon;
 
-	Uint8 *tmp = new Uint8[w * h * 4];
-	for (y = 0; y < h; y++) {
-		Uint8 *src = data + y * (w * 4);
-		Uint8 *dst = tmp + (h-y-1) * (w * 4); // flip y
-		for (x = 0; x < w; x++) {
+	Uint8 *tmp = new Uint8[size.area() * 4];
+	for (y = 0; y < size.h; y++) {
+		Uint8 *src = data + y * (size.w * 4);
+		Uint8 *dst = tmp + (size.h-y-1) * (size.w * 4); // flip y
+		for (x = 0; x < size.w; x++) {
 			Uint8 r = *src++;
 			Uint8 g = *src++;
 			Uint8 b = *src++;
@@ -355,12 +355,12 @@ HICON win_create_icon(HWND wnd, Uint8 *data, int w, int h, int xfocus, int yfocu
 		}
 	}
 
-	stretch_blit_to_hdc((BYTE *)tmp, w, h, h_xor_dc, 0, 0, w, h, 0, 0, w, h);
+	stretch_blit_to_hdc((BYTE *)tmp, size, h_xor_dc, 0, 0, size.w, size.h, 0, 0, size.w, size.h);
 
 	/* Make cursor background transparent */
-	for (y = 0; y < h; y++) {
-		Uint8 *p = tmp + y * (w * 4);
-		for (x = 0; x < w; x++) {
+	for (y = 0; y < size.h; y++) {
+		Uint8 *p = tmp + y * (size.w * 4);
+		for (x = 0; x < size.w; x++) {
 
 			Uint8 b = *p++;
 			Uint8 g = *p++;

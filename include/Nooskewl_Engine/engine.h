@@ -32,8 +32,7 @@ public:
 	// Graphics
 	std::string window_title; // set this first thing to change it
 	int scale;
-	int screen_w;
-	int screen_h;
+	Size<int> screen_size;
 	int tile_size;
 	bool fullscreen;
 	bool opengl;

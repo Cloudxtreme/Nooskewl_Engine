@@ -19,7 +19,7 @@ public:
 	void start(Image *image, bool repeat = false);
 	void end();
 
-	void enable_perspective_drawing(int screen_w, int screen_h);
+	void enable_perspective_drawing(Size<int> screen_size);
 	void disable_perspective_drawing();
 
 	void cache(SDL_Colour vertex_colours[4], Point<float> source_position, Size<float> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, int flags);
@@ -40,7 +40,7 @@ private:
 	unsigned int required_passes;
 #endif
 
-	int screen_w, screen_h;
+	Size<int> screen_size;
 };
 
 } // End namespace Nooskewl_Engine

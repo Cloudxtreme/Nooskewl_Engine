@@ -63,13 +63,13 @@ void Speech::draw()
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 
 	int margin = 3;
-	int pad = noo.window_image->w / 3;
+	int pad = noo.window_image->size.w / 3;
 	int bottom_padding = 3; // for the advance icon
 	int line_height = noo.font->get_height();
-	int win_w = noo.screen_w - margin * 2;;
+	int win_w = noo.screen_size.w - margin * 2;;
 	int win_h = line_height * 3 + pad * 2 + bottom_padding ;
 	int win_x = margin;
-	int win_y = noo.screen_h - win_h - margin;
+	int win_y = noo.screen_size.h - win_h - margin;
 
 	bool full;
 	int num_lines, width;
@@ -107,7 +107,7 @@ void Speech::draw()
 		speech_advance->set_animation("more");
 	}
 	Image *image = speech_advance->get_current_image();
-	image->draw_single(Point<int>(win_x+win_w-image->w-2, win_y+win_h-image->h-2));
+	image->draw_single(Point<int>(win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-2));
 
 	noo.font->disable_shadow();
 }
