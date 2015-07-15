@@ -15,8 +15,8 @@ public:
 
 	void init();
 
-	void start(); // no texture
-	void start(Image *image);
+	void start(bool repeat = false); // no texture
+	void start(Image *image, bool repeat = false);
 	void end();
 	void maybe_resize_buffer(int increase);
 
@@ -28,13 +28,16 @@ private:
 	int total;
 	Image *image;
 	bool perspective_drawing;
+	bool repeat;
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	unsigned int required_passes;
+#endif
 
 public:
 	/* Template functions */
 
-	template<typename T> void buffer(Point<T> source_position, Size<T> source_size, Point<T> da, Point<T> db, Point<T> dc, Point<T> dd, SDL_Colour vertex_colours[4], int flags)
+	template<typename T> void buffer(SDL_Colour vertex_colours[4], Point<T> source_position, Size<T> source_size, Point<T> da, Point<T> db, Point<T> dc, Point<T> dd, int flags)
 	{
 		maybe_resize_buffer(256);
 
@@ -126,7 +129,7 @@ public:
 		count += 6;
 	}
 
-	template<typename T> void buffer_z(Point<T> source_position, Size<T> source_size, Point<T> dest_position, float z, Size<T> dest_size, SDL_Colour vertex_colours[4], int flags)
+	template<typename T> void buffer_z(SDL_Colour vertex_colours[4], Point<T> source_position, Size<T> source_size, Point<T> dest_position, float z, Size<T> dest_size, int flags)
 	{
 		maybe_resize_buffer(256);
 
@@ -169,25 +172,35 @@ public:
 		}
 
 		if (image) {
-			float sx = (float)source_position.x;
-			float sy = (float)source_position.y;
-			float tu = sx / (float)image->w;
-			float tv = sy / (float)image->h;
-			float tu2 = tu + (float)source_size.w / (float)image->w;
-			float tv2 = tv + (float)source_size.h / (float)image->h;
+			float tu, tv, tu2, tv2;
 
-			tv = 1.0f - tv;
-			tv2 = 1.0f - tv2;
-
-			if (flags & Image::FLIP_H) {
-				float tmp = tu;
-				tu = tu2;
-				tu2 = tmp;
+			if (repeat) {
+				tu = (float)source_position.x / image->w;
+				tv = (float)source_position.y / image->h;
+				tu2 = tu + (float)dest_size.w / source_size.w;
+				tv2 = tv + (float)dest_size.h / source_size.w;
 			}
-			if (flags & Image::FLIP_V) {
-				float tmp = tv;
-				tv = tv2;
-				tv2 = tmp;
+			else {
+				float sx = (float)source_position.x;
+				float sy = (float)source_position.y;
+				tu = sx / (float)image->w;
+				tv = sy / (float)image->h;
+				tu2 = tu + (float)source_size.w / (float)image->w;
+				tv2 = tv + (float)source_size.h / (float)image->h;
+
+				tv = 1.0f - tv;
+				tv2 = 1.0f - tv2;
+
+				if (flags & Image::FLIP_H) {
+					float tmp = tu;
+					tu = tu2;
+					tu2 = tmp;
+				}
+				if (flags & Image::FLIP_V) {
+					float tmp = tv;
+					tv = tv2;
+					tv2 = tmp;
+				}
 			}
 
 			// texture coordinates
@@ -238,9 +251,9 @@ public:
 		count += 6;
 	}
 
-	template<typename T> void buffer(Point<T> source_position, Size<T> source_size, Point<T> dest_position, Size<T> dest_size, SDL_Colour vertex_colours[4], int flags)
+	template<typename T> void buffer(SDL_Colour vertex_colours[4], Point<T> source_position, Size<T> source_size, Point<T> dest_position, Size<T> dest_size, int flags)
 	{
-		buffer_z<T>(source_position, source_size, dest_position, 0.0f, dest_size, vertex_colours, flags);
+		buffer_z<T>(vertex_colours, source_position, source_size, dest_position, 0.0f, dest_size, flags);
 	}
 };
 
