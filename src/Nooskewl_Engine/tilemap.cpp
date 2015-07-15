@@ -155,7 +155,7 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 	return false;
 }
 
-void Tilemap::draw(int layer, Point<int> position, bool set_z)
+void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
 {
 	Layer l = layers[layer];
 
@@ -178,7 +178,7 @@ void Tilemap::draw(int layer, Point<int> position, bool set_z)
 						Point<int>(sx, sy),
 						Size<int>(noo.tile_size, noo.tile_size),
 						Point<int>(dx, dy),
-						set_z ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) : 0.0f,
+						use_depth_buffer ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) * 0.0001f : 0.0f,
 						0
 					);
 				}
