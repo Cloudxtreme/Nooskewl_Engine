@@ -36,6 +36,9 @@ public:
 	SDL_Colour magenta;
 	Font *font;
 	Font *bold_font;
+	Image *window_image;
+	Image *window_image_with_name;
+	Image *name_box_image;
 	// Input
 	int joy_b1;
 	int key_b1;
@@ -67,7 +70,8 @@ public:
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
 
-	void draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle);
+	void draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size);
+	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
 	void load_palette(std::string name);
 
 private:
@@ -89,8 +93,6 @@ private:
 
 	SDL_Joystick *joy;
 	int num_joysticks;
-
-	Sprite *speech_arrow;
 
 	SDL_AudioDeviceID audio_device;
 

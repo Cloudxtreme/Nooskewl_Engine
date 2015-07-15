@@ -89,11 +89,17 @@ void Engine::start(int argc, char **argv)
 
 	load_fonts();
 
-	speech_arrow = new Sprite("speech_arrow");
-	speech_arrow->start();
 	logo = new Image("logo.tga");
+	window_image = new Image("window.tga");
+	window_image = new Image("window.tga");
+	window_image_with_name = new Image("window_with_name.tga");
+	name_box_image = new Image("name_box.tga");
 
 	load_palette("palette.gpl");
+
+
+	MO3_Widget::static_start();
+	Speech::static_start();
 
 	main_widget = new MO3_Widget(1.0f, 1.0f);
 	new_game = new MO3_Text_Button("New Game");
@@ -118,10 +124,15 @@ void Engine::end()
 	delete map;
 	delete player;
 
+	MO3_Widget::static_end();
+	Speech::static_end();
+
 	delete gui;
 
-	delete speech_arrow;
 	delete logo;
+	delete window_image;
+	delete window_image_with_name;
+	delete name_box_image;
 
 	delete font;
 	delete bold_font;
@@ -518,8 +529,6 @@ bool Engine::update()
 {
 	check_joysticks();
 
-	speech_arrow->update();
-
 	if (map && map->update() == false) {
 		std::string map_name;
 		Point<int> position;
@@ -802,23 +811,35 @@ void Engine::set_map_transition_projection(float angle)
 #endif
 }
 
-void Engine::draw_window(Point<int> dest_position, Size<int> dest_size, bool arrow, bool circle)
+void Engine::draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size)
 {
-	SDL_Colour colour = colours[44]; // blue
+	int w = image->w;
+	int size = image->w / 3;
+	Size<int> dim(size, size);
 
-	draw_quad<int>(colour, dest_position, dest_size);
-	draw_rectangle<int>(white, dest_position+1, dest_size-2);
+	image->start();
 
-	if (circle) {
-		speech_arrow->set_animation("circle");
-		Image *i = speech_arrow->get_current_image();
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w, i->h), 0);
-	}
-	else if (arrow) {
-		speech_arrow->set_animation("arrow");
-		Image *i = speech_arrow->get_current_image();
-		speech_arrow->get_current_image()->draw_single(dest_position+dest_size-Point<int>(i->w, i->h), 0);
-	}
+	// Corners
+	image->draw_region_tinted(tint, Point<int>(0, 0), dim, dest_position); // top left
+	image->draw_region_tinted(tint, Point<int>(w-size, 0), dim, Point<int>(dest_position.x+dest_size.w-size, dest_position.y)); // top right
+	image->draw_region_tinted(tint, Point<int>(w-size, w-size), dim, dest_position+dest_size-dim); // bottom right
+	image->draw_region_tinted(tint, Point<int>(0, w-size), dim, Point<int>(dest_position.x, dest_position.y+dest_size.h-size)); // bottom left
+
+	// Sides
+	image->stretch_region_tinted(tint, Point<int>(size, 0), dim, Point<int>(dest_position.x+size, dest_position.y), Size<int>(dest_size.w-size*2, size)); // top
+	image->stretch_region_tinted(tint, Point<int>(0, size), dim, Point<int>(dest_position.x, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // left
+	image->stretch_region_tinted(tint, Point<int>(w-size, size), dim, Point<int>(dest_position.x+dest_size.w-size, dest_position.y+size), Size<int>(size, dest_size.h-size*2)); // right
+	image->stretch_region_tinted(tint, Point<int>(size, w-size), dim, Point<int>(dest_position.x+size, dest_position.y+dest_size.h-size), Size<int>(dest_size.w-size*2, size)); // bottom
+
+	// Middle
+	image->stretch_region_tinted(tint, Point<int>(size, size), dim, dest_position+dim, dest_size-dim*2);
+
+	image->end();
+}
+
+void Engine::draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size)
+{
+	draw_9patch_tinted(white, image, dest_position, dest_size);
 }
 
 void Engine::load_palette(std::string name)
@@ -913,7 +934,7 @@ void Engine::set_mouse_cursor()
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	// Note: this needs to be a specific size on Windows, 32x32 works for me
 	int w, h;
-	unsigned char *pixels = Image::read_tga("graphics/mouse_cursor.tga", &w, &h);
+	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", &w, &h);
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, w, h, 0, 0, true);
 	delete[] pixels;
 #endif
