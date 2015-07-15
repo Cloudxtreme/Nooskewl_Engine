@@ -9,7 +9,7 @@ class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
 public:
 	static void static_start();
 	static void static_end();
-	static void draw_focus(TGUI_Widget *widget);
+	static void enable_focus_shader(bool enable);
 
 	MO3_Widget(int w, int h);
 	MO3_Widget(float percent_w, float percent_h);
@@ -17,13 +17,7 @@ public:
 	MO3_Widget(float percent_w, int h);
 	virtual ~MO3_Widget();
 
-	void draw();
-	void handle_event(TGUI_Event *event);
-
 protected:
-	bool got_event;
-	int event_x, event_y;
-
 	static Image *focus_image;
 	static Image *button_image;
 	static Image *button_image_pressed;

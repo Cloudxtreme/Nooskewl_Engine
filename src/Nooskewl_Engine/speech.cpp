@@ -86,16 +86,17 @@ void Speech::draw()
 		}
 	}
 
+	noo.draw_9patch(name == "" ? noo.window_image : noo.window_image_with_name, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
+
 	if (name != "") {
 		int name_len = noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2 + noo.font->get_padding() * 2;
-		int name_h = noo.font->get_height() + pad * 2;
+		int name_h = noo.font->get_height() + pad * 2 + pad; // cover the top line of the window
 		int name_x = win_x;
-		int name_y = win_y - name_h;
+		int name_y = win_y - name_h + pad;
 		noo.draw_9patch(noo.name_box_image, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
 		noo.font->draw(noo.white, name, Point<int>(name_x+pad+noo.font->get_padding(), name_y+pad));
 	}
-	noo.draw_9patch(name == "" ? noo.window_image : noo.window_image_with_name, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
 
 	drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad + noo.font->get_padding(), win_y + pad), win_w - pad * 2 - noo.font->get_padding() * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
 
@@ -106,7 +107,7 @@ void Speech::draw()
 		speech_advance->set_animation("more");
 	}
 	Image *image = speech_advance->get_current_image();
-	image->draw_single(Point<int>(win_x+win_w/2-image->w/2, win_y+win_h-image->h+1));
+	image->draw_single(Point<int>(win_x+win_w-image->w-2, win_y+win_h-image->h-2));
 
 	noo.font->disable_shadow();
 }
