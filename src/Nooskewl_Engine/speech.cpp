@@ -60,6 +60,8 @@ bool Speech::handle_event(TGUI_Event *event)
 
 void Speech::draw()
 {
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
+
 	int margin = 3;
 	int pad = noo.window_image->w / 3;
 	int bottom_padding = 3; // for the advance icon
@@ -104,5 +106,7 @@ void Speech::draw()
 		speech_advance->set_animation("more");
 	}
 	Image *image = speech_advance->get_current_image();
-	image->draw_single(Point<int>(win_x+win_w-image->w, win_y+win_h-image->h));
+	image->draw_single(Point<int>(win_x+win_w/2-image->w/2, win_y+win_h-image->h+1));
+
+	noo.font->disable_shadow();
 }
