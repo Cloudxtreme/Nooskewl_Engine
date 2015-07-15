@@ -180,9 +180,9 @@ void Image::reload()
 	loaded_images.push_back(internal);
 }
 
-void Image::start()
+void Image::start(bool repeat)
 {
-	m.vertex_cache->start(this);
+	m.vertex_cache->start(this, repeat);
 }
 
 void Image::end()
@@ -190,28 +190,62 @@ void Image::end()
 	m.vertex_cache->end();
 }
 
+void Image::stretch_region_tinted_repeat(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+{
+	SDL_Colour colours[4];
+	colours[0] = colours[1] = colours[2] = colours[3] = tint;
+
+	int wt = dest_size.w / source_size.w;
+	if (dest_size.w % source_size.w != 0) {
+		wt++;
+	}
+	int ht = dest_size.h / source_size.h;
+	if (dest_size.h % source_size.h != 0) {
+		ht++;
+	}
+
+	int drawn_h = 0;
+	for (int y = 0; y < ht; y++) {
+		int drawn_w = 0;
+		int h = source_size.h;
+		if (dest_size.h - drawn_h < h) {
+			h = dest_size.h- drawn_h;
+		}
+		for (int x = 0; x < wt; x++) {
+			int w = source_size.w;
+			if (dest_size.w - drawn_w < w) {
+				w = dest_size.w - drawn_w;
+			}
+			Size<int> sz(w, h);
+			m.vertex_cache->buffer<int>(colours, source_position, sz, Point<int>(dest_position.x + x * source_size.w, dest_position.y + y * source_size.h), sz, flags);
+			drawn_w += w;
+		}
+		drawn_h += h;
+	}
+}
+
 void Image::stretch_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
-	m.vertex_cache->buffer<int>(source_position, source_size, dest_position, dest_size, colours, flags);
+	m.vertex_cache->buffer<int>(colours, source_position, source_size, dest_position, dest_size, flags);
 }
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	m.vertex_cache->buffer<int>(source_position, source_size, dest_position, dest_size, noo.four_whites, flags);
+	m.vertex_cache->buffer<int>(noo.four_whites, source_position, source_size, dest_position, dest_size, flags);
 }
 
 void Image::draw_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
-	m.vertex_cache->buffer<int>(source_position, source_size, dest_position, source_size, colours, flags);
+	m.vertex_cache->buffer<int>(colours, source_position, source_size, dest_position, source_size, flags);
 }
 
 void Image::draw_region_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, int flags)
 {
-	m.vertex_cache->buffer_z<int>(source_position, source_size, dest_position, z, source_size, noo.four_whites, flags);
+	m.vertex_cache->buffer_z<int>(noo.four_whites, source_position, source_size, dest_position, z, source_size, flags);
 }
 
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
@@ -232,6 +266,13 @@ void Image::draw_tinted(SDL_Colour tint, Point<int> dest_position, int flags)
 void Image::draw(Point<int> dest_position, int flags)
 {
 	draw_z(dest_position, 0.0f, flags);
+}
+
+void Image::stretch_region_tinted_repeat_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+{
+	start();
+	stretch_region_tinted_repeat(tint, source_position, source_size, dest_position, dest_size, flags);
+	end();
 }
 
 void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
@@ -524,7 +565,7 @@ void Image::Internal::upload(unsigned char *pixels)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		int err = m.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
+		int err = noo.d3d_device->CreateTexture(w, h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
 		D3DLOCKED_RECT locked_rect;
 		if (video_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
 			for (int y = 0; y < h; y++) {
