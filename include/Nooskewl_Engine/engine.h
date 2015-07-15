@@ -86,8 +86,13 @@ public:
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
 
+	void draw_line(SDL_Colour colour, Point<float> a, Point<float> b, float thickness = 1.0f);
+	void draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> size, float thickness = 1.0f);
+	void draw_quad(SDL_Colour vertex_colours[4], Point<float> dest_position, Size<float> dest_size);
+	void draw_quad(SDL_Colour colour, Point<float> dest_position, Size<float> dest_size);
 	void draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size);
 	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
+
 	void load_palette(std::string name);
 	Shader create_shader(std::string opengl_vertex_source, std::string opengl_fragment_source, std::string d3d_vertex_source, std::string d3d_fragment_source);
 	void use_shader(Shader shader);
@@ -141,83 +146,6 @@ private:
 	IDirect3D9 *d3d;
 	HICON mouse_cursor;
 #endif
-
-public:
-	/* Template functions */
-
-	template<typename T> void draw_line(SDL_Colour colour, Point<T> a, Point<T> b, float thickness = 1.0f)
-	{
-		float half_thickness = thickness / 2.0f;
-		SDL_Colour vertex_colours[4];
-		for (int i = 0; i < 4; i++) {
-			vertex_colours[i] = colour;
-		}
-		float dx = float(a.x - b.x);
-		float dy = float(a.y - b.y);
-		float angle = atan2f(dy, dx);
-		/* Make 4 points for thickness */
-		float a1 = angle + M_PI / 2.0f;
-		float a2 = angle - M_PI / 2.0f;
-		Point<float> da = a;
-		Point<float> db = a;
-		Point<float> dc = b;
-		Point<float> dd = b;
-		da.x += cos(a1) * half_thickness;
-		da.y += sin(a1) * half_thickness;
-		db.x += cos(a2) * half_thickness;
-		db.y += sin(a2) * half_thickness;
-		dc.x += cos(a1) * half_thickness;
-		dc.y += sin(a1) * half_thickness;
-		dd.x += cos(a2) * half_thickness;
-		dd.y += sin(a2) * half_thickness;
-		if (opengl) {
-			glDisable(GL_TEXTURE_2D);
-			printGLerror("glBindTexture");
-		}
-		m.vertex_cache->start();
-		m.vertex_cache->cache(vertex_colours, Point<float>(0, 0), Size<float>(0, 0), da, dc, dd, db, 0);
-		m.vertex_cache->end();
-		if (opengl) {
-			glEnable(GL_TEXTURE_2D);
-			printGLerror("glBindTexture");
-		}
-	}
-
-	template<typename T> void draw_rectangle(SDL_Colour colour, Point<T> pos, Size<T> size, float thickness = 1.0f)
-	{
-		float half_thickness = thickness / 2.0f;
-		Point<float> fpos = pos;
-		Size<float> fsize = size;
-		draw_line<float>(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness), thickness); // top
-		draw_line<float>(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness), thickness); // bottom
-		// left and right are a pixel short so there's no overlap
-		draw_line<float>(colour, Point<float>(fpos.x+half_thickness, fpos.y+thickness), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-thickness), thickness); // left
-		draw_line<float>(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
-	}
-
-	template<typename T> void draw_quad(SDL_Colour vertex_colours[4], Point<T> dest_position, Size<T> dest_size)
-	{
-		if (opengl) {
-			glDisable(GL_TEXTURE_2D);
-			printGLerror("glBindTexture");
-		}
-		m.vertex_cache->start();
-		m.vertex_cache->cache(vertex_colours, Point<T>(0, 0), Size<T>(0, 0), dest_position, dest_size, 0);
-		m.vertex_cache->end();
-		if (opengl) {
-			glEnable(GL_TEXTURE_2D);
-			printGLerror("glBindTexture");
-		}
-	}
-
-	template<typename T> void draw_quad(SDL_Colour colour, Point<T> dest_position, Size<T> dest_size)
-	{
-		static SDL_Colour vertex_colours[4];
-		for (int i = 0; i < 4; i++) {
-			vertex_colours[i] = colour;
-		}
-		draw_quad<T>(vertex_colours, dest_position, dest_size);
-	}
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

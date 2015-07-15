@@ -742,42 +742,78 @@ void Engine::set_map_transition_projection(float angle)
 	update_projection();
 }
 
-void Engine::update_projection()
+void Engine::draw_line(SDL_Colour colour, Point<float> a, Point<float> b, float thickness)
 {
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-
+	float half_thickness = thickness / 2.0f;
+	SDL_Colour vertex_colours[4];
+	for (int i = 0; i < 4; i++) {
+		vertex_colours[i] = colour;
+	}
+	float dx = float(a.x - b.x);
+	float dy = float(a.y - b.y);
+	float angle = atan2f(dy, dx);
+	/* Make 4 points for thickness */
+	float a1 = angle + (float)M_PI / 2.0f;
+	float a2 = angle - (float)M_PI / 2.0f;
+	Point<float> da = a;
+	Point<float> db = a;
+	Point<float> dc = b;
+	Point<float> dd = b;
+	da.x += cos(a1) * half_thickness;
+	da.y += sin(a1) * half_thickness;
+	db.x += cos(a2) * half_thickness;
+	db.y += sin(a2) * half_thickness;
+	dc.x += cos(a1) * half_thickness;
+	dc.y += sin(a1) * half_thickness;
+	dd.x += cos(a2) * half_thickness;
+	dd.y += sin(a2) * half_thickness;
 	if (opengl) {
-		glViewport(0, 0, w, h);
-		printGLerror("glViewport");
-
-		GLint uni;
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "model");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
-		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "view");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
-		printGLerror("glUniformMatrix4fv");
-
-		uni = glGetUniformLocation(current_shader.opengl_shader, "proj");
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
-		printGLerror("glUniformMatrix4fv");
+		glDisable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
 	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		/* D3D pixels are slightly different than OpenGL */
-		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
-
-		current_shader.d3d_effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
-		current_shader.d3d_effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
-		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
+	m.vertex_cache->start();
+	m.vertex_cache->cache(vertex_colours, Point<float>(0, 0), Size<float>(0, 0), da, dc, dd, db, 0);
+	m.vertex_cache->end();
+	if (opengl) {
+		glEnable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
 	}
-#endif
+}
+
+void Engine::draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> size, float thickness)
+{
+	float half_thickness = thickness / 2.0f;
+	Point<float> fpos = pos;
+	Size<float> fsize = size;
+	draw_line(colour, Point<float>(fpos.x, fpos.y+half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+half_thickness), thickness); // top
+	draw_line(colour, Point<float>(fpos.x, fpos.y+size.h-half_thickness), Point<float>(fpos.x+fsize.w, fpos.y+size.h-half_thickness), thickness); // bottom
+	// left and right are a pixel short so there's no overlap
+	draw_line(colour, Point<float>(fpos.x+half_thickness, fpos.y+thickness), Point<float>(fpos.x+half_thickness, fpos.y+fsize.h-thickness), thickness); // left
+	draw_line(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
+}
+
+void Engine::draw_quad(SDL_Colour vertex_colours[4], Point<float> dest_position, Size<float> dest_size)
+{
+	if (opengl) {
+		glDisable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
+	m.vertex_cache->start();
+	m.vertex_cache->cache(vertex_colours, Point<float>(0, 0), Size<float>(0, 0), dest_position, dest_size, 0);
+	m.vertex_cache->end();
+	if (opengl) {
+		glEnable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
+}
+
+void Engine::draw_quad(SDL_Colour colour, Point<float> dest_position, Size<float> dest_size)
+{
+	static SDL_Colour vertex_colours[4];
+	for (int i = 0; i < 4; i++) {
+		vertex_colours[i] = colour;
+	}
+	draw_quad(vertex_colours, dest_position, dest_size);
 }
 
 void Engine::draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size)
@@ -1017,6 +1053,44 @@ void Engine::set_mouse_cursor()
 	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", &w, &h);
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, w, h, 0, 0, true);
 	delete[] pixels;
+#endif
+}
+
+void Engine::update_projection()
+{
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
+	if (opengl) {
+		glViewport(0, 0, w, h);
+		printGLerror("glViewport");
+
+		GLint uni;
+
+		uni = glGetUniformLocation(current_shader.opengl_shader, "model");
+		printGLerror("glGetUniformLocation");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(model));
+		printGLerror("glUniformMatrix4fv");
+
+		uni = glGetUniformLocation(current_shader.opengl_shader, "view");
+		printGLerror("glGetUniformLocation");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(view));
+		printGLerror("glUniformMatrix4fv");
+
+		uni = glGetUniformLocation(current_shader.opengl_shader, "proj");
+		printGLerror("glGetUniformLocation");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, glm::value_ptr(proj));
+		printGLerror("glUniformMatrix4fv");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		/* D3D pixels are slightly different than OpenGL */
+		glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+
+		current_shader.d3d_effect->SetMatrix("model", (LPD3DXMATRIX)glm::value_ptr(model));
+		current_shader.d3d_effect->SetMatrix("view", (LPD3DXMATRIX)glm::value_ptr(view));
+		current_shader.d3d_effect->SetMatrix("proj", (LPD3DXMATRIX)glm::value_ptr(d3d_fix * proj));
+	}
 #endif
 }
 

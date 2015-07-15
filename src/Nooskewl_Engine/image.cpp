@@ -217,7 +217,7 @@ void Image::stretch_region_tinted_repeat(SDL_Colour tint, Point<int> source_posi
 				w = dest_size.w - drawn_w;
 			}
 			Size<int> sz(w, h);
-			m.vertex_cache->buffer<int>(colours, source_position, sz, Point<int>(dest_position.x + x * source_size.w, dest_position.y + y * source_size.h), sz, flags);
+			m.vertex_cache->cache(colours, source_position, sz, Point<int>(dest_position.x + x * source_size.w, dest_position.y + y * source_size.h), sz, flags);
 			drawn_w += w;
 		}
 		drawn_h += h;
@@ -228,24 +228,24 @@ void Image::stretch_region_tinted(SDL_Colour tint, Point<int> source_position, S
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
-	m.vertex_cache->buffer<int>(colours, source_position, source_size, dest_position, dest_size, flags);
+	m.vertex_cache->cache(colours, source_position, source_size, dest_position, dest_size, flags);
 }
 
 void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
 {
-	m.vertex_cache->buffer<int>(noo.four_whites, source_position, source_size, dest_position, dest_size, flags);
+	m.vertex_cache->cache(noo.four_whites, source_position, source_size, dest_position, dest_size, flags);
 }
 
 void Image::draw_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
-	m.vertex_cache->buffer<int>(colours, source_position, source_size, dest_position, source_size, flags);
+	m.vertex_cache->cache(colours, source_position, source_size, dest_position, source_size, flags);
 }
 
 void Image::draw_region_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, int flags)
 {
-	m.vertex_cache->buffer_z<int>(noo.four_whites, source_position, source_size, dest_position, z, source_size, flags);
+	m.vertex_cache->cache_z(noo.four_whites, source_position, source_size, dest_position, z, source_size, flags);
 }
 
 void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
