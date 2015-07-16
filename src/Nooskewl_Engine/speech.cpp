@@ -63,9 +63,9 @@ void Speech::draw()
 {
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 
-	int margin = 3;
-	int pad = noo.window_image->size.w / 3;
-	int bottom_padding = 3; // for the advance icon
+	int margin = 2;
+	int pad = 1;
+	int bottom_padding = 4; // for the advance icon
 	int line_height = noo.font->get_height();
 	int win_w = noo.screen_size.w - margin * 2;;
 	int win_h = line_height * 3 + pad * 2 + bottom_padding ;
@@ -94,7 +94,7 @@ void Speech::draw()
 		int name_w = name_len + pad * 2 + noo.font->get_padding() * 2;
 		int name_h = noo.font->get_height() + pad * 2; // cover the top line of the window
 		int name_x = win_x;
-		int name_y = win_y - name_h + pad;
+		int name_y = win_y - name_h + noo.window_image->size.w / 3;
 		noo.draw_9patch(noo.name_box_image, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
 		noo.font->draw(noo.white, name, Point<int>(name_x+pad+noo.font->get_padding(), name_y+pad));
 	}
