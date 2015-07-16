@@ -183,7 +183,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
 	MO3_Button(size.w, size.h),
 	text(text)
 {
-	padding = button_image->size.w / 3;
+	padding = 1;
 	set_size(size);
 	set_default_colours();
 }
@@ -192,7 +192,7 @@ MO3_Text_Button::MO3_Text_Button(std::string text) :
 	MO3_Button(-1, -1),
 	text(text)
 {
-	padding = button_image->size.w / 3;
+	padding = 1;
 	set_size(Size<int>(-1, -1));
 	set_default_colours();
 }
@@ -226,10 +226,10 @@ void MO3_Text_Button::draw()
 		colour.r = Uint8(colour.r * 0.75f);
 		colour.r = Uint8(colour.g * 0.75f);
 		colour.r = Uint8(colour.b * 0.75f);
-		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y));
+		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+offset.y));
 	}
 	else {
-		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y));
+		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+offset.y));
 	}
 	noo.font->disable_shadow();
 }
