@@ -33,9 +33,9 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 			it++;
 		}
 	}
-	SDL_UnlockMutex(m.mixer_mutex);
-
 	MML::mix(stream, stream_length);
+
+	SDL_UnlockMutex(m.mixer_mutex);
 }
 
 namespace Nooskewl_Engine {
@@ -205,12 +205,12 @@ void Engine::init_video()
 				}
 			}
 		}
-	}
-
-	if (win_w > 1280 && win_h > 720) {
-		// Huge windows are annoying
-		win_w = 1280;
-		win_h = 720;
+		if (win_w > 1280 && win_h > 720) {
+			// Huge windows are annoying
+			// FIXME: if the user picks a big screen, allow it
+			win_w = 1280;
+			win_h = 720;
+		}
 	}
 
 	window = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
@@ -653,11 +653,13 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
-	if ((float)w/285.0f >= (float)h/160.0f) {
-		scale = w / 285 + 1;
+	float desired_w = 256.0f;
+	float desired_h = 144.0f;
+	if ((float)w/desired_w >= (float)h/desired_h) {
+		scale = int(w / desired_w) + 1;
 	}
 	else {
-		scale = h / 160 + 1;
+		scale = int(h / desired_h) + 1;
 	}
 	screen_size.w = w / scale;
 	screen_size.h = h / scale;
@@ -944,7 +946,7 @@ void Engine::setup_title_screen()
 {
 	main_widget = new MO3_Widget(1.0f, 1.0f);
 	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height(), 0);
+	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height()/2, 0);
 	new_game->set_centered_x(true);
 	new_game->set_parent(main_widget);
 	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
