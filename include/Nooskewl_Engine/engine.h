@@ -17,6 +17,8 @@ namespace Nooskewl_Engine {
 
 class NOOSKEWL_ENGINE_EXPORT Engine {
 public:
+	static const Uint32 TICKS_PER_FRAME = (1000 / 60);
+
 	/* Publicly accessible variables */
 	// Audio
 	bool mute;
@@ -24,8 +26,9 @@ public:
 	MML *button_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
-	int scale;
+	float scale;
 	Size<int> screen_size;
+	Point<int> screen_offset;
 	int tile_size;
 	bool fullscreen;
 	bool opengl;
@@ -64,7 +67,7 @@ public:
 	void start(int argc, char **argv);
 	void end();
 
-	void handle_event(TGUI_Event *event);
+	bool handle_event(SDL_Event *sdl_event);
 	bool update();
 	void draw();
 
@@ -101,8 +104,9 @@ private:
 	void setup_title_screen();
 
 	SDL_Window *window;
-
 	bool vsync;
+	Uint32 last_frame;
+	int accumulated_delay;
 
 	glm::mat4 model;
 	glm::mat4 view;

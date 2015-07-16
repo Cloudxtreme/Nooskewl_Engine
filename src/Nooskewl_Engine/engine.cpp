@@ -110,7 +110,10 @@ void Engine::start(int argc, char **argv)
 
 	button_mml = new MML("button.mml");
 
-	intro_start = SDL_GetTicks();
+	Uint32 last_frame = SDL_GetTicks();
+	accumulated_delay = 0;
+
+	intro_start = last_frame;
 }
 
 void Engine::end()
@@ -172,9 +175,12 @@ void Engine::init_video()
 		flags |= SDL_WINDOW_OPENGL;
 	}
 
+	int max_w = 1280;
+	int max_h = 720;
+
 	SDL_DisplayMode mode;
-	int win_w = 1080;
-	int win_h = 720;
+	int win_w = max_w;
+	int win_h = max_h;
 
 	if (fullscreen) {
 		if (SDL_GetCurrentDisplayMode(0, &mode) == 0) {
@@ -193,10 +199,10 @@ void Engine::init_video()
 				// Give room for toolbars and decorations
 				mode.w -= 256;
 				mode.h -= 256;
-				float desired_w = 3.0f;
-				float desired_h = 2.0f;
-				float w = (float)mode.w / desired_w;
-				float h = (float)mode.h / desired_h;
+				float desired_w = 16.0f;
+				float desired_h = 9.0f;
+				float w = (float)mode.w * desired_h;
+				float h = (float)mode.h * desired_w;
 				if (w > h) {
 					win_w = mode.w;
 					win_h = mode.w * 9 / (int)desired_w;
@@ -207,11 +213,11 @@ void Engine::init_video()
 				}
 			}
 		}
-		if (win_w > 1260 && win_h > 840) {
+		// FIXME: if the user picks a big screen, allow it
+		if (win_w > max_w && win_h > max_h) {
 			// Huge windows are annoying
-			// FIXME: if the user picks a big screen, allow it
-			win_w = 1080;
-			win_h = 720;
+			win_w = max_w;
+			win_h = max_h;
 		}
 	}
 
@@ -377,16 +383,36 @@ void Engine::shutdown_audio()
 	SDL_DestroyMutex(m.mixer_mutex);
 }
 
-void Engine::handle_event(TGUI_Event *event)
+bool Engine::handle_event(SDL_Event *sdl_event)
 {
+	if (sdl_event->type == SDL_QUIT) {
+		return false;
+
+	}
+	else if (sdl_event->type == SDL_WINDOWEVENT && sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
+		noo.set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
+		noo.set_default_projection();
+	}
+
+	TGUI_Event event = tgui_sdl_convert_event(sdl_event);
+
+	if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
+		event.mouse.x = int((event.mouse.x - screen_offset.x) / scale);
+		event.mouse.y = int((event.mouse.y - screen_offset.y) / scale);
+		// Due to scaling and offset, mouse events can come in outside of the playable area, skip those
+		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
+			return true;
+		}
+	}
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-	if (event->type == TGUI_MOUSE_AXIS || event->type == TGUI_MOUSE_DOWN || event->type == TGUI_MOUSE_UP) {
+	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
 		SetCursor(mouse_cursor);
 	}
 #endif
 
 	if (gui) {
-		gui->handle_event(event);
+		gui->handle_event(&event);
 		if (new_game && new_game->pressed()) {
 			delete gui;
 			gui = 0;
@@ -405,9 +431,9 @@ void Engine::handle_event(TGUI_Event *event)
 		}
 	}
 	else if (map) {
-		map->handle_event(event);
+		map->handle_event(&event);
 
-		if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
+		if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) {
 			delete map;
 			map = 0;
 			delete player;
@@ -415,6 +441,8 @@ void Engine::handle_event(TGUI_Event *event)
 			setup_title_screen();
 		}
 	}
+
+	return true;
 }
 
 bool Engine::update()
@@ -458,11 +486,11 @@ bool Engine::update()
 				m.vertex_cache->enable_perspective_drawing(screen_size);
 				if (moved_player) {
 					map->update_camera();
-					map->draw(true);
+					map->draw();
 				}
 				else {
 					old_map->update_camera();
-					old_map->draw(true);
+					old_map->draw();
 				}
 				m.vertex_cache->disable_perspective_drawing();
 
@@ -543,6 +571,27 @@ void Engine::draw()
 	}
 
 	flip();
+
+	// TIMING
+	// This code is ugly for a reason
+	Uint32 now = SDL_GetTicks();
+	int elapsed = now - last_frame;
+	if (elapsed < TICKS_PER_FRAME) {
+		int wanted_delay = TICKS_PER_FRAME - elapsed;
+		int final_delay = wanted_delay + accumulated_delay;
+		if (final_delay > 0) {
+			SDL_Delay(final_delay);
+			elapsed = SDL_GetTicks() - now;
+			accumulated_delay -= elapsed - wanted_delay;
+		}
+		else {
+			accumulated_delay += elapsed;
+		}
+		if (accumulated_delay > 100 || accumulated_delay < -100) {
+			accumulated_delay = 0;
+		}
+	}
+	last_frame = SDL_GetTicks();
 }
 
 void Engine::clear(SDL_Colour colour)
@@ -655,16 +704,33 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
-	float desired_w = 180.0f;
-	float desired_h = 120.0f;
-	if ((float)w/desired_w >= (float)h/desired_h) {
-		scale = int(w / desired_w) + 1;
+	int desired_w = 176;
+	int desired_h = 99;
+	float aspect = (float)w / h;
+	float desired_aspect = (float)desired_w / desired_h;
+	if (w*desired_h >= h*desired_w) {
+		scale = (float)h / desired_h;
 	}
 	else {
-		scale = int(h / desired_h) + 1;
+		scale = (float)w / desired_w;
 	}
-	screen_size.w = w / scale;
-	screen_size.h = h / scale;
+	// Don't scale too much away from max dimension (no cheating!)
+	if (fabs(aspect-desired_aspect) > 0.5f) {
+		if (w*desired_h >= h*desired_w) {
+			screen_size.h = int(h / scale);
+			screen_size.w = screen_size.h * desired_w / desired_h;
+		}
+		else {
+			screen_size.w = int(w / scale);
+			screen_size.h = screen_size.w * desired_h / desired_w;
+		}
+	}
+	else {
+		screen_size.w = int(w / scale);
+		screen_size.h = int(h / scale);
+	}
+
+	screen_offset = Point<int>(int(w-(screen_size.w*scale))/2, int(h-(screen_size.h*scale))/2);
 
 	if (gui) {
 		gui->resize(screen_size.w, screen_size.h);
@@ -677,7 +743,9 @@ void Engine::set_default_projection()
 	SDL_GetWindowSize(window, &w, &h);
 
 	model = glm::mat4();
-	view = glm::scale(glm::mat4(), glm::vec3((float)scale, (float)scale, 1.0f));
+	// translate to center the screen
+	view = glm::translate(glm::mat4(), glm::vec3(screen_offset.x, screen_offset.y, 0));
+	view = glm::scale(view, glm::vec3((float)scale, (float)scale, 1.0f));
 	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
 
 	update_projection();
@@ -685,8 +753,11 @@ void Engine::set_default_projection()
 
 void Engine::set_map_transition_projection(float angle)
 {
+	int w, h;
+	SDL_GetWindowSize(window, &w, &h);
+
 	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3(angle >= M_PI/2.0f ? -1.0f : 1.0f, 1.0f, 1.0f));
+	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/w), 1.0f * ((screen_size.h*scale)/h), 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 
