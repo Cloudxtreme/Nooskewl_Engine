@@ -174,11 +174,37 @@ void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
 					int sy = y * noo.tile_size;
 					int dx = position.x + col * noo.tile_size;
 					int dy = position.y + row * noo.tile_size;
+					int dw = noo.tile_size;
+					int dh = noo.tile_size;
+
+					// Clipping
+					if (dx < -noo.tile_size || dy < -noo.tile_size || dx >= noo.screen_size.w || dy >= noo.screen_size.h) {
+						continue;
+					}
+					if (dx < 0) {
+						sx += -dx;
+						dw += dx;
+						dx = 0;
+					}
+					else if (dx+noo.tile_size > noo.screen_size.w) {
+						dw -= (dx+noo.tile_size) - noo.screen_size.w;
+					}
+					if (dy < 0) {
+						sy += -dy;
+						dh += dy;
+						dy = 0;
+					}
+					else if (dy+noo.tile_size > noo.screen_size.h) {
+						dh -= (dy+noo.tile_size) - noo.screen_size.h;
+					}
+
 					sheets[s]->draw_region_z(
 						Point<int>(sx, sy),
-						Size<int>(noo.tile_size, noo.tile_size),
+						Size<int>(dw, dh),
 						Point<int>(dx, dy),
-						use_depth_buffer ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) * 0.0001f : 0.0f,
+						// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
+						// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
+						use_depth_buffer ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) * 0.01f : 0.0f,
 						0
 					);
 				}
