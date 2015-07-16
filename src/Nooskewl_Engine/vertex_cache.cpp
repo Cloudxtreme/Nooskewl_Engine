@@ -3,6 +3,9 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
+/* So textures don't bleed into each other when tiling. This is about 1/100th of a pixel on a 1024x1024 texture */
+#define SMALL_TEXTURE_OFFSET 0.00001f
+
 using namespace Nooskewl_Engine;
 
 Vertex_Cache::Vertex_Cache() :
@@ -128,10 +131,10 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 	if (image) {
 		float sx = (float)source_position.x;
 		float sy = (float)source_position.y;
-		float tu = sx / (float)image->size.w;
-		float tv = sy / (float)image->size.h;
-		float tu2 = tu + (float)source_size.w / (float)image->size.w;
-		float tv2 = tv + (float)source_size.h / (float)image->size.h;
+		float tu = sx / (float)image->size.w + SMALL_TEXTURE_OFFSET;
+		float tv = sy / (float)image->size.h + SMALL_TEXTURE_OFFSET;
+		float tu2 = float(source_position.x + source_size.w) / image->size.w - SMALL_TEXTURE_OFFSET;
+		float tv2 = float(source_position.y + source_size.h) / image->size.h - SMALL_TEXTURE_OFFSET;
 
 		tv = 1.0f - tv;
 		tv2 = 1.0f - tv2;
@@ -241,18 +244,21 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 		float tu, tv, tu2, tv2;
 
 		if (repeat) {
-			tu = (float)source_position.x / image->size.w;
-			tv = (float)source_position.y / image->size.h;
-			tu2 = tu + (float)dest_size.w / source_size.w;
-			tv2 = tv + (float)dest_size.h / source_size.w;
+			tu = (float)source_position.x / image->size.w + SMALL_TEXTURE_OFFSET;
+			tv = (float)source_position.y / image->size.h + SMALL_TEXTURE_OFFSET;
+			tu2 = (float)dest_size.w / source_size.w - SMALL_TEXTURE_OFFSET;
+			tv2 = (float)dest_size.h / source_size.h - SMALL_TEXTURE_OFFSET;
 		}
 		else {
-			float sx = (float)source_position.x;
-			float sy = (float)source_position.y;
+			float sx = (float)source_position.x + SMALL_TEXTURE_OFFSET;
+			float sy = (float)source_position.y + SMALL_TEXTURE_OFFSET;
 			tu = sx / (float)image->size.w;
 			tv = sy / (float)image->size.h;
-			tu2 = tu + (float)source_size.w / (float)image->size.w;
-			tv2 = tv + (float)source_size.h / (float)image->size.h;
+			tu2 = (source_position.x + source_size.w - SMALL_TEXTURE_OFFSET) / image->size.w;
+			tv2 = (source_position.y + source_size.h - SMALL_TEXTURE_OFFSET) / image->size.h;
+			if (tu < 0.0f || tv < 0.0f || tu2 < 0.0f || tv2 < 0.0f || tu > 1.0f || tv > 1.0f || tu2 > 1.0f || tv2 > 1.0f) {
+				printf("OOPS\n");
+			}
 
 			tv = 1.0f - tv;
 			tv2 = 1.0f - tv2;
