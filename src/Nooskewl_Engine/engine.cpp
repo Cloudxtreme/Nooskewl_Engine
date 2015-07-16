@@ -173,7 +173,7 @@ void Engine::init_video()
 	}
 
 	SDL_DisplayMode mode;
-	int win_w = 1280;
+	int win_w = 1080;
 	int win_h = 720;
 
 	if (fullscreen) {
@@ -193,22 +193,24 @@ void Engine::init_video()
 				// Give room for toolbars and decorations
 				mode.w -= 256;
 				mode.h -= 256;
-				float w = (float)mode.w / 16.0f;;
-				float h = (float)mode.h / 9.0f;
+				float desired_w = 3.0f;
+				float desired_h = 2.0f;
+				float w = (float)mode.w / desired_w;
+				float h = (float)mode.h / desired_h;
 				if (w > h) {
 					win_w = mode.w;
-					win_h = mode.w * 9 / 16;
+					win_h = mode.w * 9 / (int)desired_w;
 				}
 				else {
-					win_w = mode.h * 16 / 9;
+					win_w = mode.h * 16 / (int)desired_h;
 					win_h = mode.h;
 				}
 			}
 		}
-		if (win_w > 1280 && win_h > 720) {
+		if (win_w > 1260 && win_h > 840) {
 			// Huge windows are annoying
 			// FIXME: if the user picks a big screen, allow it
-			win_w = 1280;
+			win_w = 1080;
 			win_h = 720;
 		}
 	}
@@ -653,8 +655,8 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
-	float desired_w = 256.0f;
-	float desired_h = 144.0f;
+	float desired_w = 180.0f;
+	float desired_h = 120.0f;
 	if ((float)w/desired_w >= (float)h/desired_h) {
 		scale = int(w / desired_w) + 1;
 	}
