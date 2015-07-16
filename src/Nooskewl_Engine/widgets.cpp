@@ -87,7 +87,6 @@ void MO3_Button::handle_event(TGUI_Event *event)
 			_hover = true;
 		}
 		else {
-			_pressed = false;
 			_hover = false;
 		}
 	}
