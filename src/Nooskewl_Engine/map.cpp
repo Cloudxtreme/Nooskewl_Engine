@@ -229,19 +229,19 @@ void Map::update_camera()
 		offset = p - noo.screen_size / 2 + sz / 2;
 		offset += pan;
 		Size<int> tilemap_size = tilemap->get_size();
-		int max_x = (tilemap_size.w*noo.tile_size-noo.screen_size.w);
-		int max_y = (tilemap_size.h*noo.tile_size-noo.screen_size.h);
+		int max_x = (tilemap_size.w * noo.tile_size)-noo.screen_size.w;
+		int max_y = (tilemap_size.h * noo.tile_size)-noo.screen_size.h;
 		if (offset.x < 0) {
 			offset.x = 0;
 		}
 		else if (offset.x >= max_x) {
-			offset.x = max_x - 1;
+			offset.x = max_x;
 		}
 		if (offset.y < 0) {
 			offset.y = 0;
 		}
 		else if (offset.y >= max_y) {
-			offset.y = max_y -1;
+			offset.y = max_y;
 		}
 		offset = -offset;
 		// Correct for small levels
