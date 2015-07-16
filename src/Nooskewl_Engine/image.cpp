@@ -514,6 +514,15 @@ void Image::Internal::reload()
 
 void Image::Internal::upload(unsigned char *pixels)
 {
+	/*
+	// To get a complete palette..
+	unsigned char *rgb = pixels;
+	for (int i = 0; i < size.w*size.h; i++) {
+		printf("rgb: %d %d %d\n", rgb[0], rgb[1], rgb[2]);
+		rgb += 4;
+	}
+	*/
+
 	if (noo.opengl) {
 		glGenVertexArrays(1, &vao);
 		printGLerror("glBindVertexArrays");
