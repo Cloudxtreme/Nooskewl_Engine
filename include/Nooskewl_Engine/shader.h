@@ -10,6 +10,9 @@ public:
 	Shader(bool opengl, std::string vertex_source, std::string fragment_source);
 	~Shader();
 
+	static void release_all();
+	static void reload_all();
+
 	void use();
 
 	void set_texture(std::string name, Image *image);
@@ -23,21 +26,31 @@ public:
 #endif
 
 private:
-	bool opengl;
+	class Internal {
+public:
+		void release();
+		void reload();
 
-	std::string vertex_source;
-	std::string fragment_source;
+		bool opengl;
 
-	// OpenGL
-	GLuint opengl_vertex_shader;
-	GLuint opengl_fragment_shader;
-	GLuint opengl_shader;
+		std::string vertex_source;
+		std::string fragment_source;
 
-	// D3D
+		// OpenGL
+		GLuint opengl_vertex_shader;
+		GLuint opengl_fragment_shader;
+		GLuint opengl_shader;
+
+		// D3D
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-	LPD3DXEFFECT d3d_effect;
-	D3DXHANDLE d3d_technique;
+		LPD3DXEFFECT d3d_effect;
+		D3DXHANDLE d3d_technique;
 #endif
+	};
+
+	Internal *internal;
+
+	static std::vector<Internal *> loaded_shaders;
 };
 
 } // End namespace Nooskewl_Engine

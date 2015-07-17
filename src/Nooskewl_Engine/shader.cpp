@@ -3,11 +3,154 @@
 
 using namespace Nooskewl_Engine;
 
-Shader::Shader(bool opengl, std::string vertex_source, std::string fragment_source) :
-	opengl(opengl),
-	vertex_source(vertex_source),
-	fragment_source(fragment_source)
+std::vector<Shader::Internal *> Shader::loaded_shaders;
+
+void Shader::release_all()
 {
+	for (size_t i = 0; i < loaded_shaders.size(); i++) {
+		loaded_shaders[i]->release();
+	}
+}
+
+void Shader::reload_all()
+{
+	for (size_t i = 0; i < loaded_shaders.size(); i++) {
+		loaded_shaders[i]->reload();
+	}
+}
+
+Shader::Shader(bool opengl, std::string vertex_source, std::string fragment_source)
+{
+	internal = new Internal();
+
+	internal->opengl = opengl;
+	internal->vertex_source = vertex_source;
+	internal->fragment_source = fragment_source;
+
+	loaded_shaders.push_back(internal);
+
+	internal->reload();
+}
+
+Shader::~Shader()
+{
+	internal->release();
+	for (size_t i = 0; i < loaded_shaders.size(); i++) {
+		if (loaded_shaders[i] == internal) {
+			loaded_shaders.erase(loaded_shaders.begin()+i);
+			break;
+		}
+	}
+	delete internal;
+}
+
+void Shader::use()
+{
+	if (internal->opengl) {
+		glUseProgram(internal->opengl_shader);
+		printGLerror("glUseProgram");
+	}
+
+	noo.update_projection();
+}
+
+void Shader::set_texture(std::string name, Image *image)
+{
+	if (internal->opengl) {
+		if (image) {
+			glBindTexture(GL_TEXTURE_2D, image->internal->texture);
+			printGLerror("glBindTexture");
+			glBindVertexArray(image->internal->vao);
+			printGLerror("glBindVertexArray");
+			glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
+			printGLerror("glBindBuffer");
+		}
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		if (image != NULL) {
+			internal->d3d_effect->SetTexture("tex", image->internal->video_texture);
+			noo.d3d_device->SetTexture(0, image->internal->video_texture);
+		}
+		else {
+			noo.d3d_device->SetTexture(0, NULL);	
+		}
+	}
+#endif
+}
+
+void Shader::set_matrix(std::string name, const float *matrix)
+{
+	if (internal->opengl) {
+		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
+		printGLerror("glGetUniformLocation");
+		glUniformMatrix4fv(uni, 1, GL_FALSE, matrix);
+		printGLerror("glUniformMatrix4fv");
+	}
+	else {
+		internal->d3d_effect->SetMatrix(name.c_str(), (D3DXMATRIX *)matrix);
+	}
+}
+
+void Shader::set_float(std::string name, float value)
+{
+	if (internal->opengl) {
+		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
+		printGLerror("glGetUniformLocation");
+		glUniform1f(uni, value);
+		printGLerror("glUniform1f");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		internal->d3d_effect->SetFloat(name.c_str(), value);
+	}
+#endif
+}
+
+void Shader::set_bool(std::string name, bool value)
+{
+	if (internal->opengl) {
+		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
+		printGLerror("glGetUniformLocation");
+		glUniform1i(uni, value);
+		printGLerror("glUniform1i");
+	}
+	else {
+		internal->d3d_effect->SetBool(name.c_str(), value);
+	}
+}
+
+GLuint Shader::get_opengl_shader()
+{
+	return internal->opengl_shader;
+}
+
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+LPD3DXEFFECT Shader::get_d3d_effect()
+{
+	return internal->d3d_effect;
+}
+
+void Shader::Internal::release()
+{
+	if (opengl) {
+		glDeleteShader(opengl_vertex_shader);
+		printGLerror("glDeleteShader");
+		glDeleteShader(opengl_fragment_shader);
+		printGLerror("glDeleteShader");
+		glDeleteProgram(opengl_shader);
+		printGLerror("glDeleteProgram");
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		d3d_effect->Release();
+	}
+#endif
+}
+
+void Shader::Internal::reload()
+{
+
 	if (opengl) {
 		GLint status;
 
@@ -79,109 +222,5 @@ Shader::Shader(bool opengl, std::string vertex_source, std::string fragment_sour
 		d3d_effect->SetTechnique(d3d_technique);
 	}
 #endif
-}
-
-Shader::~Shader()
-{
-	if (opengl) {
-		glDeleteShader(opengl_vertex_shader);
-		printGLerror("glDeleteShader");
-		glDeleteShader(opengl_fragment_shader);
-		printGLerror("glDeleteShader");
-		glDeleteProgram(opengl_shader);
-		printGLerror("glDeleteProgram");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		d3d_effect->Release();
-	}
-#endif
-}
-
-void Shader::use()
-{
-	if (opengl) {
-		glUseProgram(opengl_shader);
-		printGLerror("glUseProgram");
-	}
-
-	noo.update_projection();
-}
-
-void Shader::set_texture(std::string name, Image *image)
-{
-	if (opengl) {
-		if (image) {
-			glBindTexture(GL_TEXTURE_2D, image->internal->texture);
-			printGLerror("glBindTexture");
-			glBindVertexArray(image->internal->vao);
-			printGLerror("glBindVertexArray");
-			glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
-			printGLerror("glBindBuffer");
-		}
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		if (image != NULL) {
-			d3d_effect->SetTexture("tex", image->internal->video_texture);
-			noo.d3d_device->SetTexture(0, image->internal->video_texture);
-		}
-		else {
-			noo.d3d_device->SetTexture(0, NULL);	
-		}
-	}
-#endif
-}
-
-void Shader::set_matrix(std::string name, const float *matrix)
-{
-	if (opengl) {
-		GLint uni = glGetUniformLocation(opengl_shader, name.c_str());
-		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, matrix);
-		printGLerror("glUniformMatrix4fv");
-	}
-	else {
-		d3d_effect->SetMatrix(name.c_str(), (D3DXMATRIX *)matrix);
-	}
-}
-
-void Shader::set_float(std::string name, float value)
-{
-	if (opengl) {
-		GLint uni = glGetUniformLocation(opengl_shader, name.c_str());
-		printGLerror("glGetUniformLocation");
-		glUniform1f(uni, value);
-		printGLerror("glUniform1f");
-	}
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	else {
-		d3d_effect->SetFloat(name.c_str(), value);
-	}
-#endif
-}
-
-void Shader::set_bool(std::string name, bool value)
-{
-	if (opengl) {
-		GLint uni = glGetUniformLocation(opengl_shader, name.c_str());
-		printGLerror("glGetUniformLocation");
-		glUniform1i(uni, value);
-		printGLerror("glUniform1i");
-	}
-	else {
-		d3d_effect->SetBool(name.c_str(), value);
-	}
-}
-
-GLuint Shader::get_opengl_shader()
-{
-	return opengl_shader;
-}
-
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-LPD3DXEFFECT Shader::get_d3d_effect()
-{
-	return d3d_effect;
 }
 #endif
