@@ -130,11 +130,11 @@ MML::Internal::Track::~Track()
 
 void MML::Internal::Track::play(bool loop)
 {
+	reset();
+
 	playing = true;
 
 	this->loop = loop;
-
-	reset();
 }
 
 void MML::Internal::Track::stop()
@@ -762,18 +762,12 @@ void MML::mix(Uint8 *buf, int stream_length)
 MML::MML(std::string filename) :
 	name(filename)
 {
-	SDL_LockMutex(m.mixer_mutex);
-
 	internal = new MML::Internal(filename);
 	loaded_mml.push_back(internal);
-
-	SDL_UnlockMutex(m.mixer_mutex);
 }
 
 MML::~MML()
 {
-	SDL_LockMutex(m.mixer_mutex);
-
 	for (size_t i = 0; i < loaded_mml.size(); i++) {
 		if (loaded_mml[i] == internal) {
 			loaded_mml.erase(loaded_mml.begin()+i);
@@ -782,8 +776,6 @@ MML::~MML()
 	}
 
 	delete internal;
-
-	SDL_UnlockMutex(m.mixer_mutex);
 }
 
 void MML::play(bool loop)
