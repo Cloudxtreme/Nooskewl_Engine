@@ -185,7 +185,7 @@ bool MML::Internal::Track::update(short *buf, int length)
 						tok = "r";
 					}
 					else {
-						memset(buf, m.device_spec.silence, sizeof(float) * length);
+						memset(buf, m.device_spec.silence, sizeof(short) * length);
 						done = true;
 						return true;
 					}
