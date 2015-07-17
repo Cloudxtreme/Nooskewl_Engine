@@ -446,6 +446,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			map = 0;
 			delete player;
 			player = 0;
+			last_map_name = "";
 			setup_title_screen();
 		}
 	}
