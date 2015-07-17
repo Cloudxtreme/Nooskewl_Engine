@@ -25,7 +25,6 @@ public:
 	int get_height();
 	int get_ascent();
 	int get_descent();
-	int get_padding();
 
 	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
 	void disable_shadow();

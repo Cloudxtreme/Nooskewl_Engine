@@ -61,7 +61,7 @@ int Font::get_text_width(std::string text)
 
 int Font::get_height()
 {
-	return height;
+	return actual_size;
 }
 
 int Font::get_ascent()
@@ -72,11 +72,6 @@ int Font::get_ascent()
 int Font::get_descent()
 {
 	return TTF_FontDescent(font);
-}
-
-int Font::get_padding()
-{
-	return height - size;
 }
 
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
@@ -95,7 +90,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 	cache_glyphs(text);
 
 	Point<int> pos = dest_position;
-	pos.y += (actual_size - size);
+	pos.y += (actual_size - height);
 
 	int offset = 0;
 	int ch;
