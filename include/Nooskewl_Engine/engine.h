@@ -26,8 +26,7 @@ public:
 	MML *button_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
-	int scale;
-	float scalef;
+	float scale;
 	Size<int> screen_size;
 	Point<int> screen_offset;
 	int tile_size;
@@ -103,6 +102,7 @@ private:
 	void check_joysticks();
 	void set_mouse_cursor();
 	void setup_title_screen();
+	void set_initial_d3d_state();
 
 	SDL_Window *window;
 	bool vsync;

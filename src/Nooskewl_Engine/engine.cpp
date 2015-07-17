@@ -234,8 +234,6 @@ void Engine::init_video()
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 
-	set_screen_size(w, h);
-
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
@@ -264,7 +262,7 @@ void Engine::init_video()
 		d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
 		d3d_pp.BackBufferWidth = w;
 		d3d_pp.BackBufferHeight = h;
-		//d3d_pp.BackBufferCount = 1;
+		d3d_pp.BackBufferCount = 1;
 		d3d_pp.Windowed = 1;
 		if (vsync) {
 			d3d_pp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
@@ -285,29 +283,7 @@ void Engine::init_video()
 			}
 		}
 
-		d3d_device->BeginScene();
-
-		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
-
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-
-		d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
+		set_initial_d3d_state();
 	}
 #endif
 
@@ -327,6 +303,7 @@ void Engine::init_video()
 	current_shader = default_shader;
 	current_shader->use();
 
+	set_screen_size(w, h);
 	set_default_projection();
 
 	m.vertex_cache = new Vertex_Cache();
@@ -391,6 +368,25 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	}
 	else if (sdl_event->type == SDL_WINDOWEVENT && sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+		if (opengl == false) {
+			font->clear_cache();
+			bold_font->clear_cache();
+			Image::release_all();
+			Shader::release_all();
+			d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
+			d3d_pp.BackBufferWidth = sdl_event->window.data1;
+			d3d_pp.BackBufferHeight = sdl_event->window.data2;
+			d3d_pp.BackBufferCount = 1;
+			d3d_device->Reset(&d3d_pp);
+			set_initial_d3d_state();
+			load_fonts();
+			Image::reload_all();
+			Shader::reload_all();
+			set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
+			set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
+		}
+#endif
 		noo.set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
 		set_default_projection();
 		return true;
@@ -399,13 +395,12 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	TGUI_Event event = tgui_sdl_convert_event(sdl_event);
 
 	if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
-		event.mouse.x = int((event.mouse.x - screen_offset.x) / scalef);
-		event.mouse.y = int((event.mouse.y - screen_offset.y) / scalef);
+		event.mouse.x = int((event.mouse.x - screen_offset.x) / scale);
+		event.mouse.y = int((event.mouse.y - screen_offset.y) / scale);
 		// Due to scaling and offset, mouse events can come in outside of the playable area, skip those
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
 		}
-		printf("mouse_x=%d mouse_y=%d\n", event.mouse.x, event.mouse.y);
 	}
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
@@ -680,9 +675,18 @@ void Engine::flip()
 				else {
 					d3d_lost = false;
 
+					set_initial_d3d_state();
+
+					Shader::reload_all();
+
 					load_fonts();
 
 					Image::reload_all();
+
+					int w, h;
+					SDL_GetWindowSize(window, &w, &h);
+					set_screen_size(w, h);
+					set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
 				}
 			}
 		}
@@ -697,6 +701,8 @@ void Engine::flip()
 				bold_font->clear_cache();
 
 				Image::release_all();
+
+				Shader::release_all();
 			}
 		}
 
@@ -712,35 +718,31 @@ void Engine::set_screen_size(int w, int h)
 	float aspect = (float)w / h;
 	float desired_aspect = (float)desired_w / desired_h;
 	if (w*desired_h >= h*desired_w) {
-		scalef = (float)h / desired_h;
-		scale = h / desired_h;
+		scale = (float)h / desired_h;
 	}
 	else {
-		scalef = (float)w / desired_w;
-		scale = w / desired_w;
-	}
-
-	if (scale == 0) {
-		scale = 1;
+		scale = (float)w / desired_w;
 	}
 
 	// Don't scale too much away from max dimension (no cheating!)
 	if (fabs(aspect-desired_aspect) > 0.5f) {
 		if (w*desired_h >= h*desired_w) {
-			screen_size.h = h / scale;
+			screen_size.h = int(h / scale);
 			screen_size.w = screen_size.h * desired_w / desired_h;
 		}
 		else {
-			screen_size.w = w / scale;
+			screen_size.w = int(w / scale);
 			screen_size.h = screen_size.w * desired_h / desired_w;
+			printf("scale=%f\n", scale);
+			printf("screen_size=%dx%d\n", screen_size.w, screen_size.h);
 		}
 	}
 	else {
-		screen_size.w = w / scale;
-		screen_size.h = h / scale;
+		screen_size.w = int(w / scale);
+		screen_size.h = int(h / scale);
 	}
 
-	screen_offset = Point<int>(int(w-(screen_size.w*scalef))/2, int(h-(screen_size.h*scalef))/2);
+	screen_offset = Point<int>(int(w-(screen_size.w*scale))/2, int(h-(screen_size.h*scale))/2);
 	if (screen_offset.x < scale) {
 		screen_offset.x = 0;
 	}
@@ -748,21 +750,20 @@ void Engine::set_screen_size(int w, int h)
 		screen_offset.y = 0;
 	}
 
-	printf("w=%d h=%d scale=%d scalef=%f screen_size=%dx%d\n offset=%d,%d,", w, h, scale, scalef, screen_size.w, screen_size.h, screen_offset.x, screen_offset.y);
-
 	if (opengl) {
 		glViewport(0, 0, w, h);
 		printGLerror("glViewport");
 		glEnable(GL_SCISSOR_TEST);
-		printGLerror("glEnable(GL_SCISSOR_TEST");
-		glScissor(screen_offset.x, screen_offset.y, MIN(w, int(screen_size.w*scalef)+1), MIN(h, int(screen_size.h*scalef)+1));
+		printGLerror("glEnable(GL_SCISSOR_TEST)");
+		glScissor(screen_offset.x, screen_offset.y, MIN(w, int(screen_size.w*scale)+1), MIN(h, int(screen_size.h*scale)+1));
 		printGLerror("glScissor");
 	}
 	else {
-		D3DVIEWPORT9 viewport = { 0, 0, w, h, -1.0f, 1.0f };
+		D3DVIEWPORT9 viewport = { 0, 0, w, h, 0.0f, 1.0f };
 		d3d_device->SetViewport(&viewport);
 		d3d_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
-		RECT scissor = { 0, 0, w, h };
+		RECT scissor = { screen_offset.x, screen_offset.y, screen_offset.x+MIN(w, int(screen_size.w*scale)+1), screen_offset.y+MIN(h, int(screen_size.h*scale)+1) };
+		printf("rect=%ld %ld %ld %ld\n", scissor.left, scissor.right, scissor.top, scissor.bottom);
 		d3d_device->SetScissorRect(&scissor);
 	}
 
@@ -779,7 +780,7 @@ void Engine::set_default_projection()
 	model = glm::mat4();
 	// translate to center the screen
 	view = glm::translate(glm::mat4(), glm::vec3(screen_offset.x, screen_offset.y, 0));
-	view = glm::scale(view, glm::vec3((float)scale, (float)scale, 1.0f));
+	view = glm::scale(view, glm::vec3(scale, scale, 1.0f));
 	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
 
 	update_projection();
@@ -1061,6 +1062,33 @@ void Engine::setup_title_screen()
 	new_game->set_parent(bottom_floater);
 	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
 	gui->set_focus(new_game);
+}
+
+void Engine::set_initial_d3d_state()
+{
+		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+		if (d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT) != D3D_OK) {
+			infomsg("SetSamplerState failed\n");
+		}
+
+		d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
+
+		d3d_device->BeginScene();
 }
 
 } // End namespace Nooskewl_Engine
