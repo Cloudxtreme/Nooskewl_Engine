@@ -42,8 +42,8 @@ public:
 	Font *font;
 	Font *bold_font;
 	Image *window_image;
-	Image *window_image_with_name;
-	Image *name_box_image;
+	Image *name_box_image_top;
+	Image *name_box_image_bottom;
 	Shader *current_shader;
 	Shader *default_shader;
 	Shader *brighten_shader;
