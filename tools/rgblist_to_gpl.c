@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 		if (sscanf(buf, "rgb: %d %d %d\n", &r, &g, &b) != 3) {
 			printf("Corrupt input!\n");
 		}
-		fprintf(out, "%3d %3d %3d Untitled\n", r, g, b);
+		fprintf(out, "%3d %3d %3d\tUntitled\n", r, g, b);
 	}
 
 	fclose(in);
