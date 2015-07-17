@@ -22,6 +22,8 @@ public:
 	void draw();
 
 private:
+	void token(std::string s);
+
 	std::string text;
 	std::string name;
 	int start_time;
@@ -29,6 +31,7 @@ private:
 	bool advance;
 	bool done;
 	int skip;
+	bool top;
 
 	static Sprite *speech_advance;
 };

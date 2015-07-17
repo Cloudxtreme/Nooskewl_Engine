@@ -22,12 +22,22 @@ Speech::Speech(std::string text) :
 	text(text),
 	offset(0),
 	advance(false),
-	done(false)
+	done(false),
+	top(false)
 {
 	size_t pipe = text.find('|');
 	if (pipe != std::string::npos) {
+		size_t comma = text.find(',', 0);
+		std::string s;
+		while (comma != std::string::npos && comma < pipe) {
+			s = text.substr(offset, comma);
+			token(s);
+			offset += comma + 1;
+			comma = text.find(',', offset);
+		}
+		s = text.substr(offset, pipe-offset);
+		token(s);
 		offset = pipe+1;
-		name = text.substr(0, pipe);
 	}
 }
 
@@ -71,7 +81,7 @@ void Speech::draw()
 	int win_w = noo.screen_size.w - margin * 2;;
 	int win_h = line_height * 3 + pad * 2 + bottom_padding;
 	int win_x = margin;
-	int win_y = noo.screen_size.h - win_h - margin;
+	int win_y = top ? margin : noo.screen_size.h - win_h - margin;
 
 	bool full;
 	int num_lines, width;
@@ -88,16 +98,16 @@ void Speech::draw()
 		}
 	}
 
-	noo.draw_9patch(name == "" ? noo.window_image : noo.window_image_with_name, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
+	noo.draw_9patch(noo.window_image, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
 
 	if (name != "") {
 		int name_len = noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2;
 		int name_h = line_height + pad * 2; // cover the top line of the window
 		int name_x = win_x;
-		int name_y = win_y - name_h + noo.window_image->size.w / 3;
-		noo.draw_9patch(noo.name_box_image, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
-		noo.font->draw(noo.white, name, Point<int>(name_x+pad, name_y+pad));
+		int name_y = top ? win_y + win_h -noo.window_image->size.w/3 : win_y - name_h + noo.window_image->size.w / 3;
+		noo.draw_9patch(top ? noo.name_box_image_bottom : noo.name_box_image_top, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
+		noo.font->draw(noo.white, name, Point<int>(name_x+pad, name_y+pad+(top ? pad-1 : 0)));
 	}
 
 	drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
@@ -112,4 +122,14 @@ void Speech::draw()
 	image->draw_single(Point<int>(win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-1));
 
 	noo.font->disable_shadow();
+}
+
+void Speech::token(std::string s)
+{
+	if (s.substr(0, 5) == "name=") {
+		name = s.substr(5);
+	}
+	else if (s == "top") {
+		top = true;
+	}
 }
