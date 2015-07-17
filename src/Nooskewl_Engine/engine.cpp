@@ -392,18 +392,20 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	}
 	else if (sdl_event->type == SDL_WINDOWEVENT && sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
 		noo.set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
-		noo.set_default_projection();
+		set_default_projection();
+		return true;
 	}
 
 	TGUI_Event event = tgui_sdl_convert_event(sdl_event);
 
 	if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
-		event.mouse.x = int((event.mouse.x - screen_offset.x) / scale);
-		event.mouse.y = int((event.mouse.y - screen_offset.y) / scale);
+		event.mouse.x = int((event.mouse.x - screen_offset.x) / scalef);
+		event.mouse.y = int((event.mouse.y - screen_offset.y) / scalef);
 		// Due to scaling and offset, mouse events can come in outside of the playable area, skip those
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
 		}
+		printf("mouse_x=%d mouse_y=%d\n", event.mouse.x, event.mouse.y);
 	}
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
@@ -710,28 +712,59 @@ void Engine::set_screen_size(int w, int h)
 	float aspect = (float)w / h;
 	float desired_aspect = (float)desired_w / desired_h;
 	if (w*desired_h >= h*desired_w) {
-		scale = (float)h / desired_h;
+		scalef = (float)h / desired_h;
+		scale = h / desired_h;
 	}
 	else {
-		scale = (float)w / desired_w;
+		scalef = (float)w / desired_w;
+		scale = w / desired_w;
 	}
+
+	if (scale == 0) {
+		scale = 1;
+	}
+
 	// Don't scale too much away from max dimension (no cheating!)
 	if (fabs(aspect-desired_aspect) > 0.5f) {
 		if (w*desired_h >= h*desired_w) {
-			screen_size.h = int(h / scale);
+			screen_size.h = h / scale;
 			screen_size.w = screen_size.h * desired_w / desired_h;
 		}
 		else {
-			screen_size.w = int(w / scale);
+			screen_size.w = w / scale;
 			screen_size.h = screen_size.w * desired_h / desired_w;
 		}
 	}
 	else {
-		screen_size.w = int(w / scale);
-		screen_size.h = int(h / scale);
+		screen_size.w = w / scale;
+		screen_size.h = h / scale;
 	}
 
-	screen_offset = Point<int>(int(w-(screen_size.w*scale))/2, int(h-(screen_size.h*scale))/2);
+	screen_offset = Point<int>(int(w-(screen_size.w*scalef))/2, int(h-(screen_size.h*scalef))/2);
+	if (screen_offset.x < scale) {
+		screen_offset.x = 0;
+	}
+	if (screen_offset.y < scale) {
+		screen_offset.y = 0;
+	}
+
+	printf("w=%d h=%d scale=%d scalef=%f screen_size=%dx%d\n offset=%d,%d,", w, h, scale, scalef, screen_size.w, screen_size.h, screen_offset.x, screen_offset.y);
+
+	if (opengl) {
+		glViewport(0, 0, w, h);
+		printGLerror("glViewport");
+		glEnable(GL_SCISSOR_TEST);
+		printGLerror("glEnable(GL_SCISSOR_TEST");
+		glScissor(screen_offset.x, screen_offset.y, MIN(w, int(screen_size.w*scalef)+1), MIN(h, int(screen_size.h*scalef)+1));
+		printGLerror("glScissor");
+	}
+	else {
+		D3DVIEWPORT9 viewport = { 0, 0, w, h, -1.0f, 1.0f };
+		d3d_device->SetViewport(&viewport);
+		d3d_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
+		RECT scissor = { 0, 0, w, h };
+		d3d_device->SetScissorRect(&scissor);
+	}
 
 	if (gui) {
 		gui->resize(screen_size.w, screen_size.h);
@@ -1009,11 +1042,6 @@ void Engine::update_projection()
 	int w, h;
 	SDL_GetWindowSize(window, &w, &h);
 
-	if (opengl) {
-		glViewport(0, 0, w, h);
-		printGLerror("glViewport");
-	}
-
 	current_shader->set_matrix("model", glm::value_ptr(model));
 	current_shader->set_matrix("view", glm::value_ptr(view));
 
@@ -1024,10 +1052,13 @@ void Engine::update_projection()
 void Engine::setup_title_screen()
 {
 	main_widget = new MO3_Widget(1.0f, 1.0f);
+	MO3_Widget *bottom_floater = new MO3_Widget(1.0f, 0.33f);
+	bottom_floater->set_float_bottom(true);
+	bottom_floater->set_parent(main_widget);
 	new_game = new MO3_Text_Button("New Game");
-	new_game->set_padding(0, 0, screen_size.h - screen_size.h / 6 - new_game->get_height()/2, 0);
 	new_game->set_centered_x(true);
-	new_game->set_parent(main_widget);
+	new_game->set_centered_y(true);
+	new_game->set_parent(bottom_floater);
 	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
 	gui->set_focus(new_game);
 }

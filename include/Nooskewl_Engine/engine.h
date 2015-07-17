@@ -26,7 +26,8 @@ public:
 	MML *button_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
-	float scale;
+	int scale;
+	float scalef;
 	Size<int> screen_size;
 	Point<int> screen_offset;
 	int tile_size;
