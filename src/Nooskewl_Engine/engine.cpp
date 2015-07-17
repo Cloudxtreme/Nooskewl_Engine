@@ -4,6 +4,9 @@
 #define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
 
+#define perfect_w 176
+#define perfect_h 99
+
 using namespace Nooskewl_Engine;
 
 static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
@@ -222,10 +225,17 @@ void Engine::init_video()
 		}
 	}
 
+	if (win_w < perfect_w || win_h < perfect_h) {
+		win_w = perfect_w;
+		win_h = perfect_h;
+	}
+
 	window = SDL_CreateWindow(window_title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, win_w, win_h, flags);
 	if (window == 0) {
 		throw Error("SDL_CreateWindow failed");
 	}
+
+	SDL_SetWindowMinimumSize(window, perfect_w, perfect_h);
 
 	if (fullscreen) {
 		SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
@@ -713,26 +723,24 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
-	int desired_w = 176;
-	int desired_h = 99;
 	float aspect = (float)w / h;
-	float desired_aspect = (float)desired_w / desired_h;
-	if (w*desired_h >= h*desired_w) {
-		scale = (float)h / desired_h;
+	float perfect_aspect = (float)perfect_w / perfect_h;
+	if (w*perfect_h >= h*perfect_w) {
+		scale = (float)h / perfect_h;
 	}
 	else {
-		scale = (float)w / desired_w;
+		scale = (float)w / perfect_w;
 	}
 
 	// Don't scale too much away from max dimension (no cheating!)
-	if (fabs(aspect-desired_aspect) > 0.5f) {
-		if (w*desired_h >= h*desired_w) {
+	if (fabs(aspect-perfect_aspect) > 0.5f) {
+		if (w*perfect_h >= h*perfect_w) {
 			screen_size.h = int(h / scale);
-			screen_size.w = screen_size.h * desired_w / desired_h;
+			screen_size.w = screen_size.h * perfect_w / perfect_h;
 		}
 		else {
 			screen_size.w = int(w / scale);
-			screen_size.h = screen_size.w * desired_h / desired_w;
+			screen_size.h = screen_size.w * perfect_h / perfect_w;
 			printf("scale=%f\n", scale);
 			printf("screen_size=%dx%d\n", screen_size.w, screen_size.h);
 		}
