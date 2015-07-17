@@ -21,7 +21,7 @@ Map_Entity::Map_Entity(Brain *brain) :
 	offset(0.0f, 0.0f),
 	bounce(1),
 	solid(true),
-	size(noo.tile_size, noo.tile_size),
+	size(noo.tile_size, noo.tile_size*2),
 	stop_next_tile(false),
 	sitting(false),
 	input_disabled(false),
