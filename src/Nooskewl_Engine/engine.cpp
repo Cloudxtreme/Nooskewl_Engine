@@ -11,6 +11,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	memset(stream, m.device_spec.silence, stream_length);
 
 	SDL_LockMutex(m.mixer_mutex);
+
 	std::vector<SampleInstance *>::iterator it;
 	for (it = m.playing_samples.begin(); it != m.playing_samples.end();) {
 		SampleInstance *s = *it;
@@ -954,9 +955,14 @@ void Engine::play_music(std::string name)
 	if (music && music->get_name() == name) {
 		return;
 	}
-	delete noo.music;
-	noo.music = new MML(name);
-	noo.music->play(true);
+
+	SDL_LockMutex(m.mixer_mutex);
+
+	delete music;
+	music = new MML(name);
+	music->play(true);
+
+	SDL_UnlockMutex(m.mixer_mutex);
 }
 
 void Engine::load_fonts()
