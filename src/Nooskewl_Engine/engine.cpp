@@ -71,7 +71,7 @@ void Engine::start(int argc, char **argv)
 	fullscreen = check_args(argc, argv, "+fullscreen");
 	vsync = !check_args(argc, argv, "-vsync");
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-	opengl = !check_args(argc, argv, "+d3d");
+	opengl = (check_args(argc, argv, "-d3d") || check_args(argc, argv, "+opengl"));
 #else
 	opengl = true;
 #endif
@@ -102,8 +102,8 @@ void Engine::start(int argc, char **argv)
 
 	logo = new Image("logo.tga");
 	window_image = new Image("window.tga");
-	window_image_with_name = new Image("window_with_name.tga");
-	name_box_image = new Image("name_box.tga");
+	name_box_image_top = new Image("name_box_top.tga");
+	name_box_image_bottom = new Image("name_box_bottom.tga");
 
 	load_palette("palette.gpl");
 
@@ -122,7 +122,10 @@ void Engine::start(int argc, char **argv)
 
 void Engine::end()
 {
+	SDL_LockMutex(m.mixer_mutex);
 	delete music;
+	SDL_UnlockMutex(m.mixer_mutex);
+
 	delete button_mml;
 
 	if (map) {
@@ -138,8 +141,8 @@ void Engine::end()
 
 	delete logo;
 	delete window_image;
-	delete window_image_with_name;
-	delete name_box_image;
+	delete name_box_image_top;
+	delete name_box_image_bottom;
 
 	delete font;
 	delete bold_font;
