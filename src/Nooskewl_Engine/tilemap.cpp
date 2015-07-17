@@ -178,24 +178,8 @@ void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
 					int dh = noo.tile_size;
 
 					// Clipping
-					if (dx < -noo.tile_size || dy < -noo.tile_size || dx >= noo.screen_size.w || dy >= noo.screen_size.h) {
+					if (dx < -noo.tile_size || dy < -noo.tile_size || dx >= noo.screen_size.w+noo.tile_size || dy >= noo.screen_size.h+noo.tile_size) {
 						continue;
-					}
-					if (dx < 0) {
-						sx += -dx;
-						dw += dx;
-						dx = 0;
-					}
-					else if (dx+noo.tile_size > noo.screen_size.w) {
-						dw -= (dx+noo.tile_size) - noo.screen_size.w;
-					}
-					if (dy < 0) {
-						sy += -dy;
-						dh += dy;
-						dy = 0;
-					}
-					else if (dy+noo.tile_size > noo.screen_size.h) {
-						dh -= (dy+noo.tile_size) - noo.screen_size.h;
 					}
 
 					sheets[s]->draw_region_z(
