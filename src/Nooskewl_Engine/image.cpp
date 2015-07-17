@@ -28,8 +28,10 @@ struct TGA_Header {
 static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
 {
 	if (header->colourmaptype == 1) {
+		SDL_Colour *colour = &header->palette[*p];
+		// Magic pink
 		// Paletted
-		if (*p == 0) {
+		if (colour->r == 255 && colour->g == 0 && colour->b == 255) {
 			// transparent
 			*pixel++ = 0;
 			*pixel++ = 0;
@@ -37,8 +39,6 @@ static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 			*pixel++ = 0;
 		}
 		else {
-			SDL_Colour *colour = &header->palette[*p];
-
 			*pixel++ = colour->r;
 			*pixel++ = colour->g;
 			*pixel++ = colour->b;
@@ -518,7 +518,9 @@ void Image::Internal::upload(unsigned char *pixels)
 	// To get a complete palette..
 	unsigned char *rgb = pixels;
 	for (int i = 0; i < size.w*size.h; i++) {
-		printf("rgb: %d %d %d\n", rgb[0], rgb[1], rgb[2]);
+		if (rgb[3] != 0) {
+			printf("rgb: %d %d %d\n", rgb[0], rgb[1], rgb[2]);
+		}
 		rgb += 4;
 	}
 	*/

@@ -9,7 +9,7 @@ Tilemap::Tilemap(std::string map_filename)
 	map_filename = "maps/" + map_filename;
 
 	for (int i = 0; i < 256; i++) {
-		std::string filename = std::string("sheets/tiles" + itos(i) + ".tga");
+		std::string filename = std::string("tiles/tiles" + itos(i) + ".tga");
 		Image *image;
 		try {
 			image = new Image(filename, true);
