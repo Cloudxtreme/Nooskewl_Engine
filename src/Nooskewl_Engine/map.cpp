@@ -12,7 +12,7 @@ void Map::new_game_started()
 }
 
 Map::Map(std::string map_name) :
-	offset(0, 0),
+	offset(0.0f, 0.0f),
 	panning(false),
 	speech(0),
 	map_name(map_name),
@@ -150,7 +150,7 @@ Tilemap *Map::get_tilemap()
 	return tilemap;
 }
 
-Point<int> Map::get_offset()
+Point<float> Map::get_offset()
 {
 	return offset;
 }
@@ -224,32 +224,32 @@ void Map::update_camera()
 {
 	Map_Entity *player = get_entity(0);
 	if (player) {
-		Point<int> p = player->get_draw_position();
+		Point<float> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
 		offset = p - noo.screen_size / 2 + sz / 2;
 		offset += pan;
 		Size<int> tilemap_size = tilemap->get_size();
 		int max_x = (tilemap_size.w * noo.tile_size)-noo.screen_size.w;
 		int max_y = (tilemap_size.h * noo.tile_size)-noo.screen_size.h;
-		if (offset.x < 0) {
-			offset.x = 0;
+		if (offset.x < 0.0f) {
+			offset.x = 0.0f;
 		}
 		else if (offset.x >= max_x) {
-			offset.x = max_x;
+			offset.x = (float)max_x;
 		}
-		if (offset.y < 0) {
-			offset.y = 0;
+		if (offset.y < 0.0f) {
+			offset.y = 0.0f;
 		}
 		else if (offset.y >= max_y) {
-			offset.y = max_y;
+			offset.y = (float)max_y;
 		}
 		offset = -offset;
 		// Correct for small levels
 		if (tilemap_size.w*noo.tile_size < noo.screen_size.w) {
-			offset.x = (noo.screen_size.w - (tilemap_size.w * noo.tile_size)) / 2;
+			offset.x = float(noo.screen_size.w - (tilemap_size.w * noo.tile_size)) / 2;
 		}
 		if (tilemap_size.h*noo.tile_size < noo.screen_size.h) {
-			offset.y = (noo.screen_size.h - (tilemap_size.h * noo.tile_size)) / 2;
+			offset.y = float(noo.screen_size.h - (tilemap_size.h * noo.tile_size)) / 2;
 		}
 	}
 }

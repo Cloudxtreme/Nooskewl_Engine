@@ -40,12 +40,12 @@ public:
 	Map_Entity *get_entity(int id);
 	std::string get_map_name();
 	Tilemap *get_tilemap();
-	Point<int> get_offset();
+	Point<float> get_offset();
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal);
 
 private:
 	Tilemap *tilemap;
-	Point<int> offset;
+	Point<float> offset;
 	bool panning;
 	Point<float> pan;
 	float pan_angle;

@@ -564,12 +564,12 @@ void Engine::draw()
 				p = 1.0f;
 				did_intro = true;
 			}
-			int w = int((1.0f - p) * max_w + logo->size.w);
-			int h = int((1.0f - p) * max_h + logo->size.h);
-			Point<int> pos;
+			float w = (1.0f - p) * max_w + logo->size.w;
+			float h = (1.0f - p) * max_h + logo->size.h;
+			Point<float> pos;
 			pos.x = screen_size.w / 2 - w / 2;
 			pos.y = screen_size.h / 3 - h / 2;
-			logo->stretch_region_single(Point<int>(0, 0), logo->size, pos, Size<int>(w, h));
+			logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, Size<int>((int)w, (int)h));
 		}
 		else {
 			Point<int> pos;
@@ -789,7 +789,7 @@ void Engine::set_default_projection()
 	model = glm::mat4();
 	// translate to center the screen
 	view = glm::translate(glm::mat4(), glm::vec3(screen_offset.x, screen_offset.y, 0));
-	view = glm::scale(view, glm::vec3(scale, scale, 1.0f));
+	//view = glm::scale(view, glm::vec3(scale, scale, 1.0f));
 	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
 
 	update_projection();

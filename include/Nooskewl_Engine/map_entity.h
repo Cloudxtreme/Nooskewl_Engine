@@ -23,7 +23,7 @@ public:
 	// return false to destroy
 	bool update(bool can_move);
 	// draws with z values
-	void draw(Point<int> draw_pos, bool use_depth_buffer = true);
+	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
 
 	void load_sprite(std::string name);
 	void set_position(Point<int> position);
@@ -44,7 +44,7 @@ public:
 	Point<int> get_position();
 	Point<float> get_offset();
 	Size<int> get_size();
-	Point<int> get_draw_position();
+	Point<float> get_draw_position();
 	bool is_solid();
 	bool is_sitting();
 

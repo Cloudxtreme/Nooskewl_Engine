@@ -155,7 +155,7 @@ bool Tilemap::collides(int layer, Point<int> topleft, Point<int> bottomright)
 	return false;
 }
 
-void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
+void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 {
 	Layer l = layers[layer];
 
@@ -172,8 +172,8 @@ void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
 					int y = l.y[row][col];
 					int sx = x * noo.tile_size;
 					int sy = y * noo.tile_size;
-					int dx = position.x + col * noo.tile_size;
-					int dy = position.y + row * noo.tile_size;
+					float dx = position.x + col * noo.tile_size;
+					float dy = position.y + row * noo.tile_size;
 					int dw = noo.tile_size;
 					int dh = noo.tile_size;
 
@@ -185,7 +185,10 @@ void Tilemap::draw(int layer, Point<int> position, bool use_depth_buffer)
 					sheets[s]->draw_region_z(
 						Point<int>(sx, sy),
 						Size<int>(dw, dh),
-						Point<int>(dx, dy),
+						Point<float
+
+
+						>(dx, dy),
 						// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 						// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
 						use_depth_buffer ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) * 0.01f : 0.0f,

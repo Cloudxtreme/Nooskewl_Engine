@@ -34,26 +34,26 @@ public:
 	void start(bool repeat = false); // call before every group of draws of the same Image
 	void end(); // call after every group of draws
 
-	void stretch_region_tinted_repeat(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void stretch_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void draw_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
-	void draw_region_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, int flags = 0);
-	void draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
-	void draw_z(Point<int> dest_position, float z, int flags = 0);
-	void draw_tinted(SDL_Colour tint, Point<int> dest_position, int flags = 0);
-	void draw(Point<int> dest_position, int flags = 0);
+	void stretch_region_tinted_repeat(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void stretch_region_tinted(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void stretch_region(Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region_tinted(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
+	void draw_region_z(Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags = 0);
+	void draw_region(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
+	void draw_z(Point<float> dest_position, float z, int flags = 0);
+	void draw_tinted(SDL_Colour tint, Point<float> dest_position, int flags = 0);
+	void draw(Point<float> dest_position, int flags = 0);
 
 	// These ones call start/end automatically each time
-	void stretch_region_tinted_repeat_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void stretch_region_tinted_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags = 0);
-	void draw_region_tinted_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
-	void draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags = 0);
-	void draw_tinted_single(SDL_Colour, Point<int> dest_position, int flags = 0);
-	void draw_single_z(Point<int> dest_position, float z, int flags = 0);
-	void draw_tinted_single(Point<int> dest_position, int flags = 0);
-	void draw_single(Point<int> dest_position, int flags = 0);
+	void stretch_region_tinted_repeat_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void stretch_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void stretch_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
+	void draw_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
+	void draw_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
+	void draw_tinted_single(SDL_Colour, Point<float> dest_position, int flags = 0);
+	void draw_single_z(Point<float> dest_position, float z, int flags = 0);
+	void draw_tinted_single(Point<float> dest_position, int flags = 0);
+	void draw_single(Point<float> dest_position, int flags = 0);
 
 private:
 	struct Internal {

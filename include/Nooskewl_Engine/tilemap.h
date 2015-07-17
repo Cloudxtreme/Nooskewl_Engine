@@ -22,7 +22,7 @@ public:
 	// in pixels
 	bool collides(int layer, Point<int> topleft, Point<int> bottomright);
 
-	void draw(int layer, Point<int> position, bool use_depth_buffer = true);
+	void draw(int layer, Point<float> position, bool use_depth_buffer = true);
 
 private:
 	struct Layer

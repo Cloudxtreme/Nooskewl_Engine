@@ -187,7 +187,7 @@ void Image::end()
 	m.vertex_cache->end();
 }
 
-void Image::stretch_region_tinted_repeat(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region_tinted_repeat(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
@@ -214,107 +214,107 @@ void Image::stretch_region_tinted_repeat(SDL_Colour tint, Point<int> source_posi
 				w = dest_size.w - drawn_w;
 			}
 			Size<int> sz(w, h);
-			m.vertex_cache->cache(colours, source_position, sz, Point<int>(dest_position.x + x * source_size.w, dest_position.y + y * source_size.h), sz, flags);
+			m.vertex_cache->cache(colours, source_position, sz, Point<float>(dest_position.x + x * source_size.w, dest_position.y + y * source_size.h), sz, flags);
 			drawn_w += w;
 		}
 		drawn_h += h;
 	}
 }
 
-void Image::stretch_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region_tinted(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
 	m.vertex_cache->cache(colours, source_position, source_size, dest_position, dest_size, flags);
 }
 
-void Image::stretch_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region(Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	m.vertex_cache->cache(noo.four_whites, source_position, source_size, dest_position, dest_size, flags);
 }
 
-void Image::draw_region_tinted(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+void Image::draw_region_tinted(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	SDL_Colour colours[4];
 	colours[0] = colours[1] = colours[2] = colours[3] = tint;
 	m.vertex_cache->cache(colours, source_position, source_size, dest_position, source_size, flags);
 }
 
-void Image::draw_region_z(Point<int> source_position, Size<int> source_size, Point<int> dest_position, float z, int flags)
+void Image::draw_region_z(Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
 {
 	m.vertex_cache->cache_z(noo.four_whites, source_position, source_size, dest_position, z, source_size, flags);
 }
 
-void Image::draw_region(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+void Image::draw_region(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	draw_region_z(source_position, source_size, dest_position, 0.0f, flags);
 }
 
-void Image::draw_z(Point<int> dest_position, float z, int flags)
+void Image::draw_z(Point<float> dest_position, float z, int flags)
 {
-	draw_region_z(Point<int>(0, 0), size, dest_position, z, flags);
+	draw_region_z(Point<float>(0, 0), size, dest_position, z, flags);
 }
 
-void Image::draw_tinted(SDL_Colour tint, Point<int> dest_position, int flags)
+void Image::draw_tinted(SDL_Colour tint, Point<float> dest_position, int flags)
 {
-	draw_region_tinted(tint, Point<int>(0, 0), size, dest_position, flags);
+	draw_region_tinted(tint, Point<float>(0, 0), size, dest_position, flags);
 }
 
-void Image::draw(Point<int> dest_position, int flags)
+void Image::draw(Point<float> dest_position, int flags)
 {
 	draw_z(dest_position, 0.0f, flags);
 }
 
-void Image::stretch_region_tinted_repeat_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region_tinted_repeat_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	start();
 	stretch_region_tinted_repeat(tint, source_position, source_size, dest_position, dest_size, flags);
 	end();
 }
 
-void Image::stretch_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	start();
 	stretch_region(source_position, source_size, dest_position, dest_size, flags);
 	end();
 }
 
-void Image::stretch_region_tinted_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, Size<int> dest_size, int flags)
+void Image::stretch_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags)
 {
 	start();
 	stretch_region_tinted(tint, source_position, source_size, dest_position, dest_size, flags);
 	end();
 }
 
-void Image::draw_region_tinted_single(SDL_Colour tint, Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+void Image::draw_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	start();
 	draw_region_tinted(tint, source_position, source_size, dest_position, flags);
 	end();
 }
 
-void Image::draw_region_single(Point<int> source_position, Size<int> source_size, Point<int> dest_position, int flags)
+void Image::draw_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	start();
 	draw_region(source_position, source_size, dest_position, flags);
 	end();
 }
 
-void Image::draw_single_z(Point<int> dest_position, float z, int flags)
+void Image::draw_single_z(Point<float> dest_position, float z, int flags)
 {
 	start();
 	draw_z(dest_position, z, flags);
 	end();
 }
 
-void Image::draw_tinted_single(SDL_Colour tint, Point<int> dest_position, int flags)
+void Image::draw_tinted_single(SDL_Colour tint, Point<float> dest_position, int flags)
 {
 	start();
 	draw_tinted(tint, dest_position, flags);
 	end();
 }
 
-void Image::draw_single(Point<int> dest_position, int flags)
+void Image::draw_single(Point<float> dest_position, int flags)
 {
 	draw_single_z(dest_position, 0.0f, flags);
 }
