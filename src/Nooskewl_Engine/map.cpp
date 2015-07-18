@@ -20,8 +20,6 @@ Map::Map(std::string map_name) :
 {
 	tilemap = new Tilemap(map_name);
 
-	a_star = new A_Star(tilemap);
-
 	ml = m.get_map_logic(map_name);
 }
 
@@ -42,6 +40,8 @@ Map::~Map()
 
 void Map::start()
 {
+	a_star = new A_Star(this);
+
 	if (ml) {
 		ml->start();
 	}
@@ -318,6 +318,8 @@ void Map::draw(bool use_depth_buffer)
 		tilemap->draw(layer, offset);
 	}
 
+	tilemap->draw_shadows(layer, offset);
+
 	if (use_depth_buffer) {
 		noo.enable_depth_buffer(true);
 		noo.clear_depth_buffer(1.0f);
@@ -328,7 +330,9 @@ void Map::draw(bool use_depth_buffer)
 		e->draw(e->get_draw_position() + offset, use_depth_buffer);
 	}
 
-	tilemap->draw(layer++, offset, use_depth_buffer);
+	tilemap->draw(layer, offset, use_depth_buffer);
+
+	layer++;
 
 	if (use_depth_buffer) {
 		noo.enable_depth_buffer(false);
