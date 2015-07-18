@@ -239,6 +239,9 @@ bool Map_Entity::maybe_move()
 				position += Point<int>(-1, 0);
 				ret = true;
 			}
+			else if (following_path) {
+				stop_now();
+			}
 			set_direction(W);
 		}
 		else if (brain->r) {
@@ -248,6 +251,9 @@ bool Map_Entity::maybe_move()
 				offset = Point<float>(-1, 0);
 				position += Point<int>(1, 0);
 				ret = true;
+			}
+			else if (following_path) {
+				stop_now();
 			}
 			set_direction(E);
 		}
@@ -259,6 +265,9 @@ bool Map_Entity::maybe_move()
 				position += Point<int>(0, -1);
 				ret = true;
 			}
+			else if (following_path) {
+				stop_now();
+			}
 			set_direction(N);
 		}
 		else if (brain->d) {
@@ -268,6 +277,9 @@ bool Map_Entity::maybe_move()
 				offset = Point<float>(0, -1);
 				position += Point<int>(0, 1);
 				ret = true;
+			}
+			else if (following_path) {
+				stop_now();
 			}
 			set_direction(S);
 		}
