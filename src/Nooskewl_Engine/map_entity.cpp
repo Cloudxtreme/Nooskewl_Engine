@@ -186,7 +186,7 @@ Size<int> Map_Entity::get_size()
 Point<float> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->size.h;
-		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size), (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h);
+		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+(noo.tile_size-sprite->get_current_image()->size.w)/2, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h);
 }
 
 bool Map_Entity::is_solid()
@@ -382,10 +382,12 @@ bool Map_Entity::update(bool can_move)
 void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
+	// add_z makes chairs look right
+	float add_z = sitting ? (direction == N ? -1.0f : 1.0f) : 0.0f;
 	// subtract 1 so tiles have precedence
 	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 	// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
-	sprite->get_current_image()->draw_single_z(Point<float>(draw_pos.x, draw_pos.y+add), use_depth_buffer ? -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f);
+	sprite->get_current_image()->draw_single_z(Point<float>(draw_pos.x, draw_pos.y+add), use_depth_buffer ? -(1.0f-((float)(position.y*noo.tile_size+offset.y*noo.tile_size-1.0f+add_z)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f);
 }
 
 void Map_Entity::stop_now()
