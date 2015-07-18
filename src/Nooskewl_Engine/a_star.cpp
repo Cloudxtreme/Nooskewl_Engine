@@ -1,9 +1,10 @@
 #include "Nooskewl_Engine/a_star.h"
+#include "Nooskewl_Engine/map.h"
 
 using namespace Nooskewl_Engine;
 
-A_Star::A_Star(Tilemap *tilemap) :
-	tilemap(tilemap),
+A_Star::A_Star(Map *map) :
+	map(map),
 	final_node(0)
 {
 }
@@ -97,7 +98,7 @@ void A_Star::destroy_nodes(std::list<Node *> &list)
 void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 {
 	Point<int> new_position = node->position + offset;
-	if (tilemap->is_solid(-1, new_position)) {
+	if (map->is_solid(-1, new_position, Size<int>(1, 1))) {
 		return;
 	}
 
