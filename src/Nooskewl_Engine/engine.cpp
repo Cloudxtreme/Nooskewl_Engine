@@ -745,8 +745,6 @@ void Engine::set_screen_size(int w, int h)
 		else {
 			screen_size.w = int(w / scale);
 			screen_size.h = screen_size.w * perfect_h / perfect_w;
-			printf("scale=%f\n", scale);
-			printf("screen_size=%dx%d\n", screen_size.w, screen_size.h);
 		}
 	}
 	else {
@@ -775,7 +773,6 @@ void Engine::set_screen_size(int w, int h)
 		d3d_device->SetViewport(&viewport);
 		d3d_device->SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE);
 		RECT scissor = { screen_offset.x, screen_offset.y, screen_offset.x+MIN(w, int(screen_size.w*scale)+1), screen_offset.y+MIN(h, int(screen_size.h*scale)+1) };
-		printf("rect=%ld %ld %ld %ld\n", scissor.left, scissor.right, scissor.top, scissor.bottom);
 		d3d_device->SetScissorRect(&scissor);
 	}
 
