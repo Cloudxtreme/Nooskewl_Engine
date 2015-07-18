@@ -84,8 +84,10 @@ void Shader::set_matrix(std::string name, const float *matrix)
 	if (internal->opengl) {
 		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
 		printGLerror("glGetUniformLocation");
-		glUniformMatrix4fv(uni, 1, GL_FALSE, matrix);
-		printGLerror("glUniformMatrix4fv");
+		if (uni != -1) {
+			glUniformMatrix4fv(uni, 1, GL_FALSE, matrix);
+			printGLerror("glUniformMatrix4fv");
+		}
 	}
 	else {
 		internal->d3d_effect->SetMatrix(name.c_str(), (D3DXMATRIX *)matrix);
@@ -97,8 +99,10 @@ void Shader::set_float(std::string name, float value)
 	if (internal->opengl) {
 		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
 		printGLerror("glGetUniformLocation");
-		glUniform1f(uni, value);
-		printGLerror("glUniform1f");
+		if (uni != -1) {
+			glUniform1f(uni, value);
+			printGLerror("glUniform1f");
+		}
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -112,8 +116,10 @@ void Shader::set_bool(std::string name, bool value)
 	if (internal->opengl) {
 		GLint uni = glGetUniformLocation(internal->opengl_shader, name.c_str());
 		printGLerror("glGetUniformLocation");
-		glUniform1i(uni, value);
-		printGLerror("glUniform1i");
+		if (uni != -1) {
+			glUniform1i(uni, value);
+			printGLerror("glUniform1i");
+		}
 	}
 	else {
 		internal->d3d_effect->SetBool(name.c_str(), value);

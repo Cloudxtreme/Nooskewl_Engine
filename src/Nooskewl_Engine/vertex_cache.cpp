@@ -52,25 +52,31 @@ void Vertex_Cache::end()
 		printGLerror("glBufferData");
 	
 		GLint posAttrib = glGetAttribLocation(opengl_shader, "in_position");
-		printGLerror("glGetAttribLocation");
-		glEnableVertexAttribArray(posAttrib);
-		printGLerror("glEnableVertexAttribArray");
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-		printGLerror("glVertexAttribPointer");
+		printGLerror("glGetAttribLocation (in_position)");
+		if (posAttrib != -1) {
+			glEnableVertexAttribArray(posAttrib);
+			printGLerror("glEnableVertexAttribArray (in_position)");
+			glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
+			printGLerror("glVertexAttribPointer (in_position)");
+		}
 
 		GLint texcoordAttrib = glGetAttribLocation(opengl_shader, "in_texcoord");
-		printGLerror("glGetAttribLocation");
-		glEnableVertexAttribArray(texcoordAttrib);
-		printGLerror("glEnableVertexAttribArray");
-		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-		printGLerror("glVertexAttribPointer");
+		printGLerror("glGetAttribLocation (in_texcoord)");
+		if (texcoordAttrib != -1) {
+			glEnableVertexAttribArray(texcoordAttrib);
+			printGLerror("glEnableVertexAttribArray (in_texcoord)");
+			glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+			printGLerror("glVertexAttribPointer (in_texcoord)");
+		}
 
 		GLint colAttrib = glGetAttribLocation(opengl_shader, "in_colour");
-		printGLerror("glGetAttribLocation");
-		glEnableVertexAttribArray(colAttrib);
-		printGLerror("glEnableVertexAttribArray");
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
-		printGLerror("glVertexAttribPointer");
+		printGLerror("glGetAttribLocation (in_colour)");
+		if (colAttrib != -1) {
+			glEnableVertexAttribArray(colAttrib);
+			printGLerror("glEnableVertexAttribArray (in_colour)");
+			glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
+			printGLerror("glVertexAttribPointer (in_colour)");
+		}
 
 		glDrawArrays(GL_TRIANGLES, 0, count);
 		printGLerror("glDrawArrays");

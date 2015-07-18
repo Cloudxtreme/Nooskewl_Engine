@@ -111,12 +111,13 @@ void infomsg(const char *fmt, ...)
 
 void printGLerror(const char *fmt, ...)
 {
-	if (glGetError() == GL_NO_ERROR) {
+	GLenum error;
+	if ((error = glGetError()) == GL_NO_ERROR) {
 		return;
 	}
 	va_list v;
 	va_start(v, fmt);
-	printf("OPENGL ERROR: ");
+	printf("OPENGL ERROR (%d): ", error);
 	vprintf(fmt, v);
 	va_end(v);
 	printf("\n");
