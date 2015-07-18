@@ -303,15 +303,18 @@ void Engine::init_video()
 	std::string default_vertex_source;
 	std::string default_fragment_source;
 	std::string brighten_fragment_source;
+	std::string shadow_fragment_source;
 
 	std::string tag = opengl ? "glsl" : "hlsl";
 
 	default_vertex_source = load_text("shaders/" + tag + "/default_vertex.txt");
 	default_fragment_source = load_text("shaders/" + tag + "/default_fragment.txt");
 	brighten_fragment_source = load_text("shaders/" + tag + "/brighten_fragment.txt");
+	shadow_fragment_source = load_text("shaders/" + tag + "/shadow_fragment.txt");
 
 	default_shader = new Shader(opengl, default_vertex_source, default_fragment_source);
 	brighten_shader = new Shader(opengl, default_vertex_source, brighten_fragment_source);
+	shadow_shader = new Shader(opengl, default_vertex_source, shadow_fragment_source);
 
 	current_shader = default_shader;
 	current_shader->use();
@@ -329,6 +332,7 @@ void Engine::shutdown_video()
 
 	delete default_shader;
 	delete brighten_shader;
+	delete shadow_shader;
 
 	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
