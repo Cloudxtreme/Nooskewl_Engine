@@ -52,7 +52,7 @@ void Speech::start()
 
 bool Speech::handle_event(TGUI_Event *event)
 {
-	if ((event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b1) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
+	if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN)) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
 		noo.button_mml->play(false);
 		if (done) {
 			return false;
