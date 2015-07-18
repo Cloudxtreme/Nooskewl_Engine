@@ -293,6 +293,13 @@ void Image::draw_region_tinted_single(SDL_Colour tint, Point<float> source_posit
 	end();
 }
 
+void Image::draw_region_z_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
+{
+	start();
+	draw_region_z(source_position, source_size, dest_position, z, flags);
+	end();
+}
+
 void Image::draw_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	start();
@@ -300,7 +307,7 @@ void Image::draw_region_single(Point<float> source_position, Size<int> source_si
 	end();
 }
 
-void Image::draw_single_z(Point<float> dest_position, float z, int flags)
+void Image::draw_z_single(Point<float> dest_position, float z, int flags)
 {
 	start();
 	draw_z(dest_position, z, flags);
@@ -316,7 +323,7 @@ void Image::draw_tinted_single(SDL_Colour tint, Point<float> dest_position, int 
 
 void Image::draw_single(Point<float> dest_position, int flags)
 {
-	draw_single_z(dest_position, 0.0f, flags);
+	draw_z_single(dest_position, 0.0f, flags);
 }
 
 void Image::release_all()

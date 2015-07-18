@@ -49,9 +49,10 @@ public:
 	void stretch_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
 	void stretch_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, Size<int> dest_size, int flags = 0);
 	void draw_region_tinted_single(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
+	void draw_region_z_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags = 0);
 	void draw_region_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags = 0);
 	void draw_tinted_single(SDL_Colour, Point<float> dest_position, int flags = 0);
-	void draw_single_z(Point<float> dest_position, float z, int flags = 0);
+	void draw_z_single(Point<float> dest_position, float z, int flags = 0);
 	void draw_tinted_single(Point<float> dest_position, int flags = 0);
 	void draw_single(Point<float> dest_position, int flags = 0);
 
