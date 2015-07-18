@@ -44,6 +44,7 @@ Tilemap::Tilemap(std::string map_filename)
 	layers = new Layer[num_layers];
 
 	for (int layer = 0; layer < num_layers; layer++) {
+		layers[layer].groups = std::vector<Group *>();
 		layers[layer].sheets_used = std::vector<int>();
 		layers[layer].sheet = new int *[size.h];
 		layers[layer].x = new int *[size.h];
@@ -67,6 +68,18 @@ Tilemap::Tilemap(std::string map_filename)
 				}
 			}
 		}
+	}
+
+	int num_groups = SDL_ReadLE16(f);
+
+	for (int i = 0; i < num_groups; i++) {
+		Group *g = new Group;
+		g->layer = SDL_fgetc(f);
+		g->position.x = SDL_ReadLE16(f);
+		g->position.y = SDL_ReadLE16(f);
+		g->size.w = SDL_ReadLE16(f);
+		g->size.h = SDL_ReadLE16(f);
+		layers[g->layer].groups.push_back(g);
 	}
 
 	SDL_RWclose(f);
@@ -94,6 +107,9 @@ Tilemap::~Tilemap()
 			delete[] layers[layer].x;
 			delete[] layers[layer].y;
 			delete[] layers[layer].solid;
+			for (size_t i = 0; i < layers[layer].groups.size(); i++) {
+				delete layers[layer].groups[i];
+			}
 		}
 
 		delete[] layers;
@@ -185,13 +201,8 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 					sheets[s]->draw_region_z(
 						Point<int>(sx, sy),
 						Size<int>(dw, dh),
-						Point<float
-
-
-						>(dx, dy),
-						// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
-						// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
-						use_depth_buffer ? -(1.0f-((float)(row * noo.tile_size)/(float)(size.h*noo.tile_size))) * 0.01f : 0.0f,
+						Point<float>(dx, dy),
+						use_depth_buffer ? get_z(layer, col, row) : 0.0f,
 						0
 					);
 				}
@@ -200,4 +211,75 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 
 		sheets[sheet_num]->end();
 	}
+}
+
+void Tilemap::draw_shadows(int layer, Point<float> position)
+{
+	Shader *bak = noo.current_shader;
+	noo.current_shader = noo.shadow_shader;
+	noo.current_shader->use();
+	noo.current_shader->set_float("alpha", 0.25f);
+
+	Layer l = layers[layer];
+
+	for (size_t i = 0; i < l.groups.size(); i++) {
+		Group *g = l.groups[i];
+		if (g->layer != layer) {
+			continue;
+		}
+
+		for (size_t sheet = 0; sheet < l.sheets_used.size(); sheet++) {
+			int sheet_num = l.sheets_used[sheet];
+
+			sheets[sheet_num]->start();
+
+			for (int row = g->position.y; row < g->position.y+g->size.h; row++) {
+				for (int col = g->position.x; col < g->position.x+g->size.w; col++) {
+					int s = l.sheet[row][col];
+					if (s == sheet_num) {
+						int x = l.x[row][col];
+						int y = l.y[row][col];
+						int sx = x * noo.tile_size;
+						int sy = y * noo.tile_size;
+						float dx = position.x + col * noo.tile_size;
+						float dy = position.y + (g->position.y + ((g->position.y+g->size.h-1)-row)) * noo.tile_size + 4; // shadow offset is 4
+						int dw = noo.tile_size;
+						int dh = noo.tile_size;
+
+						// FIXME: might have to expand this by the shadow offset
+						// Clipping
+						if (dx < -noo.tile_size || dy < -noo.tile_size || dx >= noo.screen_size.w+noo.tile_size || dy >= noo.screen_size.h+noo.tile_size) {
+							continue;
+						}
+
+						sheets[s]->draw_region(
+							Point<int>(sx, sy),
+							Size<int>(dw, dh),
+							Point<float>(dx, dy),
+							Image::FLIP_V
+						);
+					}
+				}
+			}
+
+			sheets[sheet_num]->end();
+		}
+	}
+
+	noo.current_shader = bak;
+	noo.current_shader->use();
+}
+
+float Tilemap::get_z(int layer, int x, int y)
+{
+	Layer l = layers[layer];
+	for (size_t i = 0; i < l.groups.size(); i++) {
+		Group *g = l.groups[i];
+		if (x >= g->position.x && y >= g->position.y && x < (g->position.x+g->size.w) && y < (g->position.y+g->size.h)) {
+			// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
+			// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
+			return -(1.0f - ((float)((g->position.y + g->size.h - 1) * noo.tile_size) / (float)(size.h * noo.tile_size))) * 0.01f;
+		}
+	}
+	return -(1.0f - ((float)(y * noo.tile_size) / (float)(size.h * noo.tile_size))) * 0.01f;
 }

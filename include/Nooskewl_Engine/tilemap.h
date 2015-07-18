@@ -23,14 +23,24 @@ public:
 	bool collides(int layer, Point<int> topleft, Point<int> bottomright);
 
 	void draw(int layer, Point<float> position, bool use_depth_buffer = true);
+	void draw_shadows(int layer, Point<float> position);
 
 private:
+	float get_z(int layer, int x, int y);
+
+	struct Group {
+		int layer;
+		Point<int> position;
+		Size<int> size;
+	};
+
 	struct Layer
 	{
 		int **sheet;
 		int **x;
 		int **y;
 		bool **solid;
+		std::vector<Group *> groups;
 		std::vector<int> sheets_used;
 	};
 
