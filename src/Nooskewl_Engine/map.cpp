@@ -93,22 +93,27 @@ void Map::set_pan(Point<float> pan)
 	this->pan = pan;
 }
 
-bool Map::is_solid(int layer, Point<int> position, Size<int> size)
+bool Map::is_solid(int layer, Point<int> position, Size<int> size, bool check_entities, bool check_tiles)
 {
-	for (size_t i = 0; i < entities.size(); i++) {
-		Map_Entity *e = entities[i];
-		if (e->is_solid()) {
-			Point<int> p = e->get_position();
-			if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
-				return true;
+	if (check_entities) {
+		for (size_t i = 0; i < entities.size(); i++) {
+			Map_Entity *e = entities[i];
+			if (e->is_solid()) {
+				Point<int> p = e->get_position();
+				if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+					return true;
+				}
 			}
 		}
 	}
-	for (int y = 0; y < size.h; y++) {
-		for (int x = 0; x < size.w; x++) {
-			Point<int> p(position.x+x, position.y+y);
-			if (tilemap->is_solid(layer, p)) {
-				return true;
+
+	if (check_tiles) {
+		for (int y = 0; y < size.h; y++) {
+			for (int x = 0; x < size.w; x++) {
+				Point<int> p(position.x+x, position.y+y);
+				if (tilemap->is_solid(layer, p)) {
+					return true;
+				}
 			}
 		}
 	}
@@ -183,38 +188,7 @@ void Map::handle_event(TGUI_Event *event)
 			e->handle_event(event);
 			if (ml && is_player && !e->is_sitting() && b1_down == false && e->get_brain()->b1) {
 				// activate pressed
-				e->stop();
-				Direction dir = e->get_direction();
-				Point<int> pos = e->get_position() * noo.tile_size + e->get_offset() * (float)noo.tile_size;
-				Size<int> size(noo.tile_size, noo.tile_size);
-				switch (dir) {
-					case N:
-						pos.y -= noo.tile_size*2;
-						size.h += noo.tile_size;
-						break;
-					case E:
-						pos.x += noo.tile_size;
-						size.w += noo.tile_size;
-						break;
-					case S:
-						pos.y += noo.tile_size;
-						size.h += noo.tile_size;
-						break;
-					case W:
-						pos.x -= noo.tile_size*2;
-						size.w += noo.tile_size;
-						break;
-				}
-				for (size_t j = 0; j < entities.size(); j++) {
-					Map_Entity *e2 = entities[j];
-					if (e2->get_id() == 0) {
-						continue;
-					}
-					if (e2->pixels_collide(pos, size)) {
-						ml->activate(e, e2);
-						break;
-					}
-				}
+				activate(e);
 			}
 		}
 	}
@@ -345,4 +319,42 @@ void Map::draw(bool use_depth_buffer)
 	if (speech) {
 		speech->draw();
 	}
+}
+
+bool Map::activate(Map_Entity *entity)
+{
+	entity->stop();
+	Direction dir = entity->get_direction();
+	Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
+	Size<int> size(noo.tile_size, noo.tile_size);
+	switch (dir) {
+		case N:
+			pos.y -= noo.tile_size*2;
+			size.h += noo.tile_size;
+			break;
+		case E:
+			pos.x += noo.tile_size;
+			size.w += noo.tile_size;
+			break;
+		case S:
+			pos.y += noo.tile_size;
+			size.h += noo.tile_size;
+			break;
+		case W:
+			pos.x -= noo.tile_size*2;
+			size.w += noo.tile_size;
+			break;
+	}
+	for (size_t j = 0; j < entities.size(); j++) {
+		Map_Entity *e = entities[j];
+		if (e->get_id() == 0) {
+			continue;
+		}
+		if (e->pixels_collide(pos, size)) {
+			ml->activate(e, e);
+			return true;
+		}
+	}
+
+	return false;
 }

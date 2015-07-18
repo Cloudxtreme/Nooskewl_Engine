@@ -103,10 +103,36 @@ void Player_Brain::handle_event(TGUI_Event *event)
 					Point<int> click(event->mouse.x, event->mouse.y);
 					Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
 					click -= map_offset;
+					click /= noo.tile_size;
+					Point<int> player_pos = noo.player->get_position();
 					if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
-						std::list<A_Star::Node *> path = noo.map->find_path(noo.player->get_position(), click / noo.tile_size);
-						if (path.size() > 0) {
-							noo.player->set_path(path);
+						int dx = click.x - player_pos.x;
+						int dy = click.y - player_pos.y;
+						bool activated = false;
+						if (((abs(dx) == 1 || abs(dx) == 2) && dy == 0) || ((abs(dy) == 1 || abs(dy) == 2) && dx == 0)) {
+							if (noo.map->is_solid(-1, click, Size<int>(1, 1), true, false)) {
+								Direction direction;
+								if (dx < 0) {
+									direction = W;
+								}
+								else if (dx > 0) {
+									direction = E;
+								}
+								else if (dy < 0) {
+									direction = N;
+								}
+								else {
+									direction = S;
+								}
+								noo.player->set_direction(direction);
+								activated = noo.map->activate(noo.player);
+							}
+						}
+						if (activated == false) {
+							std::list<A_Star::Node *> path = noo.map->find_path(player_pos, click);
+							if (path.size() > 0) {
+								noo.player->set_path(path);
+							}
 						}
 					}
 				}

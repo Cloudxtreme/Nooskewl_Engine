@@ -28,13 +28,16 @@ public:
 	bool update();
 	void draw(bool use_depth_buffer = true);
 
+	// Try to activate as entity, returns true on success
+	bool activate(Map_Entity *entity);
+
 	void add_entity(Map_Entity *entity);
 	void add_speech(std::string text);
 	void change_map(std::string map_name, Point<int> position, Direction direction);
 	void set_panning(bool panning);
 	void set_pan(Point<float> pan);
 
-	bool is_solid(int layer, Point<int> position, Size<int> size);
+	bool is_solid(int layer, Point<int> position, Size<int> size, bool check_entities = true, bool check_tiles = true);
 	void check_triggers(Map_Entity *entity);
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 	Map_Entity *get_entity(int id);

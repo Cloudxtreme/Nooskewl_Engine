@@ -202,7 +202,7 @@ bool Map_Entity::is_sitting()
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
-	if (pos.x > position.x+size.w || pos.x+this->size.w < position.x || pos.y > position.y+size.h || pos.y+this->size.h < position.y) {
+	if (pos.x >= position.x+size.w || pos.x+this->size.w <= position.x || pos.y >= position.y+size.h || pos.y+this->size.h <= position.y) {
 		return false;
 	}
 	return true;
