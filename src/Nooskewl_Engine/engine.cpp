@@ -306,6 +306,7 @@ void Engine::init_video()
 	std::string default_fragment_source;
 	std::string brighten_fragment_source;
 	std::string shadow_fragment_source;
+	std::string glitch_fragment_source;
 
 	std::string tag = opengl ? "glsl" : "hlsl";
 
@@ -313,10 +314,12 @@ void Engine::init_video()
 	default_fragment_source = load_text("shaders/" + tag + "/default_fragment.txt");
 	brighten_fragment_source = load_text("shaders/" + tag + "/brighten_fragment.txt");
 	shadow_fragment_source = load_text("shaders/" + tag + "/shadow_fragment.txt");
+	glitch_fragment_source = load_text("shaders/" + tag + "/glitch_fragment.txt");
 
 	default_shader = new Shader(opengl, default_vertex_source, default_fragment_source);
 	brighten_shader = new Shader(opengl, default_vertex_source, brighten_fragment_source);
 	shadow_shader = new Shader(opengl, default_vertex_source, shadow_fragment_source);
+	glitch_shader = new Shader(opengl, default_vertex_source, glitch_fragment_source);
 
 	current_shader = default_shader;
 	current_shader->use();
@@ -335,6 +338,7 @@ void Engine::shutdown_video()
 	delete default_shader;
 	delete brighten_shader;
 	delete shadow_shader;
+	delete glitch_shader;
 
 	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
@@ -565,6 +569,9 @@ void Engine::draw()
 	if (new_game != NULL) {
 		play_music("title.mml");
 
+		Point<float> pos;
+		Size<int> size;
+
 		if (did_intro == false) {
 			int max_w = logo->size.w * 16 - logo->size.w;
 			int max_h = logo->size.h * 16 - logo->size.h;
@@ -575,17 +582,33 @@ void Engine::draw()
 			}
 			float w = (1.0f - p) * max_w + logo->size.w;
 			float h = (1.0f - p) * max_h + logo->size.h;
-			Point<float> pos;
+			size = Size<int>(w, h);
 			pos.x = screen_size.w / 2 - w / 2;
 			pos.y = screen_size.h / 3 - h / 2;
-			logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, Size<int>((int)w, (int)h));
 		}
 		else {
-			Point<int> pos;
 			pos.x = screen_size.w / 2 - logo->size.w / 2;
 			pos.y = screen_size.h / 3 - logo->size.h / 2;
-			logo->draw_single(pos);
+			size = logo->size;
 		}
+
+		float percent = (SDL_GetTicks() % 500) / 500.0f * 2.0f;
+		if (percent >= 1.0f) {
+			percent = 1.0f - (percent - 1.0f);
+		}
+		float amount_x = (1.0f / scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * M_PI * 2);
+		float amount_y = (1.0f / scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * M_PI * 2);
+		Shader *bak = current_shader;
+		current_shader = glitch_shader;
+		current_shader->use();
+		current_shader->set_float("percent", percent);
+		current_shader->set_float("width", (float)logo->size.w);
+		current_shader->set_float("height", (float)logo->size.h);
+		current_shader->set_float("amount_x", amount_x);
+		current_shader->set_float("amount_y", amount_y);
+		logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, size);
+		current_shader = bak;
+		current_shader->use();
 	}
 
 	flip();

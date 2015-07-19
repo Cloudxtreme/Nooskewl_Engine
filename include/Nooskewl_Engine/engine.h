@@ -48,6 +48,7 @@ public:
 	Shader *default_shader;
 	Shader *brighten_shader;
 	Shader *shadow_shader;
+	Shader *glitch_shader;
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	IDirect3DDevice9 *d3d_device;
 #endif
