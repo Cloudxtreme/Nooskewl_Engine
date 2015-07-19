@@ -19,7 +19,7 @@ private:
 
 	bool pressed;
 	bool dragged;
-	Point<int> pressed_pos;
+	Point<float> pressed_pos;
 };
 
 } // End namespace Nooskewl_Engine

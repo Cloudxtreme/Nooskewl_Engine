@@ -91,16 +91,16 @@ void Player_Brain::handle_event(TGUI_Event *event)
 	}
 	else if (event->type == TGUI_MOUSE_DOWN) {
 		pressed = true;
-		pressed_pos = Point<int>(event->mouse.x, event->mouse.y);
+		pressed_pos = Point<float>(event->mouse.x, event->mouse.y);
 	}
 	else if (event->type == TGUI_MOUSE_UP) {
 		if (pressed) {
 			if (dragged == false) {
-				Point<int> mouse_pos(event->mouse.x, event->mouse.y);
+				Point<float> mouse_pos(event->mouse.x, event->mouse.y);
 				float moved_distance = (mouse_pos-pressed_pos).length();
 				if (moved_distance < (float)TOLERANCE) {
 					Point<int> map_offset = noo.map->get_offset();
-					Point<int> click(event->mouse.x, event->mouse.y);
+					Point<int> click((int)event->mouse.x, (int)event->mouse.y);
 					Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
 					click -= map_offset;
 					click /= noo.tile_size;
@@ -143,7 +143,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		noo.map->set_panning(false);
 	}
 	else if (event->type == TGUI_MOUSE_AXIS) {
-		Point<int> mouse_pos(event->mouse.x, event->mouse.y);
+		Point<float> mouse_pos(event->mouse.x, event->mouse.y);
 		if (pressed == true && dragged == false) {
 			float distance = (mouse_pos-pressed_pos).length();
 			if (distance >= TOLERANCE) {
@@ -151,21 +151,21 @@ void Player_Brain::handle_event(TGUI_Event *event)
 			}
 		}
 		if (dragged) {
-			Point<int> moved = pressed_pos - mouse_pos;
-			if (abs(moved.x) > noo.screen_size.w / 2) {
-				if (moved.x < 0) {
-					moved.x = -noo.screen_size.w / 2;
+			Point<float> moved = pressed_pos - mouse_pos;
+			if (abs(moved.x) > noo.screen_size.w / 2.0f) {
+				if (moved.x < 0.0f) {
+					moved.x = -noo.screen_size.w / 2.0f;
 				}
 				else {
-					moved.x = noo.screen_size.w / 2;
+					moved.x = noo.screen_size.w / 2.0f;
 				}
 			}
-			if (abs(moved.y) > noo.screen_size.h / 2) {
-				if (moved.y < 0) {
-					moved.y = -noo.screen_size.h / 2;
+			if (abs(moved.y) > noo.screen_size.h / 2.0f) {
+				if (moved.y < 0.0f) {
+					moved.y = -noo.screen_size.h / 2.0f;
 				}
 				else {
-					moved.y = noo.screen_size.h / 2;
+					moved.y = noo.screen_size.h / 2.0f;
 				}
 			}
 			noo.map->set_panning(true);

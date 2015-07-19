@@ -418,8 +418,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	TGUI_Event event = tgui_sdl_convert_event(sdl_event);
 
 	if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
-		event.mouse.x = int((event.mouse.x - screen_offset.x) / scale);
-		event.mouse.y = int((event.mouse.y - screen_offset.y) / scale);
+		event.mouse.x = (event.mouse.x - screen_offset.x) / scale;
+		event.mouse.y = (event.mouse.y - screen_offset.y) / scale;
 		// Due to scaling and offset, mouse events can come in outside of the playable area, skip those
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
