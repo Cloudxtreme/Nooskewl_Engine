@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
@@ -351,7 +352,8 @@ bool Map::activate(Map_Entity *entity)
 			continue;
 		}
 		if (e->pixels_collide(pos, size)) {
-			ml->activate(e, e);
+			ml->activate(entity, e);
+			e->get_brain()->activate(entity, e);
 			return true;
 		}
 	}
