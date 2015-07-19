@@ -72,6 +72,9 @@ public:
 	bool update();
 	void draw();
 
+	bool check_milestone(int number);
+	void set_milestone(int number, bool completed);
+
 	void clear(SDL_Colour colour);
 	void flip();
 
@@ -104,6 +107,7 @@ private:
 	void set_mouse_cursor();
 	void setup_title_screen();
 	void set_initial_d3d_state();
+	void maybe_expand_milestones(int number);
 
 	SDL_Window *window;
 	bool vsync;
@@ -143,6 +147,9 @@ private:
 	std::string default_d3d_fragment_source;
 	std::string brighten_d3d_fragment_source;
 	std::string d3d_technique_source;
+
+	bool *milestones;
+	int num_milestones;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

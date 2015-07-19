@@ -57,7 +57,9 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
-	did_intro(false)
+	did_intro(false),
+	milestones(0),
+	num_milestones(0)
 {
 }
 
@@ -610,6 +612,20 @@ void Engine::draw()
 	last_frame = SDL_GetTicks();
 }
 
+bool Engine::check_milestone(int number)
+{
+	maybe_expand_milestones(number);
+
+	return milestones[number];
+}
+
+void Engine::set_milestone(int number, bool completed)
+{
+	maybe_expand_milestones(number);
+
+	milestones[number] = completed;
+}
+
 void Engine::clear(SDL_Colour colour)
 {
 	if (opengl) {
@@ -1102,6 +1118,21 @@ void Engine::set_initial_d3d_state()
 		d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
 
 		d3d_device->BeginScene();
+}
+
+void Engine::maybe_expand_milestones(int number)
+{
+	if (milestones == NULL) {
+		milestones = (bool *)calloc(1, sizeof(bool) * (number+1));
+		num_milestones = number+1;
+	}
+	else {
+		if (number >= num_milestones) {
+			milestones = (bool *)realloc(milestones, sizeof(bool) * (number+1));
+			memset(milestones+num_milestones, 0, (number+1)-num_milestones);
+			num_milestones = number+1;
+		}
+	}
 }
 
 } // End namespace Nooskewl_Engine
