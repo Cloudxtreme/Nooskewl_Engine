@@ -353,7 +353,10 @@ bool Map::activate(Map_Entity *entity)
 		}
 		if (e->pixels_collide(pos, size)) {
 			ml->activate(entity, e);
-			e->get_brain()->activate(entity, e);
+			Brain *b = e->get_brain();
+			if (b) {
+				b->activate(entity, e);
+			}
 			return true;
 		}
 	}
