@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"

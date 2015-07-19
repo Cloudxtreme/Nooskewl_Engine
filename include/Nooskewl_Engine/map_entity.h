@@ -3,12 +3,12 @@
 
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/a_star.h"
-#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
 
 namespace Nooskewl_Engine {
 
+class Brain;
 class Map;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Entity {
