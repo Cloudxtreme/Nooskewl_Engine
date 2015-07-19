@@ -129,6 +129,12 @@ void Speech::token(std::string s)
 	if (s.substr(0, 5) == "name=") {
 		name = s.substr(5);
 	}
+	else if (s.substr(0, 11) == "+milestone=") {
+		noo.set_milestone(atoi(s.substr(11).c_str()), true);
+	}
+	else if (s.substr(0, 11) == "-milestone=") {
+		noo.set_milestone(atoi(s.substr(11).c_str()), false);
+	}
 	else if (s == "top") {
 		top = true;
 	}
