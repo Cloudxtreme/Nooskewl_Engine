@@ -344,7 +344,7 @@ void Engine::shutdown_video()
 		SDL_GL_DeleteContext(opengl_context);
 	}
 	else {
-		// FIXME!!!
+		d3d_device->Release();
 	}
 
 	SDL_DestroyWindow(window);
@@ -582,13 +582,13 @@ void Engine::draw()
 			}
 			float w = (1.0f - p) * max_w + logo->size.w;
 			float h = (1.0f - p) * max_h + logo->size.h;
-			size = Size<int>(w, h);
+			size = Size<int>((int)w, (int)h);
 			pos.x = screen_size.w / 2 - w / 2;
 			pos.y = screen_size.h / 3 - h / 2;
 		}
 		else {
-			pos.x = screen_size.w / 2 - logo->size.w / 2;
-			pos.y = screen_size.h / 3 - logo->size.h / 2;
+			pos.x = float(screen_size.w / 2 - logo->size.w / 2);
+			pos.y = float(screen_size.h / 3 - logo->size.h / 2);
 			size = logo->size;
 		}
 
@@ -596,8 +596,8 @@ void Engine::draw()
 		if (percent >= 1.0f) {
 			percent = 1.0f - (percent - 1.0f);
 		}
-		float amount_x = (1.0f / scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * M_PI * 2);
-		float amount_y = (1.0f / scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * M_PI * 2);
+		float amount_x = (1.0f / scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * (float)M_PI * 2);
+		float amount_y = (1.0f / scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * (float)M_PI * 2);
 		Shader *bak = current_shader;
 		current_shader = glitch_shader;
 		current_shader->use();
