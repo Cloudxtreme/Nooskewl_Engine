@@ -11,6 +11,14 @@ Brain::~Brain()
 {
 }
 
+void Brain::handle_event(TGUI_Event *event)
+{
+}
+
+void Brain::activate(Map_Entity *activator, Map_Entity *activated)
+{
+}
+
 void Brain::reset()
 {
 	l = r = u = d = b1 = false;

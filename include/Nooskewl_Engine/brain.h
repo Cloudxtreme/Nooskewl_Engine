@@ -1,7 +1,9 @@
+// This is a building block and does nothing itself
 #ifndef BRAIN_H
 #define BRAIN_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/map_entity.h"
 
 namespace Nooskewl_Engine {
 
@@ -12,7 +14,8 @@ public:
 	Brain();
 	virtual ~Brain();
 
-	virtual void handle_event(TGUI_Event *event) = 0;
+	virtual void handle_event(TGUI_Event *event);
+	virtual void activate(Map_Entity *activator, Map_Entity *activated);
 	virtual void reset();
 };
 
