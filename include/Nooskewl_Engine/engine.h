@@ -6,7 +6,6 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
-#include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
@@ -14,6 +13,11 @@
 #include "Nooskewl_Engine/widgets.h"
 
 namespace Nooskewl_Engine {
+
+typedef void (*Callback)(void *data);
+
+class Map;
+class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Engine {
 public:
