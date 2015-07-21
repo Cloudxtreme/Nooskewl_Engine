@@ -128,6 +128,10 @@ Size<int> Tilemap::get_size()
 
 bool Tilemap::is_solid(int layer, Point<int> position)
 {
+	if (position.x < 0 || position.y < 0 || position.x >= size.w || position.y >= size.h) {
+		return true;
+	}
+
 	int start_layer = layer < 0 ? 0 : layer;
 	int end_layer = layer < 0 ? num_layers - 1 : layer;
 
