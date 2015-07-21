@@ -2,11 +2,12 @@
 #define INTERNAL_H
 
 #include "Nooskewl_Engine/error.h"
-#include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
 namespace Nooskewl_Engine {
+
+class Map_Logic;
 
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
 
