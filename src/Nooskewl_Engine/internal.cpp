@@ -348,7 +348,7 @@ HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfo
 	h_and_dc = CreateCompatibleDC(h_dc);
 
 	/* Prepare AND (monochrome) and XOR (colour) mask */
-	and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, NULL);
+	and_mask = CreateBitmap(sys_sm_cx, sys_sm_cy, 1, 1, 0);
 	xor_mask = CreateCompatibleBitmap(h_dc, sys_sm_cx, sys_sm_cy);
 	hOldAndMaskBitmap = (HBITMAP) SelectObject(h_and_dc, and_mask);
 	hOldXorMaskBitmap = (HBITMAP) SelectObject(h_xor_dc, xor_mask);

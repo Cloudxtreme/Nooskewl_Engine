@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/player_brain.h"
 
 using namespace Nooskewl_Engine;

@@ -23,7 +23,7 @@ std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 	destroy_nodes(closed);
 
 	Node *start_node = new Node();
-	start_node->parent = NULL;
+	start_node->parent = 0;
 	start_node->position = start;
 	start_node->cost_from_start = 0;
 	start_node->cost_to_goal = heuristic(start, goal);
@@ -37,7 +37,7 @@ std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 		if (node->position == goal) {
 			final_node = node;
 			std::list<Node *> path;
-			while (node->parent != NULL) {
+			while (node->parent != 0) {
 				path.push_front(node);
 				node = node->parent;
 			}
@@ -64,7 +64,7 @@ A_Star::Node *A_Star::find_in_list(Point<int> position, std::list<Node *> &list)
 		}
 	}
 
-	return NULL;
+	return 0;
 }
 
 void A_Star::remove_from_list(Node *node, std::list<Node *> &list)
@@ -106,10 +106,10 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 	bool in_open = false;
 	bool in_closed = false;
 	Node *new_node = find_in_list(new_position, open);
-	if (new_node == NULL) {
+	if (new_node == 0) {
 		in_open = false;
 		new_node = find_in_list(new_position, closed);
-		if (new_node == NULL) {
+		if (new_node == 0) {
 			in_closed = false;
 		}
 		else {
@@ -118,10 +118,10 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 	}
 	else {
 		in_open = true;
-		in_closed = find_in_list(new_position, closed) != NULL;
+		in_closed = find_in_list(new_position, closed) != 0;
 	}
-	if (new_node == NULL || new_node->cost_from_start > new_cost) {
-		if (new_node == NULL) {
+	if (new_node == 0 || new_node->cost_from_start > new_cost) {
+		if (new_node == 0) {
 			new_node = new Node();
 			new_node->position = new_position;
 		}

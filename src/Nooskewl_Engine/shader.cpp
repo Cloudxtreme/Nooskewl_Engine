@@ -68,12 +68,12 @@ void Shader::set_texture(std::string name, Image *image)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		if (image != NULL) {
+		if (image != 0) {
 			internal->d3d_effect->SetTexture("tex", image->internal->video_texture);
 			noo.d3d_device->SetTexture(0, image->internal->video_texture);
 		}
 		else {
-			noo.d3d_device->SetTexture(0, NULL);	
+			noo.d3d_device->SetTexture(0, 0);
 		}
 	}
 #endif
