@@ -539,7 +539,7 @@ void Engine::draw()
 	if (map) {
 		map->draw();
 	}
-	if (new_game != NULL) {
+	if (new_game != 0) {
 		int scale1 = 4;
 		int x1 = -logo->size.w / 2 * scale1;
 		int y1 = -logo->size.h / 2 * scale1;
@@ -566,7 +566,7 @@ void Engine::draw()
 	if (gui) {
 		gui->draw();
 	}
-	if (new_game != NULL) {
+	if (new_game != 0) {
 		play_music("title.mml");
 
 		Point<float> pos;
@@ -1145,7 +1145,7 @@ void Engine::set_initial_d3d_state()
 
 void Engine::maybe_expand_milestones(int number)
 {
-	if (milestones == NULL) {
+	if (milestones == 0) {
 		milestones = (bool *)calloc(1, sizeof(bool) * (number+1));
 		num_milestones = number+1;
 	}
