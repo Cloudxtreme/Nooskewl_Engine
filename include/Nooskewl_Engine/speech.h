@@ -32,6 +32,7 @@ private:
 	bool done;
 	int skip;
 	bool top;
+	bool right;
 
 	Callback callback;
 	void *callback_data;

@@ -48,6 +48,8 @@ public:
 	Image *window_image;
 	Image *name_box_image_top;
 	Image *name_box_image_bottom;
+	Image *name_box_image_top_right;
+	Image *name_box_image_bottom_right;
 	Shader *current_shader;
 	Shader *default_shader;
 	Shader *brighten_shader;

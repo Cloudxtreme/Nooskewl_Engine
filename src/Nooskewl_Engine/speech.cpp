@@ -34,7 +34,7 @@ Speech::Speech(std::string text, Callback callback, void *callback_data) :
 		while (comma != std::string::npos && comma < pipe) {
 			s = text.substr(offset, comma);
 			token(s);
-			offset += comma + 1;
+			offset = comma + 1;
 			comma = text.find(',', offset);
 		}
 		s = text.substr(offset, pipe-offset);
@@ -110,9 +110,9 @@ void Speech::draw()
 		int name_len = noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2;
 		int name_h = line_height + pad * 2; // cover the top line of the window
-		int name_x = win_x;
+		int name_x = right ? win_x + win_w - name_w : win_x;
 		int name_y = top ? win_y + win_h -noo.window_image->size.w/3 : win_y - name_h + noo.window_image->size.w / 3;
-		noo.draw_9patch(top ? noo.name_box_image_bottom : noo.name_box_image_top, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
+		noo.draw_9patch(top ? (right ? noo.name_box_image_bottom_right : noo.name_box_image_bottom) : (right ? noo.name_box_image_top_right : noo.name_box_image_top), Point<int>(name_x, name_y), Size<int>(name_w, name_h));
 		noo.font->draw(noo.white, name, Point<int>(name_x+pad, name_y+pad+(top ? pad-1 : 0)));
 	}
 
@@ -125,7 +125,7 @@ void Speech::draw()
 		speech_advance->set_animation("more");
 	}
 	Image *image = speech_advance->get_current_image();
-	image->draw_single(Point<int>(win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-1));
+	image->draw_single(Point<int>(right ? win_x+2 : win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-1));
 
 	noo.font->disable_shadow();
 }
@@ -143,5 +143,8 @@ void Speech::token(std::string s)
 	}
 	else if (s == "top") {
 		top = true;
+	}
+	else if (s == "right") {
+		right = true;
 	}
 }

@@ -106,6 +106,8 @@ void Engine::start(int argc, char **argv)
 	window_image = new Image("window.tga");
 	name_box_image_top = new Image("name_box_top.tga");
 	name_box_image_bottom = new Image("name_box_bottom.tga");
+	name_box_image_top_right = new Image("name_box_top_right.tga");
+	name_box_image_bottom_right = new Image("name_box_bottom_right.tga");
 
 	load_palette("palette.gpl");
 
@@ -145,6 +147,8 @@ void Engine::end()
 	delete window_image;
 	delete name_box_image_top;
 	delete name_box_image_bottom;
+	delete name_box_image_top_right;
+	delete name_box_image_bottom_right;
 
 	delete font;
 	delete bold_font;
