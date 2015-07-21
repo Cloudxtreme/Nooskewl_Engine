@@ -18,12 +18,14 @@ void Speech::static_end()
 	delete speech_advance;
 }
 
-Speech::Speech(std::string text) :
+Speech::Speech(std::string text, Callback callback, void *callback_data) :
 	text(text),
 	offset(0),
 	advance(false),
 	done(false),
-	top(false)
+	top(false),
+	callback(callback),
+	callback_data(callback_data)
 {
 	size_t pipe = text.find('|');
 	if (pipe != std::string::npos) {
@@ -55,6 +57,10 @@ bool Speech::handle_event(TGUI_Event *event)
 	if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN)) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
 		noo.button_mml->play(false);
 		if (done) {
+			if (callback != 0) {
+				callback(callback_data);
+				callback = 0;
+			}
 			return false;
 		}
 		else if (advance) {

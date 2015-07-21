@@ -60,11 +60,11 @@ void Map::add_entity(Map_Entity *entity)
 	entities.push_back(entity);
 }
 
-void Map::add_speech(std::string text)
+void Map::add_speech(std::string text, Callback callback, void *callback_data)
 {
-	speeches.push_back(text);
+	speeches.push_back(new Map_Speech(text, callback, callback_data));
 	if (speech == 0) {
-		speech = new Speech(speeches[0]);
+		speech = new Speech(speeches[0]->text, speeches[0]->callback, callback_data);
 		speech->start();
 	}
 }
@@ -173,7 +173,7 @@ void Map::handle_event(TGUI_Event *event)
 			delete speech;
 			speeches.erase(speeches.begin());
 			if (speeches.size() > 0) {
-				speech = new Speech(speeches[0]);
+				speech = new Speech(speeches[0]->text, speeches[0]->callback, speeches[0]->callback_data);
 				speech->start();
 			}
 			else {

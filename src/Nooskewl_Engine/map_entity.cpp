@@ -26,7 +26,8 @@ Map_Entity::Map_Entity(Brain *brain) :
 	stop_next_tile(false),
 	sitting(false),
 	input_disabled(false),
-	following_path(false)
+	following_path(false),
+	path_callback(0)
 {
 	id = current_id++;
 }
@@ -130,11 +131,13 @@ void Map_Entity::set_sitting(bool sitting)
 	set_direction(direction);
 }
 
-void Map_Entity::set_path(std::list<A_Star::Node *> path)
+void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, void *callback_data)
 {
 	if (path.size() > 0) {
 		this->path = path;
 		following_path = true;
+		path_callback = callback;
+		path_callback_data = callback_data;
 		follow_path();
 	}
 }
@@ -425,6 +428,10 @@ void Map_Entity::stop_now()
 void Map_Entity::follow_path()
 {
 	if (path.size() == 0) {
+		if (path_callback) {
+			path_callback(path_callback_data);
+			path_callback = 0;
+		}
 		end_a_star();
 		stop_now();
 		return;

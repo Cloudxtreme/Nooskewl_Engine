@@ -12,7 +12,7 @@ public:
 	static void static_start();
 	static void static_end();
 
-	Speech(std::string text);
+	Speech(std::string text, Callback callback = 0, void *callback_data = 0);
 	~Speech();
 
 	void start();
@@ -32,6 +32,9 @@ private:
 	bool done;
 	int skip;
 	bool top;
+
+	Callback callback;
+	void *callback_data;
 
 	static Sprite *speech_advance;
 };

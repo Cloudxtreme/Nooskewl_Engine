@@ -3,6 +3,7 @@
 
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/a_star.h"
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/types.h"
 
@@ -32,7 +33,7 @@ public:
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
-	void set_path(std::list<A_Star::Node *> path);
+	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
 
 	void disable_input();
 	void enable_input();
@@ -76,6 +77,8 @@ private:
 
 	bool following_path;
 	std::list<A_Star::Node *> path;
+	Callback path_callback;
+	void *path_callback_data;
 };
 
 } // End namespace Nooskewl_Engine
