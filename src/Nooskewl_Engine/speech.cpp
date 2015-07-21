@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/speech.h"
+#include "Nooskewl_Engine/tokenizer.h"
 
 using namespace Nooskewl_Engine;
 
@@ -24,22 +25,19 @@ Speech::Speech(std::string text, Callback callback, void *callback_data) :
 	advance(false),
 	done(false),
 	top(false),
+	right(false),
 	callback(callback),
 	callback_data(callback_data)
 {
-	size_t pipe = text.find('|');
+	size_t pipe = this->text.find('|');
 	if (pipe != std::string::npos) {
-		size_t comma = text.find(',', 0);
+		std::string options = this->text.substr(0, pipe);
+		Tokenizer t(options, ',');
 		std::string s;
-		while (comma != std::string::npos && comma < pipe) {
-			s = text.substr(offset, comma);
+		while ((s = t.next()) != "") {
 			token(s);
-			offset = comma + 1;
-			comma = text.find(',', offset);
 		}
-		s = text.substr(offset, pipe-offset);
-		token(s);
-		offset = pipe+1;
+		this->text = this->text.substr(pipe + 1);
 	}
 }
 
