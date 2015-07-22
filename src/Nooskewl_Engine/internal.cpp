@@ -32,8 +32,10 @@ void load_dll()
 			throw FileNotFoundError("Couldn't load DLL");
 		}
 
-		m.get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "get_map_logic");
-		if (m.get_map_logic != 0) {
+		m.dll_get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "dll_get_map_logic");
+		m.dll_get_brain = (Brain_Getter)GetProcAddress(dll_handle, "dll_get_brain");
+
+		if (m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
@@ -44,8 +46,10 @@ void load_dll()
 			throw FileNotFoundError("Couldn't load shared library");
 		}
 
-		m.get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "get_map_logic");
-		if (m.get_map_logic != 0) {
+		m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
+		m.dll_get_brain = (Map_Logic_Getter)dlsym(so_handle, "dll_get_brain");
+
+		if (m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}

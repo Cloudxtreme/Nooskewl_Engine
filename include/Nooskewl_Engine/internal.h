@@ -1,6 +1,7 @@
 #ifndef INTERNAL_H
 #define INTERNAL_H
 
+#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/vertex_cache.h"
@@ -10,6 +11,7 @@ namespace Nooskewl_Engine {
 class Map_Logic;
 
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
+typedef Brain *(*Brain_Getter)(std::string options);
 
 void load_dll();
 void close_dll();
@@ -29,7 +31,8 @@ void infomsg(const char *fmt, ...);
 void printGLerror(const char *fmt, ...);
 
 struct Module {
-	Map_Logic_Getter get_map_logic;
+	Map_Logic_Getter dll_get_map_logic;
+	Brain_Getter dll_get_brain;
 	// audio
 	SDL_mutex *mixer_mutex;
 	SDL_AudioSpec device_spec;
@@ -60,7 +63,7 @@ private:
 int SDL_fgetc(SDL_RWops *file);
 char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
 int SDL_fputs(const char *string, SDL_RWops *file);
-void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
+NOOSKEWL_ENGINE_EXPORT void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
 
 SDL_RWops *open_file(std::string filename);
 std::string itos(int i);
