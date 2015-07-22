@@ -123,6 +123,7 @@ private:
 	void set_initial_d3d_state();
 	void maybe_expand_milestones(int number);
 	void load_milestones();
+	void load_translation();
 
 	SDL_Window *window;
 	bool vsync;
@@ -160,6 +161,8 @@ private:
 	int num_milestones;
 	std::map<int, std::string> ms_number_to_name;
 	std::map<std::string, int> ms_name_to_number;
+
+	std::map<int, std::string> translation;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

@@ -109,6 +109,9 @@ void Engine::start(int argc, char **argv)
 
 	load_palette("palette.gpl");
 
+	load_translation();
+	load_milestones();
+
 	Widget::static_start();
 	Speech::static_start();
 
@@ -116,8 +119,6 @@ void Engine::start(int argc, char **argv)
 	guis.push_back(new Title_GUI());
 
 	button_mml = new MML("button.mml");
-
-	load_milestones();
 
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
@@ -641,8 +642,11 @@ void Engine::clear_milestones()
 
 std::string Engine::translate(int id)
 {
-	// FIXME:
-	return "HI";
+	std::map<int, std::string>::iterator it;
+	if ((it = translation.find(id)) != translation.end()) {
+		return (*it).second;
+	}
+	return "X";
 }
 
 void Engine::clear(SDL_Colour colour)
@@ -1144,7 +1148,7 @@ void Engine::maybe_expand_milestones(int number)
 
 void Engine::load_milestones()
 {
-	SDL_RWops *file = open_file("milestones.txt");
+	SDL_RWops *file = open_file("text/milestones.txt");
 	char line[1000];
 
 	while (SDL_fgets(file, line, 1000)) {
@@ -1156,6 +1160,29 @@ void Engine::load_milestones()
 		if (num != "" && name != "") {
 			ms_name_to_number[name] = atoi(num.c_str());
 			ms_number_to_name[atoi(num.c_str())] = name;
+		}
+	}
+}
+
+void Engine::load_translation()
+{
+	SDL_RWops *file = open_file("text/" + language + ".utf8");
+
+	if (file) {
+		translation.clear();
+
+		const int max = 5000;
+		char line[max];
+
+		while (SDL_fgets(file, line, max)) {
+			if (line[strlen(line)-1] == '\r' || line[strlen(line)-1] == '\n') line[strlen(line)-1] = 0;
+			if (line[strlen(line)-1] == '\r' || line[strlen(line)-1] == '\n') line[strlen(line)-1] = 0;
+			const char *p = strchr(line, ':');
+			if (p) {
+				int num = atoi(line);
+				p++;
+				translation[num] = p;
+			}
 		}
 	}
 }
