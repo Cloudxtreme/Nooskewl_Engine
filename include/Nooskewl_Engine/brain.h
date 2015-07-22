@@ -3,9 +3,10 @@
 #define BRAIN_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/map_entity.h"
 
 namespace Nooskewl_Engine {
+
+class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Brain {
 public:
@@ -15,9 +16,15 @@ public:
 	virtual ~Brain();
 
 	virtual void handle_event(TGUI_Event *event);
+	virtual void update();
 	virtual void activate(Map_Entity *activator, Map_Entity *activated);
 	virtual void reset();
 	virtual bool save(SDL_RWops *file);
+
+	void set_map_entity(Map_Entity *map_entity);
+
+protected:
+	Map_Entity *map_entity;
 };
 
 } // End namespace Nooskewl_Engine
