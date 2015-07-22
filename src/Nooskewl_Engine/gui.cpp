@@ -7,7 +7,11 @@
 
 using namespace Nooskewl_Engine;
 
-bool Title_GUI::game_loaded;
+bool Title_GUI::loading;
+bool Title_GUI::loaded;
+
+bool Pause_GUI::quitting;
+bool Pause_GUI::quit;
 
 GUI::GUI() :
 	focus(0)
@@ -31,10 +35,11 @@ bool GUI::update_background()
 
 //--
 
-void Title_GUI::game_loaded_callback(void *data)
+void Title_GUI::callback(void *data)
 {
-	if (data != 0) {
-		game_loaded = true;
+	if (loading) {
+		loading = false;
+		loaded = data != 0;
 	}
 }
 
@@ -42,13 +47,15 @@ Title_GUI::Title_GUI() :
 	did_intro(false),
 	intro_start(SDL_GetTicks())
 {
+	loading = loaded = false;
+
 	noo.play_music("title.mml");
 
 	logo = new Image("logo.tga");
 
-	Widget_Widget *main_widget = new Widget_Widget(1.0f, 1.0f);
+	Widget *main_widget = new Widget(1.0f, 1.0f);
 
-	Widget_Widget *bottom_floater = new Widget_Widget(1.0f, 0.33f);
+	Widget *bottom_floater = new Widget(1.0f, 0.33f);
 	bottom_floater->set_float_bottom(true);
 	bottom_floater->set_parent(main_widget);
 
@@ -75,8 +82,7 @@ Title_GUI::~Title_GUI()
 
 bool Title_GUI::update()
 {
-	if (game_loaded) {
-		game_loaded = false;
+	if (check_loaded() == false) {
 		return false;
 	}
 
@@ -94,9 +100,9 @@ bool Title_GUI::update()
 		return false;
 	}
 	else if (load_game_button->pressed()) {
-		game_loaded = false;
-
-		noo.guis.push_back(new Save_Load_GUI(false, game_loaded_callback));
+		loading = true;
+		loaded = false;
+		noo.guis.push_back(new Save_Load_GUI(false, callback));
 	}
 
 	return true;
@@ -104,11 +110,7 @@ bool Title_GUI::update()
 
 bool Title_GUI::update_background()
 {
-	if (game_loaded) {
-		game_loaded = false;
-		return false;
-	}
-	return true;
+	return check_loaded();
 }
 
 void Title_GUI::draw_back()
@@ -181,9 +183,31 @@ void Title_GUI::draw_fore()
 	noo.current_shader->use();
 }
 
+bool Title_GUI::check_loaded()
+{
+	if (loaded) {
+		loaded = false;
+		return false;
+	}
+
+	return true;
+}
+
+//--
+
+void Pause_GUI::callback(void *data)
+{
+	if (quitting) {
+		quitting = false;
+		quit = data != 0;
+	}
+}
+
 Pause_GUI::Pause_GUI()
 {
-	Widget_Widget *modal_main_widget = new Widget_Widget(1.0f, 1.0f);
+	quitting = quit = false;
+
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
 	modal_main_widget->set_background_colour(background_colour);
 
@@ -197,29 +221,37 @@ Pause_GUI::Pause_GUI()
 	label->set_center_x(true);
 	label->set_parent(window);
 
-	quit_button = new Widget_Text_Button("Quit", Size<int>(60, -1));
-	quit_button->set_center_x(true);
-	quit_button->set_float_bottom(true);
-	quit_button->set_padding_bottom(5);
-	quit_button->set_parent(window);
-	
-	save_button = new Widget_Text_Button("Save", Size<int>(60, -1));
-	save_button->set_center_x(true);
-	save_button->set_float_bottom(true);
-	save_button->set_padding_bottom(5);
-	save_button->set_parent(window);
-	
-	resume_button = new Widget_Text_Button("Resume game", Size<int>(60, -1));
+	resume_button = new Widget_Text_Button("Resume", 0.3f, -1);
 	resume_button->set_center_x(true);
-	resume_button->set_float_bottom(true);
-	resume_button->set_padding_bottom(5);
-	resume_button->set_parent(window);
+
+	save_button = new Widget_Text_Button("Save", 0.3f, -1);
+	save_button->set_center_x(true);
+	save_button->set_padding_left(5);
+	save_button->set_padding_right(5);
+	
+	quit_button = new Widget_Text_Button("Quit", 0.3f, -1);
+	quit_button->set_center_x(true);
+
+	Widget *button_container = new Widget(1.0f, quit_button->get_height());
+	button_container->set_float_bottom(true);
+	button_container->set_padding_bottom(5);
+	button_container->set_parent(window);
+
+	resume_button->set_parent(button_container);
+	save_button->set_parent(button_container);
+	quit_button->set_parent(button_container);
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+
+	gui->set_focus(resume_button);
 }
 
 bool Pause_GUI::update()
 {
+	if (check_quit() == false) {
+		return false;
+	}
+
 	if (resume_button->pressed()) {
 		return false;
 	}
@@ -227,21 +259,45 @@ bool Pause_GUI::update()
 		noo.guis.push_back(new Save_Load_GUI(true));
 	}
 	else if (quit_button->pressed()) {
+		quitting = true;
+		quit = false;
+
+		noo.guis.push_back(new Yes_No_GUI("Really quit?", callback));
+	}
+
+	return true;
+}
+
+bool Pause_GUI::update_background()
+{
+	return check_quit();
+}
+
+bool Pause_GUI::check_quit()
+{
+	if (quit) {
+		quit = false;
+
 		delete noo.map;
 		noo.map = 0;
 		delete noo.player;
 		noo.player = 0;
 		noo.last_map_name = "";
+
 		noo.guis.push_back(new Title_GUI());
+
 		return false;
 	}
 
 	return true;
 }
 
+
+//--
+
 Notification_GUI::Notification_GUI(std::string text)
 {
-	Widget_Widget *modal_main_widget = new Widget_Widget(1.0f, 1.0f);
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
 	modal_main_widget->set_background_colour(background_colour);
 
@@ -272,6 +328,59 @@ bool Notification_GUI::update()
 	return true;
 }
 
+//--
+
+Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback) :
+	callback(callback)
+{
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	Widget_Window *window = new Widget_Window(100, 50);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
+	Widget_Label *label = new Widget_Label(text, window->get_width() - 10);
+	label->set_padding(5);
+	label->set_center_x(true);
+	label->set_parent(window);
+
+	yes_button = new Widget_Text_Button("Yes");
+	yes_button->set_center_x(true);
+	yes_button->set_padding_right(2);
+
+	no_button = new Widget_Text_Button("No");
+	no_button->set_center_x(true);
+	no_button->set_padding_left(2);
+
+	Widget *button_container = new Widget(1.0f, yes_button->get_height());
+	button_container->set_float_bottom(true);
+	button_container->set_padding_bottom(5);
+	button_container->set_parent(window);
+
+	yes_button->set_parent(button_container);
+	no_button->set_parent(button_container);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+}
+
+bool Yes_No_GUI::update()
+{
+	if (yes_button->pressed()) {
+		callback((void *)1);
+		return false;
+	}
+	else if (no_button->pressed()) {
+		callback(0);
+		return false;
+	}
+	return true;
+}
+
+//--
+
 Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	saving(saving),
 	callback(callback)
@@ -297,13 +406,13 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 			result = false;
 		}
 		else {
+			Map::new_game_started();
+
 			result = load_game(file);
 		}
 
 		if (result == true) {
 			if (callback) callback((void *)1);
-
-			Map::new_game_started();
 
 			noo.last_map_name = "--LOADED--";
 
@@ -319,7 +428,7 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	SDL_RWclose(file);
 
 	if (caption != "") {
-		Widget_Widget *modal_main_widget = new Widget_Widget(1.0f, 1.0f);
+		Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 		SDL_Colour background_colour = { 0, 0, 0, 192 };
 		modal_main_widget->set_background_colour(background_colour);
 

@@ -109,9 +109,10 @@ void Engine::start(int argc, char **argv)
 
 	load_palette("palette.gpl");
 
-	Widget_Widget::static_start();
+	Widget::static_start();
 	Speech::static_start();
 
+	TGUI::set_focus_sloppiness(0);
 	guis.push_back(new Title_GUI());
 
 	button_mml = new MML("button.mml");
@@ -136,7 +137,7 @@ void Engine::end()
 	delete map;
 	delete player;
 
-	Widget_Widget::static_end();
+	Widget::static_end();
 	Speech::static_end();
 
 	for (size_t i = 0; i < guis.size(); i++) {

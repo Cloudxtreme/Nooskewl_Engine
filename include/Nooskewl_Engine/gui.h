@@ -26,7 +26,7 @@ public:
 
 class NOOSKEWL_ENGINE_EXPORT Title_GUI : public GUI {
 public:
-	static void game_loaded_callback(void *);
+	static void callback(void *);
 
 	Title_GUI();
 	virtual ~Title_GUI();
@@ -37,7 +37,10 @@ public:
 	void draw_fore();
 
 private:
-	static bool game_loaded;
+	bool check_loaded();
+
+	static bool loading;
+	static bool loaded;
 
 	bool did_intro;
 	Uint32 intro_start;
@@ -50,11 +53,19 @@ private:
 
 class NOOSKEWL_ENGINE_EXPORT Pause_GUI : public GUI {
 public:
+	static void callback(void *data);
+
 	Pause_GUI();
 
 	bool update();
+	bool update_background();
 
 private:
+	bool check_quit();
+
+	static bool quitting;
+	static bool quit;
+
 	Widget_Text_Button *resume_button;
 	Widget_Text_Button *save_button;
 	Widget_Text_Button *quit_button;
@@ -68,6 +79,19 @@ public:
 
 private:
 	Widget_Text_Button *ok_button;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Yes_No_GUI : public GUI {
+public:
+	Yes_No_GUI(std::string text, Callback callback);
+
+	bool update();
+
+private:
+	Widget_Text_Button *yes_button;
+	Widget_Text_Button *no_button;
+
+	Callback callback;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Save_Load_GUI : public GUI {
