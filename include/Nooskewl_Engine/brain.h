@@ -17,6 +17,7 @@ public:
 	virtual void handle_event(TGUI_Event *event);
 	virtual void activate(Map_Entity *activator, Map_Entity *activated);
 	virtual void reset();
+	virtual bool save(SDL_RWops *file);
 };
 
 } // End namespace Nooskewl_Engine
