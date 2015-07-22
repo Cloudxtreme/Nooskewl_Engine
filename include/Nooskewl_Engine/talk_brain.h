@@ -2,6 +2,7 @@
 #define TALK_BRAIN
 
 #include "Nooskewl_Engine/brain.h"
+#include "Nooskewl_Engine/engine.h"
 
 using namespace Nooskewl_Engine;
 
@@ -22,7 +23,7 @@ public:
 
 	bool save(SDL_RWops *file);
 
-private:
+protected:
 	struct Talk {
 		int milestone;
 		std::string text;
