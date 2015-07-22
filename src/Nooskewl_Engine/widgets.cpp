@@ -5,27 +5,22 @@
 
 using namespace Nooskewl_Engine;
 
-Image *NOO_Widget::button_image;
-Image *NOO_Widget::button_image_pressed;
+Image *Widget_Widget::button_image;
+Image *Widget_Widget::button_image_pressed;
 
-NOO_GUI::~NOO_GUI()
-{
-	delete gui;
-}
-
-void NOO_Widget::static_start()
+void Widget_Widget::static_start()
 {
 	button_image = new Image("button.tga");
 	button_image_pressed = new Image("button_pressed.tga");
 }
 
-void NOO_Widget::static_end()
+void Widget_Widget::static_end()
 {
 	delete button_image;
 	delete button_image_pressed;
 }
 
-void NOO_Widget::enable_focus_shader(bool enable)
+void Widget_Widget::enable_focus_shader(bool enable)
 {
 	static Shader *bak;
 
@@ -46,50 +41,50 @@ void NOO_Widget::enable_focus_shader(bool enable)
 	}
 }
 
-NOO_Widget::NOO_Widget(int w, int h) :
+Widget_Widget::Widget_Widget(int w, int h) :
 	TGUI_Widget(w, h)
 {
 	background_colour.a = 0;
 }
 
-NOO_Widget::NOO_Widget(float percent_w, float percent_h) :
+Widget_Widget::Widget_Widget(float percent_w, float percent_h) :
 	TGUI_Widget(percent_w, percent_h)
 {
 	background_colour.a = 0;
 }
 
-NOO_Widget::NOO_Widget(int w, float percent_h) :
+Widget_Widget::Widget_Widget(int w, float percent_h) :
 	TGUI_Widget(w, percent_h)
 {
 	background_colour.a = 0;
 }
 
-NOO_Widget::NOO_Widget(float percent_w, int h) :
+Widget_Widget::Widget_Widget(float percent_w, int h) :
 	TGUI_Widget(percent_w, h)
 {
 	background_colour.a = 0;
 }
 
-NOO_Widget::~NOO_Widget()
+Widget_Widget::~Widget_Widget()
 {
 }
 
-void NOO_Widget::draw()
+void Widget_Widget::draw()
 {
 	if (background_colour.a != 0) {
 		noo.draw_quad(background_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 	}
 }
 
-void NOO_Widget::set_background_colour(SDL_Colour background_colour)
+void Widget_Widget::set_background_colour(SDL_Colour background_colour)
 {
 	this->background_colour = background_colour;
 }
 
 // --
 
-NOO_Button::NOO_Button(int w, int h) :
-	NOO_Widget(w, h),
+Widget_Button::Widget_Button(int w, int h) :
+	Widget_Widget(w, h),
 	_pressed(false),
 	_released(false),
 	_hover(false)
@@ -97,11 +92,11 @@ NOO_Button::NOO_Button(int w, int h) :
 	accepts_focus = true;
 }
 
-NOO_Button::~NOO_Button()
+Widget_Button::~Widget_Button()
 {
 }
 
-void NOO_Button::handle_event(TGUI_Event *event)
+void Widget_Button::handle_event(TGUI_Event *event)
 {
 	if (event->type == TGUI_MOUSE_AXIS) {
 		if (event->mouse.x >= calculated_x && event->mouse.x < calculated_x+calculated_w && event->mouse.y >= calculated_y && event->mouse.y < calculated_y+calculated_h) {
@@ -188,7 +183,7 @@ void NOO_Button::handle_event(TGUI_Event *event)
 	}
 }
 
-bool NOO_Button::pressed()
+bool Widget_Button::pressed()
 {
 	bool r = _released;
 	if (_released) {
@@ -199,8 +194,8 @@ bool NOO_Button::pressed()
 
 // --
 
-NOO_Text_Button::NOO_Text_Button(std::string text, Size<int> size) :
-	NOO_Button(size.w, size.h),
+Widget_Text_Button::Widget_Text_Button(std::string text, Size<int> size) :
+	Widget_Button(size.w, size.h),
 	text(text)
 {
 	padding = button_image->size.h / 3;
@@ -208,8 +203,8 @@ NOO_Text_Button::NOO_Text_Button(std::string text, Size<int> size) :
 	set_default_colours();
 }
 
-NOO_Text_Button::NOO_Text_Button(std::string text) :
-	NOO_Button(-1, -1),
+Widget_Text_Button::Widget_Text_Button(std::string text) :
+	Widget_Button(-1, -1),
 	text(text)
 {
 	padding = button_image->size.h / 3;
@@ -217,11 +212,11 @@ NOO_Text_Button::NOO_Text_Button(std::string text) :
 	set_default_colours();
 }
 
-NOO_Text_Button::~NOO_Text_Button()
+Widget_Text_Button::~Widget_Text_Button()
 {
 }
 
-void NOO_Text_Button::draw()
+void Widget_Text_Button::draw()
 {
 	bool focussed = gui->get_focus() == this;
 	Point<int> offset(0, 0);
@@ -254,13 +249,13 @@ void NOO_Text_Button::draw()
 	noo.font->disable_shadow();
 }
 
-void NOO_Text_Button::set_default_colours()
+void Widget_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
 	text_colour = noo.white;
 }
 
-void NOO_Text_Button::set_size(Size<int> size)
+void Widget_Text_Button::set_size(Size<int> size)
 {
 	if (size.w < 0) {
 		w = noo.font->get_text_width(text) + padding * 2 - 2;
@@ -272,48 +267,48 @@ void NOO_Text_Button::set_size(Size<int> size)
 
 // --
 
-NOO_Window::NOO_Window(int w, int h) :
-	NOO_Widget(w, h)
+Widget_Window::Widget_Window(int w, int h) :
+	Widget_Widget(w, h)
 {
 	set_default_colours();
 }
 
-NOO_Window::NOO_Window(float percent_w, float percent_h) :
-	NOO_Widget(percent_w, percent_h)
+Widget_Window::Widget_Window(float percent_w, float percent_h) :
+	Widget_Widget(percent_w, percent_h)
 {
 	set_default_colours();
 }
 
-NOO_Window::NOO_Window(int w, float percent_h) :
-	NOO_Widget(w, percent_h)
+Widget_Window::Widget_Window(int w, float percent_h) :
+	Widget_Widget(w, percent_h)
 {
 	set_default_colours();
 }
 
-NOO_Window::NOO_Window(float percent_w, int h) :
-	NOO_Widget(percent_w, h)
+Widget_Window::Widget_Window(float percent_w, int h) :
+	Widget_Widget(percent_w, h)
 {
 	set_default_colours();
 }
 
-NOO_Window::~NOO_Window()
+Widget_Window::~Widget_Window()
 {
 }
 
-void NOO_Window::draw()
+void Widget_Window::draw()
 {
 	noo.draw_9patch(noo.window_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 }
 
-void NOO_Window::set_default_colours()
+void Widget_Window::set_default_colours()
 {
 	background_colour = noo.magenta;
 }
 
 // --
 
-NOO_Label::NOO_Label(std::string text, int max_w) :
-	NOO_Widget(0, 0),
+Widget_Label::Widget_Label(std::string text, int max_w) :
+	Widget_Widget(0, 0),
 	text(text),
 	max_w(max_w)
 {
@@ -326,7 +321,7 @@ NOO_Label::NOO_Label(std::string text, int max_w) :
 	h = line_height * num_lines;
 }
 
-void NOO_Label::draw()
+void Widget_Label::draw()
 {
 	bool full;
 	int num_lines, width;

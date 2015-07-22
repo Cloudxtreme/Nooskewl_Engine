@@ -10,6 +10,8 @@ const float Map::PAN_BACK_SPEED = 2.0f;
 void Map::new_game_started()
 {
 	Map_Entity::new_game_started();
+
+	noo.clear_milestones();
 }
 
 Map::Map(std::string map_name) :

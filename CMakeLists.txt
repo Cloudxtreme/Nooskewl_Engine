@@ -18,6 +18,7 @@ set(LIB_SRC
 	src/Nooskewl_Engine/cpa.cpp
 	src/Nooskewl_Engine/engine.cpp
 	src/Nooskewl_Engine/font.cpp
+	src/Nooskewl_Engine/gui.cpp
 	src/Nooskewl_Engine/image.cpp
 	src/Nooskewl_Engine/internal.cpp
 	src/Nooskewl_Engine/map.cpp
