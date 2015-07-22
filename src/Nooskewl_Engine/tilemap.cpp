@@ -74,6 +74,7 @@ Tilemap::Tilemap(std::string map_filename)
 
 	for (int i = 0; i < num_groups; i++) {
 		Group *g = new Group;
+		g->type = SDL_fgetc(f);
 		g->layer = SDL_fgetc(f);
 		g->position.x = SDL_ReadLE16(f);
 		g->position.y = SDL_ReadLE16(f);
@@ -228,7 +229,7 @@ void Tilemap::draw_shadows(int layer, Point<float> position)
 
 	for (size_t i = 0; i < l.groups.size(); i++) {
 		Group *g = l.groups[i];
-		if (g->layer != layer) {
+		if (g->layer != layer || (g->type & Group::GROUP_SHADOW) == 0) {
 			continue;
 		}
 
@@ -279,6 +280,9 @@ float Tilemap::get_z(int layer, int x, int y)
 	Layer l = layers[layer];
 	for (size_t i = 0; i < l.groups.size(); i++) {
 		Group *g = l.groups[i];
+		if ((g->type & Group::GROUP_OBJECT) == 0) {
+			continue;
+		}
 		if (x >= g->position.x && y >= g->position.y && x < (g->position.x+g->size.w) && y < (g->position.y+g->size.h)) {
 			// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 			// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right

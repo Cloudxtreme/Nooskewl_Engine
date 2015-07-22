@@ -29,6 +29,14 @@ private:
 	float get_z(int layer, int x, int y);
 
 	struct Group {
+		// bit field flags
+		enum Type {
+			GROUP_NONE = 0,
+			GROUP_OBJECT = 1,
+			GROUP_SHADOW = 2
+		};
+
+		int type;
 		int layer;
 		Point<int> position;
 		Size<int> size;

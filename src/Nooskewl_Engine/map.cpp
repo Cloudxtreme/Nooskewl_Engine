@@ -292,6 +292,7 @@ void Map::draw(bool use_depth_buffer)
 	int layer;
 
 	for (layer = 0; layer < nlayers/2; layer++) {
+		tilemap->draw_shadows(layer, offset);
 		tilemap->draw(layer, offset);
 	}
 
@@ -316,6 +317,7 @@ void Map::draw(bool use_depth_buffer)
 	}
 
 	for (; layer < nlayers; layer++) {
+		tilemap->draw_shadows(layer, offset);
 		tilemap->draw(layer, offset);
 	}
 
