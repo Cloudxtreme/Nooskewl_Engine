@@ -69,6 +69,7 @@ public:
 	std::string last_map_name;
 	Map_Entity *player;
 	TGUI *gui;
+	TGUI *modal_gui;
 
 	Engine();
 	~Engine();
@@ -143,9 +144,11 @@ private:
 
 	SDL_AudioDeviceID audio_device;
 
-	MO3_Widget *main_widget;
-	MO3_Text_Button *new_game_button;
-	MO3_Text_Button *load_game_button;
+	NOO_Widget *main_widget;
+	NOO_Text_Button *new_game_button;
+	NOO_Text_Button *load_game_button;
+
+	NOO_Text_Button *modal_ok;
 
 	Image *logo;
 	bool did_intro;

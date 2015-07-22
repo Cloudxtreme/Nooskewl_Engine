@@ -57,6 +57,7 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
+	modal_gui(0),
 	did_intro(false),
 	milestones(0),
 	num_milestones(0)
@@ -111,7 +112,7 @@ void Engine::start(int argc, char **argv)
 
 	load_palette("palette.gpl");
 
-	MO3_Widget::static_start();
+	NOO_Widget::static_start();
 	Speech::static_start();
 
 	setup_title_screen();
@@ -140,10 +141,11 @@ void Engine::end()
 	delete map;
 	delete player;
 
-	MO3_Widget::static_end();
+	NOO_Widget::static_end();
 	Speech::static_end();
 
 	delete gui;
+	delete modal_gui;
 
 	delete logo;
 	delete window_image;
@@ -444,7 +446,15 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	}
 #endif
 
-	if (gui) {
+	if (modal_gui) {
+		modal_gui->handle_event(&event);
+		if (modal_ok && modal_ok->pressed()) {
+			delete modal_gui;
+			modal_gui = 0;
+			modal_ok = 0;
+		}
+	}
+	else if (gui) {
 		gui->handle_event(&event);
 		if (new_game_button && new_game_button->pressed()) {
 			delete gui;
@@ -463,21 +473,48 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			map->update_camera();
 		}
 		else if (load_game_button && load_game_button->pressed()) {
-			delete gui;
-			gui = 0;
-			new_game_button = 0;
-			load_game_button = 0;
-
-			Map::new_game_started();
-
-			last_map_name = "--LOADED--";
-
+			bool result;
 			SDL_RWops *file = SDL_RWFromFile("test.save", "r");
-			load_game(file);
-			SDL_RWclose(file);
+			if (file == NULL) {
+				result = false;
+			}
+			else {
+				result = load_game(file);
+				SDL_RWclose(file);
+			}
 
-			map->start();
-			map->update_camera();
+			if (result == true) {
+				delete gui;
+				gui = 0;
+				new_game_button = 0;
+				load_game_button = 0;
+
+				Map::new_game_started();
+
+				last_map_name = "--LOADED--";
+
+				map->start();
+				map->update_camera();
+			}
+			else {
+				NOO_Widget *modal_main_widget = new NOO_Widget(1.0f, 1.0f);
+				SDL_Colour background_colour = { 0, 0, 0, 192 };
+				modal_main_widget->set_background_colour(background_colour);
+				NOO_Window *window = new NOO_Window(100, 50);
+				window->set_center_x(true);
+				window->set_center_y(true);
+				window->set_parent(modal_main_widget);
+				NOO_Label *label = new NOO_Label("Error loading game", window->get_width() - 10);
+				label->set_padding(5);
+				label->set_center_x(true);
+				label->set_parent(window);
+				modal_ok = new NOO_Text_Button("OK");
+				modal_ok->set_center_x(true);
+				modal_ok->set_float_bottom(true);
+				modal_ok->set_padding_bottom(5);
+				modal_ok->set_parent(window);
+				modal_gui = new TGUI(modal_main_widget, screen_size.w, screen_size.h);
+			}
 		}
 	}
 	else if (map) {
@@ -638,6 +675,9 @@ void Engine::draw()
 		logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, size);
 		current_shader = bak;
 		current_shader->use();
+	}
+	if (modal_gui) {
+		modal_gui->draw();
 	}
 
 	flip();
@@ -868,6 +908,9 @@ void Engine::set_screen_size(int w, int h)
 
 	if (gui) {
 		gui->resize(screen_size.w, screen_size.h);
+	}
+	if (modal_gui) {
+		modal_gui->resize(screen_size.w, screen_size.h);
 	}
 }
 
@@ -1151,18 +1194,18 @@ void Engine::update_projection()
 
 void Engine::setup_title_screen()
 {
-	main_widget = new MO3_Widget(1.0f, 1.0f);
-	MO3_Widget *bottom_floater = new MO3_Widget(1.0f, 0.33f);
+	main_widget = new NOO_Widget(1.0f, 1.0f);
+	NOO_Widget *bottom_floater = new NOO_Widget(1.0f, 0.33f);
 	bottom_floater->set_float_bottom(true);
 	bottom_floater->set_parent(main_widget);
-	new_game_button = new MO3_Text_Button("New Game");
-	new_game_button->set_centered_x(true);
-	new_game_button->set_centered_y(true);
+	new_game_button = new NOO_Text_Button("New Game");
+	new_game_button->set_center_x(true);
+	new_game_button->set_center_y(true);
 	new_game_button->set_padding_right(2);
 	new_game_button->set_parent(bottom_floater);
-	load_game_button = new MO3_Text_Button("Load Game");
-	load_game_button->set_centered_x(true);
-	load_game_button->set_centered_y(true);
+	load_game_button = new NOO_Text_Button("Load Game");
+	load_game_button->set_center_x(true);
+	load_game_button->set_center_y(true);
 	load_game_button->set_padding_left(2);
 	load_game_button->set_parent(bottom_floater);
 	gui = new TGUI(main_widget, screen_size.w, screen_size.h);

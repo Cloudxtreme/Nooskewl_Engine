@@ -5,22 +5,22 @@
 
 using namespace Nooskewl_Engine;
 
-Image *MO3_Widget::button_image;
-Image *MO3_Widget::button_image_pressed;
+Image *NOO_Widget::button_image;
+Image *NOO_Widget::button_image_pressed;
 
-void MO3_Widget::static_start()
+void NOO_Widget::static_start()
 {
 	button_image = new Image("button.tga");
 	button_image_pressed = new Image("button_pressed.tga");
 }
 
-void MO3_Widget::static_end()
+void NOO_Widget::static_end()
 {
 	delete button_image;
 	delete button_image_pressed;
 }
 
-void MO3_Widget::enable_focus_shader(bool enable)
+void NOO_Widget::enable_focus_shader(bool enable)
 {
 	static Shader *bak;
 
@@ -41,34 +41,50 @@ void MO3_Widget::enable_focus_shader(bool enable)
 	}
 }
 
-MO3_Widget::MO3_Widget(int w, int h) :
+NOO_Widget::NOO_Widget(int w, int h) :
 	TGUI_Widget(w, h)
 {
+	background_colour.a = 0;
 }
 
-MO3_Widget::MO3_Widget(float percent_w, float percent_h) :
+NOO_Widget::NOO_Widget(float percent_w, float percent_h) :
 	TGUI_Widget(percent_w, percent_h)
 {
+	background_colour.a = 0;
 }
 
-MO3_Widget::MO3_Widget(int w, float percent_h) :
+NOO_Widget::NOO_Widget(int w, float percent_h) :
 	TGUI_Widget(w, percent_h)
 {
+	background_colour.a = 0;
 }
 
-MO3_Widget::MO3_Widget(float percent_w, int h) :
+NOO_Widget::NOO_Widget(float percent_w, int h) :
 	TGUI_Widget(percent_w, h)
 {
+	background_colour.a = 0;
 }
 
-MO3_Widget::~MO3_Widget()
+NOO_Widget::~NOO_Widget()
 {
+}
+
+void NOO_Widget::draw()
+{
+	if (background_colour.a != 0) {
+		noo.draw_quad(background_colour, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	}
+}
+
+void NOO_Widget::set_background_colour(SDL_Colour background_colour)
+{
+	this->background_colour = background_colour;
 }
 
 // --
 
-MO3_Button::MO3_Button(int w, int h) :
-	MO3_Widget(w, h),
+NOO_Button::NOO_Button(int w, int h) :
+	NOO_Widget(w, h),
 	_pressed(false),
 	_released(false),
 	_hover(false)
@@ -76,11 +92,11 @@ MO3_Button::MO3_Button(int w, int h) :
 	accepts_focus = true;
 }
 
-MO3_Button::~MO3_Button()
+NOO_Button::~NOO_Button()
 {
 }
 
-void MO3_Button::handle_event(TGUI_Event *event)
+void NOO_Button::handle_event(TGUI_Event *event)
 {
 	if (event->type == TGUI_MOUSE_AXIS) {
 		if (event->mouse.x >= calculated_x && event->mouse.x < calculated_x+calculated_w && event->mouse.y >= calculated_y && event->mouse.y < calculated_y+calculated_h) {
@@ -167,7 +183,7 @@ void MO3_Button::handle_event(TGUI_Event *event)
 	}
 }
 
-bool MO3_Button::pressed()
+bool NOO_Button::pressed()
 {
 	bool r = _released;
 	if (_released) {
@@ -178,8 +194,8 @@ bool MO3_Button::pressed()
 
 // --
 
-MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
-	MO3_Button(size.w, size.h),
+NOO_Text_Button::NOO_Text_Button(std::string text, Size<int> size) :
+	NOO_Button(size.w, size.h),
 	text(text)
 {
 	padding = button_image->size.h / 3;
@@ -187,8 +203,8 @@ MO3_Text_Button::MO3_Text_Button(std::string text, Size<int> size) :
 	set_default_colours();
 }
 
-MO3_Text_Button::MO3_Text_Button(std::string text) :
-	MO3_Button(-1, -1),
+NOO_Text_Button::NOO_Text_Button(std::string text) :
+	NOO_Button(-1, -1),
 	text(text)
 {
 	padding = button_image->size.h / 3;
@@ -196,11 +212,11 @@ MO3_Text_Button::MO3_Text_Button(std::string text) :
 	set_default_colours();
 }
 
-MO3_Text_Button::~MO3_Text_Button()
+NOO_Text_Button::~NOO_Text_Button()
 {
 }
 
-void MO3_Text_Button::draw()
+void NOO_Text_Button::draw()
 {
 	bool focussed = gui->get_focus() == this;
 	Point<int> offset(0, 0);
@@ -233,13 +249,13 @@ void MO3_Text_Button::draw()
 	noo.font->disable_shadow();
 }
 
-void MO3_Text_Button::set_default_colours()
+void NOO_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
 	text_colour = noo.white;
 }
 
-void MO3_Text_Button::set_size(Size<int> size)
+void NOO_Text_Button::set_size(Size<int> size)
 {
 	if (size.w < 0) {
 		w = noo.font->get_text_width(text) + padding * 2 - 2;
@@ -251,48 +267,48 @@ void MO3_Text_Button::set_size(Size<int> size)
 
 // --
 
-MO3_Window::MO3_Window(int w, int h) :
-	MO3_Widget(w, h)
+NOO_Window::NOO_Window(int w, int h) :
+	NOO_Widget(w, h)
 {
 	set_default_colours();
 }
 
-MO3_Window::MO3_Window(float percent_w, float percent_h) :
-	MO3_Widget(percent_w, percent_h)
+NOO_Window::NOO_Window(float percent_w, float percent_h) :
+	NOO_Widget(percent_w, percent_h)
 {
 	set_default_colours();
 }
 
-MO3_Window::MO3_Window(int w, float percent_h) :
-	MO3_Widget(w, percent_h)
+NOO_Window::NOO_Window(int w, float percent_h) :
+	NOO_Widget(w, percent_h)
 {
 	set_default_colours();
 }
 
-MO3_Window::MO3_Window(float percent_w, int h) :
-	MO3_Widget(percent_w, h)
+NOO_Window::NOO_Window(float percent_w, int h) :
+	NOO_Widget(percent_w, h)
 {
 	set_default_colours();
 }
 
-MO3_Window::~MO3_Window()
+NOO_Window::~NOO_Window()
 {
 }
 
-void MO3_Window::draw()
+void NOO_Window::draw()
 {
 	noo.draw_9patch(noo.window_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 }
 
-void MO3_Window::set_default_colours()
+void NOO_Window::set_default_colours()
 {
 	background_colour = noo.magenta;
 }
 
 // --
 
-MO3_Label::MO3_Label(std::string text, int max_w) :
-	MO3_Widget(0, 0),
+NOO_Label::NOO_Label(std::string text, int max_w) :
+	NOO_Widget(0, 0),
 	text(text),
 	max_w(max_w)
 {
@@ -305,7 +321,7 @@ MO3_Label::MO3_Label(std::string text, int max_w) :
 	h = line_height * num_lines;
 }
 
-void MO3_Label::draw()
+void NOO_Label::draw()
 {
 	bool full;
 	int num_lines, width;

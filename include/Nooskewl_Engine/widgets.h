@@ -5,27 +5,33 @@
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_ENGINE_EXPORT MO3_Widget : public TGUI_Widget {
+class NOOSKEWL_ENGINE_EXPORT NOO_Widget : public TGUI_Widget {
 public:
 	static void static_start();
 	static void static_end();
 	static void enable_focus_shader(bool enable);
 
-	MO3_Widget(int w, int h);
-	MO3_Widget(float percent_w, float percent_h);
-	MO3_Widget(int w, float percent_h);
-	MO3_Widget(float percent_w, int h);
-	virtual ~MO3_Widget();
+	NOO_Widget(int w, int h);
+	NOO_Widget(float percent_w, float percent_h);
+	NOO_Widget(int w, float percent_h);
+	NOO_Widget(float percent_w, int h);
+	virtual ~NOO_Widget();
+
+	virtual void draw();
+
+	void set_background_colour(SDL_Colour background_colour);
 
 protected:
 	static Image *button_image;
 	static Image *button_image_pressed;
+
+	SDL_Colour background_colour;
 };
 
-class NOOSKEWL_ENGINE_EXPORT MO3_Button : public MO3_Widget {
+class NOOSKEWL_ENGINE_EXPORT NOO_Button : public NOO_Widget {
 public:
-	MO3_Button(int w, int h);
-	virtual ~MO3_Button();
+	NOO_Button(int w, int h);
+	virtual ~NOO_Button();
 
 	void handle_event(TGUI_Event *event);
 
@@ -37,12 +43,12 @@ protected:
 	bool _hover;
 };
 
-class NOOSKEWL_ENGINE_EXPORT MO3_Text_Button : public MO3_Button
+class NOOSKEWL_ENGINE_EXPORT NOO_Text_Button : public NOO_Button
 {
 public:
-	MO3_Text_Button(std::string, Size<int> size); // < 0 = don't care
-	MO3_Text_Button(std::string text);
-	virtual ~MO3_Text_Button();
+	NOO_Text_Button(std::string, Size<int> size); // < 0 = don't care
+	NOO_Text_Button(std::string text);
+	virtual ~NOO_Text_Button();
 
 	void draw();
 
@@ -56,14 +62,14 @@ private:
 	int padding;
 };
 
-class NOOSKEWL_ENGINE_EXPORT MO3_Window : public MO3_Widget
+class NOOSKEWL_ENGINE_EXPORT NOO_Window : public NOO_Widget
 {
 public:
-	MO3_Window(int w, int h);
-	MO3_Window(float percent_w, float percent_h);
-	MO3_Window(int w, float percent_h);
-	MO3_Window(float percent_w, int h);
-	virtual ~MO3_Window();
+	NOO_Window(int w, int h);
+	NOO_Window(float percent_w, float percent_h);
+	NOO_Window(int w, float percent_h);
+	NOO_Window(float percent_w, int h);
+	virtual ~NOO_Window();
 
 	void draw();
 
@@ -73,10 +79,10 @@ private:
 	SDL_Colour background_colour;
 };
 
-class NOOSKEWL_ENGINE_EXPORT MO3_Label : public MO3_Widget
+class NOOSKEWL_ENGINE_EXPORT NOO_Label : public NOO_Widget
 {
 public:
-	MO3_Label(std::string text, int max_w);
+	NOO_Label(std::string text, int max_w);
 
 	void draw();
 
