@@ -390,7 +390,7 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 
 	if (saving) {
 		file = SDL_RWFromFile("test.save", "w");
-		if (save_game(file) == false) {
+		if (file == 0 || save_game(file) == false) {
 			if (callback) callback(0);
 			caption = noo.t->translate(2);
 		}
@@ -425,7 +425,9 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 		}
 	}
 
-	SDL_RWclose(file);
+	if (file) {
+		SDL_RWclose(file);
+	}
 
 	if (caption != "") {
 		Widget *modal_main_widget = new Widget(1.0f, 1.0f);
@@ -639,7 +641,13 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 			Tokenizer t3(value, ':');
 			std::string xml_filename = t3.next();
 			std::string image_directory = t3.next();
+			std::string animation = t3.next();
+			bool started = atoi(t3.next().c_str()) != 0;
 			Sprite *sprite = new Sprite(xml_filename, image_directory, true);
+			sprite->set_animation(animation);
+			if (started) {
+				sprite->start();
+			}
 			entity->set_sprite(sprite);
 		}
 		else {
@@ -678,8 +686,7 @@ Brain *Save_Load_GUI::load_brain(SDL_RWops *file)
 		brain = new Talk_Brain(name);
 	}
 	else {
-		errormsg("Unknown brain type '%s'\n", type.c_str());
-		return 0;
+		return m.dll_get_brain(value);
 	}
 
 	return brain;
