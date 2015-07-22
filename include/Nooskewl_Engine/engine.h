@@ -16,6 +16,7 @@ namespace Nooskewl_Engine {
 
 typedef void (*Callback)(void *data);
 
+class Brain;
 class Map;
 class Map_Entity;
 
@@ -81,6 +82,8 @@ public:
 
 	bool check_milestone(int number);
 	void set_milestone(int number, bool completed);
+	int milestone_name_to_number(std::string name);
+	std::string milestone_number_to_name(int number);
 
 	void clear(SDL_Colour colour);
 	void flip();
@@ -115,6 +118,14 @@ private:
 	void setup_title_screen();
 	void set_initial_d3d_state();
 	void maybe_expand_milestones(int number);
+	void load_milestones();
+	bool save_game(SDL_RWops *file);
+	bool save_milestones(SDL_RWops *file);
+	bool load_game(SDL_RWops *file);
+	bool load_milestones(SDL_RWops *file);
+	bool load_map(SDL_RWops *file);
+	Map_Entity *load_entity(SDL_RWops *file);
+	Brain *load_brain(SDL_RWops *file);
 
 	SDL_Window *window;
 	bool vsync;
@@ -133,7 +144,8 @@ private:
 	SDL_AudioDeviceID audio_device;
 
 	MO3_Widget *main_widget;
-	MO3_Text_Button *new_game;
+	MO3_Text_Button *new_game_button;
+	MO3_Text_Button *load_game_button;
 
 	Image *logo;
 	bool did_intro;
@@ -157,6 +169,8 @@ private:
 
 	bool *milestones;
 	int num_milestones;
+	std::map<int, std::string> ms_number_to_name;
+	std::map<std::string, int> ms_name_to_number;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

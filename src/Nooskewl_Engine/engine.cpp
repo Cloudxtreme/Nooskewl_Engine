@@ -118,6 +118,8 @@ void Engine::start(int argc, char **argv)
 
 	button_mml = new MML("button.mml");
 
+	load_milestones();
+
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
 
@@ -430,6 +432,12 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		}
 	}
 
+	if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_s) {
+		SDL_RWops *file = SDL_RWFromFile("test.save", "w");
+		save_game(file);
+		SDL_RWclose(file);
+	}
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
 		SetCursor(mouse_cursor);
@@ -438,19 +446,36 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	if (gui) {
 		gui->handle_event(&event);
-		if (new_game && new_game->pressed()) {
+		if (new_game_button && new_game_button->pressed()) {
 			delete gui;
 			gui = 0;
-			new_game = 0;
+			new_game_button = 0;
+			load_game_button = 0;
 
 			Map::new_game_started();
 
-			Player_Brain *player_brain = new Player_Brain();
-			player = new Map_Entity(player_brain);
+			player = new Map_Entity("player");
+			player->set_brain(new Player_Brain());
 			player->load_sprite("player");
 			map = new Map("start.map");
-			player->get_brain()->reset();
 			map->add_entity(player);
+			map->start();
+			map->update_camera();
+		}
+		else if (load_game_button && load_game_button->pressed()) {
+			delete gui;
+			gui = 0;
+			new_game_button = 0;
+			load_game_button = 0;
+
+			Map::new_game_started();
+
+			last_map_name = "--LOADED--";
+
+			SDL_RWops *file = SDL_RWFromFile("test.save", "r");
+			load_game(file);
+			SDL_RWclose(file);
+
 			map->start();
 			map->update_camera();
 		}
@@ -543,7 +568,7 @@ void Engine::draw()
 	if (map) {
 		map->draw();
 	}
-	if (new_game != 0) {
+	if (new_game_button != 0) {
 		int scale1 = 4;
 		int x1 = -logo->size.w / 2 * scale1;
 		int y1 = -logo->size.h / 2 * scale1;
@@ -570,7 +595,7 @@ void Engine::draw()
 	if (gui) {
 		gui->draw();
 	}
-	if (new_game != 0) {
+	if (new_game_button != 0) {
 		play_music("title.mml");
 
 		Point<float> pos;
@@ -651,6 +676,24 @@ void Engine::set_milestone(int number, bool completed)
 	maybe_expand_milestones(number);
 
 	milestones[number] = completed;
+}
+
+int Engine::milestone_name_to_number(std::string name)
+{
+	std::map<std::string, int>::iterator it;
+	if ((it = ms_name_to_number.find(name)) == ms_name_to_number.end()) {
+		return -1;
+	}
+	return (*it).second;
+}
+
+std::string Engine::milestone_number_to_name(int number)
+{
+	std::map<int, std::string>::iterator it;
+	if ((it = ms_number_to_name.find(number)) == ms_number_to_name.end()) {
+		return "";
+	}
+	return (*it).second;
 }
 
 void Engine::clear(SDL_Colour colour)
@@ -1112,12 +1155,18 @@ void Engine::setup_title_screen()
 	MO3_Widget *bottom_floater = new MO3_Widget(1.0f, 0.33f);
 	bottom_floater->set_float_bottom(true);
 	bottom_floater->set_parent(main_widget);
-	new_game = new MO3_Text_Button("New Game");
-	new_game->set_centered_x(true);
-	new_game->set_centered_y(true);
-	new_game->set_parent(bottom_floater);
+	new_game_button = new MO3_Text_Button("New Game");
+	new_game_button->set_centered_x(true);
+	new_game_button->set_centered_y(true);
+	new_game_button->set_padding_right(2);
+	new_game_button->set_parent(bottom_floater);
+	load_game_button = new MO3_Text_Button("Load Game");
+	load_game_button->set_centered_x(true);
+	load_game_button->set_centered_y(true);
+	load_game_button->set_padding_left(2);
+	load_game_button->set_parent(bottom_floater);
 	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
-	gui->set_focus(new_game);
+	gui->set_focus(new_game_button);
 }
 
 void Engine::set_initial_d3d_state()
@@ -1160,6 +1209,238 @@ void Engine::maybe_expand_milestones(int number)
 			num_milestones = number+1;
 		}
 	}
+}
+
+void Engine::load_milestones()
+{
+	SDL_RWops *file = open_file("milestones.txt");
+	char line[1000];
+
+	while (SDL_fgets(file, line, 1000)) {
+		if (line[strlen(line)-1] == '\n' || line[strlen(line)-1] == '\r') line[strlen(line)-1] = 0;
+		if (line[strlen(line)-1] == '\n' || line[strlen(line)-1] == '\r') line[strlen(line)-1] = 0;
+		Tokenizer t(line, '=');
+		std::string num = t.next();
+		std::string name = t.next();
+		if (num != "" && name != "") {
+			ms_name_to_number[name] = atoi(num.c_str());
+			ms_number_to_name[atoi(num.c_str())] = name;
+		}
+	}
+}
+
+bool Engine::save_game(SDL_RWops *file)
+{
+	SDL_fprintf(file, "version=100\n");
+	if (save_milestones(file) == false) {
+		return false;
+	}
+	return map->save(file);
+}
+
+bool Engine::save_milestones(SDL_RWops *file)
+{
+	SDL_fprintf(file, "num_milestones=%d\n", num_milestones);
+	for (int i = 0; i < num_milestones; i++) {
+		SDL_fprintf(file, "%d=%d\n", i, milestones[i] == true ? 1 : 0);
+	}
+	return true;
+}
+
+bool Engine::load_game(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	if (tag != "version") {
+		errormsg("Missing version in save state\n");
+		return false;
+	}
+	std::string version = t.next();
+	// Do something with version
+	if (load_milestones(file) == false) {
+		return false;
+	}
+	return load_map(file);
+}
+
+bool Engine::load_milestones(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	if (tag != "num_milestones") {
+		errormsg("Expected num_milestones in save state\n");
+		return false;
+	}
+
+	for (int i = 0; i < num_milestones; i++) {
+		SDL_fgets(file, line, 1000);
+		s = line;
+		trim(s);
+		Tokenizer t(s, '=');
+		std::string tag = t.next();
+		std::string value = t.next();
+		if (atoi(tag.c_str()) != i) {
+			errormsg("Expected milestone %d, got '%s'\n", i, tag.c_str());
+			return false;
+		}
+		bool onoff = atoi(value.c_str()) != 0;
+		set_milestone(i, onoff);
+	}
+
+	return true;
+}
+
+bool Engine::load_map(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	trim(value);
+
+	if (tag != "map_name") {
+		errormsg("Expected map_name in save state\n");
+		return false;
+	}
+
+	map = new Map(value);
+
+	SDL_fgets(file, line, 1000);
+	s = line;
+	trim(s);
+	t = Tokenizer(s, '=');
+	tag = t.next();
+	value = t.next();
+
+	if (tag != "num_entities") {
+		errormsg("Expected num_entities in save state\n");
+		return false;
+	}
+	int num_entities = atoi(value.c_str());
+	if (num_entities < 1) {
+		errormsg("Expected at least 1 entity in save state\n");
+		return false;
+	}
+
+	player = load_entity(file);
+	if (player == 0) {
+		return false;
+	}
+	else if (player->get_name() != "player") {
+		errormsg("Expected player first in save state\n");
+		return false;
+	}
+
+	map->add_entity(player);
+
+	for (int i = 1; i < num_entities; i++) {
+		Map_Entity *entity = load_entity(file);
+		if (entity == 0) {
+			return false;
+		}
+		map->add_entity(entity);
+	}
+
+	return true;
+}
+
+Map_Entity *Engine::load_entity(SDL_RWops *file)
+{
+	Brain *brain = load_brain(file);
+	if (brain == 0) {
+		return 0;
+	}
+
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string name = t.next();
+	std::string options = s.substr(name.length()+1);
+
+	t = Tokenizer(options, ',');
+	std::string option;
+
+	Map_Entity *entity = new Map_Entity(name);
+	entity->set_brain(brain);
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, '=');
+		std::string key = t2.next();
+		std::string value = t2.next();
+		if (key == "position") {
+			Tokenizer t3(value, ':');
+			std::string x_s = t3.next();
+			std::string y_s = t3.next();
+			entity->set_position(Point<int>(atoi(x_s.c_str()), atoi(y_s.c_str())));
+		}
+		else if (key == "direction") {
+			entity->set_direction((Direction)atoi(value.c_str()));
+		}
+		else if (key == "sitting") {
+			entity->set_sitting(atoi(value.c_str()) != 0);
+		}
+		else if (key == "sprite") {
+			Tokenizer t3(value, ':');
+			std::string xml_filename = t3.next();
+			std::string image_directory = t3.next();
+			Sprite *sprite = new Sprite(xml_filename, image_directory, true);
+			entity->set_sprite(sprite);
+		}
+		else {
+			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
+		}
+	}
+
+	return entity;
+}
+
+Brain *Engine::	load_brain(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	if (tag != "brain") {
+		errormsg("Expected brain in save state\n");
+		return 0;
+	}
+
+	t = Tokenizer(value, ',');
+
+	std::string type = t.next();
+
+	Brain *brain;
+
+	if (type == "player_brain") {
+		brain = new Player_Brain();
+	}
+	else if (type == "talk_brain") {
+		std::string name = t.next();
+		brain = new Talk_Brain(name);
+	}
+	else {
+		errormsg("Unknown brain type '%s'\n", type.c_str());
+		return 0;
+	}
+
+	return brain;
 }
 
 } // End namespace Nooskewl_Engine
