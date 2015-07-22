@@ -41,6 +41,7 @@ Map_Entity::~Map_Entity()
 void Map_Entity::set_brain(Brain *brain)
 {
 	this->brain = brain;
+	brain->set_map_entity(this);
 }
 
 void Map_Entity::load_sprite(std::string name)
