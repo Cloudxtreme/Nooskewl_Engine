@@ -88,6 +88,8 @@ public:
 	int get_num_milestones();
 	void clear_milestones();
 
+	std::string translate(int id);
+
 	void clear(SDL_Colour colour);
 	void flip();
 

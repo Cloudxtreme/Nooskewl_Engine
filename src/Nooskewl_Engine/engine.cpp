@@ -639,6 +639,12 @@ void Engine::clear_milestones()
 	num_milestones = 0;
 }
 
+std::string Engine::translate(int id)
+{
+	// FIXME:
+	return "HI";
+}
+
 void Engine::clear(SDL_Colour colour)
 {
 	if (opengl) {
