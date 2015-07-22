@@ -2,10 +2,15 @@
 
 int main(int argc, char **argv)
 {
-	int num = atoi(argv[1]);
+	if (argc != 4) {
+		printf("Usage: %s <objname> <matches.txt> <target.txt>\n", argv[0]);
+		exit(0);
+	}
+
 	FILE *in = fopen(argv[2], "r");
 
 	char buf[5000];
+	int num = 0;
 
 	while (fgets(buf, 5000, in)) {
 		if (buf[strlen(buf)-1] == '\r' || buf[strlen(buf)-1] == '\n') buf[strlen(buf)-1] = 0;
@@ -13,7 +18,7 @@ int main(int argc, char **argv)
 		char match[5000];
 		snprintf(match, 5000, "TRANSLATE(\"%s\")END", buf);
 		char sub[5000];
-		snprintf(sub, 5000, "noo.translate(%d)", num++);
+		snprintf(sub, 5000, "noo.%s->translate(%d)", argv[1], num++);
 		FILE *out = fopen("__out__.txt", "w");
 		FILE *in2 = fopen(argv[3], "r");
 		char buf2[5000];
