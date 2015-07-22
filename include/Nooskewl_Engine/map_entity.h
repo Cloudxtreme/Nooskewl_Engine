@@ -16,7 +16,7 @@ class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
 	static void new_game_started();
 
-	Map_Entity(Brain *brain);
+	Map_Entity(std::string name);
 	~Map_Entity();
 
 	void stop();
@@ -26,7 +26,9 @@ public:
 	// draws with z values
 	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
 
+	void set_brain(Brain *brain);
 	void load_sprite(std::string name);
+	void set_sprite(Sprite *sprite);
 	void set_position(Point<int> position);
 	void set_offset(Point<float> offset);
 	void set_bounce(int bounce);
@@ -39,6 +41,7 @@ public:
 	void enable_input();
 
 	int get_id();
+	std::string get_name();
 	Brain *get_brain();
 	Sprite *get_sprite();
 	Direction get_direction();
@@ -61,6 +64,7 @@ private:
 	void end_a_star();
 
 	int id;
+	std::string name;
 	Direction direction;
 	Sprite *sprite;
 	Brain *brain;

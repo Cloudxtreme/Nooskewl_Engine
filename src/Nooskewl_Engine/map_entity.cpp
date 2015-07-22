@@ -12,10 +12,10 @@ void Map_Entity::new_game_started()
 	current_id = 0;
 }
 
-Map_Entity::Map_Entity(Brain *brain) :
+Map_Entity::Map_Entity(std::string name) :
+	name(name),
 	direction(S),
 	sprite(0),
-	brain(brain),
 	position(0, 0),
 	moving(false),
 	speed(0.1f),
@@ -38,10 +38,22 @@ Map_Entity::~Map_Entity()
 	delete sprite;
 }
 
+void Map_Entity::set_brain(Brain *brain)
+{
+	this->brain = brain;
+}
+
 void Map_Entity::load_sprite(std::string name)
 {
+	delete sprite;
 	sprite = new Sprite(name + "/animations.xml", name);
 	sprite->set_animation("stand_s");
+}
+
+void Map_Entity::set_sprite(Sprite *sprite)
+{
+	delete this->sprite;
+	this->sprite = sprite;
 }
 
 void Map_Entity::set_position(Point<int> position)
@@ -155,6 +167,11 @@ void Map_Entity::enable_input()
 int Map_Entity::get_id()
 {
 	return id;
+}
+
+std::string Map_Entity::get_name()
+{
+	return name;
 }
 
 Brain *Map_Entity::get_brain()
