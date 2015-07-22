@@ -2,11 +2,11 @@
 #define TILEMAP_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/error.h"
-#include "Nooskewl_Engine/image.h"
-#include "Nooskewl_Engine/types.h"
+#include "Nooskewl_Engine/basic_types.h"
 
 namespace Nooskewl_Engine {
+
+class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Tilemap
 {

@@ -1,7 +1,11 @@
+#include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
+#include "Nooskewl_Engine/sprite.h"
+#include "Nooskewl_Engine/tilemap.h"
 
 using namespace Nooskewl_Engine;
 

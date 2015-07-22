@@ -1,3 +1,5 @@
+#include "Nooskewl_Engine/error.h"
+#include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/xml.h"

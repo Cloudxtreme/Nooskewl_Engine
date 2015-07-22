@@ -1,6 +1,8 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/shader.h"
-#include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
 
 using namespace Nooskewl_Engine;

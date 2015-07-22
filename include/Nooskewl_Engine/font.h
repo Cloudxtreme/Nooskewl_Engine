@@ -2,7 +2,7 @@
 #define FONT_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/types.h"
+#include "Nooskewl_Engine/basic_types.h"
 
 namespace Nooskewl_Engine {
 

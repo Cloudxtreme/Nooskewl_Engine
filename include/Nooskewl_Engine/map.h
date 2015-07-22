@@ -1,15 +1,16 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/map_entity.h"
-#include "Nooskewl_Engine/map_logic.h"
-#include "Nooskewl_Engine/speech.h"
-#include "Nooskewl_Engine/tilemap.h"
-#include "Nooskewl_Engine/types.h"
+#include "Nooskewl_Engine/a_star.h"
+#include "Nooskewl_Engine/basic_types.h"
 
 namespace Nooskewl_Engine {
+
+class Map_Entity;
+class Map_Logic;
+class Speech;
+class Tilemap;
 
 class NOOSKEWL_ENGINE_EXPORT Map {
 public:

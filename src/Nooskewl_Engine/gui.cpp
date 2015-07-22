@@ -1,9 +1,17 @@
+#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/gui.h"
+#include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/player_brain.h"
+#include "Nooskewl_Engine/shader.h"
+#include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/talk_brain.h"
 #include "Nooskewl_Engine/tokenizer.h"
+#include "Nooskewl_Engine/translation.h"
+#include "Nooskewl_Engine/widgets.h"
 
 using namespace Nooskewl_Engine;
 

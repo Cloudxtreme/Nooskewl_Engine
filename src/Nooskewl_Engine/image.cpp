@@ -1,6 +1,7 @@
 // http://paulbourke.net/dataformats/tga/
 
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/vertex_cache.h"

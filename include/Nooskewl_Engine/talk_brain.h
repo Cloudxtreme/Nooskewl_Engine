@@ -1,10 +1,12 @@
 #ifndef TALK_BRAIN
 #define TALK_BRAIN
 
+#include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/brain.h"
-#include "Nooskewl_Engine/engine.h"
 
-using namespace Nooskewl_Engine;
+namespace Nooskewl_Engine {
+
+class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Talk_Brain : public Brain {
 public:
@@ -38,5 +40,7 @@ protected:
 	Callback user_callback;
 	void *user_callback_data;
 };
+
+} // End namespace Nooskewl_Engine
 
 #endif // TALK_BRAIN

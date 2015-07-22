@@ -2,13 +2,13 @@
 #define Widget_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/engine.h"
-#include "Nooskewl_Engine/widgets.h"
 
 namespace Nooskewl_Engine {
 
 class Brain;
+class Image;
 class Map_Entity;
+class Widget_Text_Button;
 
 class NOOSKEWL_ENGINE_EXPORT GUI {
 public:

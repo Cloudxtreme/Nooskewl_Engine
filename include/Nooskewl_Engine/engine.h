@@ -2,25 +2,21 @@
 #define ENGINE_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/cpa.h"
-#include "Nooskewl_Engine/font.h"
-#include "Nooskewl_Engine/image.h"
-#include "Nooskewl_Engine/internal.h"
-#include "Nooskewl_Engine/mml.h"
-#include "Nooskewl_Engine/shader.h"
-#include "Nooskewl_Engine/sprite.h"
-#include "Nooskewl_Engine/translation.h"
-#include "Nooskewl_Engine/types.h"
-#include "Nooskewl_Engine/widgets.h"
+#include "Nooskewl_Engine/basic_types.h"
+
 
 namespace Nooskewl_Engine {
 
-typedef void (*Callback)(void *data);
-
 class Brain;
+class CPA;
+class Font;
 class GUI;
+class Image;
 class Map;
 class Map_Entity;
+class MML;
+class Shader;
+class Translation;
 
 class NOOSKEWL_ENGINE_EXPORT Engine {
 public:

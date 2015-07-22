@@ -1,6 +1,10 @@
+#include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/player_brain.h"
+#include "Nooskewl_Engine/tilemap.h"
 
 using namespace Nooskewl_Engine;
 

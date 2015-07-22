@@ -5,7 +5,6 @@
 
 namespace Nooskewl_Engine {
 
-class Map;
 class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Logic {

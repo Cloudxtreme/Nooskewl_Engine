@@ -5,6 +5,8 @@
 
 namespace Nooskewl_Engine {
 
+class Sprite;
+
 class Speech {
 public:
 	static const int TEXT_DELAY = 50; // millisecond

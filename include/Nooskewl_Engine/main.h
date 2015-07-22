@@ -68,6 +68,8 @@
 
 namespace Nooskewl_Engine {
 
+typedef void (*Callback)(void *data);
+
 enum Direction {
 	N = 1,
 	S,

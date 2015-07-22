@@ -2,10 +2,10 @@
 #define WIDGETS_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/image.h"
-#include "Nooskewl_Engine/types.h"
 
 namespace Nooskewl_Engine {
+
+class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Widget : public TGUI_Widget {
 public:

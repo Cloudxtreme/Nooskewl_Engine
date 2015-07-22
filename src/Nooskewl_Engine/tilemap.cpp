@@ -1,5 +1,8 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/error.h"
+#include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/tilemap.h"
 
 using namespace Nooskewl_Engine;

@@ -2,10 +2,10 @@
 #define SPRITE_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/error.h"
-#include "Nooskewl_Engine/image.h"
 
 namespace Nooskewl_Engine {
+
+class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Sprite {
 public:

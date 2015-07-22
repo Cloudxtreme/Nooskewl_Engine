@@ -2,7 +2,6 @@
 #define SAMPLE_H
 
 #include "Nooskewl_Engine/main.h"
-#include "Nooskewl_Engine/error.h"
 
 namespace Nooskewl_Engine {
 

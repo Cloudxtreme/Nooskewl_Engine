@@ -1,7 +1,10 @@
+#include "Nooskewl_Engine/basic_types.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/font.h"
-#include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/speech.h"
+#include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/tokenizer.h"
 
 using namespace Nooskewl_Engine;

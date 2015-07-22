@@ -25,7 +25,7 @@
 #include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/tween.h"
-#include "Nooskewl_Engine/types.h"
+#include "Nooskewl_Engine/basic_types.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/widgets.h"
 #include "Nooskewl_Engine/xml.h"

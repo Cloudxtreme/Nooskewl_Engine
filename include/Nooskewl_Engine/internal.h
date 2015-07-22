@@ -2,13 +2,14 @@
 #define INTERNAL_H
 
 #include "Nooskewl_Engine/brain.h"
-#include "Nooskewl_Engine/error.h"
-#include "Nooskewl_Engine/sample.h"
-#include "Nooskewl_Engine/vertex_cache.h"
+#include "Nooskewl_Engine/basic_types.h"
 
 namespace Nooskewl_Engine {
 
+class Brain;
 class Map_Logic;
+struct SampleInstance;
+class Vertex_Cache;
 
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
 typedef Brain *(*Brain_Getter)(std::string options);

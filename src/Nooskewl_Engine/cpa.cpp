@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/cpa.h"
+#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/internal.h"
 
 using namespace Nooskewl_Engine;

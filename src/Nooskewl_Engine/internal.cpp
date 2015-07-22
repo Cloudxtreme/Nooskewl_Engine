@@ -1,5 +1,10 @@
+#include "Nooskewl_Engine/brain.h"
+#include "Nooskewl_Engine/cpa.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/map_logic.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 
 using namespace Nooskewl_Engine;
 

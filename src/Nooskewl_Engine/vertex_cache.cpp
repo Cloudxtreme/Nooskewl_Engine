@@ -1,6 +1,8 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
-#include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/internal.H"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
 /* So textures don't bleed into each other when tiling. This is about 1/100th of a pixel on a 1024x1024 texture */

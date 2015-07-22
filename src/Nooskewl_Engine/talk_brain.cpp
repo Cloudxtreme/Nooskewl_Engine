@@ -1,7 +1,12 @@
+#include "Nooskewl_Engine/basic_types.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/talk_brain.h"
 #include "Nooskewl_Engine/tokenizer.h"
+
+using namespace Nooskewl_Engine;
 
 void Talk_Brain::callback(void *data)
 {
