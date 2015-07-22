@@ -62,6 +62,9 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
+// To extract strings to translate
+#define TRANSLATE(text) text
+
 namespace Nooskewl_Engine {
 
 enum Direction {
