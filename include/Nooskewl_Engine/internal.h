@@ -60,6 +60,7 @@ private:
 int SDL_fgetc(SDL_RWops *file);
 char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
 int SDL_fputs(const char *string, SDL_RWops *file);
+void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
 
 SDL_RWops *open_file(std::string filename);
 std::string itos(int i);
@@ -68,6 +69,24 @@ bool check_args(int argc, char **argv, std::string arg);
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor);
 #endif
+
+/* From: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring */
+// trim from start
+static inline std::string &ltrim(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+	return s;
+}
+
+// trim from end
+static inline std::string &rtrim(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+	return s;
+}
+
+// trim from both ends
+static inline std::string &trim(std::string &s) {
+	return ltrim(rtrim(s));
+}
 
 extern Module m;
 

@@ -157,6 +157,17 @@ int SDL_fputs(const char *string, SDL_RWops *file)
 	return SDL_RWwrite(file, string, 1, len) < len ? EOF : 0;
 }
 
+void SDL_fprintf(SDL_RWops *file, const char *fmt, ...)
+{
+	char buf[1000];
+	va_list v;
+	va_start(v, fmt);
+	vsnprintf(buf, 1000, fmt, v);
+	va_end(v);
+
+	SDL_fputs(buf, file);
+}
+
 SDL_RWops *open_file(std::string filename)
 {
 	SDL_RWops *file = noo.cpa->open(filename);
@@ -406,5 +417,6 @@ HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfo
 	return icon;
 }
 #endif
+
 
 } // End namespace Nooskewl_Engine
