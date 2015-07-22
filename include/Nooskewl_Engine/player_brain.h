@@ -13,6 +13,7 @@ public:
 
 		void handle_event(TGUI_Event *event);
 		void reset();
+		bool save(SDL_RWops *file);
 
 private:
 	static const int TOLERANCE = 5;

@@ -8,6 +8,7 @@ Player_Brain::Player_Brain() :
 	pressed(false),
 	dragged(false)
 {
+	reset();
 }
 
 Player_Brain::~Player_Brain()
@@ -180,4 +181,10 @@ void Player_Brain::reset()
 	Brain::reset();
 
 	pressed = dragged = false;
+}
+
+bool Player_Brain::save(SDL_RWops *file)
+{
+	SDL_fprintf(file, "brain=player_brain\n");
+	return true;
 }

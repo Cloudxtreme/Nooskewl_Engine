@@ -46,6 +46,8 @@ public:
 	Point<float> get_offset();
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal);
 
+	bool save(SDL_RWops *file);
+
 private:
 	struct Map_Speech {
 		std::string text;
@@ -59,6 +61,8 @@ private:
 		{
 		}
 	};
+
+	bool save_entity(SDL_RWops *file, Map_Entity *entity);
 
 	Tilemap *tilemap;
 	Point<float> offset;
