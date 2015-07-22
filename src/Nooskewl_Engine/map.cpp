@@ -23,7 +23,7 @@ Map::Map(std::string map_name) :
 {
 	tilemap = new Tilemap(map_name);
 
-	ml = m.get_map_logic(map_name);
+	ml = m.dll_get_map_logic(map_name);
 }
 
 Map::~Map()
@@ -240,6 +240,10 @@ bool Map::update()
 	std::vector<Map_Entity *>::iterator it;
 	for (it = entities.begin(); it != entities.end();) {
 		Map_Entity *e = *it;
+		Brain *b = e->get_brain();
+		if (b) {
+			b->update();
+		}
 		if (e->update(speech != 0) == false) {
 			delete e;
 			it = entities.erase(it);
@@ -403,7 +407,9 @@ bool Map::save_entity(SDL_RWops *file, Map_Entity *entity)
 		std::string xml_filename;
 		std::string image_directory;
 		sprite->get_filenames(xml_filename, image_directory);
-		SDL_fprintf(file, "sprite=%s:%s", xml_filename.c_str(), image_directory.c_str());
+		std::string animation = sprite->get_animation();
+		int started = sprite->is_started() ? 1 : 0;
+		SDL_fprintf(file, "sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
 	}
 	Point<int> position = entity->get_position();
 	SDL_fprintf(file, ",position=%d:%d", position.x, position.y);
