@@ -1,0 +1,3 @@
+../../src/Nooskewl_Engine
+../../src/Nooskewl_Runner
+../../include/Nooskewl_Engine
