@@ -14,11 +14,13 @@ public:
 	~Sprite();
 
 	bool set_animation(std::string name);
+	std::string get_animation();
 
 	void start();
 	void stop();
 	// set to frame 0
 	void reset();
+	bool is_started();
 
 	Image *get_current_image();
 

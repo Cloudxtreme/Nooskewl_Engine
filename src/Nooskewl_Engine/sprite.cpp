@@ -125,6 +125,11 @@ bool Sprite::set_animation(std::string name)
 	return true;
 }
 
+std::string Sprite::get_animation()
+{
+	return current_animation;
+}
+
 void Sprite::start()
 {
 	if (started == true) {
@@ -146,6 +151,11 @@ void Sprite::stop()
 void Sprite::reset()
 {
 	start_time = SDL_GetTicks();
+}
+
+bool Sprite::is_started()
+{
+	return started;
 }
 
 Image *Sprite::get_current_image()
