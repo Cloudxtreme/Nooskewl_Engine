@@ -64,6 +64,7 @@
 
 // To extract strings to translate
 #define TRANSLATE(text) text
+#define END
 
 namespace Nooskewl_Engine {
 
