@@ -5,6 +5,17 @@
 
 namespace Nooskewl_Engine {
 
+class NOOSKEWL_ENGINE_EXPORT NOO_GUI {
+public:
+	TGUI *gui;
+
+	virtual ~NOO_GUI();
+
+	virtual bool update() = 0;
+	virtual void draw_back() {}
+	virtual void draw_fore() {}
+};
+
 class NOOSKEWL_ENGINE_EXPORT NOO_Widget : public TGUI_Widget {
 public:
 	static void static_start();

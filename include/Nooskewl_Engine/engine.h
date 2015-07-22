@@ -68,8 +68,7 @@ public:
 	Map *map;
 	std::string last_map_name;
 	Map_Entity *player;
-	TGUI *gui;
-	TGUI *modal_gui;
+	std::vector<NOO_GUI *> guis;
 
 	Engine();
 	~Engine();
@@ -109,6 +108,44 @@ public:
 	void play_music(std::string name);
 
 private:
+	class Title_GUI : public NOO_GUI {
+	public:
+		Title_GUI();
+
+		bool update();
+		void draw_back();
+		void draw_fore();
+
+	private:
+		bool did_intro;
+		Uint32 intro_start;
+
+		NOO_Text_Button *new_game_button;
+		NOO_Text_Button *load_game_button;
+	};
+
+	class Pause_GUI : public NOO_GUI {
+	public:
+		Pause_GUI();
+
+		bool update();
+
+	private:
+		NOO_Text_Button *resume_button;
+		NOO_Text_Button *save_button;
+		NOO_Text_Button *quit_button;
+	};
+
+	class Notification_GUI : public NOO_GUI {
+	public:
+		Notification_GUI(std::string text);
+
+		bool update();
+
+	private:
+		NOO_Text_Button *ok_button;
+	};
+
 	void init_video();
 	void shutdown_video();
 	void init_audio();
@@ -144,15 +181,7 @@ private:
 
 	SDL_AudioDeviceID audio_device;
 
-	NOO_Widget *main_widget;
-	NOO_Text_Button *new_game_button;
-	NOO_Text_Button *load_game_button;
-
-	NOO_Text_Button *modal_ok;
-
 	Image *logo;
-	bool did_intro;
-	Uint32 intro_start;
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	HWND hwnd;

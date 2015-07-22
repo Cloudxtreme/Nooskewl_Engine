@@ -57,8 +57,6 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
-	modal_gui(0),
-	did_intro(false),
 	milestones(0),
 	num_milestones(0)
 {
@@ -123,8 +121,6 @@ void Engine::start(int argc, char **argv)
 
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
-
-	intro_start = last_frame;
 }
 
 void Engine::end()
@@ -144,8 +140,10 @@ void Engine::end()
 	NOO_Widget::static_end();
 	Speech::static_end();
 
-	delete gui;
-	delete modal_gui;
+	for (size_t i = 0; i < guis.size(); i++) {
+		delete guis[i];
+	}
+	guis.clear();
 
 	delete logo;
 	delete window_image;
@@ -446,87 +444,25 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	}
 #endif
 
-	if (modal_gui) {
-		modal_gui->handle_event(&event);
-		if (modal_ok && modal_ok->pressed()) {
-			delete modal_gui;
-			modal_gui = 0;
-			modal_ok = 0;
-		}
-	}
-	else if (gui) {
-		gui->handle_event(&event);
-		if (new_game_button && new_game_button->pressed()) {
-			delete gui;
-			gui = 0;
-			new_game_button = 0;
-			load_game_button = 0;
-
-			Map::new_game_started();
-
-			player = new Map_Entity("player");
-			player->set_brain(new Player_Brain());
-			player->load_sprite("player");
-			map = new Map("start.map");
-			map->add_entity(player);
-			map->start();
-			map->update_camera();
-		}
-		else if (load_game_button && load_game_button->pressed()) {
-			bool result;
-			SDL_RWops *file = SDL_RWFromFile("test.save", "r");
-			if (file == NULL) {
-				result = false;
+	if (guis.size() > 0) {
+		NOO_GUI *noo_gui = guis[guis.size()-1];
+		noo_gui->gui->handle_event(&event);
+		if (noo_gui->update() == false) {
+			// update may have push other GUIs on the stack, so we can't just erase the last one
+			for (size_t i = 0; i < guis.size(); i++) {
+				if (guis[i] == noo_gui) {
+					guis.erase(guis.begin() + i);
+					break;
+				}
 			}
-			else {
-				result = load_game(file);
-				SDL_RWclose(file);
-			}
-
-			if (result == true) {
-				delete gui;
-				gui = 0;
-				new_game_button = 0;
-				load_game_button = 0;
-
-				Map::new_game_started();
-
-				last_map_name = "--LOADED--";
-
-				map->start();
-				map->update_camera();
-			}
-			else {
-				NOO_Widget *modal_main_widget = new NOO_Widget(1.0f, 1.0f);
-				SDL_Colour background_colour = { 0, 0, 0, 192 };
-				modal_main_widget->set_background_colour(background_colour);
-				NOO_Window *window = new NOO_Window(100, 50);
-				window->set_center_x(true);
-				window->set_center_y(true);
-				window->set_parent(modal_main_widget);
-				NOO_Label *label = new NOO_Label("Error loading game", window->get_width() - 10);
-				label->set_padding(5);
-				label->set_center_x(true);
-				label->set_parent(window);
-				modal_ok = new NOO_Text_Button("OK");
-				modal_ok->set_center_x(true);
-				modal_ok->set_float_bottom(true);
-				modal_ok->set_padding_bottom(5);
-				modal_ok->set_parent(window);
-				modal_gui = new TGUI(modal_main_widget, screen_size.w, screen_size.h);
-			}
+			delete noo_gui;
 		}
 	}
 	else if (map) {
 		map->handle_event(&event);
 
 		if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) {
-			delete map;
-			map = 0;
-			delete player;
-			player = 0;
-			last_map_name = "";
-			setup_title_screen();
+				guis.push_back(new Pause_GUI());
 		}
 	}
 
@@ -605,79 +541,11 @@ void Engine::draw()
 	if (map) {
 		map->draw();
 	}
-	if (new_game_button != 0) {
-		int scale1 = 4;
-		int x1 = -logo->size.w / 2 * scale1;
-		int y1 = -logo->size.h / 2 * scale1;
-		int scale2 = 8;
-		int x2 = -logo->size.w / 4 * scale2;
-		int y2 = -logo->size.h / 4 * scale2;
-		int dx1 = x1 + logo->size.w / 2 * scale1;
-		int dy2 = y2 + logo->size.h / 4 * scale2;
-		float p1 = (SDL_GetTicks() % 20000) / 20000.0f * 2.0f;
-		if (p1 >= 1.0f) {
-			p1 = 1.0f - (p1 - 1.0f);
-		}
-		float p2 = (SDL_GetTicks() % 30000) / 30000.0f * 2.0f;
-		if (p2 >= 1.0f) {
-			p2 = 1.0f - (p2 - 1.0f);
-		}
-		SDL_Colour tint1 = noo.white;
-		tint1.a = 32;
-		logo->stretch_region_tinted_single(tint1, Point<float>(0, 0), logo->size, Point<float>(x1 + (dx1 - x1) * p1, (float)y1), logo->size * scale1);
-		SDL_Colour tint2 = noo.white;
-		tint2.a = 64;
-		logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), logo->size * scale2);
-	}
-	if (gui) {
-		gui->draw();
-	}
-	if (new_game_button != 0) {
-		play_music("title.mml");
 
-		Point<float> pos;
-		Size<int> size;
-
-		if (did_intro == false) {
-			int max_w = logo->size.w * 16 - logo->size.w;
-			int max_h = logo->size.h * 16 - logo->size.h;
-			float p = (SDL_GetTicks() - intro_start) / 2000.0f;
-			if (p > 1.0f) {
-				p = 1.0f;
-				did_intro = true;
-			}
-			float w = (1.0f - p) * max_w + logo->size.w;
-			float h = (1.0f - p) * max_h + logo->size.h;
-			size = Size<int>((int)w, (int)h);
-			pos.x = screen_size.w / 2 - w / 2;
-			pos.y = screen_size.h / 3 - h / 2;
-		}
-		else {
-			pos.x = float(screen_size.w / 2 - logo->size.w / 2);
-			pos.y = float(screen_size.h / 3 - logo->size.h / 2);
-			size = logo->size;
-		}
-
-		float percent = (SDL_GetTicks() % 500) / 500.0f * 2.0f;
-		if (percent >= 1.0f) {
-			percent = 1.0f - (percent - 1.0f);
-		}
-		float amount_x = (1.0f / scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * (float)M_PI * 2);
-		float amount_y = (1.0f / scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * (float)M_PI * 2);
-		Shader *bak = current_shader;
-		current_shader = glitch_shader;
-		current_shader->use();
-		current_shader->set_float("percent", percent);
-		current_shader->set_float("width", (float)logo->size.w);
-		current_shader->set_float("height", (float)logo->size.h);
-		current_shader->set_float("amount_x", amount_x);
-		current_shader->set_float("amount_y", amount_y);
-		logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, size);
-		current_shader = bak;
-		current_shader->use();
-	}
-	if (modal_gui) {
-		modal_gui->draw();
+	for (size_t i = 0; i < guis.size(); i++) {
+		guis[i]->draw_back();
+		guis[i]->gui->draw();
+		guis[i]->draw_fore();
 	}
 
 	flip();
@@ -906,11 +774,8 @@ void Engine::set_screen_size(int w, int h)
 		d3d_device->SetScissorRect(&scissor);
 	}
 
-	if (gui) {
-		gui->resize(screen_size.w, screen_size.h);
-	}
-	if (modal_gui) {
-		modal_gui->resize(screen_size.w, screen_size.h);
+	for (size_t i = 0; i < guis.size(); i++) {
+		guis[i]->gui->resize(screen_size.w, screen_size.h);
 	}
 }
 
@@ -1194,22 +1059,7 @@ void Engine::update_projection()
 
 void Engine::setup_title_screen()
 {
-	main_widget = new NOO_Widget(1.0f, 1.0f);
-	NOO_Widget *bottom_floater = new NOO_Widget(1.0f, 0.33f);
-	bottom_floater->set_float_bottom(true);
-	bottom_floater->set_parent(main_widget);
-	new_game_button = new NOO_Text_Button("New Game");
-	new_game_button->set_center_x(true);
-	new_game_button->set_center_y(true);
-	new_game_button->set_padding_right(2);
-	new_game_button->set_parent(bottom_floater);
-	load_game_button = new NOO_Text_Button("Load Game");
-	load_game_button->set_center_x(true);
-	load_game_button->set_center_y(true);
-	load_game_button->set_padding_left(2);
-	load_game_button->set_parent(bottom_floater);
-	gui = new TGUI(main_widget, screen_size.w, screen_size.h);
-	gui->set_focus(new_game_button);
+	guis.push_back(new Title_GUI());
 }
 
 void Engine::set_initial_d3d_state()
@@ -1484,6 +1334,248 @@ Brain *Engine::	load_brain(SDL_RWops *file)
 	}
 
 	return brain;
+}
+
+Engine::Title_GUI::Title_GUI() :
+	did_intro(false),
+	intro_start(SDL_GetTicks())
+{
+	noo.play_music("title.mml");
+
+	NOO_Widget *main_widget = new NOO_Widget(1.0f, 1.0f);
+
+	NOO_Widget *bottom_floater = new NOO_Widget(1.0f, 0.33f);
+	bottom_floater->set_float_bottom(true);
+	bottom_floater->set_parent(main_widget);
+
+	new_game_button = new NOO_Text_Button("New Game");
+	new_game_button->set_center_x(true);
+	new_game_button->set_center_y(true);
+	new_game_button->set_padding_right(2);
+	new_game_button->set_parent(bottom_floater);
+
+	load_game_button = new NOO_Text_Button("Load Game");
+	load_game_button->set_center_x(true);
+	load_game_button->set_center_y(true);
+	load_game_button->set_padding_left(2);
+	load_game_button->set_parent(bottom_floater);
+
+	gui = new TGUI(main_widget, noo.screen_size.w, noo.screen_size.h);
+	gui->set_focus(new_game_button);
+}
+
+bool Engine::Title_GUI::update()
+{
+	if (new_game_button->pressed()) {
+		Map::new_game_started();
+
+		noo.player = new Map_Entity("player");
+		noo.player->set_brain(new Player_Brain());
+		noo.player->load_sprite("player");
+		noo.map = new Map("start.map");
+		noo.map->add_entity(noo.player);
+		noo.map->start();
+		noo.map->update_camera();
+
+		return false;
+	}
+	else if (load_game_button->pressed()) {
+		bool result;
+		SDL_RWops *file = SDL_RWFromFile("test.save", "r");
+		if (file == NULL) {
+			result = false;
+		}
+		else {
+			result = noo.load_game(file);
+			SDL_RWclose(file);
+		}
+
+		if (result == true) {
+			Map::new_game_started();
+
+			noo.last_map_name = "--LOADED--";
+
+			noo.map->start();
+			noo.map->update_camera();
+
+			return false;
+		}
+		else {
+			noo.guis.push_back(new Notification_GUI("Error loading game"));
+		}
+	}
+
+	return true;
+}
+
+void Engine::Title_GUI::draw_back()
+{
+	int scale1 = 4;
+	int x1 = -noo.logo->size.w / 2 * scale1;
+	int y1 = -noo.logo->size.h / 2 * scale1;
+	int scale2 = 8;
+	int x2 = -noo.logo->size.w / 4 * scale2;
+	int y2 = -noo.logo->size.h / 4 * scale2;
+	int dx1 = x1 + noo.logo->size.w / 2 * scale1;
+	int dy2 = y2 + noo.logo->size.h / 4 * scale2;
+	float p1 = (SDL_GetTicks() % 20000) / 20000.0f * 2.0f;
+	if (p1 >= 1.0f) {
+		p1 = 1.0f - (p1 - 1.0f);
+	}
+	float p2 = (SDL_GetTicks() % 30000) / 30000.0f * 2.0f;
+	if (p2 >= 1.0f) {
+		p2 = 1.0f - (p2 - 1.0f);
+	}
+	SDL_Colour tint1 = noo.white;
+	tint1.a = 32;
+	noo.logo->stretch_region_tinted_single(tint1, Point<float>(0, 0), noo.logo->size, Point<float>(x1 + (dx1 - x1) * p1, (float)y1), noo.logo->size * scale1);
+	SDL_Colour tint2 = noo.white;
+	tint2.a = 64;
+	noo.logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), noo.logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), noo.logo->size * scale2);
+}
+
+void Engine::Title_GUI::draw_fore()
+{
+	Point<float> pos;
+	Size<int> size;
+
+	if (did_intro == false) {
+		int max_w = noo.logo->size.w * 16 - noo.logo->size.w;
+		int max_h = noo.logo->size.h * 16 - noo.logo->size.h;
+		float p = (SDL_GetTicks() - intro_start) / 2000.0f;
+		if (p > 1.0f) {
+			p = 1.0f;
+			did_intro = true;
+		}
+		float w = (1.0f - p) * max_w + noo.logo->size.w;
+		float h = (1.0f - p) * max_h + noo.logo->size.h;
+		size = Size<int>((int)w, (int)h);
+		pos.x = noo.screen_size.w / 2 - w / 2;
+		pos.y = noo.screen_size.h / 3 - h / 2;
+	}
+	else {
+		pos.x = float(noo.screen_size.w / 2 - noo.logo->size.w / 2);
+		pos.y = float(noo.screen_size.h / 3 - noo.logo->size.h / 2);
+		size = noo.logo->size;
+	}
+
+	float percent = (SDL_GetTicks() % 500) / 500.0f * 2.0f;
+	if (percent >= 1.0f) {
+		percent = 1.0f - (percent - 1.0f);
+	}
+	float amount_x = (1.0f / noo.scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * (float)M_PI * 2);
+	float amount_y = (1.0f / noo.scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * (float)M_PI * 2);
+	Shader *bak = noo.current_shader;
+	noo.current_shader = noo.glitch_shader;
+	noo.current_shader->use();
+	noo.current_shader->set_float("percent", percent);
+	noo.current_shader->set_float("width", (float)noo.logo->size.w);
+	noo.current_shader->set_float("height", (float)noo.logo->size.h);
+	noo.current_shader->set_float("amount_x", amount_x);
+	noo.current_shader->set_float("amount_y", amount_y);
+	noo.logo->stretch_region_single(Point<float>(0.0f, 0.0f), noo.logo->size, pos, size);
+	noo.current_shader = bak;
+	noo.current_shader->use();
+}
+
+Engine::Pause_GUI::Pause_GUI()
+{
+	NOO_Widget *modal_main_widget = new NOO_Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	NOO_Window *window = new NOO_Window(0.95f, 0.95f);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
+	NOO_Label *label = new NOO_Label("--PAUSED--", modal_main_widget->get_width()-10);
+	label->set_padding(5);
+	label->set_center_x(true);
+	label->set_parent(window);
+
+	quit_button = new NOO_Text_Button("Quit", Size<int>(60, -1));
+	quit_button->set_center_x(true);
+	quit_button->set_float_bottom(true);
+	quit_button->set_padding_bottom(5);
+	quit_button->set_parent(window);
+	
+	save_button = new NOO_Text_Button("Save", Size<int>(60, -1));
+	save_button->set_center_x(true);
+	save_button->set_float_bottom(true);
+	save_button->set_padding_bottom(5);
+	save_button->set_parent(window);
+	
+	resume_button = new NOO_Text_Button("Resume game", Size<int>(60, -1));
+	resume_button->set_center_x(true);
+	resume_button->set_float_bottom(true);
+	resume_button->set_padding_bottom(5);
+	resume_button->set_parent(window);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+}
+
+bool Engine::Pause_GUI::update()
+{
+	if (resume_button->pressed()) {
+		return false;
+	}
+	else if (save_button->pressed()) {
+		SDL_RWops *file = SDL_RWFromFile("test.save", "w");
+		bool result = noo.save_game(file);
+		SDL_RWclose(file);
+		if (result == false) {
+			noo.guis.push_back(new Notification_GUI("Error saving game!"));
+			return false;
+		}
+		else {
+			noo.guis.push_back(new Notification_GUI("Game saved..."));
+		}
+	}
+	else if (quit_button->pressed()) {
+		delete noo.map;
+		noo.map = 0;
+		delete noo.player;
+		noo.player = 0;
+		noo.last_map_name = "";
+		noo.setup_title_screen();
+		return false;
+	}
+
+	return true;
+}
+
+Engine::Notification_GUI::Notification_GUI(std::string text)
+{
+	NOO_Widget *modal_main_widget = new NOO_Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	NOO_Window *window = new NOO_Window(100, 50);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
+	NOO_Label *label = new NOO_Label(text, window->get_width() - 10);
+	label->set_padding(5);
+	label->set_center_x(true);
+	label->set_parent(window);
+
+	ok_button = new NOO_Text_Button("OK");
+	ok_button->set_center_x(true);
+	ok_button->set_float_bottom(true);
+	ok_button->set_padding_bottom(5);
+	ok_button->set_parent(window);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+}
+
+bool Engine::Notification_GUI::update()
+{
+	if (ok_button->pressed()) {
+		return false;
+	}
+	return true;
 }
 
 } // End namespace Nooskewl_Engine

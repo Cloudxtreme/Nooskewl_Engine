@@ -8,6 +8,11 @@ using namespace Nooskewl_Engine;
 Image *NOO_Widget::button_image;
 Image *NOO_Widget::button_image_pressed;
 
+NOO_GUI::~NOO_GUI()
+{
+	delete gui;
+}
+
 void NOO_Widget::static_start()
 {
 	button_image = new Image("button.tga");
