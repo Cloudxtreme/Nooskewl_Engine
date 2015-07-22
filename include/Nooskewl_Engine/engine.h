@@ -17,6 +17,7 @@ namespace Nooskewl_Engine {
 typedef void (*Callback)(void *data);
 
 class Brain;
+class GUI;
 class Map;
 class Map_Entity;
 
@@ -68,7 +69,7 @@ public:
 	Map *map;
 	std::string last_map_name;
 	Map_Entity *player;
-	std::vector<NOO_GUI *> guis;
+	std::vector<GUI *> guis;
 
 	Engine();
 	~Engine();
@@ -84,6 +85,8 @@ public:
 	void set_milestone(int number, bool completed);
 	int milestone_name_to_number(std::string name);
 	std::string milestone_number_to_name(int number);
+	int get_num_milestones();
+	void clear_milestones();
 
 	void clear(SDL_Colour colour);
 	void flip();
@@ -108,44 +111,6 @@ public:
 	void play_music(std::string name);
 
 private:
-	class Title_GUI : public NOO_GUI {
-	public:
-		Title_GUI();
-
-		bool update();
-		void draw_back();
-		void draw_fore();
-
-	private:
-		bool did_intro;
-		Uint32 intro_start;
-
-		NOO_Text_Button *new_game_button;
-		NOO_Text_Button *load_game_button;
-	};
-
-	class Pause_GUI : public NOO_GUI {
-	public:
-		Pause_GUI();
-
-		bool update();
-
-	private:
-		NOO_Text_Button *resume_button;
-		NOO_Text_Button *save_button;
-		NOO_Text_Button *quit_button;
-	};
-
-	class Notification_GUI : public NOO_GUI {
-	public:
-		Notification_GUI(std::string text);
-
-		bool update();
-
-	private:
-		NOO_Text_Button *ok_button;
-	};
-
 	void init_video();
 	void shutdown_video();
 	void init_audio();
@@ -153,17 +118,9 @@ private:
 	void load_fonts();
 	void check_joysticks();
 	void set_mouse_cursor();
-	void setup_title_screen();
 	void set_initial_d3d_state();
 	void maybe_expand_milestones(int number);
 	void load_milestones();
-	bool save_game(SDL_RWops *file);
-	bool save_milestones(SDL_RWops *file);
-	bool load_game(SDL_RWops *file);
-	bool load_milestones(SDL_RWops *file);
-	bool load_map(SDL_RWops *file);
-	Map_Entity *load_entity(SDL_RWops *file);
-	Brain *load_brain(SDL_RWops *file);
 
 	SDL_Window *window;
 	bool vsync;
@@ -180,8 +137,6 @@ private:
 	int num_joysticks;
 
 	SDL_AudioDeviceID audio_device;
-
-	Image *logo;
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	HWND hwnd;
