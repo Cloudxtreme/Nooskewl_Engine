@@ -4,9 +4,9 @@
 
 using namespace Nooskewl_Engine;
 
-Sprite::Sprite(std::string xml_filename, std::string image_directory)
+Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path)
 {
-	load(xml_filename, image_directory);
+	load(xml_filename, image_directory, absolute_path);
 	stop();
 	reset();
 }
@@ -31,10 +31,15 @@ Sprite::~Sprite()
 	}
 }
 
-void Sprite::load(std::string xml_filename, std::string image_directory)
+void Sprite::load(std::string xml_filename, std::string image_directory, bool absolute_path)
 {
-	xml_filename = "sprites/" + xml_filename;
-	image_directory = "sprites/" + image_directory;
+	if (absolute_path == false) {
+		xml_filename = "sprites/" + xml_filename;
+		image_directory = "sprites/" + image_directory;
+	}
+
+	this->xml_filename = xml_filename;
+	this->image_directory = image_directory;
 
 	XML *xml = new XML(xml_filename);
 
@@ -165,4 +170,10 @@ Image *Sprite::get_current_image()
 	}
 
 	return anim->images[frame];
+}
+
+void Sprite::get_filenames(std::string &xml_filename, std::string &image_directory)
+{
+	xml_filename = this->xml_filename;
+	image_directory = this->image_directory;
 }
