@@ -1,5 +1,7 @@
 #include "Nooskewl_Engine/Nooskewl_Engine.h"
 
+#include "Nooskewl_Engine/engine_translation_English.h"
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 #define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
@@ -109,7 +111,17 @@ void Engine::start(int argc, char **argv)
 
 	load_palette("palette.gpl");
 
-	load_translation();
+	std::string engine_translation;
+	std::string game_translation;
+
+	if (language == "English") {
+		engine_translation = engine_translation_English;
+		game_translation = load_text("text/English.utf8");
+	}
+
+	t = new Translation(engine_translation);
+	game_t = new Translation(game_translation);
+
 	load_milestones();
 
 	Widget::static_start();
@@ -166,6 +178,9 @@ void Engine::end()
 	delete cpa;
 
 	infomsg("%d unfreed images\n", Image::get_unfreed_count());
+
+	delete t;
+	delete game_t;
 
 	close_dll();
 
@@ -603,6 +618,11 @@ bool Engine::check_milestone(int number)
 	return milestones[number];
 }
 
+bool Engine::check_milestone(std::string name)
+{
+	return check_milestone(milestone_name_to_number(name));
+}
+
 void Engine::set_milestone(int number, bool completed)
 {
 	maybe_expand_milestones(number);
@@ -638,15 +658,6 @@ void Engine::clear_milestones()
 	free(milestones);
 	milestones = 0;
 	num_milestones = 0;
-}
-
-std::string Engine::translate(int id)
-{
-	std::map<int, std::string>::iterator it;
-	if ((it = translation.find(id)) != translation.end()) {
-		return (*it).second;
-	}
-	return "X";
 }
 
 void Engine::clear(SDL_Colour colour)
@@ -1160,29 +1171,6 @@ void Engine::load_milestones()
 		if (num != "" && name != "") {
 			ms_name_to_number[name] = atoi(num.c_str());
 			ms_number_to_name[atoi(num.c_str())] = name;
-		}
-	}
-}
-
-void Engine::load_translation()
-{
-	SDL_RWops *file = open_file("text/" + language + ".utf8");
-
-	if (file) {
-		translation.clear();
-
-		const int max = 5000;
-		char line[max];
-
-		while (SDL_fgets(file, line, max)) {
-			if (line[strlen(line)-1] == '\r' || line[strlen(line)-1] == '\n') line[strlen(line)-1] = 0;
-			if (line[strlen(line)-1] == '\r' || line[strlen(line)-1] == '\n') line[strlen(line)-1] = 0;
-			const char *p = strchr(line, ':');
-			if (p) {
-				int num = atoi(line);
-				p++;
-				translation[num] = p;
-			}
 		}
 	}
 }

@@ -63,7 +63,7 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 // To extract strings to translate
-#define TRANSLATE(text) text
+#define TRANSLATE(text) std::string(text)
 #define END
 
 namespace Nooskewl_Engine {

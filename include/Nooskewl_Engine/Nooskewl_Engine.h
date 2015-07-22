@@ -23,6 +23,7 @@
 #include "Nooskewl_Engine/talk_brain.h"
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/tokenizer.h"
+#include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/tween.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/vertex_cache.h"

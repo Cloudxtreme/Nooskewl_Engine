@@ -59,13 +59,13 @@ Title_GUI::Title_GUI() :
 	bottom_floater->set_float_bottom(true);
 	bottom_floater->set_parent(main_widget);
 
-	new_game_button = new Widget_Text_Button(noo.translate(5));
+	new_game_button = new Widget_Text_Button(noo.t->translate(5));
 	new_game_button->set_center_x(true);
 	new_game_button->set_center_y(true);
 	new_game_button->set_padding_right(2);
 	new_game_button->set_parent(bottom_floater);
 
-	load_game_button = new Widget_Text_Button(noo.translate(4));
+	load_game_button = new Widget_Text_Button(noo.t->translate(4));
 	load_game_button->set_center_x(true);
 	load_game_button->set_center_y(true);
 	load_game_button->set_padding_left(2);
@@ -216,20 +216,20 @@ Pause_GUI::Pause_GUI()
 	window->set_center_y(true);
 	window->set_parent(modal_main_widget);
 
-	Widget_Label *label = new Widget_Label(noo.translate(0), modal_main_widget->get_width()-10);
+	Widget_Label *label = new Widget_Label(noo.t->translate(0), modal_main_widget->get_width()-10);
 	label->set_padding(5);
 	label->set_center_x(true);
 	label->set_parent(window);
 
-	resume_button = new Widget_Text_Button(noo.translate(10), 0.3f, -1);
+	resume_button = new Widget_Text_Button(noo.t->translate(10), 0.3f, -1);
 	resume_button->set_center_x(true);
 
-	save_button = new Widget_Text_Button(noo.translate(11), 0.3f, -1);
+	save_button = new Widget_Text_Button(noo.t->translate(11), 0.3f, -1);
 	save_button->set_center_x(true);
 	save_button->set_padding_left(5);
 	save_button->set_padding_right(5);
 	
-	quit_button = new Widget_Text_Button(noo.translate(8), 0.3f, -1);
+	quit_button = new Widget_Text_Button(noo.t->translate(8), 0.3f, -1);
 	quit_button->set_center_x(true);
 
 	Widget *button_container = new Widget(1.0f, quit_button->get_height());
@@ -262,7 +262,7 @@ bool Pause_GUI::update()
 		quitting = true;
 		quit = false;
 
-		noo.guis.push_back(new Yes_No_GUI(noo.translate(9), callback));
+		noo.guis.push_back(new Yes_No_GUI(noo.t->translate(9), callback));
 	}
 
 	return true;
@@ -311,7 +311,7 @@ Notification_GUI::Notification_GUI(std::string text)
 	label->set_center_x(true);
 	label->set_parent(window);
 
-	ok_button = new Widget_Text_Button(noo.translate(7));
+	ok_button = new Widget_Text_Button(noo.t->translate(7));
 	ok_button->set_center_x(true);
 	ok_button->set_float_bottom(true);
 	ok_button->set_padding_bottom(5);
@@ -347,11 +347,11 @@ Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback) :
 	label->set_center_x(true);
 	label->set_parent(window);
 
-	yes_button = new Widget_Text_Button(noo.translate(12));
+	yes_button = new Widget_Text_Button(noo.t->translate(12));
 	yes_button->set_center_x(true);
 	yes_button->set_padding_right(2);
 
-	no_button = new Widget_Text_Button(noo.translate(6));
+	no_button = new Widget_Text_Button(noo.t->translate(6));
 	no_button->set_center_x(true);
 	no_button->set_padding_left(2);
 
@@ -392,11 +392,11 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 		file = SDL_RWFromFile("test.save", "w");
 		if (save_game(file) == false) {
 			if (callback) callback(0);
-			caption = noo.translate(2);
+			caption = noo.t->translate(2);
 		}
 		else {
 			if (callback) callback((void *)1);
-			caption = noo.translate(3);
+			caption = noo.t->translate(3);
 		}
 	}
 	else {
@@ -421,7 +421,7 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 		}
 		else {
 			if (callback) callback(0);
-			caption = noo.translate(1);
+			caption = noo.t->translate(1);
 		}
 	}
 
@@ -442,7 +442,7 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 		label->set_center_x(true);
 		label->set_parent(window);
 
-		ok_button = new Widget_Text_Button(noo.translate(7));
+		ok_button = new Widget_Text_Button(noo.t->translate(7));
 		ok_button->set_center_x(true);
 		ok_button->set_float_bottom(true);
 		ok_button->set_padding_bottom(5);

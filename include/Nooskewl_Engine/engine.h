@@ -9,6 +9,7 @@
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
+#include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/types.h"
 #include "Nooskewl_Engine/widgets.h"
 
@@ -65,6 +66,8 @@ public:
 	int key_b1;
 	// Other
 	std::string language;
+	Translation *t;
+	Translation *game_t;
 	CPA *cpa;
 	Map *map;
 	std::string last_map_name;
@@ -82,13 +85,12 @@ public:
 	void draw();
 
 	bool check_milestone(int number);
+	bool check_milestone(std::string name);
 	void set_milestone(int number, bool completed);
 	int milestone_name_to_number(std::string name);
 	std::string milestone_number_to_name(int number);
 	int get_num_milestones();
 	void clear_milestones();
-
-	std::string translate(int id);
 
 	void clear(SDL_Colour colour);
 	void flip();
@@ -161,8 +163,6 @@ private:
 	int num_milestones;
 	std::map<int, std::string> ms_number_to_name;
 	std::map<std::string, int> ms_name_to_number;
-
-	std::map<int, std::string> translation;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
