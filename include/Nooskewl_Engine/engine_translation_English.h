@@ -1,0 +1,15 @@
+std::string engine_translation_English =
+"0:--PAUSED--\n"
+"1:Error loading game!\n"
+"2:Error saving game!\n"
+"3:Game saved...\n"
+"4:Load Game\n"
+"5:New Game\n"
+"6:No\n"
+"7:OK\n"
+"8:Quit\n"
+"9:Really quit?\n"
+"10:Resume\n"
+"11:Save\n"
+"12:Yes\n"
+;
