@@ -14,7 +14,6 @@ Sprite *Speech::speech_advance;
 void Speech::static_start()
 {
 	speech_advance = new Sprite("speech_advance");
-	speech_advance->start();
 }
 
 void Speech::static_end()

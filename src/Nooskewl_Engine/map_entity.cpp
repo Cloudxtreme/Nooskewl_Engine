@@ -45,7 +45,9 @@ Map_Entity::~Map_Entity()
 void Map_Entity::set_brain(Brain *brain)
 {
 	this->brain = brain;
-	brain->set_map_entity(this);
+	if (brain) {
+		brain->set_map_entity(this);
+	}
 }
 
 void Map_Entity::load_sprite(std::string name)
@@ -81,8 +83,6 @@ void Map_Entity::set_direction(Direction direction)
 	this->direction = direction;
 	std::string animation_name;
 	if (moving) {
-		sprite->start();
-
 		switch (direction) {
 			case N:
 				animation_name = "walk_n";
@@ -346,7 +346,6 @@ bool Map_Entity::update(bool can_move)
 					}
 					else if (maybe_move() == false) {
 						moving = false;
-						sprite->stop();
 						sprite->set_animation("stand_e");
 					}
 				}
@@ -366,7 +365,6 @@ bool Map_Entity::update(bool can_move)
 					}
 					else if (maybe_move() == false) {
 						moving = false;
-						sprite->stop();
 						sprite->set_animation("stand_w");
 					}
 				}
@@ -386,7 +384,6 @@ bool Map_Entity::update(bool can_move)
 					}
 					else if (maybe_move() == false) {
 						moving = false;
-						sprite->stop();
 						sprite->set_animation("stand_s");
 					}
 				}
@@ -406,7 +403,6 @@ bool Map_Entity::update(bool can_move)
 					}
 					else if (maybe_move() == false) {
 						moving = false;
-						sprite->stop();
 						sprite->set_animation("stand_n");
 					}
 				}
@@ -440,7 +436,6 @@ void Map_Entity::stop_now()
 	moving = false;
 	brain->l = brain->r = brain->u = brain->d = brain->b1 = false;
 	set_direction(direction);
-	sprite->stop();
 	sprite->reset();
 	if (brain) {
 		brain->reset();
