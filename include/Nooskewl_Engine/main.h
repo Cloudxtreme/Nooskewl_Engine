@@ -20,6 +20,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <ctime>
 
 #include <algorithm>
 #include <functional>

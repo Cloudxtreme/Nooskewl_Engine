@@ -87,6 +87,8 @@ Engine::~Engine()
 
 void Engine::start(int argc, char **argv)
 {
+	srand((unsigned int)time(0));
+
 	mute = check_args(argc, argv, "+mute");
 	fullscreen = check_args(argc, argv, "+fullscreen");
 	vsync = !check_args(argc, argv, "-vsync");
