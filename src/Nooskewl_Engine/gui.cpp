@@ -428,6 +428,10 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 			noo.map->update_camera();
 		}
 		else {
+			if (noo.map) {
+				delete noo.map;
+				noo.map = 0;
+			}
 			if (callback) callback(0);
 			caption = noo.t->translate(1);
 		}
@@ -611,9 +615,6 @@ bool Save_Load_GUI::load_map(SDL_RWops *file)
 Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 {
 	Brain *brain = load_brain(file);
-	if (brain == 0) {
-		return 0;
-	}
 
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -656,6 +657,9 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 			if (started) {
 				sprite->start();
 			}
+			else {
+				sprite->stop();
+			}
 			entity->set_sprite(sprite);
 		}
 		else {
@@ -686,7 +690,10 @@ Brain *Save_Load_GUI::load_brain(SDL_RWops *file)
 
 	Brain *brain;
 
-	if (type == "player_brain") {
+	if (type == "0") {
+		return 0;
+	}
+	else if (type == "player_brain") {
 		brain = new Player_Brain();
 	}
 	else if (type == "talk_brain") {
