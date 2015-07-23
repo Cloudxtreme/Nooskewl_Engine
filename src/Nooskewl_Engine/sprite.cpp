@@ -9,15 +9,13 @@ using namespace Nooskewl_Engine;
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path)
 {
 	load(xml_filename, image_directory, absolute_path);
-	stop();
-	reset();
+	start();
 }
 
 Sprite::Sprite(std::string image_directory)
 {
 	load(image_directory + "/animations.xml", image_directory);
-	stop();
-	reset();
+	start();
 }
 
 Sprite::~Sprite()
@@ -102,6 +100,7 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 			a->images = images;
 			a->delays = delays_vector;
 			a->total_delays = total_delays;
+			a->rand_start = anim->find("rand_start") != 0;
 			animations[anim->get_name()] = a;
 		}
 		else {
@@ -118,11 +117,20 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 
 bool Sprite::set_animation(std::string name)
 {
+	if (current_animation == name) {
+		return true;
+	}
+
 	if (animations.find(name) == animations.end()) {
 		return false;
 	}
 
 	current_animation = name;
+
+	Animation *anim = animations[current_animation];
+	if (anim->rand_start) {
+		start_time -= rand() % anim->total_delays;
+	}
 
 	return true;
 }
