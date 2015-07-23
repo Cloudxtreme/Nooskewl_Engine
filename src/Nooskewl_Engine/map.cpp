@@ -25,7 +25,8 @@ Map::Map(std::string map_name) :
 	panning(false),
 	speech(0),
 	map_name(map_name),
-	new_map_name("")
+	new_map_name(""),
+	a_star(0)
 {
 	tilemap = new Tilemap(map_name);
 
