@@ -8,8 +8,11 @@
 
 using namespace Nooskewl_Engine;
 
-std::vector<Image::Internal *> Image::loaded_images;
 bool Image::dumping_colours = false;
+bool Image::keep_data = false;
+bool Image::save_rle = false;
+
+std::vector<Image::Internal *> Image::loaded_images;
 
 struct TGA_Header {
 	char idlength;
@@ -35,9 +38,9 @@ static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 		// Paletted
 		if (colour->r == 255 && colour->g == 0 && colour->b == 255) {
 			// transparent
+			*pixel++ = 255;
 			*pixel++ = 0;
-			*pixel++ = 0;
-			*pixel++ = 0;
+			*pixel++ = 255;
 			*pixel++ = 0;
 		}
 		else {
@@ -69,14 +72,13 @@ static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 	}
 }
 
-static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
+static inline unsigned char *pixel_ptr(unsigned char *p, int n, bool flip, int w, int h)
 {
 	/* OpenGL expects upside down, so that's what we provide */
-	int flip = (h->imagedescriptor & 0x20) != 0;
 	if (flip) {
-		int x = n % h->width;
-		int y = n / h->width;
-		return p + (h->width * 4) * (h->height-1) - (y * h->width * 4) +  x * 4;
+		int x = n % w;
+		int y = n / w;
+		return p + (w * 4) * (h-1) - (y * w * 4) +  x * 4;
 	}
 	else
 		return p + n * 4;
@@ -92,7 +94,7 @@ void Image::release_all()
 void Image::reload_all()
 {
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		loaded_images[i]->reload();
+		loaded_images[i]->reload(false);
 	}
 }
 
@@ -104,7 +106,7 @@ int Image::get_unfreed_count()
 	return loaded_images.size();
 }
 
-unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
+unsigned char *Image::read_tga(std::string filename, Size<int> &out_size, SDL_Colour *out_palette)
 {
 	SDL_RWops *file = open_file(filename);
 
@@ -182,6 +184,8 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 		SDL_RWseek(file, (header.colourmapdepth / 8) * header.colourmaplength, RW_SEEK_CUR);
 	}
 
+	bool flip = (header.imagedescriptor & 0x20) != 0;
+
 	/* Read the image */
 	bytes2read = header.bitsperpixel / 8;
 	while (n < header.width * header.height) {
@@ -191,7 +195,7 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 				SDL_RWclose(file);
 				throw LoadError("unexpected end of file at pixel " + itos(i));
 			}
-			merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
+			merge_bytes(pixel_ptr(pixels, n, flip, w, h), p, bytes2read, &header);
 			n++;
 		}
 		else if (header.datatypecode == 9 || header.datatypecode == 10) {             /* Compressed */
@@ -201,11 +205,11 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 				throw LoadError("unexpected end of file at pixel " + itos(i));
 			}
 			j = p[0] & 0x7f;
-			merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
+			merge_bytes(pixel_ptr(pixels, n, flip, w, h), &(p[1]), bytes2read, &header);
 			n++;
 			if (p[0] & 0x80) {         /* RLE chunk */
 				for (i = 0; i < j; i++) {
-					merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
+					merge_bytes(pixel_ptr(pixels, n, flip, w, h), &(p[1]), bytes2read, &header);
 					n++;
 				}
 			}
@@ -216,7 +220,7 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 						SDL_RWclose(file);
 						throw LoadError("unexpected end of file at pixel " + itos(i));
 					}
-					merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
+					merge_bytes(pixel_ptr(pixels, n, flip, w, h), p, bytes2read, &header);
 					n++;
 				}
 			}
@@ -224,6 +228,10 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
 	}
 
 	SDL_RWclose(file);
+
+	if (out_palette != 0) {
+		memcpy(out_palette, header.palette, 256 * 3);
+	}
 
 	return pixels;
 }
@@ -320,9 +328,95 @@ void Image::reload()
 		}
 	}
 
-	internal = new Internal(filename);
+	internal = new Internal(filename, keep_data);
 	size = internal->size;
 	loaded_images.push_back(internal);
+}
+
+bool Image::save(std::string filename)
+{
+	unsigned char *loaded_data = internal->loaded_data;
+	unsigned char header[] = { 0x00, 0x01, save_rle ? 0x09 : 0x01, 0x00, 0x00, 0x00, 0x01, 0x18, 0x00, 0x00, 0x00, 0x00, size.w & 0xff, (size.w >> 8) & 0xff, size.h & 0xff, (size.h >> 8) & 0xff, 0x08, 0x00 };
+	int header_size = 18;
+
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "wb");
+	if (file == 0) {
+		throw new Error("Couldn't open " + filename + " for writing");
+	}
+
+	for (int i = 0; i < header_size; i++) {
+		if (SDL_fputc(header[i], file) == EOF) {
+			throw new Error("Write error writing to " + filename);
+		}
+	}
+
+	for (int i = 0; i < 256; i++) {
+		if (SDL_fputc(noo.colours[i].b, file) == EOF) {
+			throw new Error("Write error writing to " + filename);
+		}
+		if (SDL_fputc(noo.colours[i].g, file) == EOF) {
+			throw new Error("Write error writing to " + filename);
+		}
+		if (SDL_fputc(noo.colours[i].r, file) == EOF) {
+			throw new Error("Write error writing to " + filename);
+		}
+	}
+
+	#define R(n) *(pixel_ptr(loaded_data, n, false, size.w, size.h)+0)
+	#define G(n) *(pixel_ptr(loaded_data, n, false, size.w, size.h)+1)
+	#define B(n) *(pixel_ptr(loaded_data, n, false, size.w, size.h)+2)
+
+	if (save_rle) {
+		for (int i = 0; i < size.w * size.h;) {
+			int j, count;
+			for (j = i, count = 0; j < size.w * size.h - 1 && count < 127; j++, count++) {
+				if (R(j) != R(j+1) || G(j) != G(j+1) || B(j) != B(j+1)) {
+					break;
+				}
+			}
+			int run_length = j - i + 1;
+			if (run_length > 1) {
+				SDL_fputc((run_length-1) | 0x80, file);
+				SDL_fputc(find_colour_in_palette(&R(j)), file);
+				i += run_length;
+			}
+			else {
+				for (j = i, count = 0; j < size.w * size.h - 1 && count < 127; j++, count++) {
+					if (R(j) == R(j+1) && G(j) == G(j+1) && B(j) == B(j+1)) {
+						break;
+					}
+				}
+				run_length = j - i + 1;
+				SDL_fputc(run_length-1, file);
+				for (j = 0; j < run_length; j++) {
+					SDL_fputc(find_colour_in_palette(&R(i+j)), file);
+				}
+				i += run_length;
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < size.w * size.h; i++) {
+			SDL_fputc(find_colour_in_palette(&R(i)), file);
+		}
+	}
+
+	SDL_RWclose(file);
+
+	return true;
+}
+
+unsigned char Image::find_colour_in_palette(unsigned char *p)
+{
+	for (unsigned int i = 0; i < 256; i++) {
+		if (p[0] == noo.colours[i].r && p[1] == noo.colours[i].g && p[2] == noo.colours[i].b) {
+			return i;
+		}
+	}
+
+	errormsg("Error: colour %d,%d,%d not found!", p[0], p[1], p[2]);
+
+	return 0;
 }
 
 void Image::start(bool repeat)
@@ -474,14 +568,26 @@ void Image::draw_single(Point<float> dest_position, int flags)
 	draw_z_single(dest_position, 0.0f, flags);
 }
 
-Image::Internal::Internal(std::string filename) :
+//--
+
+Image::Internal::Internal(std::string filename, bool keep_data) :
+	loaded_data(0),
 	filename(filename),
 	refcount(1)
 {
-	reload();
+	unsigned char *pixels = reload(keep_data);
+
+	if (pixels == 0) {
+		loaded_data = 0;
+	}
+	else {
+		delete[] loaded_data;
+		loaded_data = pixels;
+	}
 }
 
 Image::Internal::Internal(unsigned char *pixels, Size<int> size) :
+	loaded_data(0),
 	size(size)
 {
 	filename = "--FROM SURFACE--";
@@ -491,6 +597,9 @@ Image::Internal::Internal(unsigned char *pixels, Size<int> size) :
 Image::Internal::~Internal()
 {
 	release();
+
+	delete[] loaded_data;
+	loaded_data = 0;
 }
 
 void Image::Internal::release()
@@ -509,7 +618,7 @@ void Image::Internal::release()
 #endif
 }
 
-void Image::Internal::reload()
+unsigned char *Image::Internal::reload(bool keep_data)
 {
 	unsigned char *pixels = Image::read_tga(filename, size);
 
@@ -521,7 +630,13 @@ void Image::Internal::reload()
 		throw e;
 	}
 
-	delete[] pixels;
+	if (keep_data == false) {
+		delete[] pixels;
+		return 0;
+	}
+	else {
+		return pixels;
+	}
 }
 
 void Image::Internal::upload(unsigned char *pixels)

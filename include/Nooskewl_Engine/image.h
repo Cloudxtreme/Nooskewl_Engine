@@ -20,9 +20,11 @@ public:
 	static void release_all();
 	static void reload_all();
 	static int get_unfreed_count();
-	static unsigned char *read_tga(std::string filename, Size<int> &out_size);
+	static unsigned char *read_tga(std::string filename, Size<int> &out_size, SDL_Colour *out_palette = 0);
 
 	static bool dumping_colours;
+	static bool keep_data;
+	static bool save_rle;
 
 	std::string filename;
 	Size<int> size;
@@ -33,6 +35,8 @@ public:
 
 	void release();
 	void reload();
+
+	bool save(std::string filename);
 
 	void start(bool repeat = false); // call before every group of draws of the same Image
 	void end(); // call after every group of draws
@@ -60,15 +64,19 @@ public:
 	void draw_single(Point<float> dest_position, int flags = 0);
 
 private:
+	unsigned char find_colour_in_palette(unsigned char *p);
+
 	struct Internal {
-		Internal(std::string filename);
+		Internal(std::string filename, bool keep_data);
 		Internal(unsigned char *pixels, Size<int> size);
 		~Internal();
 
 		void upload(unsigned char *pixels);
 
 		void release();
-		void reload();
+		unsigned char *reload(bool keep_data);
+
+		unsigned char *loaded_data;
 
 		std::string filename;
 		Size<int> size;
