@@ -6,13 +6,15 @@
 
 using namespace Nooskewl_Engine;
 
-Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path)
+Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
+	blinking(false)
 {
 	load(xml_filename, image_directory, absolute_path);
 	start();
 }
 
-Sprite::Sprite(std::string image_directory)
+Sprite::Sprite(std::string image_directory) :
+	blinking(false)
 {
 	load(image_directory + "/animations.xml", image_directory);
 	start();
@@ -147,6 +149,7 @@ void Sprite::start()
 	}
 	started = true;
 	start_time = SDL_GetTicks();
+	get_next_blink();
 }
 
 void Sprite::stop()
@@ -156,6 +159,7 @@ void Sprite::stop()
 	}
 	started = false;
 	end_time = SDL_GetTicks();
+	get_next_blink();
 }
 
 void Sprite::reset()
@@ -173,6 +177,16 @@ Image *Sprite::get_current_image()
 	Uint32 now = started ? SDL_GetTicks() : end_time;
 	Uint32 elapsed = now - start_time;
 
+	if (now - next_blink < 50) {
+		blinking = true;
+	}
+	else {
+		if (blinking) {
+			blinking = false;
+			get_next_blink();
+		}
+	}
+
 	Animation *anim = animations[current_animation];
 
 	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
@@ -189,6 +203,12 @@ Image *Sprite::get_current_image()
 		}
 	}
 
+	std::string blink_name = current_animation + "-blink";
+
+	if (blinking && animations.find(blink_name) != animations.end() && (int)animations[blink_name]->images.size() > frame) {
+		anim = animations[blink_name];
+	}
+
 	return anim->images[frame];
 }
 
@@ -196,4 +216,9 @@ void Sprite::get_filenames(std::string &xml_filename, std::string &image_directo
 {
 	xml_filename = this->xml_filename;
 	image_directory = this->image_directory;
+}
+
+void Sprite::get_next_blink()
+{
+	next_blink = SDL_GetTicks() + rand() % 5000 + 5000;
 }
