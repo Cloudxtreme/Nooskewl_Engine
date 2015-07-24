@@ -17,17 +17,19 @@ public:
 		FLIP_V = 2
 	};
 
+	static void release_all();
+	static void reload_all();
+	static int get_unfreed_count();
+	static unsigned char *read_tga(std::string filename, Size<int> &out_size);
+
+	static bool dumping_colours;
+
 	std::string filename;
 	Size<int> size;
 
 	Image(std::string filename, bool is_absolute_path = false);
 	Image(SDL_Surface *surface);
 	~Image();
-
-	static void release_all();
-	static void reload_all();
-	static int get_unfreed_count();
-	static unsigned char *read_tga(std::string filename, Size<int> &out_size);
 
 	void release();
 	void reload();

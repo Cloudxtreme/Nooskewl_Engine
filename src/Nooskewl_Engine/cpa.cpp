@@ -29,6 +29,19 @@ bool CPA::exists(std::string filename)
 	return info.find(filename) != info.end();
 }
 
+std::vector<std::string> CPA::get_all_filenames()
+{
+	std::vector<std::string> v;
+	std::map< std::string, std::pair<int, int> >::iterator it;
+
+	for (it = info.begin(); it != info.end(); it++) {
+		std::pair< std::string, std::pair<int, int> > p = *it;
+		v.push_back(p.first);
+	}
+
+	return v;
+}
+
 CPA::CPA()
 {
 	List_Directory ld("*.cpa");

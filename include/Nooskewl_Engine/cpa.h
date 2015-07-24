@@ -14,6 +14,7 @@ class NOOSKEWL_ENGINE_EXPORT CPA
 public:
 	SDL_RWops *open(std::string filename);
 	bool exists(std::string filename);
+	std::vector<std::string> get_all_filenames();
 
 	CPA();
 	~CPA();

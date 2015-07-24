@@ -9,6 +9,7 @@
 using namespace Nooskewl_Engine;
 
 std::vector<Image::Internal *> Image::loaded_images;
+bool Image::dumping_colours = false;
 
 struct TGA_Header {
 	char idlength;
@@ -79,6 +80,152 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, TGA_Header *h)
 	}
 	else
 		return p + n * 4;
+}
+
+void Image::release_all()
+{
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		loaded_images[i]->release();
+	}
+}
+
+void Image::reload_all()
+{
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		loaded_images[i]->reload();
+	}
+}
+
+int Image::get_unfreed_count()
+{
+	for (size_t i = 0; i < loaded_images.size(); i++) {
+		infomsg("Unfreed: %s\n", loaded_images[i]->filename);
+	}
+	return loaded_images.size();
+}
+
+unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
+{
+	SDL_RWops *file = open_file(filename);
+
+	int n = 0, i, j;
+	int bytes2read, skipover = 0;
+	unsigned char p[5];
+	TGA_Header header;
+	unsigned char *pixels;
+
+	/* Display the header fields */
+	header.idlength = SDL_fgetc(file);
+	header.colourmaptype = SDL_fgetc(file);
+	header.datatypecode = SDL_fgetc(file);
+	header.colourmaporigin = SDL_ReadLE16(file);
+	header.colourmaplength = SDL_ReadLE16(file);
+	header.colourmapdepth = SDL_fgetc(file);
+	header.x_origin = SDL_ReadLE16(file);
+	header.y_origin = SDL_ReadLE16(file);
+	header.width = SDL_ReadLE16(file);
+	header.height = SDL_ReadLE16(file);
+	header.bitsperpixel = SDL_fgetc(file);
+	header.imagedescriptor = SDL_fgetc(file);
+
+	int w, h;
+	out_size.w = w = header.width;
+	out_size.h = h = header.height;
+
+	/* Allocate space for the image */
+	if ((pixels = new unsigned char[header.width*header.height*4]) == 0) {
+		SDL_RWclose(file);
+		throw MemoryError("malloc of image failed");
+	}
+
+	/* What can we handle */
+	if (header.datatypecode != 1 && header.datatypecode != 2 && header.datatypecode != 9 && header.datatypecode != 10) {
+		SDL_RWclose(file);
+		throw LoadError("can only handle image type 1, 2, 9 and 10");
+	}
+	if (header.bitsperpixel != 8 && header.bitsperpixel != 16 && header.bitsperpixel != 24 && header.bitsperpixel != 32) {
+		SDL_RWclose(file);
+		throw LoadError("can only handle pixel depths of 8, 16, 24 and 32");
+	}
+	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
+		SDL_RWclose(file);
+		throw LoadError("can only handle colour map types of 0 and 1");
+	}
+
+	/* Skip over unnecessary stuff */
+	SDL_RWseek(file, header.idlength, RW_SEEK_CUR);
+
+	/* Read the palette if there is one */
+	if (header.colourmaptype == 1) {
+		if (header.colourmapdepth != 24) {
+			SDL_RWclose(file);
+			throw LoadError("can't handle anything but 24 bit palettes");
+		}
+		if (header.bitsperpixel != 8) {
+			SDL_RWclose(file);
+			throw LoadError("can only read 8 bpp paletted images");
+		}
+		int skip = header.colourmaporigin * (header.colourmapdepth / 8);
+		SDL_RWseek(file, skip, RW_SEEK_CUR);
+		// We can only read 256 colour palettes max, skip the rest
+		int size = MIN(header.colourmaplength-skip, 256);
+		skip = (header.colourmaplength - size) * (header.colourmapdepth / 8);
+		for (i = 0; i < size; i++) {
+			header.palette[i].b = SDL_fgetc(file);
+			header.palette[i].g = SDL_fgetc(file);
+			header.palette[i].r = SDL_fgetc(file);
+		}
+		SDL_RWseek(file, skip, RW_SEEK_CUR);
+	}
+	else {
+		// Skip the palette on truecolour images
+		SDL_RWseek(file, (header.colourmapdepth / 8) * header.colourmaplength, RW_SEEK_CUR);
+	}
+
+	/* Read the image */
+	bytes2read = header.bitsperpixel / 8;
+	while (n < header.width * header.height) {
+		if (header.datatypecode == 1 || header.datatypecode == 2) {                     /* Uncompressed */
+			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
+				delete[] pixels;
+				SDL_RWclose(file);
+				throw LoadError("unexpected end of file at pixel " + itos(i));
+			}
+			merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
+			n++;
+		}
+		else if (header.datatypecode == 9 || header.datatypecode == 10) {             /* Compressed */
+			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
+				delete[] pixels;
+				SDL_RWclose(file);
+				throw LoadError("unexpected end of file at pixel " + itos(i));
+			}
+			j = p[0] & 0x7f;
+			merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
+			n++;
+			if (p[0] & 0x80) {         /* RLE chunk */
+				for (i = 0; i < j; i++) {
+					merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
+					n++;
+				}
+			}
+			else {                   /* Normal chunk */
+				for (i = 0; i < j; i++) {
+					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
+						delete[] pixels;
+						SDL_RWclose(file);
+						throw LoadError("unexpected end of file at pixel " + itos(i));
+					}
+					merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
+					n++;
+				}
+			}
+		}
+	}
+
+	SDL_RWclose(file);
+
+	return pixels;
 }
 
 Image::Image(std::string filename, bool is_absolute_path)
@@ -327,152 +474,6 @@ void Image::draw_single(Point<float> dest_position, int flags)
 	draw_z_single(dest_position, 0.0f, flags);
 }
 
-void Image::release_all()
-{
-	for (size_t i = 0; i < loaded_images.size(); i++) {
-		loaded_images[i]->release();
-	}
-}
-
-void Image::reload_all()
-{
-	for (size_t i = 0; i < loaded_images.size(); i++) {
-		loaded_images[i]->reload();
-	}
-}
-
-int Image::get_unfreed_count()
-{
-	for (size_t i = 0; i < loaded_images.size(); i++) {
-		infomsg("Unfreed: %s\n", loaded_images[i]->filename);
-	}
-	return loaded_images.size();
-}
-
-unsigned char *Image::read_tga(std::string filename, Size<int> &out_size)
-{
-	SDL_RWops *file = open_file(filename);
-
-	int n = 0, i, j;
-	int bytes2read, skipover = 0;
-	unsigned char p[5];
-	TGA_Header header;
-	unsigned char *pixels;
-
-	/* Display the header fields */
-	header.idlength = SDL_fgetc(file);
-	header.colourmaptype = SDL_fgetc(file);
-	header.datatypecode = SDL_fgetc(file);
-	header.colourmaporigin = SDL_ReadLE16(file);
-	header.colourmaplength = SDL_ReadLE16(file);
-	header.colourmapdepth = SDL_fgetc(file);
-	header.x_origin = SDL_ReadLE16(file);
-	header.y_origin = SDL_ReadLE16(file);
-	header.width = SDL_ReadLE16(file);
-	header.height = SDL_ReadLE16(file);
-	header.bitsperpixel = SDL_fgetc(file);
-	header.imagedescriptor = SDL_fgetc(file);
-
-	int w, h;
-	out_size.w = w = header.width;
-	out_size.h = h = header.height;
-
-	/* Allocate space for the image */
-	if ((pixels = new unsigned char[header.width*header.height*4]) == 0) {
-		SDL_RWclose(file);
-		throw MemoryError("malloc of image failed");
-	}
-
-	/* What can we handle */
-	if (header.datatypecode != 1 && header.datatypecode != 2 && header.datatypecode != 9 && header.datatypecode != 10) {
-		SDL_RWclose(file);
-		throw LoadError("can only handle image type 1, 2, 9 and 10");
-	}		
-	if (header.bitsperpixel != 8 && header.bitsperpixel != 16 && header.bitsperpixel != 24 && header.bitsperpixel != 32) {
-		SDL_RWclose(file);
-		throw LoadError("can only handle pixel depths of 8, 16, 24 and 32");
-	}
-	if (header.colourmaptype != 0 && header.colourmaptype != 1) {
-		SDL_RWclose(file);
-		throw LoadError("can only handle colour map types of 0 and 1");
-	}
-
-	/* Skip over unnecessary stuff */
-	SDL_RWseek(file, header.idlength, RW_SEEK_CUR);
-
-	/* Read the palette if there is one */
-	if (header.colourmaptype == 1) {
-		if (header.colourmapdepth != 24) {
-			SDL_RWclose(file);
-			throw LoadError("can't handle anything but 24 bit palettes");
-		}
-		if (header.bitsperpixel != 8) {
-			SDL_RWclose(file);
-			throw LoadError("can only read 8 bpp paletted images");
-		}
-		int skip = header.colourmaporigin * (header.colourmapdepth / 8);
-		SDL_RWseek(file, skip, RW_SEEK_CUR);
-		// We can only read 256 colour palettes max, skip the rest
-		int size = MIN(header.colourmaplength-skip, 256);
-		skip = (header.colourmaplength - size) * (header.colourmapdepth / 8);
-		for (i = 0; i < size; i++) {
-			header.palette[i].b = SDL_fgetc(file);
-			header.palette[i].g = SDL_fgetc(file);
-			header.palette[i].r = SDL_fgetc(file);
-		}
-		SDL_RWseek(file, skip, RW_SEEK_CUR);
-	}
-	else {
-		// Skip the palette on truecolour images
-		SDL_RWseek(file, (header.colourmapdepth / 8) * header.colourmaplength, RW_SEEK_CUR);
-	}
-
-	/* Read the image */
-	bytes2read = header.bitsperpixel / 8;
-	while (n < header.width * header.height) {
-		if (header.datatypecode == 1 || header.datatypecode == 2) {                     /* Uncompressed */
-			if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-				delete[] pixels;
-				SDL_RWclose(file);
-				throw LoadError("unexpected end of file at pixel " + itos(i));
-			}
-			merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
-			n++;
-		}
-		else if (header.datatypecode == 9 || header.datatypecode == 10) {             /* Compressed */
-			if (SDL_RWread(file, p, 1, bytes2read+1) != bytes2read+1) {
-				delete[] pixels;
-				SDL_RWclose(file);
-				throw LoadError("unexpected end of file at pixel " + itos(i));
-			}
-			j = p[0] & 0x7f;
-			merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
-			n++;
-			if (p[0] & 0x80) {         /* RLE chunk */
-				for (i = 0; i < j; i++) {
-					merge_bytes(pixel_ptr(pixels, n, &header), &(p[1]), bytes2read, &header);
-					n++;
-				}
-			}
-			else {                   /* Normal chunk */
-				for (i = 0; i < j; i++) {
-					if (SDL_RWread(file, p, 1, bytes2read) != bytes2read) {
-						delete[] pixels;
-						SDL_RWclose(file);
-						throw LoadError("unexpected end of file at pixel " + itos(i));
-					}
-					merge_bytes(pixel_ptr(pixels, n, &header), p, bytes2read, &header);
-					n++;
-				}
-			}
-		}
-	}
-
-	SDL_RWclose(file);
-
-	return pixels;
-}
-
 Image::Internal::Internal(std::string filename) :
 	filename(filename),
 	refcount(1)
@@ -525,16 +526,16 @@ void Image::Internal::reload()
 
 void Image::Internal::upload(unsigned char *pixels)
 {
-	/*
 	// To get a complete palette..
-	unsigned char *rgb = pixels;
-	for (int i = 0; i < size.w*size.h; i++) {
-		if (rgb[3] != 0) {
-			printf("rgb: %d %d %d\n", rgb[0], rgb[1], rgb[2]);
+	if (dumping_colours) {
+		unsigned char *rgb = pixels;
+		for (int i = 0; i < size.w*size.h; i++) {
+			if (rgb[3] != 0) {
+				printf("rgb: %d %d %d\n", rgb[0], rgb[1], rgb[2]);
+			}
+			rgb += 4;
 		}
-		rgb += 4;
 	}
-	*/
 
 	if (noo.opengl) {
 		glGenVertexArrays(1, &vao);

@@ -72,7 +72,7 @@ NOOSKEWL_ENGINE_EXPORT void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
 
 SDL_RWops *open_file(std::string filename);
 std::string itos(int i);
-bool check_args(int argc, char **argv, std::string arg);
+int check_args(int argc, char **argv, std::string arg);
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor);

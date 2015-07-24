@@ -197,14 +197,14 @@ std::string itos(int i)
 	return std::string(buf);
 }
 
-bool check_args(int argc, char **argv, std::string arg)
+int check_args(int argc, char **argv, std::string arg)
 {
 	for (int i = 1; i < argc; i++) {
 		if (!strcmp(argv[i], arg.c_str())) {
-			return true;
+			return i;
 		}
 	}
-	return false;
+	return -1;
 }
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS

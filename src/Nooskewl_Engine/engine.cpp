@@ -90,11 +90,11 @@ bool Engine::start(int argc, char **argv)
 {
 	srand((unsigned int)time(0));
 
-	mute = check_args(argc, argv, "+mute");
-	fullscreen = check_args(argc, argv, "+fullscreen");
-	vsync = !check_args(argc, argv, "-vsync");
+	mute = check_args(argc, argv, "+mute") > 0;
+	fullscreen = check_args(argc, argv, "+fullscreen") > 0;
+	vsync = !(check_args(argc, argv, "-vsync") > 0);
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-	opengl = (check_args(argc, argv, "-d3d") || check_args(argc, argv, "+opengl"));
+	opengl = ((check_args(argc, argv, "-d3d") > 0) || (check_args(argc, argv, "+opengl")) > 0);
 #else
 	opengl = true;
 #endif
@@ -124,16 +124,25 @@ bool Engine::start(int argc, char **argv)
 
 	cpa = new CPA();
 
-	if (m.dll_start() == false) {
-		return false;
-	}
-
 	set_mouse_cursor();
 
 	init_video();
 
 	if (TTF_Init() == -1) {
 		throw Error("TTF_Init failed");
+	}
+
+	if (check_args(argc, argv, "+dump-colours") > 0) {
+		std::vector<std::string> v = cpa->get_all_filenames();
+		Image::dumping_colours = true;
+		for (size_t i = 0; i < v.size(); i++) {
+			std::string &s = v[i];
+			if (s.substr(s.length()-4) == ".tga") {
+				Image *image = new Image(s, true);
+				delete image;
+			}
+		}
+		exit(0);
 	}
 
 	load_fonts();
@@ -166,6 +175,10 @@ bool Engine::start(int argc, char **argv)
 	guis.push_back(new Title_GUI());
 
 	button_mml = new MML("button.mml");
+
+	if (m.dll_start() == false) {
+		return false;
+	}
 
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
