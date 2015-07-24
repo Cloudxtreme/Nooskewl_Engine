@@ -132,28 +132,56 @@ bool Engine::start(int argc, char **argv)
 		throw Error("TTF_Init failed");
 	}
 
-	if (check_args(argc, argv, "+dump-colours") > 0) {
+	load_fonts();
+
+	load_palette("palette.gpl");
+
+	int dump_colours = check_args(argc, argv, "+dump-colours");
+	int repalette_images = check_args(argc, argv, "+repalette-images");
+
+	if (dump_colours > 0 || repalette_images > 0) {
+		if (repalette_images > 0) {
+			Image::keep_data = true;
+		}
+		if (dump_colours > 0) {
+			Image::dumping_colours = true;
+		}
 		std::vector<std::string> v = cpa->get_all_filenames();
-		Image::dumping_colours = true;
 		for (size_t i = 0; i < v.size(); i++) {
 			std::string &s = v[i];
 			if (s.substr(s.length()-4) == ".tga") {
 				Image *image = new Image(s, true);
-				delete image;
+				if (dump_colours > 0) {
+					delete image;
+				}
+				else {
+					std::string output_path = argv[repalette_images + 1];
+					_mkdir(output_path.c_str());
+					std::string filename = image->filename;
+					std::vector<std::string> path_components;
+					Tokenizer t(filename, '/');
+					std::string tok;
+					while ((tok = t.next()) != "") {
+						path_components.push_back(tok);
+					}
+					std::string dir_name = output_path;
+					for (size_t j = 0; j < path_components.size()-1; j++) {
+						dir_name += "/" + path_components[j];
+						_mkdir(dir_name.c_str());
+					}
+					image->save(dir_name + "/" + path_components[path_components.size()-1]);
+					delete image;
+				}
 			}
 		}
 		exit(0);
 	}
-
-	load_fonts();
 
 	window_image = new Image("window.tga");
 	name_box_image_top = new Image("name_box_top.tga");
 	name_box_image_bottom = new Image("name_box_bottom.tga");
 	name_box_image_top_right = new Image("name_box_top_right.tga");
 	name_box_image_bottom_right = new Image("name_box_bottom_right.tga");
-
-	load_palette("palette.gpl");
 
 	std::string engine_translation;
 	std::string game_translation;
