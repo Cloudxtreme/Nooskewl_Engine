@@ -7,7 +7,9 @@ static bool run_main(int argc, char **argv);
 int main(int argc, char **argv)
 {
 	try {
-		run_main(argc, argv);
+		if (run_main(argc, argv) == false) {
+			printf("run_main returned false\n");
+		}
 	}
 	catch (Error e) {
 		printf("Fatal error: %s\n", e.error_message.c_str());
@@ -19,7 +21,9 @@ int main(int argc, char **argv)
 
 static bool run_main(int argc, char **argv)
 {
-	noo.start(argc, argv);
+	if (noo.start(argc, argv) == false) {
+		return false;
+	}
 
 	bool quit = false;
 	bool draw = false;

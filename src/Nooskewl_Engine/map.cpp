@@ -219,7 +219,9 @@ void Map::update_camera()
 		Map_Entity *entity_to_destroy = entities_to_destroy[i];
 		std::vector<Map_Entity *>::iterator it = std::find(entities.begin(), entities.end(), entity_to_destroy);
 		if (it != entities.end()) {
+			Map_Entity *entity = *it;
 			entities.erase(it);
+			delete entity;
 		}
 	}
 	entities_to_destroy.clear();

@@ -74,7 +74,7 @@ public:
 	Engine();
 	~Engine();
 
-	void start(int argc, char **argv);
+	bool start(int argc, char **argv);
 	void end();
 
 	bool handle_event(SDL_Event *sdl_event);

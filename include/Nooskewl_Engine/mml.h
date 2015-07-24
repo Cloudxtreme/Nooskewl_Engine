@@ -9,17 +9,18 @@ class NOOSKEWL_ENGINE_EXPORT MML {
 public:
 	static void mix(Uint8 *buf, int stream_length);
 
-	MML(std::string filename);
+	MML(std::string filename, bool load_from_filesystem = false);
 	~MML();
 
 	void play(bool loop);
 	void stop();
 	std::string get_name(); // returns same thing passed to constructor
+	bool is_done();
 
 private:
 	class Internal {
 	public:
-		Internal(std::string filename);
+		Internal(std::string filename, bool load_from_filesystem);
 		~Internal();
 
 		class Track
@@ -43,6 +44,7 @@ private:
 			bool update(short *buf, int length);
 
 			bool is_playing();
+			bool is_done();
 
 		private:
 			void reset();

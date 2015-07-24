@@ -168,8 +168,14 @@ bool MML::Internal::Track::update(short *buf, int length)
 		if (get_next_note) {
 			const char *text_cstr = text.c_str();
 
-			t = 0;
+			std::string last_tok = tok;
+
 			tok = next_note(text_cstr, &pos);
+
+			if (tok != last_tok) {
+				t = 0;
+			}
+
 			note++;
 			if (tok[0] == 0) {
 				note--;
@@ -208,6 +214,11 @@ bool MML::Internal::Track::update(short *buf, int length)
 bool MML::Internal::Track::is_playing()
 {
 	return playing;
+}
+
+bool MML::Internal::Track::is_done()
+{
+	return done;
 }
 
 void MML::Internal::Track::reset()
@@ -473,9 +484,11 @@ int MML::Internal::Track::notelength(const char *tok, const char *text, int *pos
 	return total;
 }
 
-MML::Internal::Internal(std::string filename)
+MML::Internal::Internal(std::string filename, bool load_from_filesystem)
 {
-	filename = "mml/" + filename;
+	if (load_from_filesystem == false) {
+		filename = "mml/" + filename;
+	}
 
 	std::vector<std::string> tracks_s;
 	std::vector< std::vector< std::pair<int, float> > > volumes;
@@ -497,7 +510,13 @@ MML::Internal::Internal(std::string filename)
 	std::vector< std::vector<int> > dutycycle_envelopes;
 	char buf[1000];
 
-	SDL_RWops *f = open_file(filename);
+	SDL_RWops *f;
+	if (load_from_filesystem) {
+		f = SDL_RWFromFile(filename.c_str(), "r");
+	}
+	else {
+		f = open_file(filename);
+	}
 
 	while (SDL_fgets(f, buf, 1000)) {
 		int pos = 0;
@@ -759,10 +778,10 @@ void MML::mix(Uint8 *buf, int stream_length)
 	delete[] tmp;
 }
 
-MML::MML(std::string filename) :
+MML::MML(std::string filename, bool load_from_filesystem) :
 	name(filename)
 {
-	internal = new MML::Internal(filename);
+	internal = new MML::Internal(filename, load_from_filesystem);
 	loaded_mml.push_back(internal);
 }
 
@@ -803,4 +822,15 @@ void MML::stop()
 std::string MML::get_name()
 {
 	return name;
+}
+
+bool MML::is_done()
+{
+	for (size_t i = 0; i < internal->tracks.size(); i++) {
+		if (internal->tracks[i]->is_done() == false) {
+			return true;
+		}
+	}
+
+	return false;
 }

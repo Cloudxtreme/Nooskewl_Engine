@@ -86,7 +86,7 @@ Engine::~Engine()
 {
 }
 
-void Engine::start(int argc, char **argv)
+bool Engine::start(int argc, char **argv)
 {
 	srand((unsigned int)time(0));
 
@@ -110,11 +110,26 @@ void Engine::start(int argc, char **argv)
 		throw Error("SDL_Init failed");
 	}
 
+	init_audio();
+
+	int play_mml;
+	if ((play_mml = check_args(argc, argv, "+play-mml")) > 0) {
+		MML *mml = new MML(argv[play_mml+1], true);
+		mml->play(false);
+		while (mml->is_done()) {
+			SDL_Delay(1);
+		}
+		exit(0);
+	}
+
 	cpa = new CPA();
+
+	if (m.dll_start() == false) {
+		return false;
+	}
 
 	set_mouse_cursor();
 
-	init_audio();
 	init_video();
 
 	if (TTF_Init() == -1) {
@@ -154,6 +169,8 @@ void Engine::start(int argc, char **argv)
 
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
+
+	return true;
 }
 
 void Engine::end()
@@ -202,6 +219,7 @@ void Engine::end()
 	delete t;
 	delete game_t;
 
+	m.dll_end();
 	close_dll();
 
 	if (joy && SDL_JoystickGetAttached(joy)) {

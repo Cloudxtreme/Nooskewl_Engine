@@ -11,6 +11,8 @@ class Map_Logic;
 struct SampleInstance;
 class Vertex_Cache;
 
+typedef bool (*DLL_Start)();
+typedef void (*DLL_End)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
 typedef Brain *(*Brain_Getter)(std::string options);
 
@@ -32,6 +34,8 @@ void infomsg(const char *fmt, ...);
 void printGLerror(const char *fmt, ...);
 
 struct Module {
+	DLL_Start dll_start;
+	DLL_End dll_end;
 	Map_Logic_Getter dll_get_map_logic;
 	Brain_Getter dll_get_brain;
 	// audio
