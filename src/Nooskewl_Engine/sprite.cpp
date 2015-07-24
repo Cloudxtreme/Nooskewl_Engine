@@ -220,5 +220,5 @@ void Sprite::get_filenames(std::string &xml_filename, std::string &image_directo
 
 void Sprite::get_next_blink()
 {
-	next_blink = SDL_GetTicks() + rand() % 5000 + 5000;
+	next_blink = SDL_GetTicks() + rand() % 3000 + 3000;
 }
