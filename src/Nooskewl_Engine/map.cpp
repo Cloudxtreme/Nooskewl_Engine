@@ -332,10 +332,7 @@ void Map::draw(bool use_depth_buffer)
 
 	tilemap->draw_shadows(layer, offset);
 
-	if (use_depth_buffer) {
-		noo.enable_depth_buffer(true);
-		noo.clear_depth_buffer(1.0f);
-	}
+	noo.enable_depth_buffer(use_depth_buffer);
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
@@ -346,9 +343,7 @@ void Map::draw(bool use_depth_buffer)
 
 	layer++;
 
-	if (use_depth_buffer) {
-		noo.enable_depth_buffer(false);
-	}
+	noo.enable_depth_buffer(false);
 
 	for (; layer < nlayers; layer++) {
 		tilemap->draw_shadows(layer, offset);
