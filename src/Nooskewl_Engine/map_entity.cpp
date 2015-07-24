@@ -444,14 +444,11 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 
 	Image *image = sprite->get_current_image();
 
-	// Draw each row separately for z-buffering
-	image->draw_z_single(
-		draw_pos,
-		// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
-		// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
+	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
+	// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
+	float z = use_depth_buffer ? -(1.0f - (float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
 
-		use_depth_buffer ? -(1.0f-((float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f
-	);
+	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y+add), z);
 }
 
 void Map_Entity::draw_shadows(Point<float> draw_pos)
@@ -466,7 +463,7 @@ void Map_Entity::draw_shadows(Point<float> draw_pos)
 		noo.current_shader->use();
 		noo.current_shader->set_float("alpha", 0.25f);
 
-		image->draw_single(Point<float>(draw_pos.x, draw_pos.y+4));
+		image->draw_single(Point<float>(draw_pos.x, draw_pos.y+add+4));
 
 		noo.current_shader = bak;
 		noo.current_shader->use();
