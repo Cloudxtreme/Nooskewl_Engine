@@ -15,6 +15,11 @@ class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
 	static void new_game_started();
 
+	enum Shadow_Type {
+		SHADOW_NONE,
+		SHADOW_TRANSLUCENT_COPY
+	};
+
 	Map_Entity(std::string name);
 	~Map_Entity();
 
@@ -29,6 +34,7 @@ public:
 	void set_sitting(bool sitting);
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
 	void set_z_add(int z_add);
+	void set_shadow_type(Shadow_Type shadow_type);
 
 	int get_id();
 	std::string get_name();
@@ -42,6 +48,7 @@ public:
 	bool is_solid();
 	bool is_sitting();
 	int get_z_add();
+	Shadow_Type get_shadow_type();
 
 	void disable_input();
 	void enable_input();
@@ -57,6 +64,7 @@ public:
 	bool update(bool can_move);
 	// draws with z values
 	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
+	void draw_shadows(Point<float> draw_pos);
 
 	bool save(SDL_RWops *file);
 
@@ -87,6 +95,8 @@ private:
 	std::list<A_Star::Node *> path;
 	Callback path_callback;
 	void *path_callback_data;
+
+	Shadow_Type shadow_type;
 };
 
 } // End namespace Nooskewl_Engine

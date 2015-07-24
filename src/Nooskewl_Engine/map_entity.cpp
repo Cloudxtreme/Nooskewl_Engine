@@ -5,6 +5,7 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/tilemap.h"
 
@@ -33,7 +34,8 @@ Map_Entity::Map_Entity(std::string name) :
 	input_disabled(false),
 	z_add(0),
 	following_path(false),
-	path_callback(0)
+	path_callback(0),
+	shadow_type(SHADOW_NONE)
 {
 	id = current_id++;
 }
@@ -167,6 +169,11 @@ void Map_Entity::set_z_add(int z_add)
 	this->z_add = z_add;
 }
 
+void Map_Entity::set_shadow_type(Shadow_Type shadow_type)
+{
+	this->shadow_type = shadow_type;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -228,6 +235,11 @@ int Map_Entity::get_z_add()
 	return z_add;
 }
 
+Map_Entity::Shadow_Type Map_Entity::get_shadow_type()
+{
+	return shadow_type;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -272,7 +284,7 @@ bool Map_Entity::maybe_move()
 
 	if ((following_path || input_disabled == false) && brain) {
 		if (brain->l) {
-			if (!sitting && noo.map->is_solid(-1, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
@@ -284,7 +296,7 @@ bool Map_Entity::maybe_move()
 			set_direction(W);
 		}
 		else if (brain->r) {
-			if (!sitting && noo.map->is_solid(-1, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = E;
 				offset = Point<float>(-1, 0);
@@ -297,7 +309,7 @@ bool Map_Entity::maybe_move()
 			set_direction(E);
 		}
 		else if (brain->u) {
-			if (!sitting && noo.map->is_solid(-1, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = N;
 				offset = Point<float>(0, 1);
@@ -310,7 +322,7 @@ bool Map_Entity::maybe_move()
 			set_direction(N);
 		}
 		else if (brain->d) {
-			if (!sitting && noo.map->is_solid(-1, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
+			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
 				moving = true;
 				direction = S;
 				offset = Point<float>(0, -1);
@@ -430,14 +442,35 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 {
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
 
+	Image *image = sprite->get_current_image();
+
 	// Draw each row separately for z-buffering
-	sprite->get_current_image()->draw_z_single(
-		Point<float>(draw_pos.x, draw_pos.y),
+	image->draw_z_single(
+		draw_pos,
 		// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 		// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
 
 		use_depth_buffer ? -(1.0f-((float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f
 	);
+}
+
+void Map_Entity::draw_shadows(Point<float> draw_pos)
+{
+	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
+
+	Image *image = sprite->get_current_image();
+
+	if (shadow_type == SHADOW_TRANSLUCENT_COPY) {
+		Shader *bak = noo.current_shader;
+		noo.current_shader = noo.shadow_shader;
+		noo.current_shader->use();
+		noo.current_shader->set_float("alpha", 0.25f);
+
+		image->draw_single(Point<float>(draw_pos.x, draw_pos.y+4));
+
+		noo.current_shader = bak;
+		noo.current_shader->use();
+	}
 }
 
 void Map_Entity::stop_now()
@@ -536,6 +569,10 @@ bool Map_Entity::save(SDL_RWops *file)
 
 	if (z_add != 0) {
 		SDL_fprintf(file, ",z_add=%d", z_add);
+	}
+
+	if (shadow_type != SHADOW_NONE) {
+		SDL_fprintf(file, ",shadow_type=%d", (int)shadow_type);
 	}
 
 	SDL_fprintf(file, "\n");
