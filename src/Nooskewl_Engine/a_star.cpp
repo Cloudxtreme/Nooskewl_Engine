@@ -98,7 +98,7 @@ void A_Star::destroy_nodes(std::list<Node *> &list)
 void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 {
 	Point<int> new_position = node->position + offset;
-	if (map->is_solid(-1, 0, new_position, Size<int>(1, 1), false)) {
+	if (map->is_solid(-1, 0, new_position, Size<int>(1, 1))) {
 		return;
 	}
 
