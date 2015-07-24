@@ -172,7 +172,7 @@ bool MML::Internal::Track::update(short *buf, int length)
 
 			tok = next_note(text_cstr, &pos);
 
-			if (tok != last_tok) {
+			if (tok.c_str()[0] != '0' && tok != last_tok) {
 				t = 0;
 			}
 
