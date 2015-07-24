@@ -662,6 +662,9 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 			}
 			entity->set_sprite(sprite);
 		}
+		else if (key == "z_add") {
+			entity->set_z_add(atoi(value.c_str()));
+		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}
