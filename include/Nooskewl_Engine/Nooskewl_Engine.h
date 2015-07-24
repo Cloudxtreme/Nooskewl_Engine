@@ -20,7 +20,6 @@
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/speech.h"
 #include "Nooskewl_Engine/sprite.h"
-#include "Nooskewl_Engine/talk_brain.h"
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"

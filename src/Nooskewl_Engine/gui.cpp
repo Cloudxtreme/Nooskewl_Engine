@@ -8,7 +8,6 @@
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
-#include "Nooskewl_Engine/talk_brain.h"
 #include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/widgets.h"
@@ -698,10 +697,6 @@ Brain *Save_Load_GUI::load_brain(SDL_RWops *file)
 	}
 	else if (type == "player_brain") {
 		brain = new Player_Brain();
-	}
-	else if (type == "talk_brain") {
-		std::string name = t.next();
-		brain = new Talk_Brain(name);
 	}
 	else {
 		return m.dll_get_brain(value);
