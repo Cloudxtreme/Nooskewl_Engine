@@ -94,6 +94,7 @@ public:
 
 	void clear_depth_buffer(float value);
 	void enable_depth_buffer(bool enable);
+	bool is_depth_buffer_enabled();
 
 	void set_screen_size(int w, int h);
 	void set_default_projection();
@@ -159,6 +160,8 @@ private:
 	int num_milestones;
 	std::map<int, std::string> ms_number_to_name;
 	std::map<std::string, int> ms_name_to_number;
+
+	bool depth_buffer_enabled;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

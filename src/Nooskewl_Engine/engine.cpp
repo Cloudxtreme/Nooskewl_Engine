@@ -77,7 +77,8 @@ Engine::Engine() :
 	num_joysticks(0),
 	language("English"),
 	milestones(0),
-	num_milestones(0)
+	num_milestones(0),
+	depth_buffer_enabled(false)
 {
 }
 
@@ -711,6 +712,12 @@ void Engine::clear_depth_buffer(float value)
 
 void Engine::enable_depth_buffer(bool enable)
 {
+	if (depth_buffer_enabled == enable) {
+		return;
+	}
+
+	depth_buffer_enabled = enable;
+
 	if (opengl) {
 		if (enable) {
 			glEnable(GL_DEPTH_TEST);
@@ -741,6 +748,11 @@ void Engine::enable_depth_buffer(bool enable)
 		}
 	}
 #endif
+}
+
+bool Engine::is_depth_buffer_enabled()
+{
+	return depth_buffer_enabled;
 }
 
 void Engine::flip()
