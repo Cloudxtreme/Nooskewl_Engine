@@ -56,6 +56,7 @@ public:
 	Shader *glitch_shader;
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	IDirect3DDevice9 *d3d_device;
+	bool d3d_lost;
 #endif
 	// Input
 	int joy_b1;
@@ -142,7 +143,6 @@ private:
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	HWND hwnd;
 	D3DPRESENT_PARAMETERS d3d_pp;
-	bool d3d_lost;
 	IDirect3D9 *d3d;
 	HICON mouse_cursor;
 #endif

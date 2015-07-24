@@ -764,10 +764,15 @@ void Engine::flip()
 
 					set_initial_d3d_state();
 
+					// Everything's gone!
+					font->clear_cache();
+					bold_font->clear_cache();
+					Image::release_all();
+					Shader::release_all();
+
+					// So reload it!
 					Shader::reload_all();
-
 					load_fonts();
-
 					Image::reload_all();
 
 					int w, h;
@@ -783,13 +788,6 @@ void Engine::flip()
 			if (hr == D3DERR_DEVICELOST) {
 				infomsg("D3D device lost\n");
 				d3d_lost = true;
-
-				font->clear_cache();
-				bold_font->clear_cache();
-
-				Image::release_all();
-
-				Shader::release_all();
 			}
 		}
 

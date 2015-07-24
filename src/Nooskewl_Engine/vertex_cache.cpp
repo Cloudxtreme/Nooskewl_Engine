@@ -85,6 +85,9 @@ void Vertex_Cache::end()
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
+		if (noo.d3d_lost) {
+			return;
+		}
 		LPD3DXEFFECT d3d_effect = noo.current_shader->get_d3d_effect();
 		unsigned int required_passes;
 		d3d_effect->Begin(&required_passes, 0);
