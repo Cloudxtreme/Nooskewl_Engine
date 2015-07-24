@@ -13,8 +13,9 @@ public:
 	Sprite(std::string image_directory);
 	~Sprite();
 
-	bool set_animation(std::string name);
+	bool set_animation(std::string name, Callback finished_callback = 0, void *finished_callback_data = 0);
 	std::string get_animation();
+	std::string get_previous_animation();
 
 	void start();
 	void stop();
@@ -46,10 +47,14 @@ private:
 
 	// "" when not set
 	std::string current_animation;
+	std::string previous_animation;
 	std::map<std::string, Animation *> animations;
 
 	std::string xml_filename;
 	std::string image_directory;
+
+	Callback finished_callback;
+	void *finished_callback_data;
 };
 
 } // End namespace Nooskewl_Engine

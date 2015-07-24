@@ -7,14 +7,16 @@
 using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
-	blinking(false)
+	blinking(false),
+	previous_animation("")
 {
 	load(xml_filename, image_directory, absolute_path);
 	start();
 }
 
 Sprite::Sprite(std::string image_directory) :
-	blinking(false)
+	blinking(false),
+	previous_animation("")
 {
 	load(image_directory + "/animations.xml", image_directory);
 	start();
@@ -117,8 +119,12 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 	delete xml;
 }
 
-bool Sprite::set_animation(std::string name)
+bool Sprite::set_animation(std::string name, Callback finished_callback, void *finished_callback_data)
 {
+	// Always update these?
+	this->finished_callback = finished_callback;
+	this->finished_callback_data = finished_callback_data;
+
 	if (current_animation == name) {
 		return true;
 	}
@@ -127,6 +133,7 @@ bool Sprite::set_animation(std::string name)
 		return false;
 	}
 
+	previous_animation = current_animation;
 	current_animation = name;
 
 	Animation *anim = animations[current_animation];
@@ -140,6 +147,11 @@ bool Sprite::set_animation(std::string name)
 std::string Sprite::get_animation()
 {
 	return current_animation;
+}
+
+std::string Sprite::get_previous_animation()
+{
+	return previous_animation;
 }
 
 void Sprite::start()
@@ -177,6 +189,21 @@ Image *Sprite::get_current_image()
 	Uint32 now = started ? SDL_GetTicks() : end_time;
 	Uint32 elapsed = now - start_time;
 
+	Animation *anim = animations[current_animation];
+
+	if (finished_callback != 0 && elapsed >= anim->total_delays) {
+		// Back up so you can chain these
+		Callback bak_callback = finished_callback;
+		void *bak_data = finished_callback_data;
+		finished_callback = 0;
+		// Don't need to unset data, though it could change
+		bak_callback(bak_data);
+		// Callback could change these:
+		now = started ? SDL_GetTicks() : end_time;
+		elapsed = now - start_time;
+		anim = animations[current_animation];
+	}
+
 	if (now - next_blink < 50) {
 		blinking = true;
 	}
@@ -186,8 +213,6 @@ Image *Sprite::get_current_image()
 			get_next_blink();
 		}
 	}
-
-	Animation *anim = animations[current_animation];
 
 	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
 	int frame = 0;
