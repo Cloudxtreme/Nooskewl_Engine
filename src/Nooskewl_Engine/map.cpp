@@ -370,7 +370,7 @@ bool Map::activate(Map_Entity *entity)
 			ml->activate(entity, e);
 			Brain *b = e->get_brain();
 			if (b) {
-				b->activate(entity, e);
+				b->activate(entity);
 			}
 			return true;
 		}
