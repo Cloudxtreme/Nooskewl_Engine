@@ -42,6 +42,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #if defined NOOSKEWL_ENGINE_WINDOWS
+#include <direct.h>
 #include <d3d9.h>
 #include <d3dx9.h>
 #else
