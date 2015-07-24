@@ -66,6 +66,7 @@ private:
 };
 
 int SDL_fgetc(SDL_RWops *file);
+int SDL_fputc(int c, SDL_RWops *file);
 char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max);
 int SDL_fputs(const char *string, SDL_RWops *file);
 NOOSKEWL_ENGINE_EXPORT void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);

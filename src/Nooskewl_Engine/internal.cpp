@@ -145,6 +145,11 @@ int SDL_fgetc(SDL_RWops *file)
 	return c;
 }
 
+int SDL_fputc(int c, SDL_RWops *file)
+{
+	return SDL_RWwrite(file, &c, 1, 1) == 1 ? 1 : EOF;
+}
+
 char *SDL_fgets(SDL_RWops *file, char * const buf, size_t max)
 {
 	size_t c = 0;
