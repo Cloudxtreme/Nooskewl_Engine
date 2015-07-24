@@ -18,13 +18,6 @@ public:
 	Map_Entity(std::string name);
 	~Map_Entity();
 
-	void stop();
-	void handle_event(TGUI_Event *event);
-	// return false to destroy
-	bool update(bool can_move);
-	// draws with z values
-	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
-
 	void set_brain(Brain *brain);
 	void load_sprite(std::string name);
 	void set_sprite(Sprite *sprite);
@@ -35,9 +28,7 @@ public:
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
-
-	void disable_input();
-	void enable_input();
+	void set_z_add(int z_add);
 
 	int get_id();
 	std::string get_name();
@@ -50,11 +41,24 @@ public:
 	Point<float> get_draw_position();
 	bool is_solid();
 	bool is_sitting();
+	int get_z_add();
+
+	void disable_input();
+	void enable_input();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
 	// Positions in tiles
 	bool tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos);
+
+	void stop();
+	void handle_event(TGUI_Event *event);
+	// return false to destroy
+	bool update(bool can_move);
+	// draws with z values
+	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
+
+	bool save(SDL_RWops *file);
 
 private:
 	bool maybe_move();
@@ -77,6 +81,7 @@ private:
 	bool stop_next_tile;
 	bool sitting;
 	bool input_disabled;
+	int z_add;
 
 	bool following_path;
 	std::list<A_Star::Node *> path;

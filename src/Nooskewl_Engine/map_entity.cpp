@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/sprite.h"
@@ -30,6 +31,7 @@ Map_Entity::Map_Entity(std::string name) :
 	stop_next_tile(false),
 	sitting(false),
 	input_disabled(false),
+	z_add(0),
 	following_path(false),
 	path_callback(0)
 {
@@ -159,14 +161,10 @@ void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, voi
 	}
 }
 
-void Map_Entity::disable_input()
+// This can fix depth issues for sprites that overhang Object-grouped tiles
+void Map_Entity::set_z_add(int z_add)
 {
-	input_disabled = true;
-}
-
-void Map_Entity::enable_input()
-{
-	input_disabled = false;
+	this->z_add = z_add;
 }
 
 int Map_Entity::get_id()
@@ -225,6 +223,11 @@ bool Map_Entity::is_sitting()
 	return sitting;
 }
 
+int Map_Entity::get_z_add()
+{
+	return z_add;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -232,6 +235,16 @@ bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 		return false;
 	}
 	return true;
+}
+
+void Map_Entity::disable_input()
+{
+	input_disabled = true;
+}
+
+void Map_Entity::enable_input()
+{
+	input_disabled = false;
 }
 
 bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos)
@@ -423,7 +436,7 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 		// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 		// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
 
-		use_depth_buffer ? -(1.0f-((float)((position.y*noo.tile_size)+(offset.y*noo.tile_size))/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f
+		use_depth_buffer ? -(1.0f-((float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size))) * 0.01f : 0.0f
 	);
 }
 
@@ -488,4 +501,44 @@ void Map_Entity::end_a_star()
 {
 	following_path = false;
 	path.clear();
+}
+
+
+bool Map_Entity::save(SDL_RWops *file)
+{
+	if (brain) {
+		if (brain->save(file) == false) {
+			return false;
+		}
+	}
+	else {
+		SDL_fprintf(file, "brain=0\n");
+	}
+
+	SDL_fprintf(file, "%s=", name.c_str());
+
+	if (sprite) {
+		std::string xml_filename;
+		std::string image_directory;
+		sprite->get_filenames(xml_filename, image_directory);
+		std::string animation = sprite->get_animation();
+		int started = sprite->is_started() ? 1 : 0;
+		SDL_fprintf(file, "sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
+	}
+
+	SDL_fprintf(file, ",position=%d:%d", position.x, position.y);
+
+	SDL_fprintf(file, ",direction=%d", (int)direction);
+
+	if (sitting) {
+		SDL_fprintf(file, ",sitting=%d", (int)sitting);
+	}
+
+	if (z_add != 0) {
+		SDL_fprintf(file, ",z_add=%d", z_add);
+	}
+
+	SDL_fprintf(file, "\n");
+
+	return true;
 }
