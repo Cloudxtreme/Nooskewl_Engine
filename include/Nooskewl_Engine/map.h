@@ -63,8 +63,6 @@ private:
 		}
 	};
 
-	bool save_entity(SDL_RWops *file, Map_Entity *entity);
-
 	Tilemap *tilemap;
 	Point<float> offset;
 	bool panning;

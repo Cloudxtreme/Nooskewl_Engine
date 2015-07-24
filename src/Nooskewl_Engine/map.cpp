@@ -385,43 +385,18 @@ bool Map::save(SDL_RWops *file)
 
 	SDL_fprintf(file, "num_entities=%d\n", entities.size());
 
-	save_entity(file, noo.player);
+	if (noo.player->save(file) == false) {
+		return false;
+	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *entity = entities[i];
 		if (entity != noo.player) {
-			save_entity(file, entity);
+			if (entity->save(file) == false) {
+				return false;
+			}
 		}
 	}
 
-	return true;
-}
-
-bool Map::save_entity(SDL_RWops *file, Map_Entity *entity)
-{
-	Brain *brain = entity->get_brain();
-	if (brain) {
-		if (brain->save(file) == false) {
-			return false;
-		}
-	}
-	else {
-		SDL_fprintf(file, "brain=0\n");
-	}
-	SDL_fprintf(file, "%s=", entity->get_name().c_str());
-	Sprite *sprite = entity->get_sprite();
-	if (sprite) {
-		std::string xml_filename;
-		std::string image_directory;
-		sprite->get_filenames(xml_filename, image_directory);
-		std::string animation = sprite->get_animation();
-		int started = sprite->is_started() ? 1 : 0;
-		SDL_fprintf(file, "sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
-	}
-	Point<int> position = entity->get_position();
-	SDL_fprintf(file, ",position=%d:%d", position.x, position.y);
-	SDL_fprintf(file, ",direction=%d", (int)entity->get_direction());
-	SDL_fprintf(file, ",sitting=%d", (int)entity->is_sitting());
-	SDL_fprintf(file, "\n");
 	return true;
 }
