@@ -103,14 +103,17 @@ void Map::set_pan(Point<float> pan)
 	this->pan = pan;
 }
 
-bool Map::is_solid(int layer, Point<int> position, Size<int> size, bool check_entities, bool check_tiles)
+bool Map::is_solid(int layer, Map_Entity *collide_with, Point<int> position, Size<int> size, bool check_entities, bool check_tiles)
 {
 	if (check_entities) {
 		for (size_t i = 0; i < entities.size(); i++) {
 			Map_Entity *e = entities[i];
-			if (e->is_solid()) {
-				Point<int> p = e->get_position();
-				if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+			Point<int> p = e->get_position();
+			if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+				if (collide_with) {
+					collisions.push_back(std::pair<Map_Entity *, Map_Entity *>(e, collide_with));
+				}
+				if (e->is_solid()) {
 					return true;
 				}
 			}
@@ -206,6 +209,21 @@ void Map::handle_event(TGUI_Event *event)
 
 void Map::update_camera()
 {
+	for (size_t i = 0; i < collisions.size(); i++) {
+		std::pair<Map_Entity *, Map_Entity *> &p = collisions[i];
+		p.first->get_brain()->collide(p.second);
+	}
+	collisions.clear();
+
+	for (size_t i = 0; i < entities_to_destroy.size(); i++) {
+		Map_Entity *entity_to_destroy = entities_to_destroy[i];
+		std::vector<Map_Entity *>::iterator it = std::find(entities.begin(), entities.end(), entity_to_destroy);
+		if (it != entities.end()) {
+			entities.erase(it);
+		}
+	}
+	entities_to_destroy.clear();
+
 	Map_Entity *player = get_entity(0);
 	if (player) {
 		Point<float> p = player->get_draw_position();
@@ -307,6 +325,11 @@ void Map::draw(bool use_depth_buffer)
 		tilemap->draw(layer, offset);
 	}
 
+	for (size_t i = 0; i < entities.size(); i++) {
+		Map_Entity *e = entities[i];
+		e->draw_shadows(e->get_draw_position() + offset);
+	}
+
 	tilemap->draw_shadows(layer, offset);
 
 	if (use_depth_buffer) {
@@ -377,6 +400,13 @@ bool Map::activate(Map_Entity *entity)
 	}
 
 	return false;
+}
+
+void Map::schedule_destroy(Map_Entity *entity)
+{
+	if (std::find(entities_to_destroy.begin(), entities_to_destroy.end(), entity) == entities_to_destroy.end()) {
+		entities_to_destroy.push_back(entity);
+	}
 }
 
 bool Map::save(SDL_RWops *file)

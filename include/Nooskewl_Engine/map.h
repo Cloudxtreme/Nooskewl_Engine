@@ -31,6 +31,7 @@ public:
 
 	// Try to activate as entity, returns true on success
 	bool activate(Map_Entity *entity);
+	void schedule_destroy(Map_Entity *entity);
 
 	void add_entity(Map_Entity *entity);
 	void add_speech(std::string text, Callback callback = NULL, void *callback_data = NULL);
@@ -38,7 +39,7 @@ public:
 	void set_panning(bool panning);
 	void set_pan(Point<float> pan);
 
-	bool is_solid(int layer, Point<int> position, Size<int> size, bool check_entities = true, bool check_tiles = true);
+	bool is_solid(int layer, Map_Entity *collide_with, Point<int> position, Size<int> size, bool check_entities = true, bool check_tiles = true);
 	void check_triggers(Map_Entity *entity);
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 	Map_Entity *get_entity(int id);
@@ -81,6 +82,11 @@ private:
 	Map_Logic *ml;
 
 	A_Star *a_star;
+
+	std::vector<Map_Entity *> entities_to_destroy;
+
+	// Collided with, collider
+	std::vector< std::pair<Map_Entity *, Map_Entity *> > collisions;
 };
 
 } // End namespace Nooskewl_Engine
