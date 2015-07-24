@@ -263,8 +263,7 @@ void Tilemap::draw_shadows(int layer, Point<float> position)
 						sheets[s]->draw_region(
 							Point<int>(sx, sy),
 							Size<int>(dw, dh),
-							Point<float>(dx, dy),
-							Image::FLIP_V
+							Point<float>(dx, dy)
 						);
 					}
 				}
