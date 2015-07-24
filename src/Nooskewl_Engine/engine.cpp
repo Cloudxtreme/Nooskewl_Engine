@@ -562,7 +562,7 @@ bool Engine::update()
 
 				set_map_transition_projection((float)elapsed / duration * (float)M_PI);
 
-				clear(black);
+				clear_buffers();
 
 				m.vertex_cache->enable_perspective_drawing(screen_size);
 				if (moved_player) {
@@ -593,7 +593,7 @@ bool Engine::update()
 
 void Engine::draw()
 {
-	clear(black);
+	clear_buffers();
 
 	if (map) {
 		map->draw();
@@ -872,9 +872,7 @@ void Engine::set_default_projection()
 	SDL_GetWindowSize(window, &w, &h);
 
 	model = glm::mat4();
-	// translate to center the screen
 	view = glm::translate(glm::mat4(), glm::vec3(screen_offset.x, screen_offset.y, 0));
-	//view = glm::scale(view, glm::vec3(scale, scale, 1.0f));
 	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
 
 	update_projection();
@@ -886,7 +884,7 @@ void Engine::set_map_transition_projection(float angle)
 	SDL_GetWindowSize(window, &w, &h);
 
 	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/w), 1.0f * ((screen_size.h*scale)/h), 1.0f));
+	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/w), 1.0f * ((screen_size.h*scale)/h), (angle >= M_PI/2.0f) ? -1.0f : 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 
@@ -1202,6 +1200,12 @@ void Engine::load_milestones()
 			ms_number_to_name[atoi(num.c_str())] = name;
 		}
 	}
+}
+
+void Engine::clear_buffers()
+{
+	clear(black);
+	clear_depth_buffer(1.0f);
 }
 
 } // End namespace Nooskewl_Engine

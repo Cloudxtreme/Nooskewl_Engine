@@ -124,6 +124,7 @@ private:
 	void maybe_expand_milestones(int number);
 	void load_milestones();
 	void load_translation();
+	void clear_buffers();
 
 	SDL_Window *window;
 	bool vsync;
