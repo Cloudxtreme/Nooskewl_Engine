@@ -8,7 +8,8 @@ using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
 	blinking(false),
-	previous_animation("")
+	previous_animation(""),
+	finished_callback(0)
 {
 	load(xml_filename, image_directory, absolute_path);
 	start();
@@ -16,7 +17,8 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absol
 
 Sprite::Sprite(std::string image_directory) :
 	blinking(false),
-	previous_animation("")
+	previous_animation(""),
+	finished_callback(0)
 {
 	load(image_directory + "/animations.xml", image_directory);
 	start();
