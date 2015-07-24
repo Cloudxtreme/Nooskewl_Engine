@@ -11,6 +11,7 @@ class Map_Entity;
 class NOOSKEWL_ENGINE_EXPORT Talk_Brain : public Brain {
 public:
 	static void callback(void *data);
+
 	struct Callback_Data {
 		Direction direction;
 		Map_Entity *entity;
@@ -18,6 +19,7 @@ public:
 		void *user_callback_data;
 	} callback_data;
 
+	// The user callback is called with a Talk_Brain::Callback_Data which has the user data inside!
 	Talk_Brain(std::string name, Callback callback = NULL, void *callback_data = NULL);
 	~Talk_Brain();
 
@@ -32,6 +34,8 @@ protected:
 	};
 
 	static bool compare_milestones(Talk *a, Talk *b);
+
+	std::string get_speech(Map_Entity *activator, Map_Entity *activated);
 
 	std::string name;
 

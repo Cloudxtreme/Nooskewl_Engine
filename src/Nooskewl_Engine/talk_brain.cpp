@@ -15,7 +15,7 @@ void Talk_Brain::callback(void *data)
 	d->entity->set_direction(d->direction);
 
 	if (d->user_callback) {
-		d->user_callback(d->user_callback_data);
+		d->user_callback(data);
 	}
 }
 
@@ -79,6 +79,19 @@ Talk_Brain::~Talk_Brain()
 
 void Talk_Brain::activate(Map_Entity *activator, Map_Entity *activated)
 {
+	std::string text = get_speech(activator, activated);
+	if (text != "") {
+		noo.map->add_speech(text, callback, &callback_data);
+	}
+}
+
+bool Talk_Brain::compare_milestones(Talk *a, Talk *b)
+{
+	return a->milestone >= b->milestone;
+}
+
+std::string Talk_Brain::get_speech(Map_Entity *activator, Map_Entity *activated)
+{
 	for (size_t i = 0; i < sayings.size(); i++) {
 		Talk *t = sayings[i];
 		if (t->milestone < 0 || noo.check_milestone(t->milestone)) {
@@ -122,15 +135,11 @@ void Talk_Brain::activate(Map_Entity *activator, Map_Entity *activated)
 					t->text = std::string("top,") + t->text;
 				}
 			}
-			noo.map->add_speech(t->text, callback, &callback_data);
-			return;
+			return t->text;
 		}
 	}
-}
 
-bool Talk_Brain::compare_milestones(Talk *a, Talk *b)
-{
-	return a->milestone >= b->milestone;
+	return "";
 }
 
 bool Talk_Brain::save(SDL_RWops *file)
