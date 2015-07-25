@@ -199,7 +199,7 @@ void Map::handle_event(TGUI_Event *event)
 			bool is_player = e->get_id() == 0;
 			bool b1_down = is_player && e->get_brain()->b1;
 			e->handle_event(event);
-			if (ml && is_player && !e->is_sitting() && b1_down == false && e->get_brain()->b1) {
+			if (ml && is_player && !e->is_sitting() && !e->is_following_path() && b1_down == false && e->get_brain()->b1) {
 				// activate pressed
 				activate(e);
 			}

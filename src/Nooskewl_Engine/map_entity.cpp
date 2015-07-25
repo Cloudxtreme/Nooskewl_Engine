@@ -240,6 +240,11 @@ Map_Entity::Shadow_Type Map_Entity::get_shadow_type()
 	return shadow_type;
 }
 
+bool Map_Entity::is_following_path()
+{
+	return following_path;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;

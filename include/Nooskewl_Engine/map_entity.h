@@ -49,6 +49,7 @@ public:
 	bool is_sitting();
 	int get_z_add();
 	Shadow_Type get_shadow_type();
+	bool is_following_path();
 
 	void disable_input();
 	void enable_input();
