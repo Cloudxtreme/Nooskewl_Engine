@@ -148,6 +148,8 @@ bool Shader::set_float_vector(std::string name, int num_components, float *vecto
 		return internal->d3d_effect->SetFloatArray(name.c_str(), vector, num_components * num_elements) == D3D_OK;
 	}
 #endif
+
+	return true;
 }
 
 void Shader::set_bool(std::string name, bool value)
