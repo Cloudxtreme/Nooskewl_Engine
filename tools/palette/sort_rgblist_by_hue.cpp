@@ -2,18 +2,19 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-float hue(float r, float g, float b)
+void hsl(float r, float g, float b, float &h, float &s, float &l)
 {
     r /= 255, g /= 255, b /= 255;
 	float min = MIN(r, MIN(g, b));
 	float max = MAX(r, MAX(g, b));
-    float h = (max + min) / 2;
-    float s = (max + min) / 2;
-    float l = (max + min) / 2;
+    h = (max + min) / 2;
+    s = (max + min) / 2;
+    l = (max + min) / 2;
 
     if (max == min) {
         h = s = 0; // achromatic
@@ -32,8 +33,6 @@ float hue(float r, float g, float b)
     	}
         h /= 6;
     }
-
-    return h;
 }
 
 bool compare(std::string a, std::string b)
@@ -44,7 +43,19 @@ bool compare(std::string a, std::string b)
 	sscanf(a.c_str(), "rgb: %d %d %d", &r_a, &g_a, &b_a);
 	sscanf(b.c_str(), "rgb: %d %d %d", &r_b, &g_b, &b_b);
 
-	return hue(r_a, g_a, b_a) < hue(r_b, g_b, b_b);
+    float h_a, s_a, l_a;
+    float h_b, s_b, l_b;
+
+    hsl(r_a, g_a, b_a, h_a, s_a, l_a);
+    hsl(r_b, g_b, b_b, h_b, s_b, l_b);
+
+    if (fabs(h_a-h_b) > 0.01f) {
+        return h_a < h_b;
+    }
+    if (fabs(s_a-s_b) > 0.01f) {
+        return s_a < s_b;
+    }
+    return l_a < l_b;
 }
 
 int main(void)
