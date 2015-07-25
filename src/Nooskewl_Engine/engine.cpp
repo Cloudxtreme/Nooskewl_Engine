@@ -16,6 +16,7 @@
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/widgets.h"
+#include "Nooskewl_Engine/xml.h"
 
 #include "Nooskewl_Engine/engine_translation_English.h"
 
@@ -137,8 +138,13 @@ bool Engine::start(int argc, char **argv)
 
 	load_palette("palette.gpl");
 
+	int ignore_palette = check_args(argc, argv, "+ignore-palette");
 	int dump_colours = check_args(argc, argv, "+dump-colours");
 	int repalette_images = check_args(argc, argv, "+repalette-images");
+
+	if (ignore_palette > 0) {
+		Image::ignore_palette = true;
+	}
 
 	if (dump_colours > 0 || repalette_images > 0) {
 		if (repalette_images > 0) {
@@ -200,6 +206,8 @@ bool Engine::start(int argc, char **argv)
 	Widget::static_start();
 	Speech::static_start();
 
+	miscellaneous_xml = new XML("miscellaneous.xml");
+
 	TGUI::set_focus_sloppiness(0);
 	guis.push_back(new Title_GUI());
 
@@ -260,6 +268,8 @@ void Engine::end()
 
 	delete t;
 	delete game_t;
+
+	delete miscellaneous_xml;
 
 	m.dll_end();
 	close_dll();
