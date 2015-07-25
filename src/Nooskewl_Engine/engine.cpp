@@ -78,7 +78,8 @@ Engine::Engine() :
 	language("English"),
 	milestones(0),
 	num_milestones(0),
-	depth_buffer_enabled(false)
+	depth_buffer_enabled(false),
+	doing_map_transition(false)
 {
 }
 
@@ -538,7 +539,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			noo_gui->gui->handle_event(&event);
 		}
 	}
-	else if (map) {
+	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
 
 		if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) {
@@ -589,61 +590,43 @@ bool Engine::update()
 		}
 	}
 
-	if (map && map->update() == false) {
-		std::string map_name;
-		Point<int> position;
-		Direction direction;
-		map->get_new_map_details(map_name, position, direction);
-		if (map_name != "") {
-			Map *old_map = map;
-			last_map_name = old_map->get_map_name();
-			map = new Map(map_name);
-			player->get_brain()->reset();
-			map->add_entity(player);
-			map->start();
-			map->update_camera();
+	if (doing_map_transition == false) {
+		if (map && map->update() == false) {
+			map->get_new_map_details(new_map_name, new_map_position, new_map_direction);
+			if (new_map_name != "") {
+				old_map = map;
+				last_map_name = old_map->get_map_name();
+				map = new Map(new_map_name);
+				player->get_brain()->reset();
+				map->add_entity(player);
+				map->start();
+				map->update_camera();
 
-			// draw transition
-
-			const Uint32 duration = 500;
-			Uint32 start_time = SDL_GetTicks();
-			Uint32 end_time = start_time + duration;
-			bool moved_player = false;
-
-			while (SDL_GetTicks() < end_time) {
-				Uint32 elapsed = SDL_GetTicks() - start_time;
-				if (moved_player == false && elapsed >= duration/2) {
-					// The actual moving happens below in this same loop
-					moved_player = true;
-					player->set_position(position);
-					player->set_direction(direction);
-				}
-
-				set_map_transition_projection((float)elapsed / duration * (float)M_PI);
-
-				clear_buffers();
-
-				m.vertex_cache->enable_perspective_drawing(screen_size);
-				if (moved_player) {
-					map->update_camera();
-					map->draw();
-				}
-				else {
-					old_map->update_camera();
-					old_map->draw();
-				}
-				m.vertex_cache->disable_perspective_drawing();
-
-				flip();
+				doing_map_transition = true;
+				map_transition_start = SDL_GetTicks();
+				moved_player_during_map_transition = false;
 			}
+		}
+	}
 
-			set_default_projection();
+	if (doing_map_transition) {
+		Uint32 end_time = map_transition_start + map_transition_duration;
+
+		if (SDL_GetTicks() >= end_time) {
+			doing_map_transition = false;
 
 			old_map->end();
 			delete old_map;
 		}
 		else {
-			return false;
+			Uint32 elapsed = SDL_GetTicks() - map_transition_start;
+			if (moved_player_during_map_transition == false && elapsed >= map_transition_duration/2) {
+				// The actual moving happens below in this same loop
+				moved_player_during_map_transition = true;
+				player->set_position(new_map_position);
+				player->set_direction(new_map_direction);
+			}
+
 		}
 	}
 
@@ -654,16 +637,38 @@ void Engine::draw()
 {
 	clear_buffers();
 
-	if (map) {
-		map->draw();
-	}
+	if (doing_map_transition) {
+		Uint32 elapsed = MIN(map_transition_duration-1, SDL_GetTicks() - map_transition_start);
 
-	for (size_t i = 0; i < guis.size(); i++) {
-		guis[i]->draw_back();
-		if (guis[i]->gui) {
-			guis[i]->gui->draw();
+		set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
+
+		m.vertex_cache->enable_perspective_drawing(screen_size);
+
+		if (moved_player_during_map_transition) {
+			map->update_camera();
+			map->draw();
 		}
-		guis[i]->draw_fore();
+		else {
+			old_map->update_camera();
+			old_map->draw();
+		}
+
+		m.vertex_cache->disable_perspective_drawing();
+
+		set_default_projection();
+	}
+	else {
+		if (map) {
+			map->draw();
+		}
+
+		for (size_t i = 0; i < guis.size(); i++) {
+			guis[i]->draw_back();
+			if (guis[i]->gui) {
+				guis[i]->gui->draw();
+			}
+			guis[i]->draw_fore();
+		}
 	}
 
 	flip();

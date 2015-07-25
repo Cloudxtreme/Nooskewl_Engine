@@ -163,6 +163,15 @@ private:
 	std::map<std::string, int> ms_name_to_number;
 
 	bool depth_buffer_enabled;
+
+	bool doing_map_transition;
+	bool moved_player_during_map_transition;
+	Uint32 map_transition_start;
+	Map *old_map;
+	std::string new_map_name;
+	Point<int> new_map_position;
+	Direction new_map_direction;
+	static const int map_transition_duration = 500;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
