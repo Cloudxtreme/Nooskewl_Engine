@@ -25,6 +25,7 @@ public:
 	static bool dumping_colours;
 	static bool keep_data;
 	static bool save_rle;
+	static bool ignore_palette;
 
 	std::string filename;
 	Size<int> size;
@@ -64,6 +65,24 @@ public:
 	void draw_single(Point<float> dest_position, int flags = 0);
 
 private:
+	struct TGA_Header {
+		char idlength;
+		char colourmaptype;
+		char datatypecode;
+		short int colourmaporigin;
+		short int colourmaplength;
+		char colourmapdepth;
+		short int x_origin;
+		short int y_origin;
+		short width;
+		short height;
+		char bitsperpixel;
+		char imagedescriptor;
+		SDL_Colour palette[256];
+	};
+
+	static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header);
+
 	unsigned char find_colour_in_palette(unsigned char *p);
 
 	struct Internal {

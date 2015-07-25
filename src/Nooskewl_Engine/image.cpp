@@ -6,72 +6,6 @@
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
-using namespace Nooskewl_Engine;
-
-bool Image::dumping_colours = false;
-bool Image::keep_data = false;
-bool Image::save_rle = false;
-
-std::vector<Image::Internal *> Image::loaded_images;
-
-struct TGA_Header {
-	char idlength;
-	char colourmaptype;
-	char datatypecode;
-	short int colourmaporigin;
-	short int colourmaplength;
-	char colourmapdepth;
-	short int x_origin;
-	short int y_origin;
-	short width;
-	short height;
-	char bitsperpixel;
-	char imagedescriptor;
-	SDL_Colour palette[256];
-};
-
-static void merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
-{
-	if (header->colourmaptype == 1) {
-		SDL_Colour *colour = &header->palette[*p];
-		// Magic pink
-		// Paletted
-		if (colour->r == 255 && colour->g == 0 && colour->b == 255) {
-			// transparent
-			*pixel++ = 255;
-			*pixel++ = 0;
-			*pixel++ = 255;
-			*pixel++ = 0;
-		}
-		else {
-			*pixel++ = colour->r;
-			*pixel++ = colour->g;
-			*pixel++ = colour->b;
-			*pixel++ = 255;
-		}
-	}
-	else {
-		if (bytes == 4) {
-			*pixel++ = p[2];
-			*pixel++ = p[1];
-			*pixel++ = p[0];
-			*pixel++ = p[3];
-		}
-		else if (bytes == 3) {
-			*pixel++ = p[2];
-			*pixel++ = p[1];
-			*pixel++ = p[0];
-			*pixel++ = 255;
-		}
-		else if (bytes == 2) {
-			*pixel++ = (p[1] & 0x7c) << 1;
-			*pixel++ = ((p[1] & 0x03) << 6) | ((p[0] & 0xe0) >> 2);
-			*pixel++ = (p[0] & 0x1f) << 3;
-			*pixel++ = (p[1] & 0x80);
-		}
-	}
-}
-
 static inline unsigned char *pixel_ptr(unsigned char *p, int n, bool flip, int w, int h)
 {
 	/* OpenGL expects upside down, so that's what we provide */
@@ -83,6 +17,15 @@ static inline unsigned char *pixel_ptr(unsigned char *p, int n, bool flip, int w
 	else
 		return p + n * 4;
 }
+
+using namespace Nooskewl_Engine;
+
+bool Image::dumping_colours = false;
+bool Image::keep_data = false;
+bool Image::save_rle = false;
+bool Image::ignore_palette;
+
+std::vector<Image::Internal *> Image::loaded_images;
 
 void Image::release_all()
 {
@@ -234,6 +177,54 @@ unsigned char *Image::read_tga(std::string filename, Size<int> &out_size, SDL_Co
 	}
 
 	return pixels;
+}
+
+void Image::merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_Header *header)
+{
+	if (header->colourmaptype == 1) {
+		SDL_Colour *colour;
+		if (ignore_palette) {
+			colour = &noo.colours[*p];
+		}
+		else {
+			colour = &header->palette[*p];
+		}
+		// Magic pink
+		// Paletted
+		if (colour->r == 255 && colour->g == 0 && colour->b == 255) {
+			// transparent
+			*pixel++ = 255;
+			*pixel++ = 0;
+			*pixel++ = 255;
+			*pixel++ = 0;
+		}
+		else {
+			*pixel++ = colour->r;
+			*pixel++ = colour->g;
+			*pixel++ = colour->b;
+			*pixel++ = 255;
+		}
+	}
+	else {
+		if (bytes == 4) {
+			*pixel++ = p[2];
+			*pixel++ = p[1];
+			*pixel++ = p[0];
+			*pixel++ = p[3];
+		}
+		else if (bytes == 3) {
+			*pixel++ = p[2];
+			*pixel++ = p[1];
+			*pixel++ = p[0];
+			*pixel++ = 255;
+		}
+		else if (bytes == 2) {
+			*pixel++ = (p[1] & 0x7c) << 1;
+			*pixel++ = ((p[1] & 0x03) << 6) | ((p[0] & 0xe0) >> 2);
+			*pixel++ = (p[0] & 0x1f) << 3;
+			*pixel++ = (p[1] & 0x80);
+		}
+	}
 }
 
 Image::Image(std::string filename, bool is_absolute_path)
