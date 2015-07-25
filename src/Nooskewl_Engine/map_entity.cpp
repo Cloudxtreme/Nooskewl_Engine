@@ -345,7 +345,7 @@ bool Map_Entity::maybe_move()
 
 void Map_Entity::handle_event(TGUI_Event *event)
 {
-	if (following_path == false && brain) {
+	if (brain) {
 		brain->handle_event(event);
 	}
 }
@@ -487,6 +487,10 @@ void Map_Entity::stop_now()
 
 void Map_Entity::follow_path()
 {
+	if (offset.x != 0 || offset.y != 0) {
+		return;
+	}
+
 	if (path.size() == 0) {
 		if (path_callback) {
 			path_callback(path_callback_data);
