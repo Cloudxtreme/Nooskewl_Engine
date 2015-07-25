@@ -74,6 +74,7 @@ private:
 	void stop_now();
 	void follow_path();
 	void end_a_star();
+	void set_next_blink();
 
 	int id;
 	std::string name;
@@ -102,6 +103,7 @@ private:
 	bool has_blink;
 	float eye_colour[4];
 	float blink_colour[4];
+	Uint32 next_blink;
 };
 
 } // End namespace Nooskewl_Engine

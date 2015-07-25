@@ -78,6 +78,8 @@ Map_Entity::Map_Entity(std::string name) :
 			}
 		}
 	}
+
+	set_next_blink();
 }
 
 Map_Entity::~Map_Entity()
@@ -487,7 +489,16 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 {
 	if (has_blink) {
 		noo.current_shader->set_bool("substitute_yellow", true);
-		noo.current_shader->set_float_vector("substitute_colour", 4, eye_colour, 1);
+		Uint32 ticks = SDL_GetTicks();
+		if (ticks > next_blink) {
+			if (ticks > next_blink + 50) {
+				set_next_blink();
+			}
+			noo.current_shader->set_float_vector("substitute_colour", 4, blink_colour, 1);
+		}
+		else {
+			noo.current_shader->set_float_vector("substitute_colour", 4, eye_colour, 1);
+		}
 	}
 
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
@@ -637,4 +648,9 @@ bool Map_Entity::save(SDL_RWops *file)
 	SDL_fprintf(file, "\n");
 
 	return true;
+}
+
+void Map_Entity::set_next_blink()
+{
+	next_blink = SDL_GetTicks() + 3000 + (rand() % 3000);
 }
