@@ -36,14 +36,10 @@ private:
 	};
 
 	void load(std::string xml_filename, std::string image_directory, bool absolute_path = false);
-	void get_next_blink();
 
 	bool started;
 	Uint32 start_time;
 	Uint32 end_time;
-
-	bool blinking;
-	Uint32 next_blink;
 
 	// "" when not set
 	std::string current_animation;

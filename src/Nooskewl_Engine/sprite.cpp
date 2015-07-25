@@ -7,7 +7,6 @@
 using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
-	blinking(false),
 	previous_animation(""),
 	finished_callback(0)
 {
@@ -16,11 +15,10 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absol
 }
 
 Sprite::Sprite(std::string image_directory) :
-	blinking(false),
 	previous_animation(""),
 	finished_callback(0)
 {
-	load(image_directory + "/animations.xml", image_directory);
+	load(image_directory + "/sprite.xml", image_directory);
 	start();
 }
 
@@ -59,7 +57,7 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 		int count;
 		std::vector<Image *> images;
 		for (count = 0; count < 1024 /* NOTE: hardcoded max frames */; count++) {
-			std::string filename = image_directory + "/" + anim->get_name() + "/" + itos(count) + ".tga";
+			std::string filename = image_directory + "/" + anim->get_name() + itos(count) + ".tga";
 			Image *image;
 			try {
 				image = new Image(filename, true);
@@ -163,7 +161,6 @@ void Sprite::start()
 	}
 	started = true;
 	start_time = SDL_GetTicks();
-	get_next_blink();
 }
 
 void Sprite::stop()
@@ -173,7 +170,6 @@ void Sprite::stop()
 	}
 	started = false;
 	end_time = SDL_GetTicks();
-	get_next_blink();
 }
 
 void Sprite::reset()
@@ -206,16 +202,6 @@ Image *Sprite::get_current_image()
 		anim = animations[current_animation];
 	}
 
-	if (now - next_blink < 50) {
-		blinking = true;
-	}
-	else {
-		if (blinking) {
-			blinking = false;
-			get_next_blink();
-		}
-	}
-
 	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
 	int frame = 0;
 
@@ -230,12 +216,6 @@ Image *Sprite::get_current_image()
 		}
 	}
 
-	std::string blink_name = current_animation + "-blink";
-
-	if (blinking && animations.find(blink_name) != animations.end() && (int)animations[blink_name]->images.size() > frame) {
-		anim = animations[blink_name];
-	}
-
 	return anim->images[frame];
 }
 
@@ -243,9 +223,4 @@ void Sprite::get_filenames(std::string &xml_filename, std::string &image_directo
 {
 	xml_filename = this->xml_filename;
 	image_directory = this->image_directory;
-}
-
-void Sprite::get_next_blink()
-{
-	next_blink = SDL_GetTicks() + rand() % 3000 + 3000;
 }
