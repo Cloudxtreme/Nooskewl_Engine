@@ -18,6 +18,7 @@ public:
 	void set_texture(std::string name, Image *image);
 	void set_matrix(std::string name, const float *matrix);
 	void set_float(std::string name, float value);
+	bool set_float_vector(std::string name, int num_components, float *vector, int num_elements);
 	void set_bool(std::string name, bool value);
 
 	GLuint get_opengl_shader();

@@ -114,6 +114,42 @@ void Shader::set_float(std::string name, float value)
 #endif
 }
 
+// Taken from Allegro
+bool Shader::set_float_vector(std::string name, int num_components, float *vector, int num_elements)
+{
+	if (noo.opengl) {
+		GLint handle;
+
+		handle = glGetUniformLocation(internal->opengl_shader, name.c_str());
+
+		if (handle < 0) {
+			return false;
+		}
+
+		switch (num_components) {
+			case 1:
+				glUniform1fv(handle, num_elements, vector);
+				break;
+			case 2:
+				glUniform2fv(handle, num_elements, vector);
+				break;
+			case 3:
+				glUniform3fv(handle, num_elements, vector);
+				break;
+			case 4:
+				glUniform4fv(handle, num_elements, vector);
+				break;
+			default:
+				return false;
+		}
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		return internal->d3d_effect->SetFloatArray(name.c_str(), vector, num_components * num_elements) == D3D_OK;
+	}
+#endif
+}
+
 void Shader::set_bool(std::string name, bool value)
 {
 	if (internal->opengl) {
