@@ -8,6 +8,7 @@
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/tilemap.h"
+#include "Nooskewl_Engine/xml.h"
 
 using namespace Nooskewl_Engine;
 
@@ -35,9 +36,48 @@ Map_Entity::Map_Entity(std::string name) :
 	z_add(0),
 	following_path(false),
 	path_callback(0),
-	shadow_type(SHADOW_NONE)
+	shadow_type(SHADOW_NONE),
+	has_blink(false)
 {
 	id = current_id++;
+
+	XML *xml = noo.miscellaneous_xml->find("blink");
+	if (xml) {
+		xml = xml->find(name);
+		if (xml) {
+			XML *eye = xml->find("eye");
+			XML *blink = xml->find("blink");
+			if (eye && blink) {
+				XML *eye_r = eye->find("r");
+				XML *eye_g = eye->find("g");
+				XML *eye_b = eye->find("b");
+				XML *blink_r = blink->find("r");
+				XML *blink_g = blink->find("g");
+				XML *blink_b = blink->find("b");
+				if (eye_r && eye_g && eye_b && blink_r && blink_g && blink_b) {
+					has_blink = true;
+					/*
+					printf("entity=%s eye=%s,%s,%s blink=%s,%s,%s\n", name.c_str(),
+						eye_r->get_value().c_str(),
+						eye_g->get_value().c_str(),
+						eye_b->get_value().c_str(),
+						blink_r->get_value().c_str(),
+						blink_g->get_value().c_str(),
+						blink_b->get_value().c_str());
+					*/
+					eye_colour[0] = atoi(eye_r->get_value().c_str()) / 255.0f;
+					eye_colour[1] = atoi(eye_g->get_value().c_str()) / 255.0f;
+					eye_colour[2] = atoi(eye_b->get_value().c_str()) / 255.0f;
+					eye_colour[3] = 1.0f;
+					blink_colour[0] = atoi(blink_r->get_value().c_str()) / 255.0f;
+					blink_colour[1] = atoi(blink_g->get_value().c_str()) / 255.0f;
+					blink_colour[2] = atoi(blink_b->get_value().c_str()) / 255.0f;
+					blink_colour[3] = 1.0f;
+					//printf("set colours to %f,%f,%f,%f  --  %f,%f,%f,%f\n", eye_colour[0], eye_colour[1], eye_colour[2], eye_colour[3], blink_colour[0], blink_colour[1], blink_colour[2], blink_colour[3]);
+				}
+			}
+		}
+	}
 }
 
 Map_Entity::~Map_Entity()
@@ -57,7 +97,7 @@ void Map_Entity::set_brain(Brain *brain)
 void Map_Entity::load_sprite(std::string name)
 {
 	delete sprite;
-	sprite = new Sprite(name + "/animations.xml", name);
+	sprite = new Sprite(name);
 	sprite->set_animation("stand_s");
 }
 
@@ -445,6 +485,11 @@ bool Map_Entity::update(bool can_move)
 
 void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 {
+	if (has_blink) {
+		noo.current_shader->set_bool("substitute_yellow", true);
+		noo.current_shader->set_float_vector("substitute_colour", 4, eye_colour, 1);
+	}
+
 	int add = moving ? -((int)((SDL_GetTicks() / 100) % 2) * bounce) : 0;
 
 	Image *image = sprite->get_current_image();
@@ -454,6 +499,10 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 	float z = use_depth_buffer ? -(1.0f - (float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
 
 	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y+add), z);
+
+	if (has_blink) {
+		noo.current_shader->set_bool("substitute_yellow", false);
+	}
 }
 
 void Map_Entity::draw_shadows(Point<float> draw_pos)
@@ -579,6 +628,10 @@ bool Map_Entity::save(SDL_RWops *file)
 
 	if (shadow_type != SHADOW_NONE) {
 		SDL_fprintf(file, ",shadow_type=%d", (int)shadow_type);
+	}
+
+	if (solid == false) {
+		SDL_fprintf(file, ",solid=%d", solid ? 1 : 0);
 	}
 
 	SDL_fprintf(file, "\n");

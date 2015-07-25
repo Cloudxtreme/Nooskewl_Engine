@@ -98,6 +98,10 @@ private:
 	void *path_callback_data;
 
 	Shadow_Type shadow_type;
+
+	bool has_blink;
+	float eye_colour[4];
+	float blink_colour[4];
 };
 
 } // End namespace Nooskewl_Engine

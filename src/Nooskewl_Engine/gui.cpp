@@ -667,6 +667,9 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 		else if (key == "shadow_type") {
 			entity->set_shadow_type((Map_Entity::Shadow_Type)atoi(value.c_str()));
 		}
+		else if (key == "solid") {
+			entity->set_solid(atoi(value.c_str()) != 0);
+		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}
