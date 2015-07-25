@@ -4,7 +4,6 @@
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/basic_types.h"
 
-
 namespace Nooskewl_Engine {
 
 class Brain;
@@ -17,6 +16,7 @@ class Map_Entity;
 class MML;
 class Shader;
 class Translation;
+class XML;
 
 class NOOSKEWL_ENGINE_EXPORT Engine {
 public:
@@ -70,6 +70,7 @@ public:
 	std::string last_map_name;
 	Map_Entity *player;
 	std::vector<GUI *> guis;
+	XML *miscellaneous_xml;
 
 	Engine();
 	~Engine();
