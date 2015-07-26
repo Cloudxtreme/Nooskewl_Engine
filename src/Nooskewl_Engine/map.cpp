@@ -173,6 +173,11 @@ Point<float> Map::get_offset()
 	return offset;
 }
 
+Point<float> Map::get_pan()
+{
+	return pan;
+}
+
 std::list<A_Star::Node *> Map::find_path(Point<int> start, Point<int> goal)
 {
 	return a_star->find_path(start, goal);

@@ -46,6 +46,7 @@ public:
 	std::string get_map_name();
 	Tilemap *get_tilemap();
 	Point<float> get_offset();
+	Point<float> get_pan();
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal);
 
 	bool save(SDL_RWops *file);
