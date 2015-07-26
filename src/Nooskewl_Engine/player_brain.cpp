@@ -34,7 +34,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		else if (event->keyboard.code == TGUIK_DOWN) {
 			d = true;
 		}
-		else if (event->keyboard.code == noo.key_b1) {
+		else if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
 			b1 = true;
 		}
 	}
@@ -51,7 +51,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		else if (event->keyboard.code == TGUIK_DOWN) {
 			d = false;
 		}
-		else if (event->keyboard.code == noo.key_b1) {
+		else if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
 			b1 = false;
 		}
 	}
@@ -105,10 +105,12 @@ void Player_Brain::handle_event(TGUI_Event *event)
 				Point<float> mouse_pos(event->mouse.x, event->mouse.y);
 				float moved_distance = (mouse_pos-pressed_pos).length();
 				if (moved_distance < (float)TOLERANCE) {
-					Point<int> map_offset = noo.map->get_offset();
+					Point<float> map_offset = noo.map->get_offset();
+					Point<float> map_pan = noo.map->get_pan();
 					Point<int> click((int)event->mouse.x, (int)event->mouse.y);
 					Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
 					click -= map_offset;
+					click += map_pan;
 					click /= noo.tile_size;
 					Point<int> player_pos = noo.player->get_position();
 					if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
