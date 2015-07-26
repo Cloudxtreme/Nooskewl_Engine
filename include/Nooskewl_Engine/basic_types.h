@@ -420,33 +420,6 @@ public:
 	}
 };
 
-template<typename T> class Four_Corners
-{
-public:
-	T x1, y1, x2, y2;
-
-	Four_Corners(T x1, T y1, T x2, T y2)
-	{
-		this->x1 = x1;
-		this->y1 = y1;
-		this->x2 = x2;
-		this->y2 = y2;
-	}
-
-	Four_Corners() {}
-
-	void operator=(const Four_Corners<T> &rhs)
-	{
-		x1 = rhs.x1;
-		y1 = rhs.y1;
-		x2 = rhs.x2;
-		y2 = rhs.y2;
-	}
-};
-
-#define Line Four_Corners
-#define Rectangle Four_Corners
-
 } // End namespace Nooskewl_Engine
 
 #endif // TYPES_H
