@@ -351,6 +351,18 @@ void Engine::init_video()
 		throw Error("SDL_CreateWindow failed");
 	}
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	hdc = BeginPaint(GetActiveWindow(), &ps);
+
+	SelectObject(hdc, GetStockObject(DC_BRUSH));
+	SetDCBrushColor(hdc, RGB(0, 0, 0));
+
+	Rectangle(hdc, 0, 0, win_w, win_h);
+#endif
+
 	SDL_SetWindowMinimumSize(window, perfect_w, perfect_h);
 
 	if (fullscreen) {
@@ -362,6 +374,7 @@ void Engine::init_video()
 
 	if (opengl) {
 		opengl_context = SDL_GL_CreateContext(window);
+
 		SDL_GL_SetSwapInterval(vsync ? 1 : 0); // vsync, 1 = on
 
 		glewExperimental = 1;
@@ -412,6 +425,8 @@ void Engine::init_video()
 		set_initial_d3d_state();
 	}
 #endif
+
+	clear(black);
 
 	std::string default_vertex_source;
 	std::string default_fragment_source;
