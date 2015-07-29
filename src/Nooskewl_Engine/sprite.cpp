@@ -182,6 +182,11 @@ bool Sprite::is_started()
 	return started;
 }
 
+int Sprite::get_length()
+{
+	return animations[current_animation]->total_delays;
+}
+
 Image *Sprite::get_current_image()
 {
 	Uint32 now = started ? SDL_GetTicks() : end_time;

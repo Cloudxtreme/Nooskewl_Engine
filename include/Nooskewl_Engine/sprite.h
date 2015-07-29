@@ -22,6 +22,7 @@ public:
 	// set to frame 0
 	void reset();
 	bool is_started();
+	int get_length();
 
 	Image *get_current_image();
 
