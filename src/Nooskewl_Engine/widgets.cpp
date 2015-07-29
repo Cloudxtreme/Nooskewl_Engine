@@ -35,7 +35,9 @@ void Widget::enable_focus_shader(bool enable)
 		bak = noo.current_shader;
 		noo.current_shader = noo.brighten_shader;
 		noo.current_shader->use();
-		noo.current_shader->set_float("add", add);
+		noo.current_shader->set_float("add_r", add);
+		noo.current_shader->set_float("add_g", add);
+		noo.current_shader->set_float("add_b", add);
 	}
 	else {
 		noo.current_shader = bak;
