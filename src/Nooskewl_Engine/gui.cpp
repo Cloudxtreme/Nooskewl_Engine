@@ -58,7 +58,11 @@ Title_GUI::Title_GUI() :
 
 	noo.play_music("title.mml");
 
-	logo = new Image("logo.tga");
+	static_logo = new Image("static_logo.tga");
+	logo = new Sprite("logo");
+
+	logo->reset();
+	logo_animation_start = SDL_GetTicks();
 
 	Widget *main_widget = new Widget(1.0f, 1.0f);
 
@@ -84,6 +88,7 @@ Title_GUI::Title_GUI() :
 
 Title_GUI::~Title_GUI()
 {
+	delete static_logo;
 	delete logo;
 }
 
@@ -123,13 +128,13 @@ bool Title_GUI::update_background()
 void Title_GUI::draw_back()
 {
 	int scale1 = 4;
-	int x1 = -logo->size.w / 2 * scale1;
-	int y1 = -logo->size.h / 2 * scale1;
+	int x1 = -static_logo->size.w / 2 * scale1;
+	int y1 = -static_logo->size.h / 2 * scale1;
 	int scale2 = 8;
-	int x2 = -logo->size.w / 4 * scale2;
-	int y2 = -logo->size.h / 4 * scale2;
-	int dx1 = x1 + logo->size.w / 2 * scale1;
-	int dy2 = y2 + logo->size.h / 4 * scale2;
+	int x2 = -static_logo->size.w / 4 * scale2;
+	int y2 = -static_logo->size.h / 4 * scale2;
+	int dx1 = x1 + static_logo->size.w / 2 * scale1;
+	int dy2 = y2 + static_logo->size.h / 4 * scale2;
 	float p1 = (SDL_GetTicks() % 20000) / 20000.0f * 2.0f;
 	if (p1 >= 1.0f) {
 		p1 = 1.0f - (p1 - 1.0f);
@@ -140,10 +145,10 @@ void Title_GUI::draw_back()
 	}
 	SDL_Colour tint1 = noo.white;
 	tint1.a = 32;
-	logo->stretch_region_tinted_single(tint1, Point<float>(0, 0), logo->size, Point<float>(x1 + (dx1 - x1) * p1, (float)y1), logo->size * scale1);
+	static_logo->stretch_region_tinted_single(tint1, Point<float>(0, 0), static_logo->size, Point<float>(x1 + (dx1 - x1) * p1, (float)y1), static_logo->size * scale1);
 	SDL_Colour tint2 = noo.white;
 	tint2.a = 64;
-	logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), logo->size * scale2);
+	static_logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), static_logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), static_logo->size * scale2);
 }
 
 void Title_GUI::draw_fore()
@@ -151,41 +156,62 @@ void Title_GUI::draw_fore()
 	Point<float> pos;
 	Size<int> size;
 
+	Image *logo_image = logo->get_current_image();
+
 	if (did_intro == false) {
-		int max_w = logo->size.w * 16 - logo->size.w;
-		int max_h = logo->size.h * 16 - logo->size.h;
+		int max_w = logo_image->size.w * 16 - logo_image->size.w;
+		int max_h = logo_image->size.h * 16 - logo_image->size.h;
 		float p = (SDL_GetTicks() - intro_start) / 2000.0f;
 		if (p > 1.0f) {
 			p = 1.0f;
 			did_intro = true;
 		}
-		float w = (1.0f - p) * max_w + logo->size.w;
-		float h = (1.0f - p) * max_h + logo->size.h;
+		float w = (1.0f - p) * max_w + logo_image->size.w;
+		float h = (1.0f - p) * max_h + logo_image->size.h;
 		size = Size<int>((int)w, (int)h);
 		pos.x = noo.screen_size.w / 2 - w / 2;
 		pos.y = noo.screen_size.h / 3 - h / 2;
 	}
 	else {
-		pos.x = float(noo.screen_size.w / 2 - logo->size.w / 2);
-		pos.y = float(noo.screen_size.h / 3 - logo->size.h / 2);
-		size = logo->size;
+		pos.x = float(noo.screen_size.w / 2 - logo_image->size.w / 2);
+		pos.y = float(noo.screen_size.h / 3 - logo_image->size.h / 2);
+		size = logo_image->size;
 	}
 
-	float percent = (SDL_GetTicks() % 500) / 500.0f * 2.0f;
-	if (percent >= 1.0f) {
-		percent = 1.0f - (percent - 1.0f);
+	SDL_Colour tint = { 255, 255, 255, 32 };
+
+	int r = (rand() % 3 + 4) * 2;
+
+	for (int i = 0; i < 5; i++) {
+		logo_image->stretch_region_tinted_single(tint, Point<int>(0, 0), logo_image->size, pos-(r/2.0f), size+r);
+
+		r--;
 	}
-	float amount_x = (1.0f / noo.scale) * cos((SDL_GetTicks() % 5000) / 5000.0f * (float)M_PI * 2);
-	float amount_y = (1.0f / noo.scale) * sin((SDL_GetTicks() % 3000) / 5000.0f * (float)M_PI * 2);
-	Shader *bak = noo.current_shader;
-	noo.current_shader = noo.glitch_shader;
+
+	Shader *bak;
+	Uint32 ticks = (SDL_GetTicks()-logo_animation_start) % 5896; // FIXME: hardcoded length
+	float add;
+	if (ticks < 500) {
+		add = 0.0f;
+	}
+	else {
+		add = (ticks - 500) / 200.0f * 2.0f;
+		if (add > 1.0f) {
+			if (add > 2.0f) {
+				add = 2.0f;
+			}
+			add = 1.0f - (add - 1.0f);
+		}
+	}
+	bak = noo.current_shader;
+	noo.current_shader = noo.brighten_shader;
 	noo.current_shader->use();
-	noo.current_shader->set_float("percent", percent);
-	noo.current_shader->set_float("width", (float)logo->size.w);
-	noo.current_shader->set_float("height", (float)logo->size.h);
-	noo.current_shader->set_float("amount_x", amount_x);
-	noo.current_shader->set_float("amount_y", amount_y);
-	logo->stretch_region_single(Point<float>(0.0f, 0.0f), logo->size, pos, size);
+	noo.current_shader->set_float("add_r", add);
+	noo.current_shader->set_float("add_g", add);
+	noo.current_shader->set_float("add_b", add);
+
+	logo_image->stretch_region_single(Point<float>(0.0f, 0.0f), logo_image->size, pos, size);
+
 	noo.current_shader = bak;
 	noo.current_shader->use();
 }
@@ -235,7 +261,7 @@ Pause_GUI::Pause_GUI()
 	save_button->set_center_x(true);
 	save_button->set_padding_left(5);
 	save_button->set_padding_right(5);
-	
+
 	quit_button = new Widget_Text_Button(noo.t->translate(8), 0.3f, -1);
 	quit_button->set_center_x(true);
 

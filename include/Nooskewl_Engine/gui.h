@@ -8,6 +8,7 @@ namespace Nooskewl_Engine {
 class Brain;
 class Image;
 class Map_Entity;
+class Sprite;
 class Widget_Text_Button;
 
 class NOOSKEWL_ENGINE_EXPORT GUI {
@@ -45,10 +46,13 @@ private:
 	bool did_intro;
 	Uint32 intro_start;
 
-	Image *logo;
+	Image *static_logo;
+	Sprite *logo;
 
 	Widget_Text_Button *new_game_button;
 	Widget_Text_Button *load_game_button;
+
+	Uint32 logo_animation_start;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Pause_GUI : public GUI {
