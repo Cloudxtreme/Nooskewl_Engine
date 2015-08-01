@@ -28,7 +28,6 @@ public:
 	void set_sprite(Sprite *sprite);
 	void set_position(Point<int> position);
 	void set_offset(Point<float> offset);
-	void set_bounce(int bounce);
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
@@ -85,7 +84,6 @@ private:
 	bool moving;
 	float speed;
 	Point<float> offset;
-	int bounce;
 	bool solid;
 	Size<int> size;
 	bool stop_next_tile;
