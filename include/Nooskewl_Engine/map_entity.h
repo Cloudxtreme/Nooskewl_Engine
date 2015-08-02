@@ -49,9 +49,9 @@ public:
 	int get_z_add();
 	Shadow_Type get_shadow_type();
 	bool is_following_path();
+	bool is_input_enabled();
 
-	void disable_input();
-	void enable_input();
+	void set_input_enabled(bool enabled);
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -88,7 +88,7 @@ private:
 	Size<int> size;
 	bool stop_next_tile;
 	bool sitting;
-	bool input_disabled;
+	bool input_enabled;
 	int z_add;
 
 	bool following_path;

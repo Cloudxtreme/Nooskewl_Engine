@@ -31,7 +31,7 @@ Map_Entity::Map_Entity(std::string name) :
 	size(noo.tile_size, noo.tile_size*2),
 	stop_next_tile(false),
 	sitting(false),
-	input_disabled(false),
+	input_enabled(true),
 	z_add(0),
 	following_path(false),
 	path_callback(0),
@@ -281,6 +281,11 @@ bool Map_Entity::is_following_path()
 	return following_path;
 }
 
+bool Map_Entity::is_input_enabled()
+{
+	return input_enabled;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -290,14 +295,9 @@ bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 	return true;
 }
 
-void Map_Entity::disable_input()
+void Map_Entity::set_input_enabled(bool enabled)
 {
-	input_disabled = true;
-}
-
-void Map_Entity::enable_input()
-{
-	input_disabled = false;
+	input_enabled = enabled;
 }
 
 bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos)
@@ -323,7 +323,7 @@ bool Map_Entity::maybe_move()
 {
 	bool ret = false;
 
-	if ((following_path || input_disabled == false) && brain) {
+	if ((following_path || input_enabled == true) && brain) {
 		if (brain->l) {
 			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
 				moving = true;
