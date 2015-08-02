@@ -101,8 +101,6 @@ bool Engine::start(int argc, char **argv)
 	opengl = true;
 #endif
 
-	load_dll();
-
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
 	if (mute == false) {
 		flags |= SDL_INIT_AUDIO;
@@ -110,6 +108,14 @@ bool Engine::start(int argc, char **argv)
 
 	if (SDL_Init(flags) != 0) {
 		throw Error("SDL_Init failed");
+	}
+
+	cpa = new CPA();
+
+	load_dll();
+
+	if (m.dll_start() == false) {
+		return false;
 	}
 
 	init_audio();
@@ -123,8 +129,6 @@ bool Engine::start(int argc, char **argv)
 		}
 		exit(0);
 	}
-
-	cpa = new CPA();
 
 	set_mouse_cursor();
 
@@ -212,10 +216,6 @@ bool Engine::start(int argc, char **argv)
 	guis.push_back(new Title_GUI());
 
 	button_mml = new MML("button.mml");
-
-	if (m.dll_start() == false) {
-		return false;
-	}
 
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
