@@ -89,11 +89,11 @@ void Map::set_panning(bool panning)
 {
 	this->panning = panning;
 	if (panning == false) {
-		if (pan.length() < 5) {
+		if (pan.length() <= PAN_BACK_SPEED) {
 			pan = Point<int>(0, 0);
 		}
 		else {
-			pan_angle = -pan.angle();
+			pan_angle = pan.angle();
 		}
 	}
 }
@@ -289,30 +289,19 @@ bool Map::update()
 
 	// Reset pan gradually when the user lets go of mouse
 	if (panning == false && (pan.x != 0.0f || pan.y != 0.0f)) {
-		if (pan.x < 0.0f) {
-			pan.x += cos(pan_angle) * PAN_BACK_SPEED;
-			if (pan.x > 0.0f) {
+		if (pan.x != 0.0f) {
+			pan.x -= cos(pan_angle) * PAN_BACK_SPEED;
+			if (fabs(pan.x) <= PAN_BACK_SPEED) {
 				pan.x = 0.0f;
 			}
 		}
-		else if (pan.x > 0.0f) {
-			pan.x += cos(pan_angle) * PAN_BACK_SPEED;
-			if (pan.x < 0.0f) {
-				pan.x = 0.0f;
-			}
-		}
-		if (pan.y < 0.0f) {
-			pan.y += sin(pan_angle) * PAN_BACK_SPEED;
-			if (pan.y > 0.0f) {
+		if (pan.y != 0.0f) {
+			pan.y -= sin(pan_angle) * PAN_BACK_SPEED;
+			if (fabs(pan.y) <= PAN_BACK_SPEED) {
 				pan.y = 0.0f;
 			}
 		}
-		else if (pan.y > 0.0f) {
-			pan.y += sin(pan_angle) * PAN_BACK_SPEED;
-			if (pan.y < 0.0f) {
-				pan.y = 0.0f;
-			}
-		}
+		pan_angle = pan.angle();
 	}
 
 	if (new_map_name != "") {
