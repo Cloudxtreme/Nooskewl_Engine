@@ -20,6 +20,10 @@
 
 #include "Nooskewl_Engine/engine_translation_English.h"
 
+#ifndef NOOSKEWL_ENGINE_WINDOWS
+#include "Nooskewl_Engine/mouse_cursor.xpm"
+#endif
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 #define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
@@ -130,9 +134,10 @@ bool Engine::start(int argc, char **argv)
 		exit(0);
 	}
 
-	set_mouse_cursor();
-
 	init_video();
+
+	set_mouse_cursor();
+	set_window_icon();
 
 	if (TTF_Init() == -1) {
 		throw Error("TTF_Init failed");
@@ -260,6 +265,8 @@ void Engine::end()
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	DestroyIcon(mouse_cursor);
+#else
+	SDL_FreeCursor(mouse_cursor);
 #endif
 
 	delete cpa;
@@ -1204,6 +1211,44 @@ void Engine::check_joysticks()
 	}
 }
 
+#ifndef NOOSKEWL_ENGINE_WINDOWS
+static SDL_Cursor *init_system_cursor(char *image[])
+{
+	int i, row, col;
+	Uint8 data[4*32];
+	Uint8 mask[4*32];
+	int hot_x, hot_y;
+
+	i = -1;
+	for (row=0; row<32; ++row) {
+		for (col=0; col<32; ++col) {
+			if (col % 8) {
+				data[i] <<= 1;
+				mask[i] <<= 1;
+			}
+			else {
+				++i;
+				data[i] = mask[i] = 0;
+			}
+			switch (image[4+row][col]) {
+				case 'X':
+					data[i] |= 0x01;
+					mask[i] |= 0x01;
+					break;
+				case '.':
+					mask[i] |= 0x01;
+					break;
+				case ' ':
+					break;
+			}
+		}
+	}
+
+	sscanf(image[4+row], "%d,%d", &hot_x, &hot_y);
+	return SDL_CreateCursor(data, mask, 32, 32, hot_x, hot_y);
+}
+#endif
+
 void Engine::set_mouse_cursor()
 {
 #ifdef NOOSKEWL_ENGINE_WINDOWS
@@ -1212,7 +1257,20 @@ void Engine::set_mouse_cursor()
 	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", size);
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, true);
 	delete[] pixels;
+#else
+	mouse_cursor = init_system_cursor(mouse_cursor_xpm);
+	SDL_SetCursor(mouse_cursor);
 #endif
+}
+
+void Engine::set_window_icon()
+{
+	Size<int> size;
+	unsigned char *pixels = Image::read_tga("images/icon.tga", size);
+	SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + size.w * (size.h-1) * 4, size.w, size.h, 32, -size.w * 4, 0xff, 0xff00, 0xff0000, 0xff000000);
+	SDL_SetWindowIcon(window, surface);
+	SDL_FreeSurface(surface);
+	delete[] pixels;
 }
 
 void Engine::update_projection()

@@ -120,6 +120,7 @@ private:
 	void load_fonts();
 	void check_joysticks();
 	void set_mouse_cursor();
+	void set_window_icon();
 	void set_initial_d3d_state();
 	void maybe_expand_milestones(int number);
 	void load_milestones();
@@ -147,6 +148,8 @@ private:
 	D3DPRESENT_PARAMETERS d3d_pp;
 	IDirect3D9 *d3d;
 	HICON mouse_cursor;
+#else
+	SDL_Cursor *mouse_cursor;
 #endif
 
 	std::string default_opengl_vertex_source;
