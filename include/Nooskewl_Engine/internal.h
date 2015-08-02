@@ -75,8 +75,10 @@ SDL_RWops *open_file(std::string filename);
 std::string itos(int i);
 int check_args(int argc, char **argv, std::string arg);
 
-#ifdef NOOSKEWL_ENGINE_WINDOWS
+#if defined NOOSKEWL_ENGINE_WINDOWS
 HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor);
+#elif defined __linux__
+X11::Cursor x_create_cursor(X11::Display *display, Uint8 *data, Size<int> size, int xfocus, int yfocus);
 #endif
 
 /* From: http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring */

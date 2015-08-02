@@ -20,10 +20,6 @@
 
 #include "Nooskewl_Engine/engine_translation_English.h"
 
-#ifndef NOOSKEWL_ENGINE_WINDOWS
-#include "Nooskewl_Engine/mouse_cursor.xpm"
-#endif
-
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 #define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
@@ -268,14 +264,15 @@ void Engine::end()
 	delete bold_font;
 	TTF_Quit();
 
+#if defined NOOSKEWL_ENGINE_WINDOWS
+	DestroyIcon(mouse_cursor);
+#elif defined __linux__
+	X11::XUndefineCursor(x_display, x_window);
+	X11::XFreeCursor(x_display, mouse_cursor);
+#endif
+
 	shutdown_video();
 	shutdown_audio();
-
-#ifdef NOOSKEWL_ENGINE_WINDOWS
-	DestroyIcon(mouse_cursor);
-#else
-	SDL_FreeCursor(mouse_cursor);
-#endif
 
 	delete cpa;
 
@@ -366,7 +363,7 @@ void Engine::init_video()
 		throw Error("SDL_CreateWindow failed");
 	}
 
-#ifdef NOOSKEWL_ENGINE_WINDOWS
+#if defined NOOSKEWL_ENGINE_WINDOWS
 	PAINTSTRUCT ps;
 	HDC hdc;
 
@@ -376,6 +373,12 @@ void Engine::init_video()
 	SetDCBrushColor(hdc, RGB(0, 0, 0));
 
 	Rectangle(hdc, 0, 0, win_w, win_h);
+#elif defined __linux__
+	X11::SDL_SysWMinfo wm_info;
+	SDL_VERSION(&wm_info.version);
+	X11::SDL_GetWindowWMInfo(window, &wm_info);
+	x_display = wm_info.info.x11.display;
+	x_window = wm_info.info.x11.window;
 #endif
 
 	SDL_SetWindowMinimumSize(window, perfect_w, perfect_h);
@@ -565,11 +568,13 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		}
 	}
 
-#ifdef NOOSKEWL_ENGINE_WINDOWS
 	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
+#if defined NOOSKEWL_ENGINE_WINDOWS
 		SetCursor(mouse_cursor);
-	}
+#elif defined __linux__
+		X11::XDefineCursor(x_display, x_window, mouse_cursor);
 #endif
+	}
 
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
@@ -1227,13 +1232,13 @@ void Engine::check_joysticks()
 static SDL_Cursor *init_system_cursor(const char *image[])
 {
 	int i, row, col;
-	Uint8 data[4*32];
-	Uint8 mask[4*32];
+	Uint8 data[39*39];
+	Uint8 mask[39*39];
 	int hot_x, hot_y;
 
 	i = -1;
-	for (row=0; row<32; ++row) {
-		for (col=0; col<32; ++col) {
+	for (row=0; row<39; ++row) {
+		for (col=0; col<39; ++col) {
 			if (col % 8) {
 				data[i] <<= 1;
 				mask[i] <<= 1;
@@ -1257,22 +1262,21 @@ static SDL_Cursor *init_system_cursor(const char *image[])
 	}
 
 	sscanf(image[4+row], "%d,%d", &hot_x, &hot_y);
-	return SDL_CreateCursor(data, mask, 32, 32, hot_x, hot_y);
+	return SDL_CreateCursor(data, mask, 39, 39, hot_x, hot_y);
 }
 #endif
 
 void Engine::set_mouse_cursor()
 {
-#ifdef NOOSKEWL_ENGINE_WINDOWS
 	// Note: this needs to be a specific size on Windows, 32x32 works for me
 	Size<int> size;
 	unsigned char *pixels = Image::read_tga("images/mouse_cursor.tga", size);
+#if defined NOOSKEWL_ENGINE_WINDOWS
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, true);
-	delete[] pixels;
-#else
-	mouse_cursor = init_system_cursor(mouse_cursor_xpm);
-	SDL_SetCursor(mouse_cursor);
+#elif defined __linux__
+	mouse_cursor = x_create_cursor(x_display, pixels, size, 0, 0);
 #endif
+	delete[] pixels;
 }
 
 void Engine::set_window_icon()

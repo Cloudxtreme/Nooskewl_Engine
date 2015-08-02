@@ -50,6 +50,12 @@
 #include <glob.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifdef __linux__
+// X11 pollutes the global namespace and conflicts with some of our names
+namespace X11 {
+#include <X11/Xcursor/Xcursor.h>
+}
+#endif
 #endif
 
 #include <SDL2/SDL.h>
@@ -58,6 +64,14 @@
 #include <SDL2/SDL_rwops.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_ttf.h>
+
+#ifdef __linux__
+namespace X11 {
+#endif
+#include <SDL2/SDL_syswm.h>
+#ifdef __linux__
+}
+#endif
 
 #include <zlib.h>
 

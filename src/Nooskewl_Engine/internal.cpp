@@ -436,5 +436,26 @@ HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfo
 }
 #endif
 
+#ifdef __linux__
+X11::Cursor x_create_cursor(X11::Display *display, Uint8 *data, Size<int> size, int xfocus, int yfocus)
+{
+	X11::XcursorImage *image = X11::XcursorImageCreate(size.w, size.h);
+
+	for (int y = 0; y < size.h; y++) {
+		Uint8 *src = data + (size.w * (size.h-1) * 4) - (size.w * y * 4);
+		Uint8 *dst = ((Uint8 *)image->pixels) + size.w * y * 4;
+		memcpy(dst, src, size.w * 4);
+	}
+
+	image->xhot = xfocus;
+	image->yhot = yfocus;
+
+	X11::Cursor cursor = X11::XcursorImageLoadCursor(display, image);
+
+	X11::XcursorImageDestroy(image);
+
+	return cursor;
+}
+#endif
 
 } // End namespace Nooskewl_Engine
