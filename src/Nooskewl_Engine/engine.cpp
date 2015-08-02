@@ -172,7 +172,11 @@ bool Engine::start(int argc, char **argv)
 				}
 				else {
 					std::string output_path = argv[repalette_images + 1];
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 					_mkdir(output_path.c_str());
+#else
+					mkdir(output_path.c_str(), 0755);
+#endif
 					std::string filename = image->filename;
 					std::vector<std::string> path_components;
 					Tokenizer t(filename, '/');
@@ -183,7 +187,11 @@ bool Engine::start(int argc, char **argv)
 					std::string dir_name = output_path;
 					for (size_t j = 0; j < path_components.size()-1; j++) {
 						dir_name += "/" + path_components[j];
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 						_mkdir(dir_name.c_str());
+#else
+						mkdir(dir_name.c_str(), 0755);
+#endif
 					}
 					image->save(dir_name + "/" + path_components[path_components.size()-1]);
 					delete image;
@@ -472,9 +480,11 @@ void Engine::shutdown_video()
 	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
 	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		d3d_device->Release();
 	}
+#endif
 
 	SDL_DestroyWindow(window);
 }
@@ -943,6 +953,7 @@ void Engine::set_screen_size(int w, int h)
 		glScissor(screen_offset.x, screen_offset.y, MIN(w, int(screen_size.w*scale)+1), MIN(h, int(screen_size.h*scale)+1));
 		printGLerror("glScissor");
 	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		D3DVIEWPORT9 viewport = { 0, 0, w, h, 0.0f, 1.0f };
 		d3d_device->SetViewport(&viewport);
@@ -950,6 +961,7 @@ void Engine::set_screen_size(int w, int h)
 		RECT scissor = { screen_offset.x, screen_offset.y, screen_offset.x+MIN(w, int(screen_size.w*scale)+1), screen_offset.y+MIN(h, int(screen_size.h*scale)+1) };
 		d3d_device->SetScissorRect(&scissor);
 	}
+#endif
 
 	for (size_t i = 0; i < guis.size(); i++) {
 		if (guis[i]->gui) {
@@ -1212,7 +1224,7 @@ void Engine::check_joysticks()
 }
 
 #ifndef NOOSKEWL_ENGINE_WINDOWS
-static SDL_Cursor *init_system_cursor(char *image[])
+static SDL_Cursor *init_system_cursor(const char *image[])
 {
 	int i, row, col;
 	Uint8 data[4*32];
@@ -1285,6 +1297,7 @@ void Engine::update_projection()
 	current_shader->set_matrix("proj", glm::value_ptr(opengl ? proj : d3d_fix * proj));
 }
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 void Engine::set_initial_d3d_state()
 {
 		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -1311,6 +1324,7 @@ void Engine::set_initial_d3d_state()
 
 		d3d_device->BeginScene();
 }
+#endif
 
 void Engine::maybe_expand_milestones(int number)
 {

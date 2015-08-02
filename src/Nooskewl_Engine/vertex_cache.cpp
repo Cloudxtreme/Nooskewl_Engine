@@ -1,7 +1,7 @@
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
-#include "Nooskewl_Engine/internal.H"
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 

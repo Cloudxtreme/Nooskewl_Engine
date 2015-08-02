@@ -48,6 +48,8 @@
 #else
 #include <dlfcn.h>
 #include <glob.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 #include <SDL2/SDL.h>

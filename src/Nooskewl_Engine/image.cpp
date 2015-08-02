@@ -44,7 +44,7 @@ void Image::reload_all()
 int Image::get_unfreed_count()
 {
 	for (size_t i = 0; i < loaded_images.size(); i++) {
-		infomsg("Unfreed: %s\n", loaded_images[i]->filename);
+		infomsg("Unfreed: %s\n", loaded_images[i]->filename.c_str());
 	}
 	return loaded_images.size();
 }

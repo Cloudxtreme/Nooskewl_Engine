@@ -8,7 +8,7 @@ namespace Nooskewl_Engine {
 class NOOSKEWL_ENGINE_EXPORT Tokenizer {
 public:
 
-	Tokenizer::Tokenizer(std::string s, char delimiter);
+	Tokenizer(std::string s, char delimiter);
 	std::string next();
 
 private:

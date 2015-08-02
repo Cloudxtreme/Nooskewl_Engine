@@ -92,9 +92,11 @@ void Shader::set_matrix(std::string name, const float *matrix)
 			printGLerror("glUniformMatrix4fv");
 		}
 	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		internal->d3d_effect->SetMatrix(name.c_str(), (D3DXMATRIX *)matrix);
 	}
+#endif
 }
 
 void Shader::set_float(std::string name, float value)
@@ -162,9 +164,11 @@ void Shader::set_bool(std::string name, bool value)
 			printGLerror("glUniform1i");
 		}
 	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		internal->d3d_effect->SetBool(name.c_str(), value);
 	}
+#endif
 }
 
 GLuint Shader::get_opengl_shader()
@@ -177,6 +181,7 @@ LPD3DXEFFECT Shader::get_d3d_effect()
 {
 	return internal->d3d_effect;
 }
+#endif
 
 void Shader::Internal::release()
 {
@@ -201,7 +206,7 @@ void Shader::Internal::reload()
 	if (opengl) {
 		GLint status;
 
-		char *p = (char *)vertex_source.c_str();
+		const GLchar *p = (const GLchar *)vertex_source.c_str();
 
 		opengl_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 		printGLerror("glCreateShader");
@@ -217,7 +222,7 @@ void Shader::Internal::reload()
 			errormsg("Vertex shader error: %s\n", buffer);
 		}
 
-		p = (char *)fragment_source.c_str();
+		p = (const GLchar *)fragment_source.c_str();
 
 		opengl_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
 		printGLerror("glCreateShader");
@@ -270,4 +275,3 @@ void Shader::Internal::reload()
 	}
 #endif
 }
-#endif

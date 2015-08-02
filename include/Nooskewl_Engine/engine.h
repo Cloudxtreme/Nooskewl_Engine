@@ -121,7 +121,6 @@ private:
 	void check_joysticks();
 	void set_mouse_cursor();
 	void set_window_icon();
-	void set_initial_d3d_state();
 	void maybe_expand_milestones(int number);
 	void load_milestones();
 	void load_translation();
@@ -144,6 +143,7 @@ private:
 	SDL_AudioDeviceID audio_device;
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
+	void set_initial_d3d_state();
 	HWND hwnd;
 	D3DPRESENT_PARAMETERS d3d_pp;
 	IDirect3D9 *d3d;
