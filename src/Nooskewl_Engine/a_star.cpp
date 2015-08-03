@@ -19,8 +19,15 @@ A_Star::~A_Star()
 std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 {
 	delete final_node;
+	final_node = 0;
 	destroy_nodes(open);
 	destroy_nodes(closed);
+
+	if (map->is_solid(-1, 0, goal, Size<int>(1, 1))) {
+		// No path since the goal is solid
+		std::list<Node *> path;
+		return path;
+	}
 
 	Node *start_node = new Node();
 	start_node->parent = 0;
@@ -132,7 +139,7 @@ void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
 		if (in_closed) {
 			remove_from_list(new_node, closed);
 		}
-		if (in_open) {
+		else if (in_open) {
 			remove_from_list(new_node, open);
 			add_to_open(new_node);
 		}
