@@ -559,6 +559,23 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	TGUI_Event event = tgui_sdl_convert_event(sdl_event);
 
+	// Convert WASD to arrows
+	if (event.type == TGUI_KEY_DOWN || event.type == TGUI_KEY_UP) {
+		if (event.keyboard.code == TGUIK_w) {
+			event.keyboard.code = TGUIK_UP;
+		}
+		if (event.keyboard.code == TGUIK_a) {
+			event.keyboard.code = TGUIK_LEFT;
+		}
+		if (event.keyboard.code == TGUIK_s) {
+			event.keyboard.code = TGUIK_DOWN;
+		}
+		if (event.keyboard.code == TGUIK_d) {
+			event.keyboard.code = TGUIK_RIGHT;
+		}
+	}
+
+	// Scale mouse events by the screen scale factor
 	if (event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP || event.type == TGUI_MOUSE_AXIS) {
 		event.mouse.x = (event.mouse.x - screen_offset.x) / scale;
 		event.mouse.y = (event.mouse.y - screen_offset.y) / scale;
