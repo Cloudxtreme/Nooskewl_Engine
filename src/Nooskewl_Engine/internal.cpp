@@ -20,10 +20,26 @@ Module m;
 
 void load_dll()
 {
+#ifdef __APPLE__
+	std::string filename = "libgame.dylib";
+	so_handle = dlopen(filename.c_str(), RTLD_LAZY);
+
+	if (so_handle == 0) {
+		throw FileNotFoundError("Couldn't load shared library");
+	}
+
+	m.dll_start = (DLL_Start)dlsym(so_handle, "dll_start");
+	m.dll_end = (DLL_End)dlsym(so_handle, "dll_end");
+	m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
+	m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
+
+	if (m.dll_start != 0 && m.dll_end != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
+		infomsg("Using %s\n", filename.c_str());
+		return;
+	}
+#else
 #if defined NOOSKEWL_ENGINE_WINDOWS
 	List_Directory ld("*.dll");
-#elif defined __APPLE__
-	List_Directory ld("*.dylib");
 #else
 	List_Directory ld("*.so");
 #endif
@@ -64,6 +80,7 @@ void load_dll()
 		}
 #endif
 	}
+#endif
 
 	throw FileNotFoundError("Couldn't find a game DLL");
 }
