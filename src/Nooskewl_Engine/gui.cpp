@@ -653,7 +653,6 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 	std::string option;
 
 	Map_Entity *entity = new Map_Entity(name);
-	entity->set_brain(brain);
 
 	while ((option = t.next()) != "") {
 		Tokenizer t2(option, '=');
@@ -700,6 +699,9 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}
 	}
+
+	// Brain has to be set after everything else because it could need sprite, etc
+	entity->set_brain(brain);
 
 	return entity;
 }
