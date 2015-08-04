@@ -109,6 +109,7 @@ bool Map::is_solid(int layer, Map_Entity *collide_with, Point<int> position, Siz
 		for (size_t i = 0; i < entities.size(); i++) {
 			Map_Entity *e = entities[i];
 			Point<int> p = e->get_position();
+			Size<int> size1(size.w/noo.tile_size, 1); // FIXME: change this if we get 'big' entities
 			if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
 				if (collide_with) {
 					collisions.push_back(std::pair<Map_Entity *, Map_Entity *>(e, collide_with));
