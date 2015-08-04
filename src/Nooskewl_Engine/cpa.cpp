@@ -44,6 +44,10 @@ std::vector<std::string> CPA::get_all_filenames()
 
 CPA::CPA()
 {
+#ifdef __APPLE__
+	std::string filename = std::string(SDL_GetBasePath()) + "data.cpa";
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+#else
 	List_Directory ld("*.cpa");
 	std::string filename;
 	SDL_RWops *file = 0;
@@ -55,6 +59,7 @@ CPA::CPA()
 			break;
 		}
 	}
+#endif
 
 	if (file) {
 		// The last 4 bytes of every gzipped file is the size of the uncompressed data as a 32 bit little endian number
