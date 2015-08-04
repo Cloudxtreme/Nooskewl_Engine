@@ -21,8 +21,7 @@ public:
 	virtual void collide(Map_Entity *collider);
 	virtual void reset();
 	virtual bool save(SDL_RWops *file);
-
-	void set_map_entity(Map_Entity *map_entity);
+	virtual void set_map_entity(Map_Entity *map_entity);
 
 protected:
 	Map_Entity *map_entity;
