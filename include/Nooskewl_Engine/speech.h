@@ -24,6 +24,8 @@ public:
 	void draw();
 
 private:
+	static Sprite *speech_advance;
+
 	void token(std::string s);
 
 	std::string text;
@@ -39,7 +41,8 @@ private:
 	Callback callback;
 	void *callback_data;
 
-	static Sprite *speech_advance;
+	int milestone;
+	bool milestone_on_off;
 };
 
 } // End namespace Nooskewl_Engine

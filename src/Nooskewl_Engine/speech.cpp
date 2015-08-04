@@ -29,7 +29,8 @@ Speech::Speech(std::string text, Callback callback, void *callback_data) :
 	top(false),
 	right(false),
 	callback(callback),
-	callback_data(callback_data)
+	callback_data(callback_data),
+	milestone(-1)
 {
 	size_t pipe = this->text.find('|');
 	if (pipe != std::string::npos) {
@@ -57,6 +58,9 @@ bool Speech::handle_event(TGUI_Event *event)
 	if ((event->type == TGUI_KEY_DOWN && (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN)) || (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) || (event->type == TGUI_MOUSE_DOWN && event->mouse.button == 1)) {
 		noo.button_mml->play(false);
 		if (done) {
+			if (milestone >= 0) {
+				noo.set_milestone(milestone, milestone_on_off);
+			}
 			if (callback != 0) {
 				callback(callback_data);
 				callback = 0;
@@ -139,16 +143,12 @@ void Speech::token(std::string s)
 		name = s.substr(5);
 	}
 	else if (s.substr(0, 11) == "+milestone=") {
-		int num = noo.milestone_name_to_number(s.substr(11));
-		if (num >= 0) {
-			noo.set_milestone(num, true);
-		}
+		milestone = noo.milestone_name_to_number(s.substr(11));
+		milestone_on_off = true;
 	}
 	else if (s.substr(0, 11) == "-milestone=") {
-		int num = noo.milestone_name_to_number(s.substr(11));
-		if (num >= 0) {
-			noo.set_milestone(num, false);
-		}
+		milestone = noo.milestone_name_to_number(s.substr(11));
+		milestone_on_off = false;
 	}
 	else if (s == "top") {
 		top = true;
