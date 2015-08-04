@@ -109,6 +109,8 @@ bool Title_GUI::update()
 		noo.map->start();
 		noo.map->update_camera();
 
+		noo.reset_fancy_draw();
+
 		return false;
 	}
 	else if (load_game_button->pressed()) {
