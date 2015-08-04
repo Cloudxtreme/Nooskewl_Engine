@@ -57,6 +57,7 @@ public:
 	bool pixels_collide(Point<int> position, Size<int> size);
 	// Positions in tiles
 	bool tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos);
+	bool entity_collides(Map_Entity *entity);
 
 	void stop();
 	void handle_event(TGUI_Event *event);

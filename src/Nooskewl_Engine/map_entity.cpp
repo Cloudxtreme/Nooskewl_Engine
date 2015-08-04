@@ -286,6 +286,11 @@ bool Map_Entity::is_input_enabled()
 	return input_enabled;
 }
 
+void Map_Entity::set_input_enabled(bool enabled)
+{
+	input_enabled = enabled;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -295,11 +300,6 @@ bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 	return true;
 }
 
-void Map_Entity::set_input_enabled(bool enabled)
-{
-	input_enabled = enabled;
-}
-
 bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos)
 {
 	if (this->position.x >= position.x && this->position.x < position.x+size.w && this->position.y >= position.y && this->position.y < position.y+size.h) {
@@ -307,6 +307,20 @@ bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &
 		return true;
 	}
 	return false;
+}
+
+bool Map_Entity::entity_collides(Map_Entity *entity)
+{
+	Point<int> pos = (position + offset) * noo.tile_size;
+	Point<int> pos2 = (entity->get_position() + entity->get_offset()) * noo.tile_size;
+	Size<int> size1(size.w, noo.tile_size); // FIXME: change this if we get 'big' entities
+	Size<int> size2(entity->get_size().w, noo.tile_size); // FIXME and this
+
+	if ((pos.x >= pos2.x+size2.w) || (pos.x+size1.w <= pos2.x) || (pos.y >= pos2.y+size2.h) || (pos.y+size1.h <= pos2.y)) {
+		return false;
+	}
+
+	return true;
 }
 
 void Map_Entity::stop()
