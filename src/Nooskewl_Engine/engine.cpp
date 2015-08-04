@@ -225,7 +225,7 @@ bool Engine::start(int argc, char **argv)
 	guis.push_back(new Title_GUI());
 
 	button_mml = new MML("button.mml");
-
+	
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
 
@@ -720,6 +720,17 @@ void Engine::draw()
 	else {
 		if (map) {
 			map->draw();
+
+			if (check_milestone("Input Help") == false) {
+				std::string text = TRANSLATE("Press SPACE")END;
+				int w = font->get_text_width(text);
+				int h = font->get_height();
+				int x = screen_size.w / 2 - w / 2;
+				int y = screen_size.h - 10 - h;
+				y += (SDL_GetTicks() / 500) % 2 == 0 ? 0 : 1;
+				draw_quad(black, Point<int>(x - 3, y - 3), Size<int>(w + 6, h + 6));
+				fancy_draw(text, Point<int>(x, y));
+			}
 		}
 
 		for (size_t i = 0; i < guis.size(); i++) {
@@ -1120,6 +1131,45 @@ void Engine::draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_p
 void Engine::draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size)
 {
 	draw_9patch_tinted(white, image, dest_position, dest_size);
+}
+
+void Engine::reset_fancy_draw()
+{
+	fancy_draw_start = SDL_GetTicks();
+}
+
+void Engine::fancy_draw(std::string text, Point<int> position)
+{
+	Uint32 t = (SDL_GetTicks() - fancy_draw_start) % 2000;
+
+	int count = text.length();
+
+	if (t < 1000 || count < 2) {
+		font->draw(white, text, position);
+	}
+	else {
+		t = t - 1000;
+
+		int x = 0;
+
+		for (size_t i = 0; i < text.length(); i++) {
+			float section = 1000.0f / (count - i + 1);
+			float p = t / section;
+			if (p > 2.0f) {
+				p = 2.0f;
+			}
+			if (p >= 1.0f) {
+				p = p - 1.0f;
+			}
+			else {
+				p = 1.0f - p;
+			}
+			float dx = x * p;
+			std::string c = text.substr(i, 1);
+			font->draw(white, c, Point<float>(position.x + dx, (float)position.y));
+			x += font->get_text_width(c);
+		}
+	}
 }
 
 void Engine::load_palette(std::string name)

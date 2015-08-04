@@ -107,6 +107,8 @@ public:
 	void draw_quad(SDL_Colour colour, Point<float> dest_position, Size<float> dest_size);
 	void draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size);
 	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
+	void reset_fancy_draw();
+	void fancy_draw(std::string text, Point<int> position);
 
 	void load_palette(std::string name);
 	std::string load_text(std::string filename);
@@ -179,6 +181,8 @@ private:
 	Point<int> new_map_position;
 	Direction new_map_direction;
 	static const int map_transition_duration = 500;
+
+	Uint32 fancy_draw_start;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
