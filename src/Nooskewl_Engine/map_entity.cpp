@@ -36,7 +36,8 @@ Map_Entity::Map_Entity(std::string name) :
 	following_path(false),
 	path_callback(0),
 	shadow_type(SHADOW_NONE),
-	has_blink(false)
+	has_blink(false),
+	type(OTHER)
 {
 	id = current_id++;
 
@@ -55,15 +56,6 @@ Map_Entity::Map_Entity(std::string name) :
 				XML *blink_b = blink->find("b");
 				if (eye_r && eye_g && eye_b && blink_r && blink_g && blink_b) {
 					has_blink = true;
-					/*
-					printf("entity=%s eye=%s,%s,%s blink=%s,%s,%s\n", name.c_str(),
-						eye_r->get_value().c_str(),
-						eye_g->get_value().c_str(),
-						eye_b->get_value().c_str(),
-						blink_r->get_value().c_str(),
-						blink_g->get_value().c_str(),
-						blink_b->get_value().c_str());
-					*/
 					eye_colour[0] = atoi(eye_r->get_value().c_str()) / 255.0f;
 					eye_colour[1] = atoi(eye_g->get_value().c_str()) / 255.0f;
 					eye_colour[2] = atoi(eye_b->get_value().c_str()) / 255.0f;
@@ -72,7 +64,6 @@ Map_Entity::Map_Entity(std::string name) :
 					blink_colour[1] = atoi(blink_g->get_value().c_str()) / 255.0f;
 					blink_colour[2] = atoi(blink_b->get_value().c_str()) / 255.0f;
 					blink_colour[3] = 1.0f;
-					//printf("set colours to %f,%f,%f,%f  --  %f,%f,%f,%f\n", eye_colour[0], eye_colour[1], eye_colour[2], eye_colour[3], blink_colour[0], blink_colour[1], blink_colour[2], blink_colour[3]);
 				}
 			}
 		}
@@ -210,6 +201,16 @@ void Map_Entity::set_shadow_type(Shadow_Type shadow_type)
 	this->shadow_type = shadow_type;
 }
 
+void Map_Entity::set_input_enabled(bool enabled)
+{
+	input_enabled = enabled;
+}
+
+void Map_Entity::set_type(Type type)
+{
+	this->type = type;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -286,9 +287,9 @@ bool Map_Entity::is_input_enabled()
 	return input_enabled;
 }
 
-void Map_Entity::set_input_enabled(bool enabled)
+Map_Entity::Type Map_Entity::get_type()
 {
-	input_enabled = enabled;
+	return type;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)

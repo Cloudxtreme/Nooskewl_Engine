@@ -7,13 +7,19 @@
 
 namespace Nooskewl_Engine {
 
-	class Brain;
+class Brain;
 class Map;
 class Sprite;
+class Stats;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
 	static void new_game_started();
+
+	enum Type {
+		NPC,
+		OTHER
+	};
 
 	enum Shadow_Type {
 		SHADOW_NONE,
@@ -34,6 +40,8 @@ public:
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
 	void set_z_add(int z_add);
 	void set_shadow_type(Shadow_Type shadow_type);
+	void set_input_enabled(bool enabled);
+	void set_type(Type type);
 
 	int get_id();
 	std::string get_name();
@@ -50,8 +58,7 @@ public:
 	Shadow_Type get_shadow_type();
 	bool is_following_path();
 	bool is_input_enabled();
-
-	void set_input_enabled(bool enabled);
+	Type get_type();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -103,6 +110,9 @@ private:
 	float eye_colour[4];
 	float blink_colour[4];
 	Uint32 next_blink;
+
+	Type type;
+	Stats *stats;
 };
 
 } // End namespace Nooskewl_Engine
