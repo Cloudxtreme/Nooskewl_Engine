@@ -18,6 +18,8 @@ set(LIB_SRC
 	src/Nooskewl_Engine/gui.cpp
 	src/Nooskewl_Engine/image.cpp
 	src/Nooskewl_Engine/internal.cpp
+	src/Nooskewl_Engine/inventory.cpp
+	src/Nooskewl_Engine/item.cpp
 	src/Nooskewl_Engine/map.cpp
 	src/Nooskewl_Engine/map_entity.cpp
 	src/Nooskewl_Engine/map_logic.cpp
@@ -27,6 +29,7 @@ set(LIB_SRC
 	src/Nooskewl_Engine/shader.cpp
 	src/Nooskewl_Engine/speech.cpp
 	src/Nooskewl_Engine/sprite.cpp
+	src/Nooskewl_Engine/stats.cpp
 	src/Nooskewl_Engine/tilemap.cpp
 	src/Nooskewl_Engine/tokenizer.cpp
 	src/Nooskewl_Engine/translation.cpp
