@@ -28,8 +28,9 @@ void Item::defaults()
 	name =  "Unknown";
 	condition = 0xffff / 2;
 	weight = 0;
-	attack = 0;
-	defense = 0;
+	min_attack = max_attack = 0;
+	min_defense = max_defense = 0;
+	min_value = max_value = 0;
 }
 
 bool Item::load(std::string name)

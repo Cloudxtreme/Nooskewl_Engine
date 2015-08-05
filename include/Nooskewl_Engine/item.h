@@ -10,10 +10,11 @@ class Stats;
 class Item {
 public:
 	std::string name;
-	Uint16 condition;
 	Uint16 weight; // last two digits are after the decimal
-	Uint16 attack;
-	Uint16 defense;
+	Uint16 condition;
+	Uint16 min_attack, max_attack;
+	Uint16 min_defense, max_defense;
+	Uint32 min_value, max_value;
 
 	Item(std::string name);
 
