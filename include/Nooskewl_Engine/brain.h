@@ -20,8 +20,9 @@ public:
 	virtual void activate(Map_Entity *activator);
 	virtual void collide(Map_Entity *collider);
 	virtual void reset();
-	virtual bool save(SDL_RWops *file);
 	virtual void set_map_entity(Map_Entity *map_entity);
+
+	virtual bool save(SDL_RWops *file);
 
 protected:
 	Map_Entity *map_entity;
