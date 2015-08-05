@@ -9,7 +9,7 @@ class Item;
 
 class Inventory {
 public:
-	int gold;
+	Uint32 gold;
 
 	Inventory();
 
