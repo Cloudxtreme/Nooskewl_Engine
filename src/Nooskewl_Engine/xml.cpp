@@ -264,3 +264,108 @@ void XML::write(SDL_RWops *out, int tabs = 0)
 		SDL_fputs(buf, out);
 	}
 }
+
+XML *XML_Helpers::handle_rand_tag(XML *xml)
+{
+	std::list<XML *> &nodes = xml->get_nodes();
+
+	std::list<XML *>::iterator it;
+
+	int total_percent = 0;
+	std::vector< std::pair<int, XML *> > values;
+
+	for (it = nodes.begin(); it != nodes.end(); it++) {
+		int percent;
+		XML *x = *it;
+		XML *value = x->find("value");
+		if (value == 0) {
+			continue;
+		}
+		XML *percent_xml = x->find("percent");
+		if (percent_xml) {
+			percent = atoi(percent_xml->get_value().c_str());
+		}
+		else {
+			percent = 100;
+		}
+		total_percent += percent;
+		values.push_back(std::pair<int, XML *>(percent, value));
+	}
+
+	int r = rand() % total_percent;
+	int percent = 0;
+
+	for (size_t i = 0; i < values.size(); i++) {
+		std::pair<int, XML *> &p = values[i];
+		percent += p.first;
+		if (r < percent) {
+			return *(p.second->get_nodes().begin());
+		}
+	}
+
+	return 0;
+}
+
+void XML_Helpers::handle_min_max_tag(XML *xml, std::string &min, std::string &max)
+{
+	min = "0";
+	max = "0";
+
+	XML *min_xml = xml->find("min");
+	XML *max_xml = xml->find("max");
+
+	if (min_xml == 0 || max_xml == 0) {
+		return;
+	}
+
+	XML *x = min_xml->find("rand");
+	if (x == 0) {
+		x = min_xml->find("randn");
+		if (x == 0) {
+			min = min_xml->get_value().c_str();
+		}
+		else {
+			Uint32 ret;
+			XML_Helpers::handle_randn_tag(x, ret);
+			min = itos(ret);
+		}
+	}
+	else {
+		x = XML_Helpers::handle_rand_tag(x);
+		min = x->get_value().c_str();
+	}
+
+	x = max_xml->find("rand");
+	if (x == 0) {
+		x = max_xml->find("randn");
+		if (x == 0) {
+			max = max_xml->get_value().c_str();
+		}
+		else {
+			Uint32 ret;
+			XML_Helpers::handle_randn_tag(x, ret);
+			max = itos(ret);
+		}
+	}
+	else {
+		x = XML_Helpers::handle_rand_tag(x);
+		max = x->get_value().c_str();
+	}
+}
+
+void XML_Helpers::handle_randn_tag(XML *xml, Uint32 &ret)
+{
+	ret = 0;
+
+	XML *min_xml = xml->find("min");
+	XML *max_xml = xml->find("max");
+
+	if (min_xml == 0 || max_xml == 0) {
+		return;
+	}
+
+	Uint32 min = atoi(min_xml->get_value().c_str());
+	Uint32 max = atoi(max_xml->get_value().c_str());
+
+	ret = (rand() % (max - min + 1)) + min;
+}
