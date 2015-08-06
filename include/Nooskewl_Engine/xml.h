@@ -39,8 +39,9 @@ protected:
 
 namespace XML_Helpers {
 	XML *handle_rand_tag(XML *xml);
-	void handle_min_max_tag(XML *xml, std::string &min, std::string &max);
+	void handle_min_max_tag(XML *xml, int32_t &min, int32_t &max);
 	void handle_randn_tag(XML *xml, uint32_t &ret);
+	int32_t handle_numeric_tag(XML *xml);
 }
 
 } // End namespace Nooskewl_Engine

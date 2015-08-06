@@ -306,10 +306,10 @@ XML *XML_Helpers::handle_rand_tag(XML *xml)
 	return 0;
 }
 
-void XML_Helpers::handle_min_max_tag(XML *xml, std::string &min, std::string &max)
+void XML_Helpers::handle_min_max_tag(XML *xml, int32_t &min, int32_t &max)
 {
-	min = "0";
-	max = "0";
+	min = 0;
+	max = 0;
 
 	XML *min_xml = xml->find("min");
 	XML *max_xml = xml->find("max");
@@ -320,36 +320,20 @@ void XML_Helpers::handle_min_max_tag(XML *xml, std::string &min, std::string &ma
 
 	XML *x = min_xml->find("rand");
 	if (x == 0) {
-		x = min_xml->find("randn");
-		if (x == 0) {
-			min = min_xml->get_value().c_str();
-		}
-		else {
-			Uint32 ret;
-			XML_Helpers::handle_randn_tag(x, ret);
-			min = itos(ret);
-		}
+		min = handle_numeric_tag(min_xml);
 	}
 	else {
 		x = XML_Helpers::handle_rand_tag(x);
-		min = x->get_value().c_str();
+		min = atoi(x->get_value().c_str());
 	}
 
 	x = max_xml->find("rand");
 	if (x == 0) {
-		x = max_xml->find("randn");
-		if (x == 0) {
-			max = max_xml->get_value().c_str();
-		}
-		else {
-			Uint32 ret;
-			XML_Helpers::handle_randn_tag(x, ret);
-			max = itos(ret);
-		}
+		max = handle_numeric_tag(max_xml);
 	}
 	else {
 		x = XML_Helpers::handle_rand_tag(x);
-		max = x->get_value().c_str();
+		max = atoi(x->get_value().c_str());
 	}
 }
 
@@ -368,4 +352,17 @@ void XML_Helpers::handle_randn_tag(XML *xml, Uint32 &ret)
 	Uint32 max = atoi(max_xml->get_value().c_str());
 
 	ret = (rand() % (max - min + 1)) + min;
+}
+
+int32_t XML_Helpers::handle_numeric_tag(XML *xml)
+{
+	XML *x = xml->find("randn");
+	if (x != 0) {
+		Uint32 ret;
+		XML_Helpers::handle_randn_tag(x, ret);
+		return ret;
+	}
+	else {
+		return atoi(xml->get_value().c_str());
+	}
 }
