@@ -10,8 +10,6 @@ Stats::Stats(std::string name)
 	defaults();
 
 	load(name);
-
-	printf("name=%s\nhp=%d\nmax_hp=%d\n", name.c_str(), hp, max_hp);
 }
 
 void Stats::defaults()
