@@ -68,6 +68,18 @@ void Stats::handle_tag(XML *xml)
 		if (tag == "name") {
 			this->name = xml->get_value();
 		}
+		else if (tag == "alignment") {
+			std::string value = xml->get_value();
+			if (value == "good") {
+				alignment = GOOD;
+			}
+			else if (value == "evil") {
+				alignment = EVIL;
+			}
+			else {
+				alignment = NEUTRAL;
+			}
+		}
 		else if (tag == "hp") {
 			hp = XML_Helpers::handle_numeric_tag(xml);
 		}
