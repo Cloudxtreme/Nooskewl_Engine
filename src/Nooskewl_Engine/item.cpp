@@ -53,6 +53,7 @@ bool Item::load(std::string name)
 void Item::handle_tag(XML *xml)
 {
 	std::string tag = xml->get_name();
+	int32_t min, max;
 
 	XML *x = xml->find("rand");
 	if (x != 0) {
@@ -66,47 +67,25 @@ void Item::handle_tag(XML *xml)
 			this->name = xml->get_value();
 		}
 		else if (tag == "condition") {
-			XML *x = xml->find("randn");
-			if (x != 0) {
-				Uint32 ret;
-				XML_Helpers::handle_randn_tag(x, ret);
-				condition = ret;
-			}
-			else {
-				condition = atoi(xml->get_value().c_str());
-			}
+			condition = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "weight") {
-			XML *x = xml->find("randn");
-			if (x != 0) {
-				Uint32 ret;
-				XML_Helpers::handle_randn_tag(x, ret);
-				weight = ret;
-			}
-			else {
-				weight = atoi(xml->get_value().c_str());
-			}
+			weight = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "attack") {
-			std::string min;
-			std::string max;
 			XML_Helpers::handle_min_max_tag(xml, min, max);
-			min_attack = atoi(min.c_str());
-			max_attack = atoi(max.c_str());
+			min_attack = min;
+			max_attack = max;
 		}
 		else if (tag == "defense") {
-			std::string min;
-			std::string max;
 			XML_Helpers::handle_min_max_tag(xml, min, max);
-			min_defense = atoi(min.c_str());
-			max_defense = atoi(max.c_str());
+			min_defense = min;
+			max_defense = max;
 		}
 		else if (tag == "value") {
-			std::string min;
-			std::string max;
 			XML_Helpers::handle_min_max_tag(xml, min, max);
-			min_value = atoi(min.c_str());
-			max_value = atoi(max.c_str());
+			min_value = min;
+			max_value = max;
 		}
 	}
 }
