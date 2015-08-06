@@ -6,6 +6,7 @@
 namespace Nooskewl_Engine {
 
 class Item;
+class Inventory;
 
 class Stats {
 public:
@@ -39,6 +40,9 @@ public:
 
 	void defaults();
 	bool load(std::string name);
+
+private:
+	void handle_tag(XML *xml);
 };
 
 } // End namespace Nooskewl_Engine
