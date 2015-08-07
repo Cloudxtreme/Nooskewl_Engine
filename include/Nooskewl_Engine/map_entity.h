@@ -43,6 +43,7 @@ public:
 	void set_input_enabled(bool enabled);
 	void set_type(Type type);
 	void load_stats(std::string name);
+	void set_stats(Stats *stats);
 
 	int get_id();
 	std::string get_name();

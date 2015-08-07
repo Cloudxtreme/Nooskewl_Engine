@@ -222,6 +222,12 @@ void Map_Entity::load_stats(std::string name)
 	stats = new Stats(name);
 }
 
+void Map_Entity::set_stats(Stats *stats)
+{
+	delete this->stats;
+	this->stats = stats;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -666,7 +672,34 @@ bool Map_Entity::save(SDL_RWops *file)
 		SDL_fprintf(file, ",solid=%d", solid ? 1 : 0);
 	}
 
+	if (stats != 0) {
+		SDL_fprintf(file, ",stats=%d", stats != 0 ? 1 : 0);
+	}
+
 	SDL_fprintf(file, "\n");
+
+	if (stats != 0) {
+		SDL_fprintf(
+			file,
+			"stats=name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d\n",
+			stats->name.c_str(),
+			stats->profile_pic->filename.c_str(),
+			(int)stats->alignment,
+			(int)stats->sex,
+			stats->hp,
+			stats->max_hp,
+			stats->mp,
+			stats->max_mp,
+			stats->attack,
+			stats->defense,
+			stats->agility,
+			stats->karma,
+			stats->luck,
+			stats->speed,
+			stats->strength,
+			stats->experience
+		);
+	}
 
 	return true;
 }
