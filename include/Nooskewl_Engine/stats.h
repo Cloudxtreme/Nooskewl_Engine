@@ -47,6 +47,7 @@ public:
 
 	Inventory *inventory;
 
+	Stats();
 	Stats(std::string name);
 	~Stats();
 

@@ -6,6 +6,11 @@
 
 using namespace Nooskewl_Engine;
 
+Stats::Stats()
+{
+	defaults();
+}
+
 Stats::Stats(std::string name)
 {
 	defaults();
