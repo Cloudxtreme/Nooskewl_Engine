@@ -229,6 +229,17 @@ int check_args(int argc, char **argv, std::string arg)
 	return -1;
 }
 
+std::string string_printf(const char *fmt, ...)
+{
+	char buf[1000];
+	va_list v;
+	va_start(v, fmt);
+	vsnprintf(buf, 1000, fmt, v);
+	va_end(v);
+
+	return buf;
+}
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 List_Directory::List_Directory(std::string filespec) :
 	got_first(false),
