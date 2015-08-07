@@ -80,6 +80,7 @@ Map_Entity::~Map_Entity()
 {
 	delete brain;
 	delete sprite;
+	delete stats;
 }
 
 void Map_Entity::set_brain(Brain *brain)
