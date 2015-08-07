@@ -128,6 +128,12 @@ void Stats::handle_tag(XML *xml)
 				sex = UNKNOWN;
 			}
 		}
+		else if (tag == "weapon") {
+			weapon = new Item(xml->get_value());
+		}
+		else if (tag == "armour") {
+			armour = new Item(xml->get_value());
+		}
 		else if (tag == "hp") {
 			hp = XML_Helpers::handle_numeric_tag(xml);
 		}
