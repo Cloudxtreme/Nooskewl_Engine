@@ -83,6 +83,8 @@ private:
 	Widget_Label *sex_label;
 	Widget_Label *hp_label;
 	Widget_Label *mp_label;
+	Widget_Label *experience_label;
+
 	Widget_Label *attack_label;
 	Widget_Label *defense_label;
 	Widget_Label *agility_label;
@@ -90,12 +92,18 @@ private:
 	Widget_Label *luck_label;
 	Widget_Label *speed_label;
 	Widget_Label *strength_label;
-	Widget_Label *experience_label;
+	Widget_Label *hunger_label;
+	Widget_Label *thirst_label;
+	Widget_Label *rest_label;
+	Widget_Label *sobriety_label;
+
 	Widget_Label *name;
 	Widget_Label *alignment;
 	Widget_Label *sex;
 	Widget_Label *hp;
 	Widget_Label *mp;
+	Widget_Label *experience;
+
 	Widget_Label *attack;
 	Widget_Label *defense;
 	Widget_Label *agility;
@@ -103,7 +111,10 @@ private:
 	Widget_Label *luck;
 	Widget_Label *speed;
 	Widget_Label *strength;
-	Widget_Label *experience;
+	Widget_Label *hunger;
+	Widget_Label *thirst;
+	Widget_Label *rest;
+	Widget_Label *sobriety;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {

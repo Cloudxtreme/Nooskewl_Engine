@@ -280,129 +280,181 @@ Pause_GUI::Pause_GUI()
 	save_button->set_parent(button_container);
 	quit_button->set_parent(button_container);
 
+	Widget *column1 = new Widget(0.33f, 1.0f);
+	column1->set_parent(pad);
+
+	Widget *column2 = new Widget(0.33f, 1.0f);
+	column2->set_parent(pad);
+
 	stats = noo.map->get_entity(0)->get_stats();
 
 	if (stats->profile_pic != 0) {
 		Widget_Image *profile_image = new Widget_Image(stats->profile_pic, false);
 		profile_image->set_padding_bottom(2);
-		profile_image->set_parent(pad);
+		profile_image->set_parent(column1);
 	}
 
 	name = new Widget_Label("", -1);
 	name->set_break_line(true);
-	name->set_parent(pad);
+	name->set_parent(column1);
 
 	alignment_label = new Widget_Label(TRANSLATE("ALI: ")END, -1);
 	alignment_label->set_break_line(true);
-	alignment_label->set_parent(pad);
+	alignment_label->set_padding_top(7);
+	alignment_label->set_parent(column1);
 
 	alignment = new Widget_Label("", -1);
-	alignment->set_parent(pad);
+	alignment->set_padding_top(7);
+	alignment->set_parent(column1);
 
 	sex_label = new Widget_Label(TRANSLATE("SEX: ")END, -1);
 	sex_label->set_break_line(true);
-	sex_label->set_parent(pad);
+	sex_label->set_parent(column1);
 
 	sex = new Widget_Label("", -1);
-	sex->set_parent(pad);
+	sex->set_parent(column1);
 
 	hp_label = new Widget_Label(TRANSLATE("HP: ")END, -1);
 	hp_label->set_break_line(true);
-	hp_label->set_parent(pad);
+	hp_label->set_padding_top(7);
+	hp_label->set_parent(column1);
 
 	hp = new Widget_Label("", -1);
-	hp->set_parent(pad);
+	hp->set_padding_top(7);
+	hp->set_parent(column1);
 
 	mp_label = new Widget_Label(TRANSLATE("MP: ")END, -1);
 	mp_label->set_break_line(true);
-	mp_label->set_parent(pad);
+	mp_label->set_parent(column1);
 
 	mp = new Widget_Label("", -1);
-	mp->set_parent(pad);
-
-	attack_label = new Widget_Label(TRANSLATE("ATK: ")END, -1);
-	attack_label->set_break_line(true);
-	attack_label->set_parent(pad);
-
-	attack = new Widget_Label("", -1);
-	attack->set_parent(pad);
-
-	defense_label = new Widget_Label(TRANSLATE("DEF: ")END, -1);
-	defense_label->set_break_line(true);
-	defense_label->set_parent(pad);
-
-	defense = new Widget_Label("", -1);
-	defense->set_parent(pad);
-
-	agility_label = new Widget_Label(TRANSLATE("AGI: ")END, -1);
-	agility_label->set_break_line(true);
-	agility_label->set_parent(pad);
-
-	agility = new Widget_Label("", -1);
-	agility->set_parent(pad);
-
-	karma_label = new Widget_Label(TRANSLATE("KRM: ")END, -1);
-	karma_label->set_break_line(true);
-	karma_label->set_parent(pad);
-
-	karma = new Widget_Label("", -1);
-	karma->set_parent(pad);
-
-	luck_label = new Widget_Label(TRANSLATE("LUK: ")END, -1);
-	luck_label->set_break_line(true);
-	luck_label->set_parent(pad);
-
-	luck = new Widget_Label("", -1);
-	luck->set_parent(pad);
-
-	speed_label = new Widget_Label(TRANSLATE("SPD: ")END, -1);
-	speed_label->set_break_line(true);
-	speed_label->set_parent(pad);
-
-	speed = new Widget_Label("", -1);
-	speed->set_parent(pad);
-
-	strength_label = new Widget_Label(TRANSLATE("STR: ")END, -1);
-	strength_label->set_break_line(true);
-	strength_label->set_parent(pad);
-
-	strength = new Widget_Label("", -1);
-	strength->set_parent(pad);
+	mp->set_parent(column1);
 
 	experience_label = new Widget_Label(TRANSLATE("EXP: ")END, -1);
 	experience_label->set_break_line(true);
-	experience_label->set_parent(pad);
+	experience_label->set_parent(column1);
 
 	experience = new Widget_Label("", -1);
-	experience->set_parent(pad);
+	experience->set_parent(column1);
+
+	attack_label = new Widget_Label(TRANSLATE("ATK: ")END, -1);
+	attack_label->set_break_line(true);
+	attack_label->set_padding_top(18);
+	attack_label->set_parent(column2);
+
+	attack = new Widget_Label("", -1);
+	attack->set_padding_top(18);
+	attack->set_parent(column2);
+
+	defense_label = new Widget_Label(TRANSLATE("DEF: ")END, -1);
+	defense_label->set_break_line(true);
+	defense_label->set_parent(column2);
+
+	defense = new Widget_Label("", -1);
+	defense->set_parent(column2);
+
+	agility_label = new Widget_Label(TRANSLATE("AGI: ")END, -1);
+	agility_label->set_break_line(true);
+	agility_label->set_parent(column2);
+
+	agility = new Widget_Label("", -1);
+	agility->set_parent(column2);
+
+	luck_label = new Widget_Label(TRANSLATE("LUK: ")END, -1);
+	luck_label->set_break_line(true);
+	luck_label->set_parent(column2);
+
+	luck = new Widget_Label("", -1);
+	luck->set_parent(column2);
+
+	speed_label = new Widget_Label(TRANSLATE("SPD: ")END, -1);
+	speed_label->set_break_line(true);
+	speed_label->set_parent(column2);
+
+	speed = new Widget_Label("", -1);
+	speed->set_parent(column2);
+
+	strength_label = new Widget_Label(TRANSLATE("STR: ")END, -1);
+	strength_label->set_break_line(true);
+	strength_label->set_parent(column2);
+
+	strength = new Widget_Label("", -1);
+	strength->set_parent(column2);
+
+	karma_label = new Widget_Label(TRANSLATE("KRM: ")END, -1);
+	karma_label->set_break_line(true);
+	karma_label->set_parent(column2);
+
+	karma = new Widget_Label("", -1);
+	karma->set_parent(column2);
+
+	hunger_label = new Widget_Label(TRANSLATE("HUN: ")END, -1);
+	hunger_label->set_break_line(true);
+	hunger_label->set_parent(column2);
+
+	hunger = new Widget_Label("", -1);
+	hunger->set_parent(column2);
+
+	thirst_label = new Widget_Label(TRANSLATE("THI: ")END, -1);
+	thirst_label->set_break_line(true);
+	thirst_label->set_parent(column2);
+
+	thirst = new Widget_Label("", -1);
+	thirst->set_parent(column2);
+
+	rest_label = new Widget_Label(TRANSLATE("RST: ")END, -1);
+	rest_label->set_break_line(true);
+	rest_label->set_parent(column2);
+
+	rest = new Widget_Label("", -1);
+	rest->set_parent(column2);
+
+	sobriety_label = new Widget_Label(TRANSLATE("SOB: ")END, -1);
+	sobriety_label->set_break_line(true);
+	sobriety_label->set_parent(column2);
+
+	sobriety = new Widget_Label("", -1);
+	sobriety->set_parent(column2);
 
 	int max_w = MAX(
 		alignment_label->get_width(),
 		MAX(sex_label->get_width(),
 		MAX(hp_label->get_width(),
 		MAX(mp_label->get_width(),
+		MAX(experience_label->get_width(),
+
 		MAX(attack_label->get_width(),
 		MAX(defense_label->get_width(),
 		MAX(agility_label->get_width(),
-		MAX(karma_label->get_width(),
 		MAX(luck_label->get_width(),
 		MAX(speed_label->get_width(),
 		MAX(strength_label->get_width(),
-		experience_label->get_width()
-	)))))))))));
+		
+		MAX(karma_label->get_width(),
+		MAX(hunger_label->get_width(),
+		MAX(thirst_label->get_width(),
+		MAX(rest_label->get_width(),
+		sobriety_label->get_width()
+	)))))))))))))));
 
 	alignment_label->set_width(max_w);
 	sex_label->set_width(max_w);
 	hp_label->set_width(max_w);
 	mp_label->set_width(max_w);
+	experience_label->set_width(max_w);
+
 	attack_label->set_width(max_w);
 	defense_label->set_width(max_w);
 	agility_label->set_width(max_w);
-	karma_label->set_width(max_w);
 	luck_label->set_width(max_w);
 	speed_label->set_width(max_w);
 	strength_label->set_width(max_w);
-	experience_label->set_width(max_w);
+	
+	karma_label->set_width(max_w);
+	hunger_label->set_width(max_w);
+	thirst_label->set_width(max_w);
+	rest_label->set_width(max_w);
+	sobriety_label->set_width(max_w);
 
 	set_labels();
 
@@ -487,14 +539,20 @@ void Pause_GUI::set_labels()
 
 	hp->set_text(string_printf("%d/%d", stats->hp, stats->max_hp));
 	mp->set_text(string_printf("%d/%d", stats->mp, stats->max_mp));
+	experience->set_text(string_printf("%d", stats->experience));
+
 	attack->set_text(string_printf("%d", stats->attack));
 	defense->set_text(string_printf("%d", stats->defense));
 	agility->set_text(string_printf("%d", stats->agility));
-	karma->set_text(string_printf("%d", stats->karma));
 	luck->set_text(string_printf("%d", stats->luck));
 	speed->set_text(string_printf("%d", stats->speed));
 	strength->set_text(string_printf("%d", stats->strength));
-	experience->set_text(string_printf("%d", stats->experience));
+	
+	karma->set_text(string_printf("%d%%", int((((float)stats->karma / 0xffff) * 2.0f - 1.0f) * 100)));
+	hunger->set_text(string_printf("%d%%", int((((float)stats->hunger / 0xffff) * 2.0f - 1.0f) * 100)));
+	thirst->set_text(string_printf("%d%%", int((((float)stats->thirst / 0xffff) * 2.0f - 1.0f) * 100)));
+	rest->set_text(string_printf("%d%%", int((((float)stats->rest / 0xffff) * 2.0f - 1.0f) * 100)));
+	sobriety->set_text(string_printf("%d%%", int((((float)stats->sobriety / 0xffff) * 2.0f - 1.0f) * 100)));
 }
 
 //--
@@ -680,7 +738,7 @@ bool Save_Load_GUI::update()
 
 bool Save_Load_GUI::save_game(SDL_RWops *file)
 {
-	SDL_fprintf(file, "version=100\n");
+	SDL_fprintf(file, "version=101\n");
 	if (save_milestones(file) == false) {
 		return false;
 	}
@@ -710,11 +768,17 @@ bool Save_Load_GUI::load_game(SDL_RWops *file)
 		return false;
 	}
 	std::string version = t.next();
+	int version_i = atoi(version.c_str());
 	// Do something with version
 	if (load_milestones(file) == false) {
 		return false;
 	}
-	return load_map(file);
+	bool ret = load_map(file);
+	if (ret == true && version_i < 101) {
+		// Version 101 added stats load/save
+		noo.player->load_stats("player");
+	}
+	return ret;
 }
 
 bool Save_Load_GUI::load_milestones(SDL_RWops *file)
