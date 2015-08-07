@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
@@ -17,9 +18,19 @@ Stats::Stats(std::string name)
 
 	load(name);
 
-	// FIXME: do the others plus load by name
-	if (sex == FEMALE) {
-		profile_pic = new Image("profile_pics/female.tga", true);
+	try {
+		profile_pic = new Image("profile_pics/" + name + ".tga", true);
+	}
+	catch (FileNotFoundError e) {
+		if (sex == FEMALE) {
+			profile_pic = new Image("profile_pics/female.tga", true);
+		}
+		else if (sex == MALE) {
+			profile_pic = new Image("profile_pics/male.tga", true);
+		}
+		else {
+			profile_pic = new Image("profile_pics/unknown.tga", true);
+		}
 	}
 }
 
