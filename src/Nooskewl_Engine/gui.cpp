@@ -284,7 +284,7 @@ Pause_GUI::Pause_GUI()
 
 	if (stats->profile_pic != 0) {
 		Widget_Image *profile_image = new Widget_Image(stats->profile_pic, false);
-		profile_image->set_padding_bottom(1);
+		profile_image->set_padding_bottom(2);
 		profile_image->set_parent(pad);
 	}
 
