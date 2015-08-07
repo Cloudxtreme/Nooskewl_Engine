@@ -399,3 +399,29 @@ void Widget_Label::set_text(std::string text)
 	w = width;
 	h = line_height * num_lines;
 }
+
+void Widget_Label::set_width(int width)
+{
+	w = width;
+}
+
+//--
+
+Widget_Image::Widget_Image(Image *image, bool destroy) :
+	Widget(image->size.w, image->size.h),
+	image(image),
+	destroy(destroy)
+{
+}
+
+Widget_Image::~Widget_Image()
+{
+	if (destroy) {
+		delete image;
+	}
+}
+
+void Widget_Image::draw()
+{
+	image->draw_single(Point<int>(calculated_x, calculated_y));
+}

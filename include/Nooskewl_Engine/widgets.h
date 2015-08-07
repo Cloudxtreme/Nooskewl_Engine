@@ -96,11 +96,25 @@ public:
 	void draw();
 
 	void set_text(std::string text);
+	void set_width(int width);
 
 private:
 	std::string text;
 	int max_w;
 	SDL_Colour colour;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Widget_Image : public Widget
+{
+public:
+	Widget_Image(Image *image, bool destroy = true);
+	~Widget_Image();
+
+	void draw();
+
+private:
+	Image *image;
+	bool destroy;
 };
 
 } // End namespace Nooskewl_Engine
