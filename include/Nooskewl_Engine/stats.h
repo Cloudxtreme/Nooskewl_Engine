@@ -36,11 +36,16 @@ public:
 	uint16_t attack;
 	uint16_t defense;
 	uint16_t agility;
-	uint16_t karma;
 	uint16_t luck;
 	uint16_t speed;
 	uint16_t strength;
 	uint32_t experience;
+
+	uint16_t karma;
+	uint16_t hunger;
+	uint16_t thirst;
+	uint16_t rest;
+	uint16_t sobriety;
 
 	Item *weapon;
 	Item *armour;

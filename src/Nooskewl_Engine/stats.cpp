@@ -61,6 +61,11 @@ void Stats::defaults()
 	strength = 0;
 	experience = 0;
 
+	hunger = 0xffff / 2;
+	thirst = 0xffff / 2;
+	rest = 0xffff / 2;
+	sobriety = 0xffff / 2;
+
 	weapon = 0;
 	armour = 0;
 
@@ -158,6 +163,18 @@ void Stats::handle_tag(XML *xml)
 		}
 		else if (tag == "experience") {
 			experience = XML_Helpers::handle_numeric_tag(xml);
+		}
+		else if (tag == "hunger") {
+			hunger = XML_Helpers::handle_numeric_tag(xml);
+		}
+		else if (tag == "thirst") {
+			thirst = XML_Helpers::handle_numeric_tag(xml);
+		}
+		else if (tag == "rest") {
+			rest = XML_Helpers::handle_numeric_tag(xml);
+		}
+		else if (tag == "sobriety") {
+			sobriety = XML_Helpers::handle_numeric_tag(xml);
 		}
 	}
 }
