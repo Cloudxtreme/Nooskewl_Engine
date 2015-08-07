@@ -85,6 +85,9 @@ private:
 	Widget_Label *mp_label;
 	Widget_Label *experience_label;
 
+	Widget_Label *weapon_label;
+	Widget_Label *armour_label;
+
 	Widget_Label *attack_label;
 	Widget_Label *defense_label;
 	Widget_Label *agility_label;
@@ -103,6 +106,9 @@ private:
 	Widget_Label *hp;
 	Widget_Label *mp;
 	Widget_Label *experience;
+
+	Widget_Label *weapon;
+	Widget_Label *armour;
 
 	Widget_Label *attack;
 	Widget_Label *defense;

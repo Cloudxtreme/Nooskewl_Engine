@@ -337,6 +337,22 @@ Pause_GUI::Pause_GUI()
 	experience = new Widget_Label("", -1);
 	experience->set_parent(column1);
 
+	weapon_label = new Widget_Label(TRANSLATE("WEP: ")END, -1);
+	weapon_label->set_break_line(true);
+	weapon_label->set_padding_top(7);
+	weapon_label->set_parent(column1);
+
+	weapon = new Widget_Label("", -1);
+	weapon->set_padding_top(7);
+	weapon->set_parent(column1);
+
+	armour_label = new Widget_Label(TRANSLATE("ARM: ")END, -1);
+	armour_label->set_break_line(true);
+	armour_label->set_parent(column1);
+
+	armour = new Widget_Label("", -1);
+	armour->set_parent(column1);
+
 	attack_label = new Widget_Label(TRANSLATE("ATK: ")END, -1);
 	attack_label->set_break_line(true);
 	attack_label->set_padding_top(18);
@@ -416,32 +432,37 @@ Pause_GUI::Pause_GUI()
 	sobriety = new Widget_Label("", -1);
 	sobriety->set_parent(column2);
 
-	int max_w = MAX(
-		alignment_label->get_width(),
-		MAX(sex_label->get_width(),
-		MAX(hp_label->get_width(),
-		MAX(mp_label->get_width(),
-		MAX(experience_label->get_width(),
+	int max_w = MAX(alignment_label->get_width(), sex_label->get_width());
 
-		MAX(attack_label->get_width(),
-		MAX(defense_label->get_width(),
-		MAX(agility_label->get_width(),
-		MAX(luck_label->get_width(),
-		MAX(speed_label->get_width(),
-		MAX(strength_label->get_width(),
-		
-		MAX(karma_label->get_width(),
-		MAX(hunger_label->get_width(),
-		MAX(thirst_label->get_width(),
-		MAX(rest_label->get_width(),
-		sobriety_label->get_width()
-	)))))))))))))));
+	max_w = MAX(max_w, hp_label->get_width());
+	max_w = MAX(max_w, mp_label->get_width());
+	max_w = MAX(max_w, experience_label->get_width());
+
+	max_w = MAX(max_w, weapon_label->get_width());
+	max_w = MAX(max_w, armour_label->get_width());
+
+	max_w = MAX(max_w, attack_label->get_width());
+	max_w = MAX(max_w, defense_label->get_width());
+	max_w = MAX(max_w, agility_label->get_width());
+	max_w = MAX(max_w, luck_label->get_width());
+	max_w = MAX(max_w, speed_label->get_width());
+	max_w = MAX(max_w, strength_label->get_width());
+
+	max_w = MAX(max_w, karma_label->get_width());
+	max_w = MAX(max_w, hunger_label->get_width());
+	max_w = MAX(max_w, thirst_label->get_width());
+	max_w = MAX(max_w, rest_label->get_width());
+	max_w = MAX(max_w, sobriety_label->get_width());
 
 	alignment_label->set_width(max_w);
 	sex_label->set_width(max_w);
+
 	hp_label->set_width(max_w);
 	mp_label->set_width(max_w);
 	experience_label->set_width(max_w);
+
+	weapon_label->set_width(max_w);
+	armour_label->set_width(max_w);
 
 	attack_label->set_width(max_w);
 	defense_label->set_width(max_w);
@@ -540,6 +561,13 @@ void Pause_GUI::set_labels()
 	hp->set_text(string_printf("%d/%d", stats->hp, stats->max_hp));
 	mp->set_text(string_printf("%d/%d", stats->mp, stats->max_mp));
 	experience->set_text(string_printf("%d", stats->experience));
+
+	if (stats->weapon != 0) {
+		weapon->set_text(stats->weapon->name);
+	}
+	if (stats->armour != 0) {
+		armour->set_text(stats->armour->name);
+	}
 
 	attack->set_text(string_printf("%d", stats->attack));
 	defense->set_text(string_printf("%d", stats->defense));
