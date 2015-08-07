@@ -10,6 +10,7 @@ class Image;
 class Map_Entity;
 class Sprite;
 class Stats;
+class Widget_Image;
 class Widget_Label;
 class Widget_Text_Button;
 
@@ -79,6 +80,7 @@ private:
 
 	Stats *stats;
 
+	Widget_Image *profile_image;
 	Widget_Label *alignment_label;
 	Widget_Label *sex_label;
 	Widget_Label *hp_label;
@@ -121,6 +123,10 @@ private:
 	Widget_Label *thirst;
 	Widget_Label *rest;
 	Widget_Label *sobriety;
+
+	Widget_Text_Button *items_button;
+	Widget_Text_Button *weapons_button;
+	Widget_Text_Button *armour_button;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {

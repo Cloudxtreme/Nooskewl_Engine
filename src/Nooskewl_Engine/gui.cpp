@@ -256,7 +256,7 @@ Pause_GUI::Pause_GUI()
 	window->set_padding(5);
 	window->set_parent(modal_main_widget);
 
-	Widget *pad = new Widget(0.95f, 0.95f);
+	TGUI_Widget *pad = new TGUI_Widget(0.95f, 0.95f);
 	pad->set_center_x(true);
 	pad->set_center_y(true);
 	pad->set_parent(window);
@@ -280,16 +280,24 @@ Pause_GUI::Pause_GUI()
 	save_button->set_parent(button_container);
 	quit_button->set_parent(button_container);
 
-	Widget *column1 = new Widget(0.33f, 1.0f);
+	TGUI_Widget *column1 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.3f);
+	column1->set_center_x(true);
+	column1->set_center_y(true);
+	column1->set_padding_bottom(resume_button->get_height() + 5);
 	column1->set_parent(pad);
 
-	Widget *column2 = new Widget(0.33f, 1.0f);
+	TGUI_Widget *column2 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.3f);
+	column2->set_center_x(true);
+	column2->set_center_y(true);
+	column2->set_padding_left(5);
+	column2->set_padding_right(5);
+	column2->set_padding_bottom(resume_button->get_height() + 5);
 	column2->set_parent(pad);
 
 	stats = noo.map->get_entity(0)->get_stats();
 
 	if (stats->profile_pic != 0) {
-		Widget_Image *profile_image = new Widget_Image(stats->profile_pic, false);
+		profile_image = new Widget_Image(stats->profile_pic, false);
 		profile_image->set_padding_bottom(2);
 		profile_image->set_parent(column1);
 	}
@@ -298,7 +306,7 @@ Pause_GUI::Pause_GUI()
 	name->set_break_line(true);
 	name->set_parent(column1);
 
-	alignment_label = new Widget_Label(TRANSLATE("ALI: ")END, -1);
+	alignment_label = new Widget_Label(TRANSLATE("ALN: ")END, -1);
 	alignment_label->set_break_line(true);
 	alignment_label->set_padding_top(7);
 	alignment_label->set_parent(column1);
@@ -337,7 +345,7 @@ Pause_GUI::Pause_GUI()
 	experience = new Widget_Label("", -1);
 	experience->set_parent(column1);
 
-	weapon_label = new Widget_Label(TRANSLATE("WEP: ")END, -1);
+	weapon_label = new Widget_Label(TRANSLATE("WPN: ")END, -1);
 	weapon_label->set_break_line(true);
 	weapon_label->set_padding_top(7);
 	weapon_label->set_parent(column1);
@@ -376,7 +384,7 @@ Pause_GUI::Pause_GUI()
 	agility = new Widget_Label("", -1);
 	agility->set_parent(column2);
 
-	luck_label = new Widget_Label(TRANSLATE("LUK: ")END, -1);
+	luck_label = new Widget_Label(TRANSLATE("LCK: ")END, -1);
 	luck_label->set_break_line(true);
 	luck_label->set_parent(column2);
 
@@ -404,7 +412,7 @@ Pause_GUI::Pause_GUI()
 	karma = new Widget_Label("", -1);
 	karma->set_parent(column2);
 
-	hunger_label = new Widget_Label(TRANSLATE("HUN: ")END, -1);
+	hunger_label = new Widget_Label(TRANSLATE("HNG: ")END, -1);
 	hunger_label->set_break_line(true);
 	hunger_label->set_parent(column2);
 
@@ -478,6 +486,33 @@ Pause_GUI::Pause_GUI()
 	sobriety_label->set_width(max_w);
 
 	set_labels();
+
+	std::vector<TGUI_Widget *> &v = column2->get_children();
+	int height = 0;
+
+	for (size_t i = 0; i < v.size(); i++) {
+		TGUI_Widget *w = v[i];
+		if (w->get_break_line()) {
+			height += w->get_height() + w->get_padding_top() + w->get_padding_bottom();
+		}
+	}
+
+	TGUI_Widget *column3 = new TGUI_Widget(0.3f, height);
+	column3->set_center_x(true);
+	column3->set_center_y(true);
+	column3->set_padding_bottom(resume_button->get_height() + 5);
+	column3->set_parent(pad);
+
+	items_button = new Widget_Text_Button(TRANSLATE("Items")END, 1.0f, -1);
+	items_button->set_parent(column3);
+
+	weapons_button = new Widget_Text_Button(TRANSLATE("Weapons")END, 1.0f, -1);
+	weapons_button->set_padding_top(2);
+	weapons_button->set_padding_bottom(2);
+	weapons_button->set_parent(column3);
+
+	armour_button = new Widget_Text_Button(TRANSLATE("Armour")END, 1.0f, -1);
+	armour_button->set_parent(column3);
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 
