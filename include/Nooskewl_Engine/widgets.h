@@ -95,6 +95,8 @@ public:
 
 	void draw();
 
+	void set_text(std::string text);
+
 private:
 	std::string text;
 	int max_w;

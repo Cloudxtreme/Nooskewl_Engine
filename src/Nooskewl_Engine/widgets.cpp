@@ -366,17 +366,18 @@ void Widget_Window::set_default_colours()
 // --
 
 Widget_Label::Widget_Label(std::string text, int max_w) :
-	Widget(0, 0),
-	text(text),
-	max_w(max_w)
+	Widget(0, 0)
 {
+	if (max_w < 0) {
+		this->max_w = INT_MAX;
+	}
+	else {
+		this->max_w = max_w;
+	}
+
 	colour = noo.white;
-	bool full;
-	int num_lines, width;
-	int line_height = noo.font->get_height() + 1;
-	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
-	w = width;
-	h = line_height * num_lines;
+
+	set_text(text);
 }
 
 void Widget_Label::draw()
@@ -386,4 +387,15 @@ void Widget_Label::draw()
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
 	noo.font->disable_shadow();
+}
+
+void Widget_Label::set_text(std::string text)
+{
+	this->text = text;
+	bool full;
+	int num_lines, width;
+	int line_height = noo.font->get_height() + 2;
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
+	w = width;
+	h = line_height * num_lines;
 }
