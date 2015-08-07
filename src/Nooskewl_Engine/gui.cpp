@@ -280,49 +280,129 @@ Pause_GUI::Pause_GUI()
 	save_button->set_parent(button_container);
 	quit_button->set_parent(button_container);
 
-	name_label = new Widget_Label("", -1);
-	name_label->set_break_line(true);
-	name_label->set_parent(pad);
+	stats = noo.map->get_entity(0)->get_stats();
 
-	hp_label = new Widget_Label("", -1);
+	if (stats->profile_pic != 0) {
+		Widget_Image *profile_image = new Widget_Image(stats->profile_pic, false);
+		profile_image->set_padding_bottom(1);
+		profile_image->set_parent(pad);
+	}
+
+	name = new Widget_Label("", -1);
+	name->set_break_line(true);
+	name->set_parent(pad);
+
+	alignment_label = new Widget_Label(TRANSLATE("ALI: ")END, -1);
+	alignment_label->set_break_line(true);
+	alignment_label->set_parent(pad);
+
+	alignment = new Widget_Label("", -1);
+	alignment->set_parent(pad);
+
+	sex_label = new Widget_Label(TRANSLATE("SEX: ")END, -1);
+	sex_label->set_break_line(true);
+	sex_label->set_parent(pad);
+
+	sex = new Widget_Label("", -1);
+	sex->set_parent(pad);
+
+	hp_label = new Widget_Label(TRANSLATE("HP: ")END, -1);
 	hp_label->set_break_line(true);
 	hp_label->set_parent(pad);
 
-	mp_label = new Widget_Label("", -1);
+	hp = new Widget_Label("", -1);
+	hp->set_parent(pad);
+
+	mp_label = new Widget_Label(TRANSLATE("MP: ")END, -1);
 	mp_label->set_break_line(true);
 	mp_label->set_parent(pad);
 
-	attack_label = new Widget_Label("", -1);
+	mp = new Widget_Label("", -1);
+	mp->set_parent(pad);
+
+	attack_label = new Widget_Label(TRANSLATE("ATK: ")END, -1);
 	attack_label->set_break_line(true);
 	attack_label->set_parent(pad);
 
-	defense_label = new Widget_Label("", -1);
+	attack = new Widget_Label("", -1);
+	attack->set_parent(pad);
+
+	defense_label = new Widget_Label(TRANSLATE("DEF: ")END, -1);
 	defense_label->set_break_line(true);
 	defense_label->set_parent(pad);
 
-	agility_label = new Widget_Label("", -1);
+	defense = new Widget_Label("", -1);
+	defense->set_parent(pad);
+
+	agility_label = new Widget_Label(TRANSLATE("AGI: ")END, -1);
 	agility_label->set_break_line(true);
 	agility_label->set_parent(pad);
 
-	karma_label = new Widget_Label("", -1);
+	agility = new Widget_Label("", -1);
+	agility->set_parent(pad);
+
+	karma_label = new Widget_Label(TRANSLATE("KRM: ")END, -1);
 	karma_label->set_break_line(true);
 	karma_label->set_parent(pad);
 
-	luck_label = new Widget_Label("", -1);
+	karma = new Widget_Label("", -1);
+	karma->set_parent(pad);
+
+	luck_label = new Widget_Label(TRANSLATE("LUK: ")END, -1);
 	luck_label->set_break_line(true);
 	luck_label->set_parent(pad);
 
-	speed_label = new Widget_Label("", -1);
+	luck = new Widget_Label("", -1);
+	luck->set_parent(pad);
+
+	speed_label = new Widget_Label(TRANSLATE("SPD: ")END, -1);
 	speed_label->set_break_line(true);
 	speed_label->set_parent(pad);
 
-	strength_label = new Widget_Label("", -1);
+	speed = new Widget_Label("", -1);
+	speed->set_parent(pad);
+
+	strength_label = new Widget_Label(TRANSLATE("STR: ")END, -1);
 	strength_label->set_break_line(true);
 	strength_label->set_parent(pad);
 
-	experience_label = new Widget_Label("", -1);
+	strength = new Widget_Label("", -1);
+	strength->set_parent(pad);
+
+	experience_label = new Widget_Label(TRANSLATE("EXP: ")END, -1);
 	experience_label->set_break_line(true);
 	experience_label->set_parent(pad);
+
+	experience = new Widget_Label("", -1);
+	experience->set_parent(pad);
+
+	int max_w = MAX(
+		alignment_label->get_width(),
+		MAX(sex_label->get_width(),
+		MAX(hp_label->get_width(),
+		MAX(mp_label->get_width(),
+		MAX(attack_label->get_width(),
+		MAX(defense_label->get_width(),
+		MAX(agility_label->get_width(),
+		MAX(karma_label->get_width(),
+		MAX(luck_label->get_width(),
+		MAX(speed_label->get_width(),
+		MAX(strength_label->get_width(),
+		experience_label->get_width()
+	)))))))))));
+
+	alignment_label->set_width(max_w);
+	sex_label->set_width(max_w);
+	hp_label->set_width(max_w);
+	mp_label->set_width(max_w);
+	attack_label->set_width(max_w);
+	defense_label->set_width(max_w);
+	agility_label->set_width(max_w);
+	karma_label->set_width(max_w);
+	luck_label->set_width(max_w);
+	speed_label->set_width(max_w);
+	strength_label->set_width(max_w);
+	experience_label->set_width(max_w);
 
 	set_labels();
 
@@ -379,23 +459,42 @@ bool Pause_GUI::check_quit()
 
 void Pause_GUI::set_labels()
 {
-	Stats *stats = noo.map->get_entity(0)->get_stats();
-
 	if (stats == 0) {
 		return;
 	}
 
-	name_label->set_text(TRANSLATE("Eny")END); // FIXME
-	hp_label->set_text(string_printf("HP: %d/%d", stats->hp, stats->max_hp));
-	mp_label->set_text(string_printf("MP: %d/%d", stats->mp, stats->max_mp));
-	attack_label->set_text(string_printf("ATK: %d", stats->attack));
-	defense_label->set_text(string_printf("DEF: %d", stats->defense));
-	agility_label->set_text(string_printf("AGI: %d", stats->agility));
-	karma_label->set_text(string_printf("KRM: %d", stats->karma));
-	luck_label->set_text(string_printf("LUK: %d", stats->luck));
-	speed_label->set_text(string_printf("SPD: %d", stats->speed));
-	strength_label->set_text(string_printf("STR: %d", stats->strength));
-	experience_label->set_text(string_printf("EXP: %d", stats->experience));
+	name->set_text(TRANSLATE("Eny")END); // FIXME
+
+	if (stats->alignment == Stats::GOOD) {
+		alignment->set_text(TRANSLATE("Good")END);
+	}
+	else if (stats->alignment == Stats::EVIL) {
+		alignment->set_text(TRANSLATE("Evil")END);
+	}
+	else {
+		alignment->set_text(TRANSLATE("Neutral")END);
+	}
+
+	if (stats->sex == Stats::MALE) {
+		sex->set_text(TRANSLATE("Male")END);
+	}
+	else if (stats->sex == Stats::FEMALE) {
+		sex->set_text(TRANSLATE("Female")END);
+	}
+	else {
+		sex->set_text(TRANSLATE("Unknown")END);
+	}
+
+	hp->set_text(string_printf("%d/%d", stats->hp, stats->max_hp));
+	mp->set_text(string_printf("%d/%d", stats->mp, stats->max_mp));
+	attack->set_text(string_printf("%d", stats->attack));
+	defense->set_text(string_printf("%d", stats->defense));
+	agility->set_text(string_printf("%d", stats->agility));
+	karma->set_text(string_printf("%d", stats->karma));
+	luck->set_text(string_printf("%d", stats->luck));
+	speed->set_text(string_printf("%d", stats->speed));
+	strength->set_text(string_printf("%d", stats->strength));
+	experience->set_text(string_printf("%d", stats->experience));
 }
 
 //--

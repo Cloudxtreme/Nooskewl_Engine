@@ -9,6 +9,7 @@ class Brain;
 class Image;
 class Map_Entity;
 class Sprite;
+class Stats;
 class Widget_Label;
 class Widget_Text_Button;
 
@@ -76,7 +77,10 @@ private:
 	Widget_Text_Button *save_button;
 	Widget_Text_Button *quit_button;
 
-	Widget_Label *name_label;
+	Stats *stats;
+
+	Widget_Label *alignment_label;
+	Widget_Label *sex_label;
 	Widget_Label *hp_label;
 	Widget_Label *mp_label;
 	Widget_Label *attack_label;
@@ -87,6 +91,19 @@ private:
 	Widget_Label *speed_label;
 	Widget_Label *strength_label;
 	Widget_Label *experience_label;
+	Widget_Label *name;
+	Widget_Label *alignment;
+	Widget_Label *sex;
+	Widget_Label *hp;
+	Widget_Label *mp;
+	Widget_Label *attack;
+	Widget_Label *defense;
+	Widget_Label *agility;
+	Widget_Label *karma;
+	Widget_Label *luck;
+	Widget_Label *speed;
+	Widget_Label *strength;
+	Widget_Label *experience;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
