@@ -42,6 +42,7 @@ public:
 	void set_shadow_type(Shadow_Type shadow_type);
 	void set_input_enabled(bool enabled);
 	void set_type(Type type);
+	void load_stats(std::string name);
 
 	int get_id();
 	std::string get_name();
@@ -59,6 +60,7 @@ public:
 	bool is_following_path();
 	bool is_input_enabled();
 	Type get_type();
+	Stats *get_stats();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);

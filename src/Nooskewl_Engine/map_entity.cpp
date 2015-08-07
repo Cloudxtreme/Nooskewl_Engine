@@ -3,10 +3,13 @@
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/inventory.h"
+#include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
+#include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tilemap.h"
 #include "Nooskewl_Engine/xml.h"
 
@@ -37,7 +40,8 @@ Map_Entity::Map_Entity(std::string name) :
 	path_callback(0),
 	shadow_type(SHADOW_NONE),
 	has_blink(false),
-	type(OTHER)
+	type(OTHER),
+	stats(0)
 {
 	id = current_id++;
 
@@ -211,6 +215,12 @@ void Map_Entity::set_type(Type type)
 	this->type = type;
 }
 
+void Map_Entity::load_stats(std::string name)
+{
+	delete stats;
+	stats = new Stats(name);
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -290,6 +300,11 @@ bool Map_Entity::is_input_enabled()
 Map_Entity::Type Map_Entity::get_type()
 {
 	return type;
+}
+
+Stats *Map_Entity::get_stats()
+{
+	return stats;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
