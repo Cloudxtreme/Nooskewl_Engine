@@ -9,6 +9,7 @@ class Brain;
 class Image;
 class Map_Entity;
 class Sprite;
+class Widget_Label;
 class Widget_Text_Button;
 
 class NOOSKEWL_ENGINE_EXPORT GUI {
@@ -66,6 +67,7 @@ public:
 
 private:
 	bool check_quit();
+	void set_labels();
 
 	static bool quitting;
 	static bool quit;
@@ -73,6 +75,18 @@ private:
 	Widget_Text_Button *resume_button;
 	Widget_Text_Button *save_button;
 	Widget_Text_Button *quit_button;
+
+	Widget_Label *name_label;
+	Widget_Label *hp_label;
+	Widget_Label *mp_label;
+	Widget_Label *attack_label;
+	Widget_Label *defense_label;
+	Widget_Label *agility_label;
+	Widget_Label *karma_label;
+	Widget_Label *luck_label;
+	Widget_Label *speed_label;
+	Widget_Label *strength_label;
+	Widget_Label *experience_label;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {

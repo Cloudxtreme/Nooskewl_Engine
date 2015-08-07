@@ -3,11 +3,14 @@
 #include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/inventory.h"
+#include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
+#include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/widgets.h"
@@ -104,6 +107,7 @@ bool Title_GUI::update()
 		noo.player = new Map_Entity("player");
 		noo.player->set_brain(new Player_Brain());
 		noo.player->load_sprite("player");
+		noo.player->load_stats("player");
 		noo.map = new Map("start.map");
 		noo.map->add_entity(noo.player);
 		noo.map->start();
@@ -249,12 +253,13 @@ Pause_GUI::Pause_GUI()
 	Widget_Window *window = new Widget_Window(0.95f, 0.95f);
 	window->set_center_x(true);
 	window->set_center_y(true);
+	window->set_padding(5);
 	window->set_parent(modal_main_widget);
 
-	Widget_Label *label = new Widget_Label(noo.t->translate(0), modal_main_widget->get_width()-10);
-	label->set_padding(5);
-	label->set_center_x(true);
-	label->set_parent(window);
+	Widget *pad = new Widget(0.95f, 0.95f);
+	pad->set_center_x(true);
+	pad->set_center_y(true);
+	pad->set_parent(window);
 
 	resume_button = new Widget_Text_Button(noo.t->translate(10), 0.3f, -1);
 	resume_button->set_center_x(true);
@@ -269,12 +274,57 @@ Pause_GUI::Pause_GUI()
 
 	Widget *button_container = new Widget(1.0f, quit_button->get_height());
 	button_container->set_float_bottom(true);
-	button_container->set_padding_bottom(5);
-	button_container->set_parent(window);
+	button_container->set_parent(pad);
 
 	resume_button->set_parent(button_container);
 	save_button->set_parent(button_container);
 	quit_button->set_parent(button_container);
+
+	name_label = new Widget_Label("", -1);
+	name_label->set_break_line(true);
+	name_label->set_parent(pad);
+
+	hp_label = new Widget_Label("", -1);
+	hp_label->set_break_line(true);
+	hp_label->set_parent(pad);
+
+	mp_label = new Widget_Label("", -1);
+	mp_label->set_break_line(true);
+	mp_label->set_parent(pad);
+
+	attack_label = new Widget_Label("", -1);
+	attack_label->set_break_line(true);
+	attack_label->set_parent(pad);
+
+	defense_label = new Widget_Label("", -1);
+	defense_label->set_break_line(true);
+	defense_label->set_parent(pad);
+
+	agility_label = new Widget_Label("", -1);
+	agility_label->set_break_line(true);
+	agility_label->set_parent(pad);
+
+	karma_label = new Widget_Label("", -1);
+	karma_label->set_break_line(true);
+	karma_label->set_parent(pad);
+
+	luck_label = new Widget_Label("", -1);
+	luck_label->set_break_line(true);
+	luck_label->set_parent(pad);
+
+	speed_label = new Widget_Label("", -1);
+	speed_label->set_break_line(true);
+	speed_label->set_parent(pad);
+
+	strength_label = new Widget_Label("", -1);
+	strength_label->set_break_line(true);
+	strength_label->set_parent(pad);
+
+	experience_label = new Widget_Label("", -1);
+	experience_label->set_break_line(true);
+	experience_label->set_parent(pad);
+
+	set_labels();
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 
@@ -327,6 +377,26 @@ bool Pause_GUI::check_quit()
 	return true;
 }
 
+void Pause_GUI::set_labels()
+{
+	Stats *stats = noo.map->get_entity(0)->get_stats();
+
+	if (stats == 0) {
+		return;
+	}
+
+	name_label->set_text(TRANSLATE("Eny")END); // FIXME
+	hp_label->set_text(string_printf("HP: %d/%d", stats->hp, stats->max_hp));
+	mp_label->set_text(string_printf("MP: %d/%d", stats->mp, stats->max_mp));
+	attack_label->set_text(string_printf("ATK: %d", stats->attack));
+	defense_label->set_text(string_printf("DEF: %d", stats->defense));
+	agility_label->set_text(string_printf("AGI: %d", stats->agility));
+	karma_label->set_text(string_printf("KRM: %d", stats->karma));
+	luck_label->set_text(string_printf("LUK: %d", stats->luck));
+	speed_label->set_text(string_printf("SPD: %d", stats->speed));
+	strength_label->set_text(string_printf("STR: %d", stats->strength));
+	experience_label->set_text(string_printf("EXP: %d", stats->experience));
+}
 
 //--
 
