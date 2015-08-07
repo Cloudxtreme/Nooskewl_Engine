@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/stats.h"
@@ -10,13 +11,27 @@ Stats::Stats(std::string name)
 	defaults();
 
 	load(name);
+
+	// FIXME: do the others plus load by name
+	if (sex == FEMALE) {
+		profile_pic = new Image("profile_pics/female.tga", true);
+	}
+}
+
+Stats::~Stats()
+{
+	delete profile_pic;
 }
 
 void Stats::defaults()
 {
 	name = "Unknown";
 
+	profile_pic = 0;
+
 	alignment = NEUTRAL;
+
+	sex = UNKNOWN;
 
 	hp = max_hp = 0;
 	mp = max_mp = 0;
@@ -78,6 +93,18 @@ void Stats::handle_tag(XML *xml)
 			}
 			else {
 				alignment = NEUTRAL;
+			}
+		}
+		else if (tag == "sex") {
+			std::string value = xml->get_value();
+			if (value == "male") {
+				sex = MALE;
+			}
+			else if (value == "female") {
+				sex = FEMALE;
+			}
+			else {
+				sex = UNKNOWN;
 			}
 		}
 		else if (tag == "hp") {

@@ -6,6 +6,7 @@
 namespace Nooskewl_Engine {
 
 class Item;
+class Image;
 class Inventory;
 
 class Stats {
@@ -16,9 +17,19 @@ public:
 		EVIL
 	};
 
+	enum Sex {
+		MALE,
+		FEMALE,
+		UNKNOWN
+	};
+
 	std::string name;
 
+	Image *profile_pic;
+
 	Alignment alignment;
+
+	Sex sex;
 
 	uint16_t hp, max_hp;
 	uint16_t mp, max_mp;
@@ -37,6 +48,7 @@ public:
 	Inventory *inventory;
 
 	Stats(std::string name);
+	~Stats();
 
 	void defaults();
 	bool load(std::string name);
