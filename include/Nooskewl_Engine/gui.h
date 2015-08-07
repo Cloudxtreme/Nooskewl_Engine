@@ -143,6 +143,7 @@ private:
 	bool load_map(SDL_RWops *file);
 	Map_Entity *load_entity(SDL_RWops *file);
 	Brain *load_brain(SDL_RWops *file);
+	Stats *load_stats(SDL_RWops *file);
 
 	bool saving;
 	Callback callback;

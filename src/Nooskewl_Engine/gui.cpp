@@ -824,6 +824,7 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 	std::string option;
 
 	Map_Entity *entity = new Map_Entity(name);
+	bool has_stats = false;
 
 	while ((option = t.next()) != "") {
 		Tokenizer t2(option, '=');
@@ -866,9 +867,21 @@ Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
 		else if (key == "solid") {
 			entity->set_solid(atoi(value.c_str()) != 0);
 		}
+		else if (key == "stats") {
+			has_stats = true;
+		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}
+	}
+
+	if (has_stats) {
+		Stats *stats = load_stats(file);
+		if (stats == 0) {
+			delete entity;
+			return 0;
+		}
+		entity->set_stats(stats);
 	}
 
 	// Brain has to be set after everything else because it could need sprite, etc
@@ -908,4 +921,84 @@ Brain *Save_Load_GUI::load_brain(SDL_RWops *file)
 	}
 
 	return brain;
+}
+
+Stats *Save_Load_GUI::load_stats(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string name = t.next();
+	std::string options = s.substr(name.length()+1);
+
+	if (name != "stats") {
+		return 0;
+	}
+
+	Stats *stats = new Stats();
+
+	t = Tokenizer(options, ',');
+	std::string option;
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, '=');
+		std::string key = t2.next();
+		std::string value = t2.next();
+
+		if (key == "name") {
+			stats->name = value;
+		}
+		else if (key == "profile_pic") {
+			stats->profile_pic = new Image(value, true);
+		}
+		else {
+			int v = atoi(value.c_str());
+			if (key == "alignment") {
+				stats->alignment = (Stats::Alignment)v;
+			}
+			else if (key == "sex") {
+				stats->sex = (Stats::Sex)v;
+			}
+			else if (key == "hp") {
+				stats->hp = v;
+			}
+			else if (key == "max_hp") {
+				stats->max_hp = v;
+			}
+			else if (key == "mp") {
+				stats->mp = v;
+			}
+			else if (key == "max_mp") {
+				stats->max_mp = v;
+			}
+			else if (key == "attack") {
+				stats->attack = v;
+			}
+			else if (key == "defense") {
+				stats->defense = v;
+			}
+			else if (key == "agility") {
+				stats->agility = v;
+			}
+			else if (key == "karma") {
+				stats->karma = v;
+			}
+			else if (key == "luck") {
+				stats->luck = v;
+			}
+			else if (key == "speed") {
+				stats->speed = v;
+			}
+			else if (key == "strength") {
+				stats->strength = v;
+			}
+			else if (key == "experience") {
+				stats->experience = v;
+			}
+		}
+	}
+
+	return stats;
 }
