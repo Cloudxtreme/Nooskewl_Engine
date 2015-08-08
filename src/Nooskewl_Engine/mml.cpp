@@ -425,7 +425,7 @@ std::string MML::Internal::Track::next_note(const char *text, int *pos)
 		switch (result.c_str()[0]) {
 			case '<':
 			case '>':
-				if (result.c_str()[0] == '<') {
+				if (result.c_str()[0] == '>') {
 					octave--;
 				}
 				else {
@@ -555,22 +555,27 @@ MML::Internal::Internal(std::string filename, bool load_from_filesystem)
 							curr_vol[track] = atoi(tok.c_str() + 2);
 						}
 						else {
-							if (volumes[track].size() > 0) {
-								volumes[track].push_back(std::pair<int, float>(
-									sample[track],
-									volumes[track][volumes[track].size()-1].second
-								));
-							}
 							int length = sample[track] - vol_start[track];
 							if ((int)volume_envelopes.size() > curr_vol[track]) {
 								int sz = volume_envelopes[curr_vol[track]].size();
-								int stride = length / (sz-1);
+								int stride = sz <= 1 ? length : length / (sz-1);
+								float start_vol;
+								if (volumes[track].size() > 0) {
+									start_vol = volumes[track][volumes.size()-1].second;
+								}
+								else {
+									start_vol = 1.0f;
+								}
 								for (int i = 0; i < sz; i++) {
 									volumes[track].push_back(std::pair<int, float>(
 										vol_start[track] + stride * i,
 										volume_envelopes[curr_vol[track]][i]/255.0f
 									));
 								}
+								volumes[track].push_back(std::pair<int, float>(
+									vol_start[track] + length,
+									start_vol
+								));
 							}
 							curr_vol[track] = -1;
 						}
@@ -620,12 +625,6 @@ MML::Internal::Internal(std::string filename, bool load_from_filesystem)
 					}
 					else if (tok.c_str()[0] == 'v') {
 						float vol = atoi(tok.c_str() + 1) / 255.0f;
-						if (volumes[track].size() > 0) {
-							volumes[track].push_back(std::pair<int, float>(
-								sample[track],
-								volumes[track][volumes[track].size()-1].second
-							));
-						}
 						volumes[track].push_back(std::pair<int, float>(sample[track], vol));
 					}
 					else if (tok.c_str()[0] == 'y') {
@@ -647,13 +646,13 @@ MML::Internal::Internal(std::string filename, bool load_from_filesystem)
 					else if (tok.c_str()[0] == 'o') {
 						octaves[track] = atoi(tok.c_str() + 1);
 					}
-					else if (tok.c_str()[0] == '<') {
+					else if (tok.c_str()[0] == '>') {
 						octaves[track]--;
 						if (octaves[track] < 0) {
 							octaves[track] = 0;
 						}
 					}
-					else if (tok.c_str()[0] == '>') {
+					else if (tok.c_str()[0] == '<') {
 						octaves[track]++;
 						if (octaves[track] > 11) {
 							octaves[track] = 11;
