@@ -1,4 +1,3 @@
-#include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
@@ -11,7 +10,6 @@
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/stats.h"
-#include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/widgets.h"
 
@@ -26,11 +24,24 @@ bool Pause_GUI::quit;
 GUI::GUI() :
 	focus(0)
 {
+	fade = true;
+	fading_in = true;
+	fading_out = false;
+	fade_start = SDL_GetTicks();
 }
 
 GUI::~GUI()
 {
 	delete gui;
+}
+
+void GUI::start()
+{
+	if (gui) {
+		TGUI_Widget *main_widget = gui->get_main_widget();
+
+		set_noo_gui(main_widget);
+	}
 }
 
 bool GUI::update()
@@ -43,13 +54,83 @@ bool GUI::update_background()
 	return true;
 }
 
+void GUI::draw_back()
+{
+	if (fade == false) {
+		return;
+	}
+
+	if (fading_in) {
+		float p = (SDL_GetTicks() - fade_start) / 200.0f;
+		if (p >= 1.0f) {
+			p = 1.0f;
+			fading_in = false;
+			fade_done(true);
+		}
+		global_alpha = p;
+		noo.current_shader->set_float("global_alpha", global_alpha);
+	}
+	else if (fading_out) {
+		float p = (SDL_GetTicks() - fade_start) / 200.0f;
+		if (p >= 1.0f) {
+			p = 1.0f;
+		}
+		p = 1.0f - p;
+		global_alpha = p;
+		noo.current_shader->set_float("global_alpha", global_alpha);
+	}
+}
+
+void GUI::draw_fore()
+{
+	global_alpha = 1.0f;
+	noo.current_shader->set_float("global_alpha", global_alpha);
+}
+
+bool GUI::do_return(bool ret)
+{
+	if (fade == false) {
+		return ret;
+	}
+
+	if (ret == false) {
+		if (fading_out == false) {
+			fading_out = true;
+			fade_start = SDL_GetTicks();
+		}
+	}
+
+	if (fading_out && (SDL_GetTicks()-fade_start) >= 200) {
+		fading_out = false;
+		if (fade_done(false) == false) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void GUI::set_noo_gui(TGUI_Widget *widget)
+{
+	Widget *noo_widget = dynamic_cast<Widget *>(widget);
+	if (noo_widget) {
+		noo_widget->noo_gui = this;
+	}
+
+	std::vector<TGUI_Widget *> &children = widget->get_children();
+
+	for (size_t i = 0; i < children.size(); i++) {
+		set_noo_gui(children[i]);
+	}
+}
+
 //--
 
 void Title_GUI::callback(void *data)
 {
 	if (loading) {
 		loading = false;
-		loaded = data != 0;
+		loaded = (Save_Load_GUI::Save_Load)((int)data) == Save_Load_GUI::LOAD;
 	}
 }
 
@@ -98,37 +179,31 @@ Title_GUI::~Title_GUI()
 bool Title_GUI::update()
 {
 	if (check_loaded() == false) {
-		return false;
+		return do_return(false);
 	}
 
 	if (new_game_button->pressed()) {
-		Map::new_game_started();
+		do_new_game = true;
 
-		noo.player = new Map_Entity("player");
-		noo.player->set_brain(new Player_Brain());
-		noo.player->load_sprite("player");
-		noo.player->load_stats("player");
-		noo.map = new Map("start.map");
-		noo.map->add_entity(noo.player);
-		noo.map->start();
-		noo.map->update_camera();
-
-		noo.reset_fancy_draw();
-
-		return false;
+		return do_return(false);
 	}
 	else if (load_game_button->pressed()) {
+		do_new_game = false;
+
 		loading = true;
 		loaded = false;
-		noo.guis.push_back(new Save_Load_GUI(false, callback));
+
+		Save_Load_GUI *save_load_gui = new Save_Load_GUI(false, callback);
+		save_load_gui->start();
+		noo.guis.push_back(save_load_gui);
 	}
 
-	return true;
+	return do_return(true);
 }
 
 bool Title_GUI::update_background()
 {
-	return check_loaded();
+	return do_return(check_loaded());
 }
 
 void Title_GUI::draw_back()
@@ -155,10 +230,14 @@ void Title_GUI::draw_back()
 	SDL_Colour tint2 = noo.white;
 	tint2.a = 64;
 	static_logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), static_logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), static_logo->size * scale2);
+	
+	GUI::draw_back();
 }
 
 void Title_GUI::draw_fore()
 {
+	GUI::draw_fore();
+
 	Point<float> pos;
 	Size<int> size;
 
@@ -230,6 +309,66 @@ bool Title_GUI::check_loaded()
 	}
 
 	return true;
+}
+
+bool Title_GUI::fade_done(bool fade_in)
+{
+	if (fade_in == false) {
+		if (do_new_game) {
+			Map::new_game_started();
+
+			noo.player = new Map_Entity("player");
+			noo.player->set_brain(new Player_Brain());
+			noo.player->load_sprite("player");
+			noo.player->load_stats("player");
+			noo.map = new Map("start.map");
+			noo.map->add_entity(noo.player);
+			noo.map->start();
+			noo.map->update_camera();
+
+			noo.reset_fancy_draw();
+		}
+		else {
+			SDL_RWops *file;
+
+			file = SDL_RWFromFile("test.save", "r");
+
+			std::string caption = "";
+
+			if (file != NULL) {
+				Map::new_game_started();
+
+				bool result = noo.load_game(file);
+
+				if (result == true) {
+					noo.last_map_name = "--LOADED--";
+
+					noo.map->start();
+					noo.map->update_camera();
+				}
+				else {
+					if (noo.map) {
+						delete noo.map;
+						noo.map = 0;
+					}
+
+					caption = noo.t->translate(1);
+				}
+			}
+			else {
+				caption = TRANSLATE("No saved games found")END;
+			}
+
+			if (caption != "") {
+				Notification_GUI *notification_gui = new Notification_GUI(caption);
+				notification_gui->start();
+				noo.guis.push_back(notification_gui);
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //--
@@ -522,47 +661,43 @@ Pause_GUI::Pause_GUI()
 bool Pause_GUI::update()
 {
 	if (check_quit() == false) {
-		return false;
+		return do_return(false);
 	}
 
 	if (resume_button->pressed()) {
-		return false;
+		return do_return(false);
 	}
 	else if (save_button->pressed()) {
-		noo.guis.push_back(new Save_Load_GUI(true));
+		Save_Load_GUI *save_load_gui = new Save_Load_GUI(true);
+		save_load_gui->start();
+		noo.guis.push_back(save_load_gui);
 	}
 	else if (quit_button->pressed()) {
 		quitting = true;
 		quit = false;
 
-		noo.guis.push_back(new Yes_No_GUI(noo.t->translate(9), callback));
+		Yes_No_GUI *yes_no_gui = new Yes_No_GUI(noo.t->translate(9), callback);
+		yes_no_gui->start();
+		noo.guis.push_back(yes_no_gui);
 	}
 
 	if (items_button->pressed()) {
-		noo.guis.push_back(new Items_GUI());
+		Items_GUI *items_gui = new Items_GUI();
+		items_gui->start();
+		noo.guis.push_back(items_gui);
 	}
 
-	return true;
+	return do_return(true);
 }
 
 bool Pause_GUI::update_background()
 {
-	return check_quit();
+	return do_return(check_quit());
 }
 
 bool Pause_GUI::check_quit()
 {
 	if (quit) {
-		quit = false;
-
-		delete noo.map;
-		noo.map = 0;
-		delete noo.player;
-		noo.player = 0;
-		noo.last_map_name = "";
-
-		noo.guis.push_back(new Title_GUI());
-
 		return false;
 	}
 
@@ -620,6 +755,24 @@ void Pause_GUI::set_labels()
 	thirst->set_text(string_printf("%d%%", int((((float)stats->thirst / 0xffff) * 2.0f - 1.0f) * 100)));
 	rest->set_text(string_printf("%d%%", int((((float)stats->rest / 0xffff) * 2.0f - 1.0f) * 100)));
 	sobriety->set_text(string_printf("%d%%", int((((float)stats->sobriety / 0xffff) * 2.0f - 1.0f) * 100)));
+}
+
+bool Pause_GUI::fade_done(bool fading_in) {
+	if (fading_in == false) {
+		if (quit) {
+			delete noo.map;
+			noo.map = 0;
+			delete noo.player;
+			noo.player = 0;
+			noo.last_map_name = "";
+
+			Title_GUI *title_gui = new Title_GUI();
+			title_gui->start();
+			noo.guis.push_back(title_gui);
+		}
+	}
+
+	return false;
 }
 
 //--
@@ -686,10 +839,10 @@ Items_GUI::Items_GUI()
 bool Items_GUI::update()
 {
 	if (done_button->pressed()) {
-		return false;
+		return do_return(false);
 	}
 
-	return true;
+	return do_return(true);
 }
 
 //--
@@ -722,9 +875,9 @@ Notification_GUI::Notification_GUI(std::string text)
 bool Notification_GUI::update()
 {
 	if (ok_button->pressed()) {
-		return false;
+		return do_return(false);
 	}
-	return true;
+	return do_return(true);
 }
 
 //--
@@ -769,13 +922,13 @@ bool Yes_No_GUI::update()
 {
 	if (yes_button->pressed()) {
 		callback((void *)1);
-		return false;
+		return do_return(false);
 	}
 	else if (no_button->pressed()) {
 		callback(0);
-		return false;
+		return do_return(false);
 	}
-	return true;
+	return do_return(true);
 }
 
 //--
@@ -784,52 +937,26 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	saving(saving),
 	callback(callback)
 {
-	SDL_RWops *file;
-	std::string caption = "";
+	std::string caption;
 
 	if (saving) {
-		file = SDL_RWFromFile("test.save", "w");
-		if (file == 0 || save_game(file) == false) {
-			if (callback) callback(0);
+		SDL_RWops *file = SDL_RWFromFile("test.save", "w");
+	
+		if (file == 0 || noo.save_game(file) == false) {
+			if (callback) callback((void *)ERR);
 			caption = noo.t->translate(2);
 		}
 		else {
-			if (callback) callback((void *)1);
+			if (callback) callback((void *)SAVE);
 			caption = noo.t->translate(3);
+		}
+
+		if (file != 0) {
+			SDL_RWclose(file);
 		}
 	}
 	else {
-		bool result;
-		file = SDL_RWFromFile("test.save", "r");
-		if (file == NULL) {
-			result = false;
-		}
-		else {
-			Map::new_game_started();
-
-			result = load_game(file);
-		}
-
-		if (result == true) {
-			if (callback) callback((void *)1);
-
-			noo.last_map_name = "--LOADED--";
-
-			noo.map->start();
-			noo.map->update_camera();
-		}
-		else {
-			if (noo.map) {
-				delete noo.map;
-				noo.map = 0;
-			}
-			if (callback) callback(0);
-			caption = noo.t->translate(1);
-		}
-	}
-
-	if (file) {
-		SDL_RWclose(file);
+		if (callback) callback((void *)LOAD);
 	}
 
 	if (caption != "") {
@@ -855,351 +982,17 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 
 		gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 	}
-	else {
+ 	else {
 		gui = 0;
-	}
+ 	}
 }
 
 bool Save_Load_GUI::update()
 {
 	if (gui == 0) {
-		return false;
-	}
-
-	if (ok_button->pressed()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool Save_Load_GUI::save_game(SDL_RWops *file)
-{
-	SDL_fprintf(file, "version=101\n");
-	if (save_milestones(file) == false) {
-		return false;
-	}
-	return noo.map->save(file);
-}
-
-bool Save_Load_GUI::save_milestones(SDL_RWops *file)
-{
-	int num_milestones = noo.get_num_milestones();
-	SDL_fprintf(file, "num_milestones=%d\n", num_milestones);
-	for (int i = 0; i < num_milestones; i++) {
-		SDL_fprintf(file, "%d=%d\n", i, noo.check_milestone(i) == true ? 1 : 0);
-	}
-	return true;
-}
-
-bool Save_Load_GUI::load_game(SDL_RWops *file)
-{
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string tag = t.next();
-	if (tag != "version") {
-		errormsg("Missing version in save state\n");
-		return false;
-	}
-	std::string version = t.next();
-	int version_i = atoi(version.c_str());
-	// Do something with version
-	if (load_milestones(file) == false) {
-		return false;
-	}
-	bool ret = load_map(file);
-	if (ret == true && version_i < 101) {
-		// Version 101 added stats load/save
-		noo.player->load_stats("player");
-	}
-	return ret;
-}
-
-bool Save_Load_GUI::load_milestones(SDL_RWops *file)
-{
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string tag = t.next();
-	std::string value = t.next();
-	if (tag != "num_milestones") {
-		errormsg("Expected num_milestones in save state\n");
-		return false;
-	}
-
-	int num_milestones = atoi(value.c_str());
-
-	for (int i = 0; i < num_milestones; i++) {
-		SDL_fgets(file, line, 1000);
-		s = line;
-		trim(s);
-		Tokenizer t(s, '=');
-		std::string tag = t.next();
-		std::string value = t.next();
-		if (atoi(tag.c_str()) != i) {
-			errormsg("Expected milestone %d, got '%s'\n", i, tag.c_str());
-			return false;
-		}
-		bool onoff = atoi(value.c_str()) != 0;
-		noo.set_milestone(i, onoff);
-	}
-
-	return true;
-}
-
-bool Save_Load_GUI::load_map(SDL_RWops *file)
-{
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string tag = t.next();
-	std::string value = t.next();
-	trim(value);
-
-	if (tag != "map_name") {
-		errormsg("Expected map_name in save state\n");
-		return false;
-	}
-
-	noo.map = new Map(value);
-
-	SDL_fgets(file, line, 1000);
-	s = line;
-	trim(s);
-	t = Tokenizer(s, '=');
-	tag = t.next();
-	value = t.next();
-
-	if (tag != "num_entities") {
-		errormsg("Expected num_entities in save state\n");
-		return false;
-	}
-	int num_entities = atoi(value.c_str());
-	if (num_entities < 1) {
-		errormsg("Expected at least 1 entity in save state\n");
-		return false;
-	}
-
-	noo.player = load_entity(file);
-	if (noo.player == 0) {
-		return false;
-	}
-	else if (noo.player->get_name() != "player") {
-		errormsg("Expected player first in save state\n");
-		return false;
-	}
-
-	noo.map->add_entity(noo.player);
-
-	for (int i = 1; i < num_entities; i++) {
-		Map_Entity *entity = load_entity(file);
-		if (entity == 0) {
-			return false;
-		}
-		noo.map->add_entity(entity);
-	}
-
-	return true;
-}
-
-Map_Entity *Save_Load_GUI::load_entity(SDL_RWops *file)
-{
-	Brain *brain = load_brain(file);
-
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string name = t.next();
-	std::string options = s.substr(name.length()+1);
-
-	t = Tokenizer(options, ',');
-	std::string option;
-
-	Map_Entity *entity = new Map_Entity(name);
-	bool has_stats = false;
-
-	while ((option = t.next()) != "") {
-		Tokenizer t2(option, '=');
-		std::string key = t2.next();
-		std::string value = t2.next();
-		if (key == "position") {
-			Tokenizer t3(value, ':');
-			std::string x_s = t3.next();
-			std::string y_s = t3.next();
-			entity->set_position(Point<int>(atoi(x_s.c_str()), atoi(y_s.c_str())));
-		}
-		else if (key == "direction") {
-			entity->set_direction((Direction)atoi(value.c_str()));
-		}
-		else if (key == "sitting") {
-			entity->set_sitting(atoi(value.c_str()) != 0);
-		}
-		else if (key == "sprite") {
-			Tokenizer t3(value, ':');
-			std::string xml_filename = t3.next();
-			std::string image_directory = t3.next();
-			std::string animation = t3.next();
-			bool started = atoi(t3.next().c_str()) != 0;
-			Sprite *sprite = new Sprite(xml_filename, image_directory, true);
-			sprite->set_animation(animation);
-			if (started) {
-				sprite->start();
-			}
-			else {
-				sprite->stop();
-			}
-			entity->set_sprite(sprite);
-		}
-		else if (key == "z_add") {
-			entity->set_z_add(atoi(value.c_str()));
-		}
-		else if (key == "shadow_type") {
-			entity->set_shadow_type((Map_Entity::Shadow_Type)atoi(value.c_str()));
-		}
-		else if (key == "solid") {
-			entity->set_solid(atoi(value.c_str()) != 0);
-		}
-		else if (key == "stats") {
-			has_stats = true;
-		}
-		else {
-			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
-		}
-	}
-
-	if (has_stats) {
-		Stats *stats = load_stats(file);
-		if (stats == 0) {
-			delete entity;
-			return 0;
-		}
-		entity->set_stats(stats);
-	}
-
-	// Brain has to be set after everything else because it could need sprite, etc
-	entity->set_brain(brain);
-
-	return entity;
-}
-
-Brain *Save_Load_GUI::load_brain(SDL_RWops *file)
-{
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string tag = t.next();
-	std::string value = t.next();
-	if (tag != "brain") {
-		errormsg("Expected brain in save state\n");
-		return 0;
-	}
-
-	t = Tokenizer(value, ',');
-
-	std::string type = t.next();
-
-	Brain *brain;
-
-	if (type == "0") {
-		return 0;
-	}
-	else if (type == "player_brain") {
-		brain = new Player_Brain();
+		return do_return(false);
 	}
 	else {
-		return m.dll_get_brain(value);
+		return do_return(!ok_button->pressed());
 	}
-
-	return brain;
-}
-
-Stats *Save_Load_GUI::load_stats(SDL_RWops *file)
-{
-	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string name = t.next();
-	std::string options = s.substr(name.length()+1);
-
-	if (name != "stats") {
-		return 0;
-	}
-
-	Stats *stats = new Stats();
-
-	t = Tokenizer(options, ',');
-	std::string option;
-
-	while ((option = t.next()) != "") {
-		Tokenizer t2(option, '=');
-		std::string key = t2.next();
-		std::string value = t2.next();
-
-		if (key == "name") {
-			stats->name = value;
-		}
-		else if (key == "profile_pic") {
-			stats->profile_pic = new Image(value, true);
-		}
-		else {
-			int v = atoi(value.c_str());
-			if (key == "alignment") {
-				stats->alignment = (Stats::Alignment)v;
-			}
-			else if (key == "sex") {
-				stats->sex = (Stats::Sex)v;
-			}
-			else if (key == "hp") {
-				stats->hp = v;
-			}
-			else if (key == "max_hp") {
-				stats->max_hp = v;
-			}
-			else if (key == "mp") {
-				stats->mp = v;
-			}
-			else if (key == "max_mp") {
-				stats->max_mp = v;
-			}
-			else if (key == "attack") {
-				stats->attack = v;
-			}
-			else if (key == "defense") {
-				stats->defense = v;
-			}
-			else if (key == "agility") {
-				stats->agility = v;
-			}
-			else if (key == "karma") {
-				stats->karma = v;
-			}
-			else if (key == "luck") {
-				stats->luck = v;
-			}
-			else if (key == "speed") {
-				stats->speed = v;
-			}
-			else if (key == "strength") {
-				stats->strength = v;
-			}
-			else if (key == "experience") {
-				stats->experience = v;
-			}
-		}
-	}
-
-	return stats;
 }
