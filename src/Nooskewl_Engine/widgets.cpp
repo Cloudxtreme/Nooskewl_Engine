@@ -464,7 +464,9 @@ Widget_List::Widget_List(float w, int h) :
 
 void Widget_List::handle_event(TGUI_Event *event)
 {
-	if (event->type == TGUI_FOCUS) {
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed && event->type == TGUI_FOCUS) {
 		if (event->focus.type == TGUI_FOCUS_UP) {
 			up();
 		}
@@ -472,13 +474,13 @@ void Widget_List::handle_event(TGUI_Event *event)
 			down();
 		}
 	}
-	else if (event->type == TGUI_KEY_DOWN) {
+	else if (focussed && event->type == TGUI_KEY_DOWN) {
 		if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
 			pressed_item = selected;
 			noo.button_mml->play(false);
 		}
 	}
-	else if (event->type == TGUI_JOY_DOWN) {
+	else if (focussed && event->type == TGUI_JOY_DOWN) {
 		if (event->joystick.button == noo.joy_b1) {
 			pressed_item = selected;
 			noo.button_mml->play(false);
