@@ -4,7 +4,7 @@
 # following path... Windows has a built-in find.exe that doesn't work with
 # this script.
 
-FILES=`/c/mingw/msys/1.0/bin/find * -type f | grep -v README.txt | sort`
+FILES=`/c/mingw/msys/1.0/bin/find * -type f | grep -v README.txt | grep -v "^flp" | sort`
 
 echo "Writing header..."
 # the big space is a tab

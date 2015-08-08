@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FILES=`find * -type f | grep -v README.txt | sort`
+FILES=`find * -type f | grep -v README.txt | grep -v "^flp" | sort`
 
 echo "Writing header..."
 # the big space is a tab
