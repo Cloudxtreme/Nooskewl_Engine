@@ -99,6 +99,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 	// Optionally draw a shadow
 	if (shadow_type != NO_SHADOW) {
 		noo.enable_depth_buffer(true);
+		noo.clear_depth_buffer(1.0f);
 
 		while ((ch = utf8_char_next(text, offset)) != 0) {
 			Image *g = glyphs[ch];
