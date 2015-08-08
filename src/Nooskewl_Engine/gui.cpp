@@ -405,7 +405,7 @@ Pause_GUI::Pause_GUI()
 	strength = new Widget_Label("", -1);
 	strength->set_parent(column2);
 
-	karma_label = new Widget_Label(TRANSLATE("KRM: ")END, -1);
+	karma_label = new Widget_Label(TRANSLATE("KAR: ")END, -1);
 	karma_label->set_break_line(true);
 	karma_label->set_parent(column2);
 
