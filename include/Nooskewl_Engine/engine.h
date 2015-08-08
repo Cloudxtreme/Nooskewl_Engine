@@ -60,6 +60,7 @@ public:
 #endif
 	// Input
 	int joy_b1;
+	int joy_b2;
 	int key_b1;
 	// Other
 	std::string language;

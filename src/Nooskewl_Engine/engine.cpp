@@ -75,6 +75,7 @@ Engine::Engine() :
 	music(0),
 	window_title("Nooskewl Engine"),
 	joy_b1(10),
+	joy_b2(11),
 	key_b1(TGUIK_SPACE),
 	map(0),
 	last_map_name(""),
@@ -603,14 +604,14 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
-		if (noo_gui->gui) {
-			noo_gui->gui->handle_event(&event);
-		}
+		noo_gui->handle_event(&event);
 	}
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
 
-		if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) {
+		if (
+			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) ||
+			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2)) {
 				Pause_GUI *pause_gui = new Pause_GUI();
 				pause_gui->start();
 				guis.push_back(pause_gui);
