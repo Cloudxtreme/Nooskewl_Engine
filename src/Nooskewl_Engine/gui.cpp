@@ -412,7 +412,7 @@ Pause_GUI::Pause_GUI()
 	karma = new Widget_Label("", -1);
 	karma->set_parent(column2);
 
-	hunger_label = new Widget_Label(TRANSLATE("HNG: ")END, -1);
+	hunger_label = new Widget_Label(TRANSLATE("HGR: ")END, -1);
 	hunger_label->set_break_line(true);
 	hunger_label->set_parent(column2);
 
@@ -426,7 +426,7 @@ Pause_GUI::Pause_GUI()
 	thirst = new Widget_Label("", -1);
 	thirst->set_parent(column2);
 
-	rest_label = new Widget_Label(TRANSLATE("RST: ")END, -1);
+	rest_label = new Widget_Label(TRANSLATE("RES: ")END, -1);
 	rest_label->set_break_line(true);
 	rest_label->set_parent(column2);
 
