@@ -117,6 +117,34 @@ private:
 	bool destroy;
 };
 
+class NOOSKEWL_ENGINE_EXPORT Widget_List : public Widget
+{
+public:
+	Widget_List(int w, int h);
+	Widget_List(float w, float h);
+	Widget_List(int w, float h);
+	Widget_List(float w, int h);
+
+	void handle_event(TGUI_Event *event);
+	void draw();
+
+	std::vector<std::string> &get_items();
+	int pressed();
+
+private:
+	void init();
+	void up();
+	void down();
+
+	std::vector<std::string> items;
+	int top;
+	int selected;
+	int row_h;
+	SDL_Colour hilight_colour;
+
+	int pressed_item;
+};
+
 } // End namespace Nooskewl_Engine
 
 #endif // WIDGETS_H

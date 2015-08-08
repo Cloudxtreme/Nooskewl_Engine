@@ -425,3 +425,120 @@ void Widget_Image::draw()
 {
 	image->draw_single(Point<int>(calculated_x, calculated_y));
 }
+
+//--
+
+Widget_List::Widget_List(int w, int h) :
+	Widget(w, h)
+{
+	init();
+}
+
+Widget_List::Widget_List(float w, float h) :
+	Widget(w, h)
+{
+	init();
+}
+
+Widget_List::Widget_List(int w, float h) :
+	Widget(w, h)
+{
+	init();
+}
+
+Widget_List::Widget_List(float w, int h) :
+	Widget(w, h)
+{
+	init();
+}
+
+void Widget_List::handle_event(TGUI_Event *event)
+{
+	if (event->type == TGUI_FOCUS) {
+		if (event->focus.type == TGUI_FOCUS_UP) {
+			up();
+		}
+		else if (event->focus.type == TGUI_FOCUS_DOWN) {
+			down();
+		}
+	}
+	else if (event->type == TGUI_KEY_DOWN) {
+		if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
+			pressed_item = selected;
+		}
+	}
+	else if (event->type == TGUI_JOY_DOWN) {
+		if (event->joystick.button == noo.joy_b1) {
+			pressed_item = selected;
+		}
+	}
+}
+
+void Widget_List::draw()
+{
+	int visible_rows = calculated_h / row_h;
+	for (int i = top; i < (int)items.size() && i < top+visible_rows; i++) {
+		noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
+		int y = calculated_y + ((i - top) * row_h);
+		if (i == selected) {
+			bool focussed = gui->get_focus() == this;
+			if (focussed) {
+				enable_focus_shader(true);
+			}
+			noo.draw_quad(hilight_colour, Point<int>(calculated_x, y), Size<int>(calculated_w, row_h));
+			if (focussed) {
+				enable_focus_shader(false);
+			}
+		}
+		noo.font->draw(noo.white, items[i], Point<int>(calculated_x+2, y+1));
+		noo.font->disable_shadow();
+	}
+}
+
+std::vector<std::string> &Widget_List::get_items()
+{
+	return items;
+}
+
+int Widget_List::pressed()
+{
+	int ret = pressed_item;
+	pressed_item = -1;
+	return ret;
+}
+
+void Widget_List::init()
+{
+	accepts_focus = true;
+	top = 0;
+	selected = 0;
+	row_h = noo.font->get_height() + 3;
+
+	hilight_colour.r = 62;
+	hilight_colour.g = 140;
+	hilight_colour.b = 189;
+	hilight_colour.a = 255;
+
+	pressed_item = -1;
+}
+
+void Widget_List::up()
+{
+	if (selected > 0) {
+		selected--;
+		if (selected < top) {
+			top--;
+		}
+	}
+}
+
+void Widget_List::down()
+{
+	if (selected < (int)items.size()-1) {
+		selected++;
+		int visible_rows = calculated_h / row_h;
+		if (top + visible_rows <= selected) {
+			top++;
+		}
+	}
+}
