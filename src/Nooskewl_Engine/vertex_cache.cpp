@@ -117,6 +117,40 @@ void Vertex_Cache::disable_perspective_drawing()
 	perspective_drawing = false;
 }
 
+void Vertex_Cache::cache(SDL_Colour vertex_colours[3], Point<float> da, Point<float> db, Point<float> dc)
+{
+	maybe_resize_cache(256);
+
+	// Set vertex x, y
+	vertices[9*(count+0)+0] = (float)da.x * noo.scale;
+	vertices[9*(count+0)+1] = (float)da.y * noo.scale;
+	vertices[9*(count+1)+0] = (float)db.x * noo.scale;
+	vertices[9*(count+1)+1] = (float)db.y * noo.scale;
+	vertices[9*(count+2)+0] = (float)dc.x * noo.scale;
+	vertices[9*(count+2)+1] = (float)dc.y * noo.scale;
+
+	for (int i = 0; i < 3; i++) {
+		vertices[9*(count+i)+2] = 0.0f; // set vertex z
+	}
+
+	vertices[9*(count+0)+5+0] = (float)vertex_colours[0].r / 255.0f;
+	vertices[9*(count+0)+5+1] = (float)vertex_colours[0].g / 255.0f;
+	vertices[9*(count+0)+5+2] = (float)vertex_colours[0].b / 255.0f;
+	vertices[9*(count+0)+5+3] = (float)vertex_colours[0].a / 255.0f;
+
+	vertices[9*(count+1)+5+0] = (float)vertex_colours[1].r / 255.0f;
+	vertices[9*(count+1)+5+1] = (float)vertex_colours[1].g / 255.0f;
+	vertices[9*(count+1)+5+2] = (float)vertex_colours[1].b / 255.0f;
+	vertices[9*(count+1)+5+3] = (float)vertex_colours[1].a / 255.0f;
+
+	vertices[9*(count+2)+5+0] = (float)vertex_colours[2].r / 255.0f;
+	vertices[9*(count+2)+5+1] = (float)vertex_colours[2].g / 255.0f;
+	vertices[9*(count+2)+5+2] = (float)vertex_colours[2].b / 255.0f;
+	vertices[9*(count+2)+5+3] = (float)vertex_colours[2].a / 255.0f;
+
+	count += 3;
+}
+
 void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_position, Size<float> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, int flags)
 {
 	maybe_resize_cache(256);
