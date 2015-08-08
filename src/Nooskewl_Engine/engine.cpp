@@ -1088,6 +1088,30 @@ void Engine::draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> siz
 	draw_line(colour, Point<float>(fpos.x+size.w-half_thickness, fpos.y+thickness), Point<float>(fpos.x+size.w-half_thickness, fpos.y+fsize.h-thickness), thickness); // right
 }
 
+void Engine::draw_triangle(SDL_Colour vertex_colours[3], Point<float> a, Point<float> b, Point<float> c)
+{
+	if (opengl) {
+		glDisable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
+	m.vertex_cache->start();
+	m.vertex_cache->cache(vertex_colours, a, b, c);
+	m.vertex_cache->end();
+	if (opengl) {
+		glEnable(GL_TEXTURE_2D);
+		printGLerror("glBindTexture");
+	}
+}
+
+void Engine::draw_triangle(SDL_Colour colour, Point<float> a, Point<float> b, Point<float> c)
+{
+	static SDL_Colour vertex_colours[3];
+	for (int i = 0; i < 3; i++) {
+		vertex_colours[i] = colour;
+	}
+	draw_triangle(vertex_colours, a, b, c);
+}
+
 void Engine::draw_quad(SDL_Colour vertex_colours[4], Point<float> dest_position, Size<float> dest_size)
 {
 	if (opengl) {

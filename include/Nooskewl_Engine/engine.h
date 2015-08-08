@@ -104,6 +104,8 @@ public:
 
 	void draw_line(SDL_Colour colour, Point<float> a, Point<float> b, float thickness = 1.0f);
 	void draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> size, float thickness = 1.0f);
+	void draw_triangle(SDL_Colour vertex_colours[3], Point<float> a, Point<float> b, Point<float> c);
+	void draw_triangle(SDL_Colour colour, Point<float> a, Point<float> b, Point<float> c);
 	void draw_quad(SDL_Colour vertex_colours[4], Point<float> dest_position, Size<float> dest_size);
 	void draw_quad(SDL_Colour colour, Point<float> dest_position, Size<float> dest_size);
 	void draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size);
