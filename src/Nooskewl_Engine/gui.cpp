@@ -538,6 +538,10 @@ bool Pause_GUI::update()
 		noo.guis.push_back(new Yes_No_GUI(noo.t->translate(9), callback));
 	}
 
+	if (items_button->pressed()) {
+		noo.guis.push_back(new Items_GUI());
+	}
+
 	return true;
 }
 
@@ -616,6 +620,76 @@ void Pause_GUI::set_labels()
 	thirst->set_text(string_printf("%d%%", int((((float)stats->thirst / 0xffff) * 2.0f - 1.0f) * 100)));
 	rest->set_text(string_printf("%d%%", int((((float)stats->rest / 0xffff) * 2.0f - 1.0f) * 100)));
 	sobriety->set_text(string_printf("%d%%", int((((float)stats->sobriety / 0xffff) * 2.0f - 1.0f) * 100)));
+}
+
+//--
+
+Items_GUI::Items_GUI()
+{
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	Widget_Window *window = new Widget_Window(0.95f, 0.95f);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_padding(5);
+	window->set_parent(modal_main_widget);
+
+	TGUI_Widget *pad = new TGUI_Widget(0.95f, 0.95f);
+	pad->set_center_x(true);
+	pad->set_center_y(true);
+	pad->set_parent(window);
+
+	list = new Widget_List(0.4f, 1.0f);
+	std::vector<std::string> &v = list->get_items();
+	v.push_back("A thing");
+	v.push_back("Another thing");
+	v.push_back("Another thing");
+	v.push_back("A thing");
+	v.push_back("Crap");
+	v.push_back("Junk");
+	v.push_back("Hogwash");
+	v.push_back("Boloney");
+	v.push_back("Sandwhich");
+	v.push_back("Turkey");
+	v.push_back("Foo");
+	v.push_back("Bologna");
+	v.push_back("Ham");
+	v.push_back("Crapola");
+	v.push_back("Turks");
+	v.push_back("Big Turks");
+	v.push_back("Small Turks");
+	v.push_back("Big Macs");
+	v.push_back("Small Macs");
+	v.push_back("Crap");
+	v.push_back("More crap");
+	v.push_back("Even more crap");
+	v.push_back("Turk");
+	v.push_back("Hamwhich");
+	v.push_back("Bologna samwhich");
+	v.push_back("Beans");
+	v.push_back("Onion sandwhich");
+	list->set_parent(pad);
+
+	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
+	info->set_parent(pad);
+
+	done_button = new Widget_Text_Button(TRANSLATE("Done")END, -1, -1);
+	done_button->set_parent(pad);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+
+	gui->set_focus(list);
+}
+
+bool Items_GUI::update()
+{
+	if (done_button->pressed()) {
+		return false;
+	}
+
+	return true;
 }
 
 //--

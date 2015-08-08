@@ -12,6 +12,7 @@ class Sprite;
 class Stats;
 class Widget_Image;
 class Widget_Label;
+class Widget_List;
 class Widget_Text_Button;
 
 class NOOSKEWL_ENGINE_EXPORT GUI {
@@ -127,6 +128,17 @@ private:
 	Widget_Text_Button *items_button;
 	Widget_Text_Button *weapons_button;
 	Widget_Text_Button *armour_button;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Items_GUI : public GUI {
+public:
+	Items_GUI();
+
+	bool update();
+
+private:
+	Widget_List *list;
+	Widget_Text_Button *done_button;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
