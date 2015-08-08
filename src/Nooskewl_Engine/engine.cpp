@@ -6,12 +6,17 @@
 #include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/inventory.h"
+#include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/mml.h"
+#include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/speech.h"
+#include "Nooskewl_Engine/sprite.h"
+#include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/vertex_cache.h"
@@ -222,7 +227,9 @@ bool Engine::start(int argc, char **argv)
 	miscellaneous_xml = new XML("miscellaneous.xml");
 
 	TGUI::set_focus_sloppiness(0);
-	guis.push_back(new Title_GUI());
+	Title_GUI *title_gui = new Title_GUI();
+	title_gui->start();
+	guis.push_back(title_gui);
 
 	button_mml = new MML("button.mml");
 	
@@ -464,6 +471,7 @@ void Engine::init_video()
 
 	current_shader = default_shader;
 	current_shader->use();
+	current_shader->set_float("global_alpha", 1.0f);
 
 	set_screen_size(w, h);
 	set_default_projection();
@@ -603,7 +611,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		map->handle_event(&event);
 
 		if (event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) {
-				guis.push_back(new Pause_GUI());
+				Pause_GUI *pause_gui = new Pause_GUI();
+				pause_gui->start();
+				guis.push_back(pause_gui);
 		}
 	}
 
@@ -1434,6 +1444,337 @@ void Engine::clear_buffers()
 {
 	clear(black);
 	clear_depth_buffer(1.0f);
+}
+
+bool Engine::save_game(SDL_RWops *file)
+{
+	SDL_fprintf(file, "version=101\n");
+	if (save_milestones(file) == false) {
+		return false;
+	}
+	return noo.map->save(file);
+}
+
+bool Engine::save_milestones(SDL_RWops *file)
+{
+	int num_milestones = noo.get_num_milestones();
+	SDL_fprintf(file, "num_milestones=%d\n", num_milestones);
+	for (int i = 0; i < num_milestones; i++) {
+		SDL_fprintf(file, "%d=%d\n", i, noo.check_milestone(i) == true ? 1 : 0);
+	}
+	return true;
+}
+
+bool Engine::load_game(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	if (tag != "version") {
+		errormsg("Missing version in save state\n");
+		return false;
+	}
+	std::string version = t.next();
+	int version_i = atoi(version.c_str());
+	// Do something with version
+	if (load_milestones(file) == false) {
+		return false;
+	}
+	bool ret = load_map(file);
+	if (ret == true && version_i < 101) {
+		// Version 101 added stats load/save
+		noo.player->load_stats("player");
+	}
+	return ret;
+}
+
+bool Engine::load_milestones(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	if (tag != "num_milestones") {
+		errormsg("Expected num_milestones in save state\n");
+		return false;
+	}
+
+	int num_milestones = atoi(value.c_str());
+
+	for (int i = 0; i < num_milestones; i++) {
+		SDL_fgets(file, line, 1000);
+		s = line;
+		trim(s);
+		Tokenizer t(s, '=');
+		std::string tag = t.next();
+		std::string value = t.next();
+		if (atoi(tag.c_str()) != i) {
+			errormsg("Expected milestone %d, got '%s'\n", i, tag.c_str());
+			return false;
+		}
+		bool onoff = atoi(value.c_str()) != 0;
+		noo.set_milestone(i, onoff);
+	}
+
+	return true;
+}
+
+bool Engine::load_map(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	trim(value);
+
+	if (tag != "map_name") {
+		errormsg("Expected map_name in save state\n");
+		return false;
+	}
+
+	noo.map = new Map(value);
+
+	SDL_fgets(file, line, 1000);
+	s = line;
+	trim(s);
+	t = Tokenizer(s, '=');
+	tag = t.next();
+	value = t.next();
+
+	if (tag != "num_entities") {
+		errormsg("Expected num_entities in save state\n");
+		return false;
+	}
+	int num_entities = atoi(value.c_str());
+	if (num_entities < 1) {
+		errormsg("Expected at least 1 entity in save state\n");
+		return false;
+	}
+
+	noo.player = load_entity(file);
+	if (noo.player == 0) {
+		return false;
+	}
+	else if (noo.player->get_name() != "player") {
+		errormsg("Expected player first in save state\n");
+		return false;
+	}
+
+	noo.map->add_entity(noo.player);
+
+	for (int i = 1; i < num_entities; i++) {
+		Map_Entity *entity = load_entity(file);
+		if (entity == 0) {
+			return false;
+		}
+		noo.map->add_entity(entity);
+	}
+
+	return true;
+}
+
+Map_Entity *Engine::load_entity(SDL_RWops *file)
+{
+	Brain *brain = load_brain(file);
+
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string name = t.next();
+	std::string options = s.substr(name.length()+1);
+
+	t = Tokenizer(options, ',');
+	std::string option;
+
+	Map_Entity *entity = new Map_Entity(name);
+	bool has_stats = false;
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, '=');
+		std::string key = t2.next();
+		std::string value = t2.next();
+		if (key == "position") {
+			Tokenizer t3(value, ':');
+			std::string x_s = t3.next();
+			std::string y_s = t3.next();
+			entity->set_position(Point<int>(atoi(x_s.c_str()), atoi(y_s.c_str())));
+		}
+		else if (key == "direction") {
+			entity->set_direction((Direction)atoi(value.c_str()));
+		}
+		else if (key == "sitting") {
+			entity->set_sitting(atoi(value.c_str()) != 0);
+		}
+		else if (key == "sprite") {
+			Tokenizer t3(value, ':');
+			std::string xml_filename = t3.next();
+			std::string image_directory = t3.next();
+			std::string animation = t3.next();
+			bool started = atoi(t3.next().c_str()) != 0;
+			Sprite *sprite = new Sprite(xml_filename, image_directory, true);
+			sprite->set_animation(animation);
+			if (started) {
+				sprite->start();
+			}
+			else {
+				sprite->stop();
+			}
+			entity->set_sprite(sprite);
+		}
+		else if (key == "z_add") {
+			entity->set_z_add(atoi(value.c_str()));
+		}
+		else if (key == "shadow_type") {
+			entity->set_shadow_type((Map_Entity::Shadow_Type)atoi(value.c_str()));
+		}
+		else if (key == "solid") {
+			entity->set_solid(atoi(value.c_str()) != 0);
+		}
+		else if (key == "stats") {
+			has_stats = true;
+		}
+		else {
+			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
+		}
+	}
+
+	if (has_stats) {
+		Stats *stats = load_stats(file);
+		if (stats == 0) {
+			delete entity;
+			return 0;
+		}
+		entity->set_stats(stats);
+	}
+
+	// Brain has to be set after everything else because it could need sprite, etc
+	entity->set_brain(brain);
+
+	return entity;
+}
+
+Brain *Engine::load_brain(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string tag = t.next();
+	std::string value = t.next();
+	if (tag != "brain") {
+		errormsg("Expected brain in save state\n");
+		return 0;
+	}
+
+	t = Tokenizer(value, ',');
+
+	std::string type = t.next();
+
+	Brain *brain;
+
+	if (type == "0") {
+		return 0;
+	}
+	else if (type == "player_brain") {
+		brain = new Player_Brain();
+	}
+	else {
+		return m.dll_get_brain(value);
+	}
+
+	return brain;
+}
+
+Stats *Engine::load_stats(SDL_RWops *file)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string name = t.next();
+	std::string options = s.substr(name.length()+1);
+
+	if (name != "stats") {
+		return 0;
+	}
+
+	Stats *stats = new Stats();
+
+	t = Tokenizer(options, ',');
+	std::string option;
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, '=');
+		std::string key = t2.next();
+		std::string value = t2.next();
+
+		if (key == "name") {
+			stats->name = value;
+		}
+		else if (key == "profile_pic") {
+			stats->profile_pic = new Image(value, true);
+		}
+		else {
+			int v = atoi(value.c_str());
+			if (key == "alignment") {
+				stats->alignment = (Stats::Alignment)v;
+			}
+			else if (key == "sex") {
+				stats->sex = (Stats::Sex)v;
+			}
+			else if (key == "hp") {
+				stats->hp = v;
+			}
+			else if (key == "max_hp") {
+				stats->max_hp = v;
+			}
+			else if (key == "mp") {
+				stats->mp = v;
+			}
+			else if (key == "max_mp") {
+				stats->max_mp = v;
+			}
+			else if (key == "attack") {
+				stats->attack = v;
+			}
+			else if (key == "defense") {
+				stats->defense = v;
+			}
+			else if (key == "agility") {
+				stats->agility = v;
+			}
+			else if (key == "karma") {
+				stats->karma = v;
+			}
+			else if (key == "luck") {
+				stats->luck = v;
+			}
+			else if (key == "speed") {
+				stats->speed = v;
+			}
+			else if (key == "strength") {
+				stats->strength = v;
+			}
+			else if (key == "experience") {
+				stats->experience = v;
+			}
+		}
+	}
+
+	return stats;
 }
 
 } // End namespace Nooskewl_Engine

@@ -15,6 +15,7 @@ class Map;
 class Map_Entity;
 class MML;
 class Shader;
+class Stats;
 class Translation;
 class XML;
 
@@ -114,6 +115,9 @@ public:
 	std::string load_text(std::string filename);
 	void play_music(std::string name);
 
+	bool save_game(SDL_RWops *file);
+	bool load_game(SDL_RWops *file);
+
 private:
 	void init_video();
 	void shutdown_video();
@@ -127,6 +131,13 @@ private:
 	void load_milestones();
 	void load_translation();
 	void clear_buffers();
+
+	bool save_milestones(SDL_RWops *file);
+	bool load_milestones(SDL_RWops *file);
+	bool load_map(SDL_RWops *file);
+	Map_Entity *load_entity(SDL_RWops *file);
+	Brain *load_brain(SDL_RWops *file);
+	Stats *load_stats(SDL_RWops *file);
 
 	SDL_Window *window;
 	bool vsync;
