@@ -329,9 +329,22 @@ bool Title_GUI::fade_done(bool fade_in)
 			noo.reset_fancy_draw();
 		}
 		else {
-			SDL_RWops *file;
+			std::string filename;
+#ifdef __APPLE__
+			filename = SDL_GetBasePath();
+			const char *p = filename.c_str();
+			const char *p2 = strstr(p, ".app");
+			if (p2) {
+				filename = filename.substr(0, p2-p + 4) + "/../test.save";
+			}
+			else {
+				filename = ""; // error
+			}
+#else
+			filename = "test.save";
+#endif
 
-			file = SDL_RWFromFile("test.save", "r");
+			SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "r");
 
 			std::string caption = "";
 
@@ -940,7 +953,22 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	std::string caption;
 
 	if (saving) {
-		SDL_RWops *file = SDL_RWFromFile("test.save", "w");
+		std::string filename;
+#ifdef __APPLE__
+		filename = SDL_GetBasePath();
+		const char *p = filename.c_str();
+		const char *p2 = strstr(p, ".app");
+		if (p2) {
+			filename = filename.substr(0, p2-p + 4) + "/../test.save";
+		}
+		else {
+			filename = ""; // error
+		}
+#else
+		filename = "test.save";
+#endif
+
+		SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "w");
 	
 		if (file == 0 || noo.save_game(file) == false) {
 			if (callback) callback((void *)ERR);
