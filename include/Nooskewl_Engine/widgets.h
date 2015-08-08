@@ -141,6 +141,10 @@ private:
 	void init();
 	void up();
 	void down();
+	int get_click_row(int y);
+	void change_top(int rows);
+	int visible_rows();
+	int used_height();
 
 	std::vector<std::string> items;
 	int top;
@@ -149,6 +153,11 @@ private:
 	SDL_Colour hilight_colour;
 
 	int pressed_item;
+
+	bool mouse_down;
+	bool clicked;
+	Point<int> mouse_down_point;
+	int mouse_down_row;
 };
 
 } // End namespace Nooskewl_Engine

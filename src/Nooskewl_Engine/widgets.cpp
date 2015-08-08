@@ -475,19 +475,74 @@ void Widget_List::handle_event(TGUI_Event *event)
 	else if (event->type == TGUI_KEY_DOWN) {
 		if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
 			pressed_item = selected;
+			noo.button_mml->play(false);
 		}
 	}
 	else if (event->type == TGUI_JOY_DOWN) {
 		if (event->joystick.button == noo.joy_b1) {
 			pressed_item = selected;
+			noo.button_mml->play(false);
+		}
+	}
+	else if (event->type == TGUI_MOUSE_DOWN) {
+		int mx = (int)event->mouse.x;
+		int my = (int)event->mouse.y;
+		// Check for clicks on arrows  first
+		bool top_arrow = top > 0;
+		bool bottom_arrow;
+		int vr = visible_rows();
+		if ((int)items.size() <= vr || top < (int)items.size() - vr) {
+			bottom_arrow = true;
+		}
+		else {
+			bottom_arrow = false;
+		}
+		int height = used_height();
+		if (top_arrow && mx >= calculated_x+calculated_w-8 && mx <= calculated_x+calculated_w && my >= calculated_y && my <= calculated_y+8) {
+			change_top(-1);
+		}
+		else if (bottom_arrow && mx >= calculated_x+calculated_w-8 && mx <= calculated_x+calculated_w && my >= calculated_y+height-8 && my <= calculated_y+height) {
+			change_top(1);
+		}
+		else if (mx >= calculated_x && mx < calculated_x+calculated_w-8 && my >= calculated_y && my < calculated_y+calculated_h) {
+			selected = get_click_row((int)my);
+			mouse_down = true;
+			clicked = true;
+			mouse_down_point = Point<int>((int)mx, (int)my);
+			mouse_down_row = selected;
+		}
+	}
+	else if (event->type == TGUI_MOUSE_UP) {
+		if (mouse_down && clicked && event->mouse.x >= calculated_x && event->mouse.x < calculated_x+calculated_w && event->mouse.y >= calculated_y && event->mouse.y < calculated_y+calculated_h) {
+			int row = get_click_row((int)event->mouse.y);
+			if (row == mouse_down_row) {
+				pressed_item = selected;
+				noo.button_mml->play(false);
+			}
+		}
+		mouse_down = false;
+	}
+	else if (event->type == TGUI_MOUSE_AXIS) {
+		if (mouse_down) {
+			Point<int> p((int)event->mouse.x, (int)event->mouse.y);
+			Point<int> d = p - mouse_down_point;
+			if (abs(d.y) >= row_h) {
+				clicked = false;
+			}
+			if (clicked == false) {
+				int rows = -d.y / row_h;
+				if (rows != 0) {
+					change_top(rows);
+					mouse_down_point.y -= rows * row_h;
+				}
+			}
 		}
 	}
 }
 
 void Widget_List::draw()
 {
-	int visible_rows = calculated_h / row_h;
-	for (int i = top; i < (int)items.size() && i < top+visible_rows; i++) {
+	for (int i = top; i < (int)items.size() && i < top+visible_rows(); i++) {
 		noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 		int y = calculated_y + ((i - top) * row_h);
 		if (i == selected) {
@@ -495,13 +550,22 @@ void Widget_List::draw()
 			if (focussed) {
 				enable_focus_shader(true);
 			}
-			noo.draw_quad(hilight_colour, Point<int>(calculated_x, y), Size<int>(calculated_w, row_h));
+			noo.draw_quad(hilight_colour, Point<int>(calculated_x, y), Size<int>(calculated_w-8, row_h));
 			if (focussed) {
 				enable_focus_shader(false);
 			}
 		}
 		noo.font->draw(noo.white, items[i], Point<int>(calculated_x+2, y+1));
 		noo.font->disable_shadow();
+	}
+
+	if  (top != 0) {
+		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+8.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+8.0f));
+	}
+	int vr = visible_rows();
+	if ((int)items.size() <= vr || top < (int)items.size() - vr) {
+		int height = used_height();
+		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, calculated_y+height-1.0f), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-8.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-8.0f));
 	}
 }
 
@@ -530,6 +594,8 @@ void Widget_List::init()
 	hilight_colour.a = 255;
 
 	pressed_item = -1;
+
+	mouse_down = false;
 }
 
 void Widget_List::up()
@@ -546,9 +612,51 @@ void Widget_List::down()
 {
 	if (selected < (int)items.size()-1) {
 		selected++;
-		int visible_rows = calculated_h / row_h;
-		if (top + visible_rows <= selected) {
+		if (top + visible_rows() <= selected) {
 			top++;
 		}
 	}
+}
+
+int Widget_List::get_click_row(int y)
+{
+	int row = (y - calculated_y) / row_h + top;
+	if (row < 0) {
+		row = 0;
+	}
+	else if (row >= (int)items.size()) {
+		row = items.size()-1;
+	}
+	return row;
+}
+
+void Widget_List::change_top(int rows)
+{
+	int vr = visible_rows();
+	top += rows;
+	if (top < 0) {
+		top = 0;
+	}
+	else if ((int)items.size() <= vr) {
+		top = 0;
+	}
+	else if (top > (int)items.size() - vr) {
+		top = items.size() - vr;
+	}
+	if (selected < top) {
+		selected = top;
+	}
+	else if (selected >= top + vr) {
+		selected = MIN((int)items.size()-1, top + vr - 1);
+	}
+}
+
+int Widget_List::visible_rows()
+{
+	return calculated_h / row_h;
+}
+
+int Widget_List::used_height()
+{
+	return visible_rows() * row_h;
 }
