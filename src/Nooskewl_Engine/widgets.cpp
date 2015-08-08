@@ -1,5 +1,6 @@
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/shader.h"
@@ -38,6 +39,9 @@ void Widget::enable_focus_shader(bool enable)
 		noo.current_shader->set_float("add_r", add);
 		noo.current_shader->set_float("add_g", add);
 		noo.current_shader->set_float("add_b", add);
+		if (noo_gui) {
+			noo.current_shader->set_float("global_alpha", noo_gui->global_alpha);
+		}
 	}
 	else {
 		noo.current_shader = bak;
@@ -48,25 +52,25 @@ void Widget::enable_focus_shader(bool enable)
 Widget::Widget(int w, int h) :
 	TGUI_Widget(w, h)
 {
-	background_colour.a = 0;
+	init();
 }
 
 Widget::Widget(float percent_w, float percent_h) :
 	TGUI_Widget(percent_w, percent_h)
 {
-	background_colour.a = 0;
+	init();
 }
 
 Widget::Widget(int w, float percent_h) :
 	TGUI_Widget(w, percent_h)
 {
-	background_colour.a = 0;
+	init();
 }
 
 Widget::Widget(float percent_w, int h) :
 	TGUI_Widget(percent_w, h)
 {
-	background_colour.a = 0;
+	init();
 }
 
 Widget::~Widget()
@@ -83,6 +87,12 @@ void Widget::draw()
 void Widget::set_background_colour(SDL_Colour background_colour)
 {
 	this->background_colour = background_colour;
+}
+
+void Widget::init()
+{
+	noo_gui = 0;
+	background_colour.a = 0;
 }
 
 // --

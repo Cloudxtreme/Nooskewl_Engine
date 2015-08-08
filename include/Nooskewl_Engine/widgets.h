@@ -5,13 +5,17 @@
 
 namespace Nooskewl_Engine {
 
+class GUI;
 class Image;
 
 class NOOSKEWL_ENGINE_EXPORT Widget : public TGUI_Widget {
 public:
+	GUI *noo_gui;
+
 	static void static_start();
 	static void static_end();
-	static void enable_focus_shader(bool enable);
+
+	void enable_focus_shader(bool enable);
 
 	Widget(int w, int h);
 	Widget(float percent_w, float percent_h);
@@ -26,6 +30,8 @@ public:
 protected:
 	static Image *button_image;
 	static Image *button_image_pressed;
+
+	void init();
 
 	SDL_Colour background_colour;
 };
