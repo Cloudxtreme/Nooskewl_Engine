@@ -44,6 +44,12 @@ void GUI::start()
 	}
 }
 
+void GUI::handle_event(TGUI_Event *event) {
+	if (gui) {
+		gui->handle_event(event);
+	}
+}
+
 bool GUI::update()
 {
 	return true;
@@ -394,7 +400,8 @@ void Pause_GUI::callback(void *data)
 	}
 }
 
-Pause_GUI::Pause_GUI()
+Pause_GUI::Pause_GUI() :
+	exit_menu(false)
 {
 	quitting = quit = false;
 
@@ -671,9 +678,25 @@ Pause_GUI::Pause_GUI()
 	gui->set_focus(resume_button);
 }
 
+void Pause_GUI::handle_event(TGUI_Event *event)
+{
+	if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
+		exit_menu = true;
+	}
+	else if (event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) {
+		exit_menu = true;
+	}
+	else {
+		GUI::handle_event(event);
+	}
+}
+
 bool Pause_GUI::update()
 {
-	if (check_quit() == false) {
+	if (exit_menu) {
+		return do_return(false);
+	}
+	else if (check_quit() == false) {
 		return do_return(false);
 	}
 
@@ -790,7 +813,8 @@ bool Pause_GUI::fade_done(bool fading_in) {
 
 //--
 
-Items_GUI::Items_GUI()
+Items_GUI::Items_GUI() :
+	exit_menu(false)
 {
 	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
@@ -849,9 +873,22 @@ Items_GUI::Items_GUI()
 	gui->set_focus(list);
 }
 
+void Items_GUI::handle_event(TGUI_Event *event)
+{
+	if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
+		exit_menu = true;
+	}
+	else if (event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) {
+		exit_menu = true;
+	}
+	else {
+		GUI::handle_event(event);
+	}
+}
+
 bool Items_GUI::update()
 {
-	if (done_button->pressed()) {
+	if (done_button->pressed() || exit_menu) {
 		return do_return(false);
 	}
 

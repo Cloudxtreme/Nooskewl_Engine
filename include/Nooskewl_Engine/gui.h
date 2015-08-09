@@ -23,6 +23,7 @@ public:
 
 	void start(); // call after adding all widgets
 
+	virtual void handle_event(TGUI_Event *event);
 	virtual bool update();
 	virtual bool update_background(); // called when the GUI is not the foremost
 	virtual void draw_back();
@@ -81,6 +82,7 @@ public:
 
 	Pause_GUI();
 
+	void handle_event(TGUI_Event *event);
 	bool update();
 	bool update_background();
 
@@ -146,17 +148,21 @@ private:
 	Widget_Text_Button *items_button;
 	Widget_Text_Button *weapons_button;
 	Widget_Text_Button *armour_button;
+
+	bool exit_menu;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Items_GUI : public GUI {
 public:
 	Items_GUI();
 
+	void handle_event(TGUI_Event *event);
 	bool update();
 
 private:
 	Widget_List *list;
 	Widget_Text_Button *done_button;
+	bool exit_menu;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
