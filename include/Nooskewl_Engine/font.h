@@ -16,15 +16,13 @@ public:
 		FULL_SHADOW
 	};
 
-	Font(std::string filename, int size, int actual_size);
+	Font(std::string filename, int size);
 	~Font();
 
 	void clear_cache();
 
-	int get_text_width(std::string text);
-	int get_height();
-	int get_ascent();
-	int get_descent();
+	float get_text_width(std::string text);
+	float get_height();
 
 	void enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type);
 	void disable_shadow();
@@ -46,8 +44,6 @@ private:
 	Shadow_Type shadow_type;
 
 	int size;
-	int actual_size;
-	int height;
 };
 
 } // End namespace Nooskewl_Engine
