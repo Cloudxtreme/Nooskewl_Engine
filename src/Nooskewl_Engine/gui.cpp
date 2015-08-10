@@ -7,6 +7,7 @@
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
+#include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/sprite.h"
@@ -682,10 +683,10 @@ Pause_GUI::Pause_GUI() :
 
 void Pause_GUI::handle_event(TGUI_Event *event)
 {
-	if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
-		exit_menu = true;
-	}
-	else if (event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) {
+	if (
+		(event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) ||
+		(event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1)) {
+		noo.button_mml->play(false);
 		exit_menu = true;
 	}
 	else {
@@ -877,10 +878,10 @@ Items_GUI::Items_GUI() :
 
 void Items_GUI::handle_event(TGUI_Event *event)
 {
-	if (event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) {
-		exit_menu = true;
-	}
-	else if (event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) {
+	if ((event->type == TGUI_KEY_DOWN && event->keyboard.code == TGUIK_ESCAPE) ||
+		(event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1)) {
+
+		noo.button_mml->play(false);
 		exit_menu = true;
 	}
 	else {
