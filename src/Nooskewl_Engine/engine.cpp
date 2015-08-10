@@ -106,6 +106,7 @@ bool Engine::start(int argc, char **argv)
 #else
 	opengl = true;
 #endif
+	use_lowres_font = check_args(argc, argv, "+lowres-font") > 0;
 
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
 	if (mute == false) {
@@ -1295,10 +1296,10 @@ void Engine::play_music(std::string name)
 
 void Engine::load_fonts()
 {
-	font_scale = 1.0f;
+	font_scale = use_lowres_font ? noo.scale : 1.0f;
 
-	font = new Font("font.ttf", 7);
-	bold_font = new Font("font-bold.ttf", 7);
+	font = new Font("font.ttf", 8);
+	bold_font = new Font("font-bold.ttf", 8);
 }
 
 void Engine::destroy_fonts()
