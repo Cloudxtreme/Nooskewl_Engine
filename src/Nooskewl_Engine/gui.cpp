@@ -598,6 +598,7 @@ Pause_GUI::Pause_GUI() :
 	sobriety_label->set_parent(column2);
 
 	sobriety = new Widget_Label("", -1);
+	sobriety->set_padding_bottom((int)noo.font->get_height()+2);
 	sobriety->set_parent(column2);
 
 	int max_w = MAX(alignment_label->get_width(), sex_label->get_width());
