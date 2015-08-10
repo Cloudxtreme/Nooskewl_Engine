@@ -1,4 +1,5 @@
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
@@ -467,11 +468,11 @@ Pause_GUI::Pause_GUI() :
 
 	alignment_label = new Widget_Label(TRANSLATE("Align: ")END, -1);
 	alignment_label->set_break_line(true);
-	alignment_label->set_padding_top(7);
+	alignment_label->set_padding_top((int)noo.font->get_height()+2);
 	alignment_label->set_parent(column1);
 
 	alignment = new Widget_Label("", -1);
-	alignment->set_padding_top(7);
+	alignment->set_padding_top((int)noo.font->get_height()+2);
 	alignment->set_parent(column1);
 
 	sex_label = new Widget_Label(TRANSLATE("Sex: ")END, -1);
@@ -483,11 +484,11 @@ Pause_GUI::Pause_GUI() :
 
 	hp_label = new Widget_Label(TRANSLATE("HP: ")END, -1);
 	hp_label->set_break_line(true);
-	hp_label->set_padding_top(7);
+	hp_label->set_padding_top((int)noo.font->get_height()+2);
 	hp_label->set_parent(column1);
 
 	hp = new Widget_Label("", -1);
-	hp->set_padding_top(7);
+	hp->set_padding_top((int)noo.font->get_height()+2);
 	hp->set_parent(column1);
 
 	mp_label = new Widget_Label(TRANSLATE("MP: ")END, -1);
@@ -506,11 +507,11 @@ Pause_GUI::Pause_GUI() :
 
 	weapon_label = new Widget_Label(TRANSLATE("Weapon: ")END, -1);
 	weapon_label->set_break_line(true);
-	weapon_label->set_padding_top(7);
+	weapon_label->set_padding_top((int)noo.font->get_height()+2);
 	weapon_label->set_parent(column1);
 
 	weapon = new Widget_Label("", -1);
-	weapon->set_padding_top(7);
+	weapon->set_padding_top((int)noo.font->get_height()+2);
 	weapon->set_parent(column1);
 
 	armour_label = new Widget_Label(TRANSLATE("Armour: ")END, -1);

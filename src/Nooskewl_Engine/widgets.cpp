@@ -309,10 +309,10 @@ void Widget_Text_Button::draw()
 		colour.r = Uint8(colour.r * 0.75f);
 		colour.r = Uint8(colour.g * 0.75f);
 		colour.r = Uint8(colour.b * 0.75f);
-		noo.font->draw(colour, text, Point<int>(int(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x)+1, calculated_y+padding+offset.y-1));
+		noo.font->draw(colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
 	}
 	else {
-		noo.font->draw(text_colour, text, Point<int>(int(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x)+1, calculated_y+padding+offset.y-1));
+		noo.font->draw(text_colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
 	}
 	noo.font->disable_shadow();
 }

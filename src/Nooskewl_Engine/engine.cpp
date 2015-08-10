@@ -1297,8 +1297,8 @@ void Engine::load_fonts()
 {
 	font_scale = 1.0f;
 
-	font = new Font("font.ttf", int((7 * scale) / font_scale));
-	bold_font = new Font("font-bold.ttf", int((7 * scale) / font_scale));
+	font = new Font("font.ttf", 7);
+	bold_font = new Font("font-bold.ttf", 7);
 }
 
 void Engine::destroy_fonts()
