@@ -15,7 +15,8 @@ Vertex_Cache::Vertex_Cache() :
 	count(0),
 	total(0),
 	perspective_drawing(false),
-	repeat(false)
+	repeat(false),
+	font_scaling(false)
 {
 }
 
@@ -117,17 +118,31 @@ void Vertex_Cache::disable_perspective_drawing()
 	perspective_drawing = false;
 }
 
+void Vertex_Cache::enable_font_scaling(bool enable)
+{
+	font_scaling = enable;
+}
+
 void Vertex_Cache::cache(SDL_Colour vertex_colours[3], Point<float> da, Point<float> db, Point<float> dc)
 {
 	maybe_resize_cache(256);
 
+	float scale;
+
+	if (font_scaling) {
+		scale = noo.font_scale;
+	}
+	else {
+		scale = noo.scale;
+	}
+
 	// Set vertex x, y
-	vertices[9*(count+0)+0] = (float)da.x * noo.scale;
-	vertices[9*(count+0)+1] = (float)da.y * noo.scale;
-	vertices[9*(count+1)+0] = (float)db.x * noo.scale;
-	vertices[9*(count+1)+1] = (float)db.y * noo.scale;
-	vertices[9*(count+2)+0] = (float)dc.x * noo.scale;
-	vertices[9*(count+2)+1] = (float)dc.y * noo.scale;
+	vertices[9*(count+0)+0] = (float)da.x * scale;
+	vertices[9*(count+0)+1] = (float)da.y * scale;
+	vertices[9*(count+1)+0] = (float)db.x * scale;
+	vertices[9*(count+1)+1] = (float)db.y * scale;
+	vertices[9*(count+2)+0] = (float)dc.x * scale;
+	vertices[9*(count+2)+1] = (float)dc.y * scale;
 
 	for (int i = 0; i < 3; i++) {
 		vertices[9*(count+i)+2] = 0.0f; // set vertex z
@@ -155,19 +170,28 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 {
 	maybe_resize_cache(256);
 
+	float scale;
+
+	if (font_scaling) {
+		scale = noo.font_scale;
+	}
+	else {
+		scale = noo.scale;
+	}
+
 	// Set vertex x, y
-	vertices[9*(count+0)+0] = (float)da.x * noo.scale;
-	vertices[9*(count+0)+1] = (float)da.y * noo.scale;
-	vertices[9*(count+1)+0] = (float)db.x * noo.scale;
-	vertices[9*(count+1)+1] = (float)db.y * noo.scale;
-	vertices[9*(count+2)+0] = (float)dc.x * noo.scale;
-	vertices[9*(count+2)+1] = (float)dc.y * noo.scale;
-	vertices[9*(count+3)+0] = (float)da.x * noo.scale;
-	vertices[9*(count+3)+1] = (float)da.y * noo.scale;
-	vertices[9*(count+4)+0] = (float)dc.x * noo.scale;
-	vertices[9*(count+4)+1] = (float)dc.y * noo.scale;
-	vertices[9*(count+5)+0] = (float)dd.x * noo.scale;
-	vertices[9*(count+5)+1] = (float)dd.y * noo.scale;
+	vertices[9*(count+0)+0] = (float)da.x * scale;
+	vertices[9*(count+0)+1] = (float)da.y * scale;
+	vertices[9*(count+1)+0] = (float)db.x * scale;
+	vertices[9*(count+1)+1] = (float)db.y * scale;
+	vertices[9*(count+2)+0] = (float)dc.x * scale;
+	vertices[9*(count+2)+1] = (float)dc.y * scale;
+	vertices[9*(count+3)+0] = (float)da.x * scale;
+	vertices[9*(count+3)+1] = (float)da.y * scale;
+	vertices[9*(count+4)+0] = (float)dc.x * scale;
+	vertices[9*(count+4)+1] = (float)dc.y * scale;
+	vertices[9*(count+5)+0] = (float)dd.x * scale;
+	vertices[9*(count+5)+1] = (float)dd.y * scale;
 
 	for (int i = 0; i < 6; i++) {
 		vertices[9*(count+i)+2] = 0.0f; // set vertex z
@@ -267,10 +291,19 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 		dy2 *= 6.0f;
 	}
 	else {
-		dx *= noo.scale;
-		dy *= noo.scale;
-		dx2 *= noo.scale;
-		dy2 *= noo.scale;
+		float scale;
+
+		if (font_scaling) {
+			scale = noo.font_scale;
+		}
+		else {
+			scale = noo.scale;
+		}
+
+		dx *= scale;
+		dy *= scale;
+		dx2 *= scale;
+		dy2 *= scale;
 	}
 
 	// Set vertex x, y

@@ -22,6 +22,8 @@ public:
 	void enable_perspective_drawing(Size<int> screen_size);
 	void disable_perspective_drawing();
 
+	void enable_font_scaling(bool enable);
+
 	void cache(SDL_Colour vertex_colours[3], Point<float> da, Point<float> db, Point<float> dc);
 	void cache(SDL_Colour vertex_colours[4], Point<float> source_position, Size<float> source_size, Point<float> da, Point<float> db, Point<float> dc, Point<float> dd, int flags);
 	void cache_z(SDL_Colour vertex_colours[4], Point<float> source_position, Size<float> source_size, Point<float> dest_position, float z, Size<float> dest_size, int flags);
@@ -38,6 +40,8 @@ private:
 	bool repeat;
 
 	Size<int> screen_size;
+
+	bool font_scaling;
 };
 
 } // End namespace Nooskewl_Engine
