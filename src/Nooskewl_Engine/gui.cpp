@@ -599,40 +599,38 @@ Pause_GUI::Pause_GUI() :
 	sobriety_label->set_parent(column2);
 
 	sobriety = new Widget_Label("", -1);
-	sobriety->set_padding_bottom((int)noo.font->get_height()+2);
 	sobriety->set_parent(column2);
 
-	int max_w = MAX(alignment_label->get_width(), sex_label->get_width());
-
+	int max_w = 0;
+	
+	max_w = MAX(max_w, alignment_label->get_width());
+	max_w = MAX(max_w, sex_label->get_width());
 	max_w = MAX(max_w, hp_label->get_width());
 	max_w = MAX(max_w, mp_label->get_width());
 	max_w = MAX(max_w, experience_label->get_width());
-
 	max_w = MAX(max_w, weapon_label->get_width());
 	max_w = MAX(max_w, armour_label->get_width());
 
+	alignment_label->set_width(max_w);
+	sex_label->set_width(max_w);
+	hp_label->set_width(max_w);
+	mp_label->set_width(max_w);
+	experience_label->set_width(max_w);
+	weapon_label->set_width(max_w);
+	armour_label->set_width(max_w);
+
+	max_w = 0;
 	max_w = MAX(max_w, attack_label->get_width());
 	max_w = MAX(max_w, defense_label->get_width());
 	max_w = MAX(max_w, agility_label->get_width());
 	max_w = MAX(max_w, luck_label->get_width());
 	max_w = MAX(max_w, speed_label->get_width());
 	max_w = MAX(max_w, strength_label->get_width());
-
 	max_w = MAX(max_w, karma_label->get_width());
 	max_w = MAX(max_w, hunger_label->get_width());
 	max_w = MAX(max_w, thirst_label->get_width());
 	max_w = MAX(max_w, rest_label->get_width());
 	max_w = MAX(max_w, sobriety_label->get_width());
-
-	alignment_label->set_width(max_w);
-	sex_label->set_width(max_w);
-
-	hp_label->set_width(max_w);
-	mp_label->set_width(max_w);
-	experience_label->set_width(max_w);
-
-	weapon_label->set_width(max_w);
-	armour_label->set_width(max_w);
 
 	attack_label->set_width(max_w);
 	defense_label->set_width(max_w);
@@ -640,7 +638,6 @@ Pause_GUI::Pause_GUI() :
 	luck_label->set_width(max_w);
 	speed_label->set_width(max_w);
 	strength_label->set_width(max_w);
-	
 	karma_label->set_width(max_w);
 	hunger_label->set_width(max_w);
 	thirst_label->set_width(max_w);
