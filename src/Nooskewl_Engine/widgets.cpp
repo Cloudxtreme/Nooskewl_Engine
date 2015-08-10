@@ -562,12 +562,12 @@ void Widget_List::draw()
 	}
 
 	if  (top != 0) {
-		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+8.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+8.0f));
+		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+7.0f));
 	}
 	int vr = visible_rows();
 	if ((int)items.size() <= vr || top < (int)items.size() - vr) {
 		int height = used_height();
-		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, calculated_y+height-1.0f), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-8.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-8.0f));
+		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y+height), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-7.0f));
 	}
 }
 
