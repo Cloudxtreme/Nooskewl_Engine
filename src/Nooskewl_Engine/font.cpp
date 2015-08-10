@@ -3,13 +3,13 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/utf8.h"
 
 using namespace Nooskewl_Engine;
 
-Font::Font(std::string filename, int size, int actual_size) :
-	size(size),
-	actual_size(actual_size)
+Font::Font(std::string filename, int size) :
+	size(size)
 {
 	filename = "fonts/" + filename;
 
@@ -21,8 +21,6 @@ Font::Font(std::string filename, int size, int actual_size) :
 		SDL_RWclose(file);
 		throw LoadError("TTF_OpenFontRW failed");
 	}
-
-	height = get_ascent();
 }
 
 Font::~Font()
@@ -44,7 +42,7 @@ void Font::clear_cache()
 	glyphs.clear();
 }
 
-int Font::get_text_width(std::string text)
+float Font::get_text_width(std::string text)
 {
 	cache_glyphs(text);
 
@@ -57,22 +55,12 @@ int Font::get_text_width(std::string text)
 		width += g->size.w;
 	}
 
-	return width;
+	return width / noo.scale * noo.font_scale;
 }
 
-int Font::get_height()
+float Font::get_height()
 {
-	return actual_size;
-}
-
-int Font::get_ascent()
-{
-	return TTF_FontAscent(font);
-}
-
-int Font::get_descent()
-{
-	return TTF_FontDescent(font);
+	return size / noo.scale * noo.font_scale;
 }
 
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
@@ -90,11 +78,16 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 {
 	cache_glyphs(text);
 
+	// FIXME: put these fonts adjustments (5.0f) into an xml file in data
+	dest_position.x = int(dest_position.x * noo.scale / noo.font_scale);
+	dest_position.y = int((dest_position.y - 5.0f) * noo.scale / noo.font_scale);
+
 	Point<int> pos = dest_position;
-	pos.y += (actual_size - height);
 
 	int offset = 0;
 	int ch;
+
+	m.vertex_cache->enable_font_scaling(true);
 
 	// Optionally draw a shadow
 	if (shadow_type != NO_SHADOW) {
@@ -107,19 +100,19 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 			g->start();
 
 			if (shadow_type == DROP_SHADOW) {
-				g->draw_tinted(shadow_colour, pos+Point<int>(1, 0), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(0, 1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+1, Image::FLIP_V);
+				g->draw_tinted(shadow_colour, Point<int>(int(pos.x+noo.scale/noo.font_scale)-1, pos.y), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, Point<int>(pos.x, int(pos.y+noo.scale/noo.font_scale)-1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, Point<int>(int(pos.x+noo.scale/noo.font_scale)-1, int(pos.y+noo.scale/noo.font_scale)-1), Image::FLIP_V);
 			}
 			else if (shadow_type == FULL_SHADOW) {
-				g->draw_tinted(shadow_colour, pos+Point<int>(-1, -1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(0, -1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(1, -1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(-1, 0), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(1, 0), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(-1, 1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(0, 1), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, pos+Point<int>(1, 1), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(-2, -2), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(0, -2), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(2, -2), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(-2, 0), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(2, 0), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(-2, 2), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(0, 2), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, pos+Point<int>(2, 2), Image::FLIP_V);
 			}
 			g->end();
 
@@ -143,6 +136,8 @@ void Font::draw(SDL_Colour colour, std::string text, Point<int> dest_position)
 
 		pos.x += g->size.w;
 	}
+
+	m.vertex_cache->enable_font_scaling(false);
 }
 
 int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_position, int w, int line_height, int max_lines, int started_time, int delay, bool dry_run, bool &full, int &num_lines, int &width)
@@ -170,20 +165,20 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		chars_to_draw = elapsed / delay;
 	}
 	int chars_drawn = 0;
-	int max_width = 0;
+	float max_width = 0.0f;
 	std::string p = text;
 	int total_position = 0;
 	while (done == false && lines < max_lines) {
 		int count = 0;
 		int max = 0;
-		int this_w = 0;
+		float this_w = 0.0f;
 		int chars_drawn_this_time = 0;
 		Uint32 ch = utf8_char(p, count);
 		while (ch) {
 			cache_glyph(ch);
 			Image *g = glyphs[ch];
-			this_w += g->size.w;
-			if (this_w >= w) {
+			this_w += g->size.w / noo.scale * noo.font_scale;
+			if (this_w >= (float)w) {
 				if (count == 0) {
 					done = true;
 				}
@@ -210,7 +205,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = utf8_substr(p, 0, max);
-			int line_w = get_text_width(s);
+			float line_w = (float)get_text_width(s);
 			if (line_w > max_width) {
 				max_width = line_w;
 			}
@@ -245,7 +240,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<int> dest_posi
 		}
 	}
 
-	width = max_width;
+	width = (int)max_width;
 	num_lines = lines;
 
 	return chars_drawn;
