@@ -17,7 +17,12 @@ Font::Font(std::string filename, int size) :
 
 	file = open_file(filename);
 
-	font = TTF_OpenFontRW(file, true, int(size * noo.scale / noo.font_scale));
+	if (noo.use_lowres_font) {
+		font = TTF_OpenFontRW(file, true, size);
+	}
+	else {
+		font = TTF_OpenFontRW(file, true, int(size * noo.scale / noo.font_scale));
+	}
 
 	if (font == 0) {
 		SDL_RWclose(file);
@@ -101,9 +106,10 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 			g->start();
 
 			if (shadow_type == DROP_SHADOW) {
-				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/2.0f, pos.y), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, Point<float>(pos.x, pos.y+noo.scale/2.0f), Image::FLIP_V);
-				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/2.0f, pos.y+noo.scale/2.0f), Image::FLIP_V);
+				float sub = noo.use_lowres_font ? 0.0f : 1.0f;
+				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/noo.font_scale-sub, pos.y), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, Point<float>(pos.x, pos.y+noo.scale/noo.font_scale-sub), Image::FLIP_V);
+				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/noo.font_scale-sub, pos.y+noo.scale/noo.font_scale-sub), Image::FLIP_V);
 			}
 			else if (shadow_type == FULL_SHADOW) {
 				g->draw_tinted(shadow_colour, pos+Point<float>(-2.0f, -2.0f), Image::FLIP_V);
@@ -178,13 +184,13 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 		while (ch) {
 			cache_glyph(ch);
 			Image *g = glyphs[ch];
-			this_w += g->size.w / noo.scale * noo.font_scale;
-			if (this_w >= (float)w) {
+			this_w += g->size.w;
+			if (this_w >= (w * noo.scale / noo.font_scale)) {
 				if (count == 0) {
 					done = true;
 				}
 				else {
-					if (this_w > w) {
+					if (this_w > (w * noo.scale / noo.font_scale)) {
 						count--;
 					}
 				}
@@ -206,7 +212,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 		max = MIN(chars_drawn_this_time, max);
 		if (done == false) {
 			std::string s = utf8_substr(p, 0, max);
-			float line_w = (float)get_text_width(s);
+			float line_w = get_text_width(s);
 			if (line_w > max_width) {
 				max_width = line_w;
 			}
