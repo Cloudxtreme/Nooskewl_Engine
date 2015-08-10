@@ -268,8 +268,7 @@ void Engine::end()
 	delete name_box_image_top_right;
 	delete name_box_image_bottom_right;
 
-	delete font;
-	delete bold_font;
+	destroy_fonts();
 	TTF_Quit();
 
 #if defined NOOSKEWL_ENGINE_WINDOWS
@@ -542,10 +541,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	}
 	else if (sdl_event->type == SDL_WINDOWEVENT && sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
+		destroy_fonts();
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 		if (opengl == false) {
-			font->clear_cache();
-			bold_font->clear_cache();
 			Image::release_all();
 			Shader::release_all();
 			d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
@@ -554,15 +552,13 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			d3d_pp.BackBufferCount = 1;
 			d3d_device->Reset(&d3d_pp);
 			set_initial_d3d_state();
-			load_fonts();
 			Image::reload_all();
 			Shader::reload_all();
-			set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
-			set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
 		}
 #endif
-		noo.set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
+		set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
 		set_default_projection();
+		load_fonts();
 		return true;
 	}
 
@@ -734,8 +730,8 @@ void Engine::draw()
 
 			if (check_milestone("Input Help") == false) {
 				std::string text = TRANSLATE("Press SPACE")END;
-				int w = font->get_text_width(text);
-				int h = font->get_height();
+				int w = (int)font->get_text_width(text);
+				int h = (int)font->get_height();
 				int x = screen_size.w / 2 - w / 2;
 				int y = screen_size.h - 10 - h;
 				y += (SDL_GetTicks() / 500) % 2 == 0 ? 0 : 1;
@@ -933,9 +929,7 @@ void Engine::flip()
 					load_fonts();
 					Image::reload_all();
 
-					int w, h;
-					SDL_GetWindowSize(window, &w, &h);
-					set_screen_size(w, h);
+					set_screen_size(real_screen_size.w, real_screen_size.h);
 					set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
 				}
 			}
@@ -956,6 +950,9 @@ void Engine::flip()
 
 void Engine::set_screen_size(int w, int h)
 {
+	real_screen_size.w = w;
+	real_screen_size.h = h;
+
 	float aspect = (float)w / h;
 	float perfect_aspect = (float)perfect_w / perfect_h;
 	if (w*perfect_h >= h*perfect_w) {
@@ -1016,23 +1013,17 @@ void Engine::set_screen_size(int w, int h)
 
 void Engine::set_default_projection()
 {
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-
 	model = glm::mat4();
 	view = glm::translate(glm::mat4(), glm::vec3(screen_offset.x, screen_offset.y, 0));
-	proj = glm::ortho(0.0f, (float)w, (float)h, 0.0f);
+	proj = glm::ortho(0.0f, (float)real_screen_size.w, (float)real_screen_size.h, 0.0f);
 
 	update_projection();
 }
 
 void Engine::set_map_transition_projection(float angle)
 {
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-
 	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/w), 1.0f * ((screen_size.h*scale)/h), (angle >= M_PI/2.0f) ? -1.0f : 1.0f));
+	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/real_screen_size.w), 1.0f * ((screen_size.h*scale)/real_screen_size.h), (angle >= M_PI/2.0f) ? -1.0f : 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 
@@ -1185,7 +1176,7 @@ void Engine::fancy_draw(std::string text, Point<int> position)
 	else {
 		t = t - 1000;
 
-		int x = 0;
+		float x = 0.0f;
 
 		for (size_t i = 0; i < text.length(); i++) {
 			float section = 1000.0f / (count - i + 1);
@@ -1304,15 +1295,16 @@ void Engine::play_music(std::string name)
 
 void Engine::load_fonts()
 {
-	int actual_size;
-	if (language == "English") {
-		actual_size = 5;
-	}
-	else {
-		actual_size = 7;
-	}
-	font = new Font("fff_minute.ttf", 8, actual_size);
-	bold_font = new Font("fff_minute_bold.ttf", 8, actual_size);
+	font_scale = 1.0f;
+
+	font = new Font("font.ttf", int((7 * scale) / font_scale));
+	bold_font = new Font("font-bold.ttf", int((7 * scale) / font_scale));
+}
+
+void Engine::destroy_fonts()
+{
+	delete font;
+	delete bold_font;
 }
 
 void Engine::check_joysticks()
@@ -1393,13 +1385,10 @@ void Engine::set_window_icon()
 
 void Engine::update_projection()
 {
-	int w, h;
-	SDL_GetWindowSize(window, &w, &h);
-
 	current_shader->set_matrix("model", glm::value_ptr(model));
 	current_shader->set_matrix("view", glm::value_ptr(view));
 
-	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)w, 1.0f / (float)h, 0.0f));
+	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)real_screen_size.w, 1.0f / (float)real_screen_size.h, 0.0f));
 	current_shader->set_matrix("proj", glm::value_ptr(opengl ? proj : d3d_fix * proj));
 }
 
