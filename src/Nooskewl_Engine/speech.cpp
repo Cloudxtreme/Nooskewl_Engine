@@ -87,7 +87,7 @@ void Speech::draw()
 	int pad = noo.window_image->size.h / 3;
 	int extra_per_line = 3;
 	int bottom_padding = speech_advance->get_current_image()->size.h - extra_per_line + 1;
-	int line_height = noo.font->get_height() + extra_per_line;
+	int line_height = (int)noo.font->get_height() + extra_per_line;
 	int win_w = noo.screen_size.w - margin * 2;;
 	int win_h = line_height * 3 + pad * 2 + bottom_padding;
 	int win_x = margin;
@@ -111,7 +111,7 @@ void Speech::draw()
 	noo.draw_9patch(noo.window_image, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
 
 	if (name != "") {
-		int name_len = noo.font->get_text_width(name);
+		int name_len = (int)noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2;
 		int name_h = line_height + pad * 2; // cover the top line of the window
 		//int name_x = right ? win_x + win_w - name_w : win_x;
