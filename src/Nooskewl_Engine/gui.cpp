@@ -465,7 +465,7 @@ Pause_GUI::Pause_GUI() :
 	name->set_break_line(true);
 	name->set_parent(column1);
 
-	alignment_label = new Widget_Label(TRANSLATE("ALN: ")END, -1);
+	alignment_label = new Widget_Label(TRANSLATE("Align: ")END, -1);
 	alignment_label->set_break_line(true);
 	alignment_label->set_padding_top(7);
 	alignment_label->set_parent(column1);
@@ -474,7 +474,7 @@ Pause_GUI::Pause_GUI() :
 	alignment->set_padding_top(7);
 	alignment->set_parent(column1);
 
-	sex_label = new Widget_Label(TRANSLATE("SEX: ")END, -1);
+	sex_label = new Widget_Label(TRANSLATE("Sex: ")END, -1);
 	sex_label->set_break_line(true);
 	sex_label->set_parent(column1);
 
@@ -497,14 +497,14 @@ Pause_GUI::Pause_GUI() :
 	mp = new Widget_Label("", -1);
 	mp->set_parent(column1);
 
-	experience_label = new Widget_Label(TRANSLATE("EXP: ")END, -1);
+	experience_label = new Widget_Label(TRANSLATE("Exp: ")END, -1);
 	experience_label->set_break_line(true);
 	experience_label->set_parent(column1);
 
 	experience = new Widget_Label("", -1);
 	experience->set_parent(column1);
 
-	weapon_label = new Widget_Label(TRANSLATE("WPN: ")END, -1);
+	weapon_label = new Widget_Label(TRANSLATE("Weapon: ")END, -1);
 	weapon_label->set_break_line(true);
 	weapon_label->set_padding_top(7);
 	weapon_label->set_parent(column1);
@@ -513,14 +513,14 @@ Pause_GUI::Pause_GUI() :
 	weapon->set_padding_top(7);
 	weapon->set_parent(column1);
 
-	armour_label = new Widget_Label(TRANSLATE("ARM: ")END, -1);
+	armour_label = new Widget_Label(TRANSLATE("Armour: ")END, -1);
 	armour_label->set_break_line(true);
 	armour_label->set_parent(column1);
 
 	armour = new Widget_Label("", -1);
 	armour->set_parent(column1);
 
-	attack_label = new Widget_Label(TRANSLATE("ATK: ")END, -1);
+	attack_label = new Widget_Label(TRANSLATE("Attack: ")END, -1);
 	attack_label->set_break_line(true);
 	attack_label->set_padding_top(18);
 	attack_label->set_parent(column2);
@@ -529,70 +529,70 @@ Pause_GUI::Pause_GUI() :
 	attack->set_padding_top(18);
 	attack->set_parent(column2);
 
-	defense_label = new Widget_Label(TRANSLATE("DEF: ")END, -1);
+	defense_label = new Widget_Label(TRANSLATE("Defense: ")END, -1);
 	defense_label->set_break_line(true);
 	defense_label->set_parent(column2);
 
 	defense = new Widget_Label("", -1);
 	defense->set_parent(column2);
 
-	agility_label = new Widget_Label(TRANSLATE("AGI: ")END, -1);
+	agility_label = new Widget_Label(TRANSLATE("Agility: ")END, -1);
 	agility_label->set_break_line(true);
 	agility_label->set_parent(column2);
 
 	agility = new Widget_Label("", -1);
 	agility->set_parent(column2);
 
-	luck_label = new Widget_Label(TRANSLATE("LCK: ")END, -1);
+	luck_label = new Widget_Label(TRANSLATE("Luck: ")END, -1);
 	luck_label->set_break_line(true);
 	luck_label->set_parent(column2);
 
 	luck = new Widget_Label("", -1);
 	luck->set_parent(column2);
 
-	speed_label = new Widget_Label(TRANSLATE("SPD: ")END, -1);
+	speed_label = new Widget_Label(TRANSLATE("Speed: ")END, -1);
 	speed_label->set_break_line(true);
 	speed_label->set_parent(column2);
 
 	speed = new Widget_Label("", -1);
 	speed->set_parent(column2);
 
-	strength_label = new Widget_Label(TRANSLATE("STR: ")END, -1);
+	strength_label = new Widget_Label(TRANSLATE("Strength: ")END, -1);
 	strength_label->set_break_line(true);
 	strength_label->set_parent(column2);
 
 	strength = new Widget_Label("", -1);
 	strength->set_parent(column2);
 
-	karma_label = new Widget_Label(TRANSLATE("KAR: ")END, -1);
+	karma_label = new Widget_Label(TRANSLATE("Karma: ")END, -1);
 	karma_label->set_break_line(true);
 	karma_label->set_parent(column2);
 
 	karma = new Widget_Label("", -1);
 	karma->set_parent(column2);
 
-	hunger_label = new Widget_Label(TRANSLATE("HNG: ")END, -1);
+	hunger_label = new Widget_Label(TRANSLATE("Hunger: ")END, -1);
 	hunger_label->set_break_line(true);
 	hunger_label->set_parent(column2);
 
 	hunger = new Widget_Label("", -1);
 	hunger->set_parent(column2);
 
-	thirst_label = new Widget_Label(TRANSLATE("THI: ")END, -1);
+	thirst_label = new Widget_Label(TRANSLATE("Thirst: ")END, -1);
 	thirst_label->set_break_line(true);
 	thirst_label->set_parent(column2);
 
 	thirst = new Widget_Label("", -1);
 	thirst->set_parent(column2);
 
-	rest_label = new Widget_Label(TRANSLATE("RES: ")END, -1);
+	rest_label = new Widget_Label(TRANSLATE("Rest: ")END, -1);
 	rest_label->set_break_line(true);
 	rest_label->set_parent(column2);
 
 	rest = new Widget_Label("", -1);
 	rest->set_parent(column2);
 
-	sobriety_label = new Widget_Label(TRANSLATE("SOB: ")END, -1);
+	sobriety_label = new Widget_Label(TRANSLATE("Sobriety: ")END, -1);
 	sobriety_label->set_break_line(true);
 	sobriety_label->set_parent(column2);
 
