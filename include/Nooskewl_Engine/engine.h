@@ -31,6 +31,8 @@ public:
 	// Graphics
 	std::string window_title; // set this first thing to change it
 	float scale;
+	float font_scale;
+	Size<int> real_screen_size;
 	Size<int> screen_size;
 	Point<int> screen_offset;
 	int tile_size;
@@ -127,6 +129,7 @@ private:
 	void init_audio();
 	void shutdown_audio();
 	void load_fonts();
+	void destroy_fonts();
 	void check_joysticks();
 	void set_mouse_cursor();
 	void set_window_icon();
