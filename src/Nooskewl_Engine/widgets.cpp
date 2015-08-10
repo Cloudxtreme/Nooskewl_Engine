@@ -309,10 +309,10 @@ void Widget_Text_Button::draw()
 		colour.r = Uint8(colour.r * 0.75f);
 		colour.r = Uint8(colour.g * 0.75f);
 		colour.r = Uint8(colour.b * 0.75f);
-		noo.font->draw(colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y-1));
+		noo.font->draw(colour, text, Point<int>(int(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x)+1, calculated_y+padding+offset.y-1));
 	}
 	else {
-		noo.font->draw(text_colour, text, Point<int>(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x, calculated_y+padding+offset.y-1));
+		noo.font->draw(text_colour, text, Point<int>(int(calculated_x+calculated_w/2-noo.font->get_text_width(text)/2+offset.x)+1, calculated_y+padding+offset.y-1));
 	}
 	noo.font->disable_shadow();
 }
@@ -326,10 +326,10 @@ void Widget_Text_Button::set_default_colours()
 void Widget_Text_Button::set_size(float width, float height)
 {
 	if (width < 0) {
-		w = noo.font->get_text_width(text) + padding * 2 - 2;
+		w = int(noo.font->get_text_width(text) + padding * 2 - 2);
 	}
 	if (height < 0) {
-		h = noo.font->get_height() + padding * 2 - 1;
+		h = int(noo.font->get_height() + padding * 2 - 1);
 	}
 }
 
@@ -395,7 +395,7 @@ void Widget_Label::draw()
 	bool full;
 	int num_lines, width;
 	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
+	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, (int)noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
 	noo.font->disable_shadow();
 }
 
@@ -404,7 +404,7 @@ void Widget_Label::set_text(std::string text)
 	this->text = text;
 	bool full;
 	int num_lines, width;
-	int line_height = noo.font->get_height() + 2;
+	int line_height = (int)noo.font->get_height() + 2;
 	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, line_height, -1, -1, 0, true, full, num_lines, width);
 	w = width;
 	h = line_height * num_lines;
@@ -588,7 +588,7 @@ void Widget_List::init()
 	accepts_focus = true;
 	top = 0;
 	selected = 0;
-	row_h = noo.font->get_height() + 3;
+	row_h = (int)noo.font->get_height() + 3;
 
 	hilight_colour.r = 62;
 	hilight_colour.g = 140;
