@@ -234,6 +234,7 @@ bool Engine::start(int argc, char **argv)
 	guis.push_back(title_gui);
 
 	button_mml = new MML("button.mml");
+	item_mml = new MML("item.mml");
 	
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
@@ -248,6 +249,7 @@ void Engine::end()
 	SDL_UnlockMutex(m.mixer_mutex);
 
 	delete button_mml;
+	delete item_mml;
 
 	if (map) {
 		map->end();
@@ -1300,7 +1302,7 @@ void Engine::load_fonts()
 	font_scale = use_lowres_font ? noo.scale : 1.0f;
 
 	font = new Font("font.ttf", 8);
-	bold_font = new Font("font-bold.ttf", 8);
+	bold_font = new Font("font_bold.ttf", 8);
 }
 
 void Engine::destroy_fonts()
@@ -1615,6 +1617,7 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 
 	Map_Entity *entity = new Map_Entity(name);
 	bool has_stats = false;
+	bool has_inventory = false;
 
 	while ((option = t.next()) != "") {
 		Tokenizer t2(option, '=');
@@ -1660,6 +1663,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 		else if (key == "stats") {
 			has_stats = true;
 		}
+		else if (key == "inventory") {
+			has_inventory = true;
+		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}
@@ -1672,6 +1678,10 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 			return 0;
 		}
 		entity->set_stats(stats);
+
+		if (has_inventory) {
+			load_inventory(file, stats);
+		}
 	}
 
 	// Brain has to be set after everything else because it could need sprite, etc
@@ -1688,11 +1698,12 @@ Brain *Engine::load_brain(SDL_RWops *file)
 	trim(s);
 	Tokenizer t(s, '=');
 	std::string tag = t.next();
-	std::string value = t.next();
 	if (tag != "brain") {
 		errormsg("Expected brain in save state\n");
 		return 0;
 	}
+
+	std::string value = s.substr(tag.length() + 1);
 
 	t = Tokenizer(value, ',');
 
@@ -1791,6 +1802,36 @@ Stats *Engine::load_stats(SDL_RWops *file)
 	}
 
 	return stats;
+}
+
+bool Engine::load_inventory(SDL_RWops *file, Stats *stats)
+{
+	char line[1000];
+	SDL_fgets(file, line, 1000);
+	std::string s = line;
+	trim(s);
+	Tokenizer t(s, '=');
+	std::string name = t.next();
+	std::string options = s.substr(name.length()+1);
+
+	if (name != "inventory") {
+		return false;
+	}
+
+	t = Tokenizer(options, ',');
+	std::string option;
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, '=');
+		std::string key = t2.next();
+		std::string value = t2.next();
+		int num = atoi(value.c_str());
+		for (int i = 0; i < num; i++) {
+			stats->inventory->add(new Item(key));
+		}
+	}
+
+	return true;
 }
 
 } // End namespace Nooskewl_Engine

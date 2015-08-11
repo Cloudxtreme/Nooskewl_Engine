@@ -28,6 +28,7 @@ public:
 	bool mute;
 	MML *music;
 	MML *button_mml;
+	MML *item_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
 	float scale;
@@ -145,6 +146,7 @@ private:
 	Map_Entity *load_entity(SDL_RWops *file);
 	Brain *load_brain(SDL_RWops *file);
 	Stats *load_stats(SDL_RWops *file);
+	bool load_inventory(SDL_RWops *file, Stats *stats);
 
 	SDL_Window *window;
 	bool vsync;
