@@ -324,7 +324,9 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		e->draw_shadows(e->get_draw_position() + offset);
+		if (!e->is_high()) {
+			e->draw_shadows(e->get_draw_position() + offset);
+		}
 	}
 
 	tilemap->draw_shadows(layer, offset);
@@ -333,7 +335,9 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		e->draw(e->get_draw_position() + offset, use_depth_buffer);
+		if (!e->is_high()) {
+			e->draw(e->get_draw_position() + offset, use_depth_buffer);
+		}
 	}
 
 	tilemap->draw(layer, offset, use_depth_buffer);
@@ -345,6 +349,14 @@ void Map::draw(bool use_depth_buffer)
 	for (; layer < nlayers; layer++) {
 		tilemap->draw_shadows(layer, offset);
 		tilemap->draw(layer, offset);
+	}
+
+	for (size_t i = 0; i < entities.size(); i++) {
+		Map_Entity *e = entities[i];
+		if (e->is_high()) {
+			e->draw_shadows(e->get_draw_position() + offset);
+			e->draw(e->get_draw_position() + offset, use_depth_buffer);
+		}
 	}
 
 	if (speech) {
