@@ -9,7 +9,7 @@ class Item;
 class Image;
 class Inventory;
 
-class Stats {
+class NOOSKEWL_ENGINE_EXPORT Stats {
 public:
 	enum Alignment {
 		GOOD,
