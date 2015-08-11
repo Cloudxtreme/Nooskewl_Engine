@@ -8,8 +8,9 @@ namespace Nooskewl_Engine {
 class Stats;
 class XML;
 
-class Item {
+class NOOSKEWL_ENGINE_EXPORT Item {
 public:
+	std::string id;
 	std::string name;
 	int16_t weight; // last two digits are after the decimal
 	uint16_t condition;

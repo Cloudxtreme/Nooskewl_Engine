@@ -6,7 +6,8 @@
 
 using namespace Nooskewl_Engine;
 
-Item::Item(std::string name)
+Item::Item(std::string name) :
+	id(name)
 {
 	defaults();
 	load(name);
