@@ -361,6 +361,8 @@ bool Title_GUI::fade_done(bool fade_in)
 
 				bool result = noo.load_game(file);
 
+				SDL_RWclose(file);
+
 				if (result == true) {
 					noo.last_map_name = "--LOADED--";
 
@@ -816,6 +818,8 @@ bool Pause_GUI::fade_done(bool fading_in) {
 Items_GUI::Items_GUI() :
 	exit_menu(false)
 {
+	stats = noo.map->get_entity(0)->get_stats();
+
 	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
 	modal_main_widget->set_background_colour(background_colour);
@@ -831,36 +835,28 @@ Items_GUI::Items_GUI() :
 	pad->set_center_y(true);
 	pad->set_parent(window);
 
-	list = new Widget_List(0.4f, 1.0f);
-	std::vector<std::string> &v = list->get_items();
-	v.push_back("A thing");
-	v.push_back("Another thing");
-	v.push_back("Another thing");
-	v.push_back("A thing");
-	v.push_back("Crap");
-	v.push_back("Junk");
-	v.push_back("Hogwash");
-	v.push_back("Boloney");
-	v.push_back("Sandwhich");
-	v.push_back("Turkey");
-	v.push_back("Foo");
-	v.push_back("Bologna");
-	v.push_back("Ham");
-	v.push_back("Crapola");
-	v.push_back("Turks");
-	v.push_back("Big Turks");
-	v.push_back("Small Turks");
-	v.push_back("Big Macs");
-	v.push_back("Small Macs");
-	v.push_back("Crap");
-	v.push_back("More crap");
-	v.push_back("Even more crap");
-	v.push_back("Turk");
-	v.push_back("Hamwhich");
-	v.push_back("Bologna samwhich");
-	v.push_back("Beans");
-	v.push_back("Onion sandwhich");
-	list->set_parent(pad);
+	Inventory *inventory = stats->inventory;
+	std::vector< std::vector<Item *> > &items = inventory->items;
+
+	if (items.size() == 0) {
+		list = 0;
+		TGUI_Widget *parent = new TGUI_Widget(0.4f, 1.0f);
+		parent->set_parent(pad);
+		Widget_Label *label = new Widget_Label("Inventory empty", -1);
+		label->set_parent(parent);
+	}
+	else {
+		list = new Widget_List(0.4f, 1.0f);
+		std::vector<std::string> &v = list->get_items();
+		for (size_t i = 0; i < items.size(); i++) {
+			int count = items[i].size();
+			if (count > 0) {
+				std::string name = items[i][0]->name;
+				v.push_back(itos(count) + " " + name);
+			}
+		}
+		list->set_parent(pad);
+	}
 
 	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
 	info->set_parent(pad);
@@ -870,7 +866,12 @@ Items_GUI::Items_GUI() :
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 
-	gui->set_focus(list);
+	if (list) {
+		gui->set_focus(list);
+	}
+	else {
+		gui->set_focus(done_button);
+	}
 }
 
 void Items_GUI::handle_event(TGUI_Event *event)

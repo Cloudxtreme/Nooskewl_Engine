@@ -163,6 +163,8 @@ private:
 	Widget_List *list;
 	Widget_Text_Button *done_button;
 	bool exit_menu;
+
+	Stats *stats;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
