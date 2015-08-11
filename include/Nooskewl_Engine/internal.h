@@ -72,7 +72,7 @@ int SDL_fputs(const char *string, SDL_RWops *file);
 NOOSKEWL_ENGINE_EXPORT void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
 
 SDL_RWops *open_file(std::string filename);
-std::string itos(int i);
+NOOSKEWL_ENGINE_EXPORT std::string itos(int i);
 int check_args(int argc, char **argv, std::string arg);
 std::string string_printf(const char *fmt, ...);
 
