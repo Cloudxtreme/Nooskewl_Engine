@@ -44,6 +44,7 @@ public:
 	void set_type(Type type);
 	void load_stats(std::string name);
 	void set_stats(Stats *stats);
+	void set_high(bool high);
 
 	int get_id();
 	std::string get_name();
@@ -62,6 +63,7 @@ public:
 	bool is_input_enabled();
 	Type get_type();
 	Stats *get_stats();
+	bool is_high();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -116,6 +118,8 @@ private:
 
 	Type type;
 	Stats *stats;
+
+	bool high;
 };
 
 } // End namespace Nooskewl_Engine
