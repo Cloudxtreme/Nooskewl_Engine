@@ -41,7 +41,8 @@ Map_Entity::Map_Entity(std::string name) :
 	shadow_type(SHADOW_NONE),
 	has_blink(false),
 	type(OTHER),
-	stats(0)
+	stats(0),
+	high(false)
 {
 	id = current_id++;
 
@@ -228,6 +229,11 @@ void Map_Entity::set_stats(Stats *stats)
 	this->stats = stats;
 }
 
+void Map_Entity::set_high(bool high)
+{
+	this->high = high;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -312,6 +318,11 @@ Map_Entity::Type Map_Entity::get_type()
 Stats *Map_Entity::get_stats()
 {
 	return stats;
+}
+
+bool Map_Entity::is_high()
+{
+	return high;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
@@ -673,7 +684,10 @@ bool Map_Entity::save(SDL_RWops *file)
 	}
 
 	if (stats != 0) {
-		SDL_fprintf(file, ",stats=%d", stats != 0 ? 1 : 0);
+		SDL_fprintf(file, ",stats", stats != 0 ? 1 : 0);
+		if (stats->inventory != 0) {
+			SDL_fprintf(file, ",inventory", stats->inventory != 0 ? 1 : 0);
+		}
 	}
 
 	SDL_fprintf(file, "\n");
@@ -699,6 +713,21 @@ bool Map_Entity::save(SDL_RWops *file)
 			stats->strength,
 			stats->experience
 		);
+
+		if (stats->inventory != 0) {
+			SDL_fprintf(file, "inventory=");
+			std::vector< std::vector<Item *> > &v = stats->inventory->items;
+			int count = 0;
+			for (size_t i = 0; i < v.size(); i++) {
+				int num = v[i].size();
+				if (num != 0) {
+					Item *item = v[i][0];
+					SDL_fprintf(file, "%s%s=%d", count == 0 ? "" : ",", item->id.c_str(), num);
+					count++;
+				}
+			}
+			SDL_fprintf(file, "\n");
+		}
 	}
 
 	return true;
