@@ -7,9 +7,10 @@ namespace Nooskewl_Engine {
 
 class Item;
 
-class Inventory {
+class NOOSKEWL_ENGINE_EXPORT Inventory {
 public:
 	Uint32 gold;
+	std::vector< std::vector<Item *> > items;
 
 	Inventory();
 
@@ -20,8 +21,6 @@ public:
 
 private:
 	int find(Item *item);
-
-	std::vector< std::vector<Item *> > items;
 };
 
 } // End namespace Nooskewl_Engine
