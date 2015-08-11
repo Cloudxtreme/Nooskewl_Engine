@@ -424,24 +424,24 @@ Pause_GUI::Pause_GUI() :
 	pad->set_center_y(true);
 	pad->set_parent(window);
 
-	resume_button = new Widget_Text_Button(noo.t->translate(10), 0.3f, -1);
-	resume_button->set_center_x(true);
+	quit_button = new Widget_Text_Button(noo.t->translate(8), 0.3f, -1);
+	quit_button->set_center_x(true);
 
 	save_button = new Widget_Text_Button(noo.t->translate(11), 0.3f, -1);
 	save_button->set_center_x(true);
 	save_button->set_padding_left(5);
 	save_button->set_padding_right(5);
 
-	quit_button = new Widget_Text_Button(noo.t->translate(8), 0.3f, -1);
-	quit_button->set_center_x(true);
+	resume_button = new Widget_Text_Button(noo.t->translate(10), 0.3f, -1);
+	resume_button->set_center_x(true);
 
 	Widget *button_container = new Widget(1.0f, quit_button->get_height());
 	button_container->set_float_bottom(true);
 	button_container->set_parent(pad);
 
-	resume_button->set_parent(button_container);
-	save_button->set_parent(button_container);
 	quit_button->set_parent(button_container);
+	save_button->set_parent(button_container);
+	resume_button->set_parent(button_container);
 
 	TGUI_Widget *column1 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.3f);
 	column1->set_center_x(true);

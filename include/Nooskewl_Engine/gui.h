@@ -95,9 +95,9 @@ private:
 	static bool quitting;
 	static bool quit;
 
-	Widget_Text_Button *resume_button;
-	Widget_Text_Button *save_button;
 	Widget_Text_Button *quit_button;
+	Widget_Text_Button *save_button;
+	Widget_Text_Button *resume_button;
 
 	Stats *stats;
 
