@@ -197,6 +197,11 @@ std::list<A_Star::Node *> Map::find_path(Point<int> start, Point<int> goal)
 	return a_star->find_path(start, goal);
 }
 
+bool Map::is_speech_active()
+{
+	return speech != 0;
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {
