@@ -103,20 +103,33 @@ void Map::set_pan(Point<float> pan)
 	this->pan = pan;
 }
 
+std::vector<Map_Entity *> Map::get_colliding_entities(int layer, Point<int> position, Size<int> size)
+{
+	std::vector<Map_Entity *> result;
+
+	for (size_t i = 0; i < entities.size(); i++) {
+		Map_Entity *e = entities[i];
+		Point<int> p = e->get_position();
+		Size<int> size1(size.w/noo.tile_size, 1); // FIXME: change this if we get 'big' entities
+		if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+			result.push_back(e);
+		}
+	}
+
+	return result;
+}
+
 bool Map::is_solid(int layer, Map_Entity *collide_with, Point<int> position, Size<int> size, bool check_entities, bool check_tiles)
 {
 	if (check_entities) {
-		for (size_t i = 0; i < entities.size(); i++) {
-			Map_Entity *e = entities[i];
-			Point<int> p = e->get_position();
-			Size<int> size1(size.w/noo.tile_size, 1); // FIXME: change this if we get 'big' entities
-			if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
-				if (collide_with) {
-					collisions.push_back(std::pair<Map_Entity *, Map_Entity *>(e, collide_with));
-				}
-				if (e->is_solid()) {
-					return true;
-				}
+		std::vector<Map_Entity *> colliding_entities = get_colliding_entities(layer, position, size);
+		for (size_t i = 0; i < colliding_entities.size(); i++) {
+			Map_Entity *e = colliding_entities[i];
+			if (collide_with) {
+				collisions.push_back(std::pair<Map_Entity *, Map_Entity *>(e, collide_with));
+			}
+			if (e->is_solid()) {
+				return true;
 			}
 		}
 	}
@@ -373,19 +386,17 @@ bool Map::activate(Map_Entity *entity)
 	switch (dir) {
 		case N:
 			pos.y -= noo.tile_size*2;
-			size.h += noo.tile_size;
+			size.h += noo.tile_size * 2;
 			break;
 		case E:
-			pos.x += noo.tile_size;
-			size.w += noo.tile_size;
+			size.w += noo.tile_size * 2;
 			break;
 		case S:
-			pos.y += noo.tile_size;
-			size.h += noo.tile_size;
+			size.h += noo.tile_size * 2;
 			break;
 		case W:
 			pos.x -= noo.tile_size*2;
-			size.w += noo.tile_size;
+			size.w += noo.tile_size * 2;
 			break;
 	}
 	for (size_t j = 0; j < entities.size(); j++) {

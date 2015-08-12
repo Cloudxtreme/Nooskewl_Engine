@@ -39,6 +39,7 @@ public:
 	void set_panning(bool panning);
 	void set_pan(Point<float> pan);
 
+	std::vector<Map_Entity *> get_colliding_entities(int layer, Point<int> position, Size<int> size);
 	bool is_solid(int layer, Map_Entity *collide_with, Point<int> position, Size<int> size, bool check_entities = true, bool check_tiles = true);
 	void check_triggers(Map_Entity *entity);
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
