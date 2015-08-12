@@ -235,6 +235,7 @@ bool Engine::start(int argc, char **argv)
 
 	button_mml = new MML("button.mml");
 	item_mml = new MML("item.mml");
+	widget_mml = new MML("widget.mml");
 	
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
@@ -250,6 +251,7 @@ void Engine::end()
 
 	delete button_mml;
 	delete item_mml;
+	delete widget_mml;
 
 	if (map) {
 		map->end();
@@ -626,6 +628,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
 		noo_gui->handle_event(&event);
+		if (event.type == TGUI_FOCUS) {
+			widget_mml->play(false);
+		}
 	}
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);

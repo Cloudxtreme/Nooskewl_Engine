@@ -204,6 +204,8 @@ private:
 	static const int map_transition_duration = 500;
 
 	Uint32 fancy_draw_start;
+
+	MML *widget_mml;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
