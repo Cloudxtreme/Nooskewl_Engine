@@ -238,7 +238,7 @@ void Title_GUI::draw_back()
 	SDL_Colour tint2 = noo.white;
 	tint2.a = 64;
 	static_logo->stretch_region_tinted_single(tint2, Point<float>(0, 0), static_logo->size, Point<float>((float)x2, y2 + (dy2 - y2) * p2), static_logo->size * scale2);
-	
+
 	GUI::draw_back();
 }
 
@@ -469,7 +469,7 @@ Pause_GUI::Pause_GUI() :
 	name->set_break_line(true);
 	name->set_parent(column1);
 
-	alignment_label = new Widget_Label(TRANSLATE("Align: ")END, -1);
+	alignment_label = new Widget_Label(TRANSLATE("Align")END + ": ", -1);
 	alignment_label->set_break_line(true);
 	alignment_label->set_padding_top((int)noo.font->get_height()+2);
 	alignment_label->set_parent(column1);
@@ -478,14 +478,14 @@ Pause_GUI::Pause_GUI() :
 	alignment->set_padding_top((int)noo.font->get_height()+2);
 	alignment->set_parent(column1);
 
-	sex_label = new Widget_Label(TRANSLATE("Sex: ")END, -1);
+	sex_label = new Widget_Label(TRANSLATE("Sex")END + ": ", -1);
 	sex_label->set_break_line(true);
 	sex_label->set_parent(column1);
 
 	sex = new Widget_Label("", -1);
 	sex->set_parent(column1);
 
-	hp_label = new Widget_Label(TRANSLATE("HP: ")END, -1);
+	hp_label = new Widget_Label(TRANSLATE("HP")END + ": ", -1);
 	hp_label->set_break_line(true);
 	hp_label->set_padding_top((int)noo.font->get_height()+2);
 	hp_label->set_parent(column1);
@@ -494,21 +494,21 @@ Pause_GUI::Pause_GUI() :
 	hp->set_padding_top((int)noo.font->get_height()+2);
 	hp->set_parent(column1);
 
-	mp_label = new Widget_Label(TRANSLATE("MP: ")END, -1);
+	mp_label = new Widget_Label(TRANSLATE("MP")END + ": ", -1);
 	mp_label->set_break_line(true);
 	mp_label->set_parent(column1);
 
 	mp = new Widget_Label("", -1);
 	mp->set_parent(column1);
 
-	experience_label = new Widget_Label(TRANSLATE("Exp: ")END, -1);
+	experience_label = new Widget_Label(TRANSLATE("Exp")END + ": ", -1);
 	experience_label->set_break_line(true);
 	experience_label->set_parent(column1);
 
 	experience = new Widget_Label("", -1);
 	experience->set_parent(column1);
 
-	weapon_label = new Widget_Label(TRANSLATE("Weapon: ")END, -1);
+	weapon_label = new Widget_Label(TRANSLATE("Weapon")END + ": ", -1);
 	weapon_label->set_break_line(true);
 	weapon_label->set_padding_top((int)noo.font->get_height()+2);
 	weapon_label->set_parent(column1);
@@ -517,14 +517,14 @@ Pause_GUI::Pause_GUI() :
 	weapon->set_padding_top((int)noo.font->get_height()+2);
 	weapon->set_parent(column1);
 
-	armour_label = new Widget_Label(TRANSLATE("Armour: ")END, -1);
+	armour_label = new Widget_Label(TRANSLATE("Armour")END + ": ", -1);
 	armour_label->set_break_line(true);
 	armour_label->set_parent(column1);
 
 	armour = new Widget_Label("", -1);
 	armour->set_parent(column1);
 
-	attack_label = new Widget_Label(TRANSLATE("Attack: ")END, -1);
+	attack_label = new Widget_Label(TRANSLATE("Attack")END + ": ", -1);
 	attack_label->set_break_line(true);
 	attack_label->set_padding_top(18);
 	attack_label->set_parent(column2);
@@ -533,120 +533,75 @@ Pause_GUI::Pause_GUI() :
 	attack->set_padding_top(18);
 	attack->set_parent(column2);
 
-	defense_label = new Widget_Label(TRANSLATE("Defense: ")END, -1);
+	defense_label = new Widget_Label(TRANSLATE("Defense")END + ": ", -1);
 	defense_label->set_break_line(true);
 	defense_label->set_parent(column2);
 
 	defense = new Widget_Label("", -1);
 	defense->set_parent(column2);
 
-	agility_label = new Widget_Label(TRANSLATE("Agility: ")END, -1);
+	agility_label = new Widget_Label(TRANSLATE("Agility")END + ": ", -1);
 	agility_label->set_break_line(true);
 	agility_label->set_parent(column2);
 
 	agility = new Widget_Label("", -1);
 	agility->set_parent(column2);
 
-	luck_label = new Widget_Label(TRANSLATE("Luck: ")END, -1);
+	luck_label = new Widget_Label(TRANSLATE("Luck")END + ": ", -1);
 	luck_label->set_break_line(true);
 	luck_label->set_parent(column2);
 
 	luck = new Widget_Label("", -1);
 	luck->set_parent(column2);
 
-	speed_label = new Widget_Label(TRANSLATE("Speed: ")END, -1);
+	speed_label = new Widget_Label(TRANSLATE("Speed")END + ": ", -1);
 	speed_label->set_break_line(true);
 	speed_label->set_parent(column2);
 
 	speed = new Widget_Label("", -1);
 	speed->set_parent(column2);
 
-	strength_label = new Widget_Label(TRANSLATE("Strength: ")END, -1);
+	strength_label = new Widget_Label(TRANSLATE("Strength")END + ": ", -1);
 	strength_label->set_break_line(true);
 	strength_label->set_parent(column2);
 
 	strength = new Widget_Label("", -1);
 	strength->set_parent(column2);
 
-	karma_label = new Widget_Label(TRANSLATE("Karma: ")END, -1);
+	karma_label = new Widget_Label(TRANSLATE("Karma")END + ": ", -1);
 	karma_label->set_break_line(true);
 	karma_label->set_parent(column2);
 
 	karma = new Widget_Label("", -1);
 	karma->set_parent(column2);
 
-	hunger_label = new Widget_Label(TRANSLATE("Hunger: ")END, -1);
+	hunger_label = new Widget_Label(TRANSLATE("Hunger")END + ": ", -1);
 	hunger_label->set_break_line(true);
 	hunger_label->set_parent(column2);
 
 	hunger = new Widget_Label("", -1);
 	hunger->set_parent(column2);
 
-	thirst_label = new Widget_Label(TRANSLATE("Thirst: ")END, -1);
+	thirst_label = new Widget_Label(TRANSLATE("Thirst")END + ": ", -1);
 	thirst_label->set_break_line(true);
 	thirst_label->set_parent(column2);
 
 	thirst = new Widget_Label("", -1);
 	thirst->set_parent(column2);
 
-	rest_label = new Widget_Label(TRANSLATE("Rest: ")END, -1);
+	rest_label = new Widget_Label(TRANSLATE("Rest")END + ": ", -1);
 	rest_label->set_break_line(true);
 	rest_label->set_parent(column2);
 
 	rest = new Widget_Label("", -1);
 	rest->set_parent(column2);
 
-	sobriety_label = new Widget_Label(TRANSLATE("Sobriety: ")END, -1);
+	sobriety_label = new Widget_Label(TRANSLATE("Sobriety")END + ": ", -1);
 	sobriety_label->set_break_line(true);
 	sobriety_label->set_parent(column2);
 
 	sobriety = new Widget_Label("", -1);
 	sobriety->set_parent(column2);
-
-	int max_w = 0;
-	
-	max_w = MAX(max_w, alignment_label->get_width());
-	max_w = MAX(max_w, sex_label->get_width());
-	max_w = MAX(max_w, hp_label->get_width());
-	max_w = MAX(max_w, mp_label->get_width());
-	max_w = MAX(max_w, experience_label->get_width());
-	max_w = MAX(max_w, weapon_label->get_width());
-	max_w = MAX(max_w, armour_label->get_width());
-
-	alignment_label->set_width(max_w);
-	sex_label->set_width(max_w);
-	hp_label->set_width(max_w);
-	mp_label->set_width(max_w);
-	experience_label->set_width(max_w);
-	weapon_label->set_width(max_w);
-	armour_label->set_width(max_w);
-
-	max_w = 0;
-	max_w = MAX(max_w, attack_label->get_width());
-	max_w = MAX(max_w, defense_label->get_width());
-	max_w = MAX(max_w, agility_label->get_width());
-	max_w = MAX(max_w, luck_label->get_width());
-	max_w = MAX(max_w, speed_label->get_width());
-	max_w = MAX(max_w, strength_label->get_width());
-	max_w = MAX(max_w, karma_label->get_width());
-	max_w = MAX(max_w, hunger_label->get_width());
-	max_w = MAX(max_w, thirst_label->get_width());
-	max_w = MAX(max_w, rest_label->get_width());
-	max_w = MAX(max_w, sobriety_label->get_width());
-
-	attack_label->set_width(max_w);
-	defense_label->set_width(max_w);
-	agility_label->set_width(max_w);
-	luck_label->set_width(max_w);
-	speed_label->set_width(max_w);
-	strength_label->set_width(max_w);
-	karma_label->set_width(max_w);
-	hunger_label->set_width(max_w);
-	thirst_label->set_width(max_w);
-	rest_label->set_width(max_w);
-	sobriety_label->set_width(max_w);
-
-	set_labels();
 
 	std::vector<TGUI_Widget *> &v = column2->get_children();
 	int height = 0;
@@ -678,6 +633,8 @@ Pause_GUI::Pause_GUI() :
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 
 	gui->set_focus(resume_button);
+
+	set_labels();
 }
 
 void Pause_GUI::handle_event(TGUI_Event *event)
@@ -720,7 +677,17 @@ bool Pause_GUI::update()
 	}
 
 	if (items_button->pressed()) {
-		Items_GUI *items_gui = new Items_GUI();
+		Items_GUI *items_gui = new Items_GUI(Item::OTHER);
+		items_gui->start();
+		noo.guis.push_back(items_gui);
+	}
+	else if (weapons_button->pressed()) {
+		Items_GUI *items_gui = new Items_GUI(Item::WEAPON);
+		items_gui->start();
+		noo.guis.push_back(items_gui);
+	}
+	else if (armour_button->pressed()) {
+		Items_GUI *items_gui = new Items_GUI(Item::ARMOUR);
 		items_gui->start();
 		noo.guis.push_back(items_gui);
 	}
@@ -787,12 +754,57 @@ void Pause_GUI::set_labels()
 	luck->set_text(string_printf("%d", stats->luck));
 	speed->set_text(string_printf("%d", stats->speed));
 	strength->set_text(string_printf("%d", stats->strength));
-	
+
 	karma->set_text(string_printf("%d%%", int((((float)stats->karma / 0xffff) * 2.0f - 1.0f) * 100)));
 	hunger->set_text(string_printf("%d%%", int((((float)stats->hunger / 0xffff) * 2.0f - 1.0f) * 100)));
 	thirst->set_text(string_printf("%d%%", int((((float)stats->thirst / 0xffff) * 2.0f - 1.0f) * 100)));
 	rest->set_text(string_printf("%d%%", int((((float)stats->rest / 0xffff) * 2.0f - 1.0f) * 100)));
 	sobriety->set_text(string_printf("%d%%", int((((float)stats->sobriety / 0xffff) * 2.0f - 1.0f) * 100)));
+
+	int max_w = 0;
+
+	max_w = MAX(max_w, alignment_label->get_width());
+	max_w = MAX(max_w, sex_label->get_width());
+	max_w = MAX(max_w, hp_label->get_width());
+	max_w = MAX(max_w, mp_label->get_width());
+	max_w = MAX(max_w, experience_label->get_width());
+	max_w = MAX(max_w, weapon_label->get_width());
+	max_w = MAX(max_w, armour_label->get_width());
+
+	alignment_label->set_width(max_w);
+	sex_label->set_width(max_w);
+	hp_label->set_width(max_w);
+	mp_label->set_width(max_w);
+	experience_label->set_width(max_w);
+	weapon_label->set_width(max_w);
+	armour_label->set_width(max_w);
+
+	max_w = 0;
+	max_w = MAX(max_w, attack_label->get_width());
+	max_w = MAX(max_w, defense_label->get_width());
+	max_w = MAX(max_w, agility_label->get_width());
+	max_w = MAX(max_w, luck_label->get_width());
+	max_w = MAX(max_w, speed_label->get_width());
+	max_w = MAX(max_w, strength_label->get_width());
+	max_w = MAX(max_w, karma_label->get_width());
+	max_w = MAX(max_w, hunger_label->get_width());
+	max_w = MAX(max_w, thirst_label->get_width());
+	max_w = MAX(max_w, rest_label->get_width());
+	max_w = MAX(max_w, sobriety_label->get_width());
+
+	attack_label->set_width(max_w);
+	defense_label->set_width(max_w);
+	agility_label->set_width(max_w);
+	luck_label->set_width(max_w);
+	speed_label->set_width(max_w);
+	strength_label->set_width(max_w);
+	karma_label->set_width(max_w);
+	hunger_label->set_width(max_w);
+	thirst_label->set_width(max_w);
+	rest_label->set_width(max_w);
+	sobriety_label->set_width(max_w);
+
+	gui->layout();
 }
 
 bool Pause_GUI::fade_done(bool fading_in) {
@@ -815,7 +827,7 @@ bool Pause_GUI::fade_done(bool fading_in) {
 
 //--
 
-Items_GUI::Items_GUI() :
+Items_GUI::Items_GUI(Item::Type type) :
 	exit_menu(false)
 {
 	stats = noo.map->get_entity(0)->get_stats();
@@ -838,7 +850,19 @@ Items_GUI::Items_GUI() :
 	Inventory *inventory = stats->inventory;
 	std::vector< std::vector<Item *> > &items = inventory->items;
 
-	if (items.size() == 0) {
+	std::vector<std::string> item_list;
+	for (size_t i = 0; i < items.size(); i++) {
+		int count = items[i].size();
+		if (count > 0) {
+			if (items[i][0]->type == type) {
+				std::string name = items[i][0]->name;
+				item_list.push_back(itos(count) + " " + name);
+				indices.push_back(i);
+			}
+		}
+	}
+
+	if (item_list.size() == 0) {
 		list = 0;
 		TGUI_Widget *parent = new TGUI_Widget(0.4f, 1.0f);
 		parent->set_parent(pad);
@@ -848,18 +872,27 @@ Items_GUI::Items_GUI() :
 	else {
 		list = new Widget_List(0.4f, 1.0f);
 		std::vector<std::string> &v = list->get_items();
-		for (size_t i = 0; i < items.size(); i++) {
-			int count = items[i].size();
-			if (count > 0) {
-				std::string name = items[i][0]->name;
-				v.push_back(itos(count) + " " + name);
-			}
-		}
+		v.insert(v.begin(), item_list.begin(), item_list.end());
 		list->set_parent(pad);
 	}
 
 	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
 	info->set_parent(pad);
+
+	condition_label = new Widget_Label("", 70);
+	condition_label->set_parent(info);
+
+	weight_label = new Widget_Label("", 70);
+	weight_label->set_parent(info);
+	weight_label->set_break_line(true);
+
+	value_label = new Widget_Label("", 70);
+	value_label->set_parent(info);
+	value_label->set_break_line(true);
+
+	properties_label = new Widget_Label("", 70);
+	properties_label->set_parent(info);
+	properties_label->set_break_line(true);
 
 	done_button = new Widget_Text_Button(TRANSLATE("Done")END, -1, -1);
 	done_button->set_parent(pad);
@@ -872,6 +905,8 @@ Items_GUI::Items_GUI() :
 	else {
 		gui->set_focus(done_button);
 	}
+
+	set_labels();
 }
 
 void Items_GUI::handle_event(TGUI_Event *event)
@@ -889,11 +924,32 @@ void Items_GUI::handle_event(TGUI_Event *event)
 
 bool Items_GUI::update()
 {
+	set_labels();
+
 	if (done_button->pressed() || exit_menu) {
 		return do_return(false);
 	}
 
 	return do_return(true);
+}
+
+void Items_GUI::set_labels()
+{
+	if (list != 0) {
+		int selected = list->get_selected();
+		Item *item = stats->inventory->items[selected][0];
+
+		int condition = 100 * item->condition / 16383;
+		condition_label->set_text(TRANSLATE("Condition")END + ": " + itos(condition) + "%");
+
+		weight_label->set_text(TRANSLATE("Weight")END + ": " + itos(item->weight));
+
+		int value = int(item->min_value + ((condition / 100.0f) * (item->max_value - item->min_value)));
+
+		value_label->set_text(TRANSLATE("Value")END + ": " + itos(value));
+	}
+
+	gui->layout();
 }
 
 //--
@@ -1007,7 +1063,7 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 #endif
 
 		SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "w");
-	
+
 		if (file == 0 || noo.save_game(file) == false) {
 			if (callback) callback((void *)ERR);
 			caption = noo.t->translate(2);

@@ -2,6 +2,7 @@
 #define Widget_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/item.h"
 
 namespace Nooskewl_Engine {
 
@@ -154,17 +155,27 @@ private:
 
 class NOOSKEWL_ENGINE_EXPORT Items_GUI : public GUI {
 public:
-	Items_GUI();
+	Items_GUI(Item::Type type);
 
 	void handle_event(TGUI_Event *event);
 	bool update();
 
 private:
-	Widget_List *list;
-	Widget_Text_Button *done_button;
-	bool exit_menu;
+	void set_labels();
 
 	Stats *stats;
+
+	Widget_List *list;
+	Widget_Text_Button *done_button;
+
+	Widget_Label *condition_label;
+	Widget_Label *weight_label;
+	Widget_Label *value_label;
+	Widget_Label *properties_label;
+
+	std::vector<int> indices; // index into inventory
+
+	bool exit_menu;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
