@@ -136,6 +136,7 @@ public:
 
 	std::vector<std::string> &get_items();
 	int pressed();
+	int get_selected();
 
 private:
 	void init();

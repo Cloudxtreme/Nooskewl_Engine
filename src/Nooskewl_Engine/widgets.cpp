@@ -583,6 +583,11 @@ int Widget_List::pressed()
 	return ret;
 }
 
+int Widget_List::get_selected()
+{
+	return selected;
+}
+
 void Widget_List::init()
 {
 	accepts_focus = true;
