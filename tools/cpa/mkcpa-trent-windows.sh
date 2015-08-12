@@ -8,13 +8,13 @@ FILES=`/c/mingw/msys/1.0/bin/find * -type f | grep -v README.txt | grep -v "^flp
 
 echo "Writing header..."
 # the big space is a tab
-du -bc $FILES | grep "	total$" | cut -f1 > $1
+du -bc $FILES | dos2unix | grep "	total$" | cut -f1 > $1
 
 echo "Writing data..."
 cat $FILES >> $1
 
 echo "Writing info..."
-du -b $FILES >> $1
+du -b $FILES | dos2unix >> $1
 
 echo "Saving uncompressed archive..."
 cp $1 $1.uncompressed
