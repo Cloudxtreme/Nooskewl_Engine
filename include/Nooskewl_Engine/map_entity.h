@@ -38,13 +38,13 @@ public:
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
-	void set_z_add(int z_add);
 	void set_shadow_type(Shadow_Type shadow_type);
 	void set_input_enabled(bool enabled);
 	void set_type(Type type);
 	void load_stats(std::string name);
 	void set_stats(Stats *stats);
 	void set_high(bool high);
+	void set_z(int z);
 
 	int get_id();
 	std::string get_name();
@@ -57,13 +57,13 @@ public:
 	Point<float> get_draw_position();
 	bool is_solid();
 	bool is_sitting();
-	int get_z_add();
 	Shadow_Type get_shadow_type();
 	bool is_following_path();
 	bool is_input_enabled();
 	Type get_type();
 	Stats *get_stats();
 	bool is_high();
+	int get_z();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -102,7 +102,6 @@ private:
 	bool stop_next_tile;
 	bool sitting;
 	bool input_enabled;
-	int z_add;
 
 	bool following_path;
 	std::list<A_Star::Node *> path;
@@ -120,6 +119,7 @@ private:
 	Stats *stats;
 
 	bool high;
+	int z;
 };
 
 } // End namespace Nooskewl_Engine

@@ -35,14 +35,14 @@ Map_Entity::Map_Entity(std::string name) :
 	stop_next_tile(false),
 	sitting(false),
 	input_enabled(true),
-	z_add(0),
 	following_path(false),
 	path_callback(0),
 	shadow_type(SHADOW_NONE),
 	has_blink(false),
 	type(OTHER),
 	stats(0),
-	high(false)
+	high(false),
+	z(0)
 {
 	id = current_id++;
 
@@ -196,12 +196,6 @@ void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, voi
 	}
 }
 
-// This can fix depth issues for sprites that overhang Object-grouped tiles
-void Map_Entity::set_z_add(int z_add)
-{
-	this->z_add = z_add;
-}
-
 void Map_Entity::set_shadow_type(Shadow_Type shadow_type)
 {
 	this->shadow_type = shadow_type;
@@ -232,6 +226,11 @@ void Map_Entity::set_stats(Stats *stats)
 void Map_Entity::set_high(bool high)
 {
 	this->high = high;
+}
+
+void Map_Entity::set_z(int z)
+{
+	this->z = z;
 }
 
 int Map_Entity::get_id()
@@ -277,7 +276,7 @@ Size<int> Map_Entity::get_size()
 Point<float> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->size.h;
-		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+(noo.tile_size-sprite->get_current_image()->size.w)/2, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h);
+		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+(noo.tile_size-sprite->get_current_image()->size.w)/2, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h-z);
 }
 
 bool Map_Entity::is_solid()
@@ -288,11 +287,6 @@ bool Map_Entity::is_solid()
 bool Map_Entity::is_sitting()
 {
 	return sitting;
-}
-
-int Map_Entity::get_z_add()
-{
-	return z_add;
 }
 
 Map_Entity::Shadow_Type Map_Entity::get_shadow_type()
@@ -325,10 +319,16 @@ bool Map_Entity::is_high()
 	return high;
 }
 
+int Map_Entity::get_z()
+{
+	return z;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
-	if (pos.x >= position.x+size.w || pos.x+this->size.w <= position.x || pos.y >= position.y+size.h || pos.y+this->size.h <= position.y) {
+	Size<int> size2(this->size.w, noo.tile_size);
+	if (pos.x >= position.x+size.w || pos.x+size2.w <= position.x || pos.y >= position.y+size.h || pos.y+size2.h <= position.y) {
 		return false;
 	}
 	return true;
@@ -547,9 +547,9 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 
 	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 	// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
-	float z = use_depth_buffer ? -(1.0f - (float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
+	float draw_z = use_depth_buffer ? -(1.0f - (float)((position.y*noo.tile_size)+(offset.y*noo.tile_size))/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
 
-	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y), z);
+	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y), draw_z);
 
 	if (has_blink) {
 		noo.current_shader->set_bool("substitute_yellow", false);
@@ -671,8 +671,8 @@ bool Map_Entity::save(SDL_RWops *file)
 		SDL_fprintf(file, ",sitting=%d", (int)sitting);
 	}
 
-	if (z_add != 0) {
-		SDL_fprintf(file, ",z_add=%d", z_add);
+	if (z != 0) {
+		SDL_fprintf(file, ",z=%d", z);
 	}
 
 	if (shadow_type != SHADOW_NONE) {

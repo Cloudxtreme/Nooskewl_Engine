@@ -1691,8 +1691,8 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 			}
 			entity->set_sprite(sprite);
 		}
-		else if (key == "z_add") {
-			entity->set_z_add(atoi(value.c_str()));
+		else if (key == "z") {
+			entity->set_z(atoi(value.c_str()));
 		}
 		else if (key == "shadow_type") {
 			entity->set_shadow_type((Map_Entity::Shadow_Type)atoi(value.c_str()));
