@@ -20,12 +20,13 @@ void Item::use(Stats *stats)
 
 bool Item::save(SDL_RWops *file)
 {
-	SDL_fprintf(file, "item=%s,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d\n", name.c_str(), condition, weight, min_attack, max_attack, min_defense, max_defense, min_value, max_value);
+	SDL_fprintf(file, "item=%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d\n", name.c_str(), (int)type, condition, weight, min_attack, max_attack, min_defense, max_defense, min_value, max_value);
 	return true;
 }
 
 void Item::defaults()
 {
+	type = OTHER;
 	name =  "Unknown";
 	condition = 0xffff / 2;
 	weight = 0;
@@ -66,6 +67,18 @@ void Item::handle_tag(XML *xml)
 	else {
 		if (tag == "name") {
 			this->name = xml->get_value();
+		}
+		else if (tag == "type") {
+			std::string value = xml->get_value();
+			if (value == "weapon") {
+				type = WEAPON;
+			}
+			else if (value == "armour") {
+				type = ARMOUR;
+			}
+			else {
+				type = OTHER;
+			}
 		}
 		else if (tag == "condition") {
 			condition = XML_Helpers::handle_numeric_tag(xml);
