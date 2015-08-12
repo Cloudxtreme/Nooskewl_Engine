@@ -82,34 +82,16 @@ static int onenotelength(const char *tok, int note_length, int tempo, int octave
 		tok++;
 	}
 	int length = atoi(tok);
-	int total = (int)((STREAM_FREQUENCY / (tempo / 4.0f / 60.0f)) / (length == 0 ? note_length : length));
-	int dotlength = total / 2;
+	float total = (STREAM_FREQUENCY / (tempo / 4.0f / 60.0f)) / (length == 0 ? note_length : length);
+	float dotlength = total / 2.0f;
 	while (*tok != 0) {
 		if (*tok == '.') {
 			total += dotlength;
-			dotlength /= 2;
+			dotlength /= 2.0f;
 		}
 		tok++;
 	}
-	if (index == -1) {
-		return total;
-	}
-	// Finish off a full phase to avoid clicks and pops
-	int pitch = pitches[note];
-	float frequency;
-	if (pitch == -1) {
-		frequency = note_pitches[index][octave];
-	}
-	else {
-		frequency = pitch_envelopes[pitch][pitch_envelopes[pitch].size()-1];
-	}
-	float samples_per_phase = STREAM_FREQUENCY / frequency;
-	float mod = fmodf((float)total, samples_per_phase);
-	if (mod <= 1) {
-		return total;
-	}
-	total += (int)(samples_per_phase - mod);
-	return total;
+	return (int)total;
 }
 
 MML::Internal::Track::Track(Type type, std::string text, std::vector< std::pair<int, float> > &volumes, std::vector<int> &pitches, std::vector< std::vector<float> > &pitch_envelopes, std::vector< std::pair<int, float> > &dutycycles, int pad) :
