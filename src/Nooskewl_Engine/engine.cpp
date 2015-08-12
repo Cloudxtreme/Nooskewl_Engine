@@ -636,8 +636,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		map->handle_event(&event);
 
 		if (
-			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) ||
-			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2)) {
+			map->is_speech_active() == false &&
+			((event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) ||
+			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2))) {
 				noo.button_mml->play(false);
 				Pause_GUI *pause_gui = new Pause_GUI();
 				pause_gui->start();
