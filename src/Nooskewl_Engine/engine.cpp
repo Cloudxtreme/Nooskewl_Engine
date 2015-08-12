@@ -578,6 +578,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			Image::reload_all();
 		}
 #endif
+		clear(black);
+
 		set_screen_size(width, height);
 		set_default_projection();
 
@@ -952,6 +954,8 @@ void Engine::flip()
 					setup_default_shader();
 
 					Image::reload_all();
+
+					clear(black);
 
 					set_screen_size(real_screen_size.w, real_screen_size.h);
 					set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
