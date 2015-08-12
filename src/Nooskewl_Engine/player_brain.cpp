@@ -120,8 +120,9 @@ void Player_Brain::handle_event(TGUI_Event *event)
 							int dx = click.x - player_pos.x;
 							int dy = click.y - player_pos.y;
 							bool activated = false;
-							if (((abs(dx) == 1 || abs(dx) == 2) && dy == 0) || ((abs(dy) == 1 || abs(dy) == 2) && dx == 0)) {
-								if (noo.map->is_solid(-1, 0, click, Size<int>(1, 1), true, false)) {
+							if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
+								std::vector<Map_Entity *> colliding_entities = noo.map->get_colliding_entities(-1, click, Size<int>(1, 1));
+								if (colliding_entities.size() > 0) {
 									Direction direction;
 									if (dx < 0) {
 										direction = W;
