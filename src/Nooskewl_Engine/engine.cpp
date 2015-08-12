@@ -472,9 +472,7 @@ void Engine::init_video()
 	brighten_shader = new Shader(opengl, default_vertex_source, brighten_fragment_source);
 	shadow_shader = new Shader(opengl, default_vertex_source, shadow_fragment_source);
 
-	current_shader = default_shader;
-	current_shader->use();
-	current_shader->set_float("global_alpha", 1.0f);
+	setup_default_shader();
 
 	set_screen_size(w, h);
 	set_default_projection();
@@ -543,24 +541,46 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		return false;
 
 	}
-	else if (sdl_event->type == SDL_WINDOWEVENT && sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
+	else if (sdl_event->type == SDL_WINDOWEVENT &&
+		(sdl_event->window.event == SDL_WINDOWEVENT_RESIZED ||
+		 sdl_event->window.event == SDL_WINDOWEVENT_MINIMIZED ||
+		 sdl_event->window.event == SDL_WINDOWEVENT_MAXIMIZED ||
+		 sdl_event->window.event == SDL_WINDOWEVENT_RESTORED)
+	) {
+		int width, height;
+
+		if (sdl_event->window.event == SDL_WINDOWEVENT_RESIZED) {
+			width = sdl_event->window.data1;
+			height = sdl_event->window.data2;
+		}
+		else {
+			SDL_GetWindowSize(window, &width, &height);
+		}
+
 		destroy_fonts();
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 		if (opengl == false) {
 			Image::release_all();
 			Shader::release_all();
+
 			d3d_pp.BackBufferFormat = D3DFMT_X8R8G8B8;
 			d3d_pp.BackBufferWidth = sdl_event->window.data1;
 			d3d_pp.BackBufferHeight = sdl_event->window.data2;
 			d3d_pp.BackBufferCount = 1;
 			d3d_device->Reset(&d3d_pp);
+
 			set_initial_d3d_state();
-			Image::reload_all();
+
 			Shader::reload_all();
+			setup_default_shader();
+
+			Image::reload_all();
 		}
 #endif
-		set_screen_size(sdl_event->window.data1, sdl_event->window.data2);
+		set_screen_size(width, height);
 		set_default_projection();
+
 		load_fonts();
 		return true;
 	}
@@ -920,21 +940,23 @@ void Engine::flip()
 				else {
 					d3d_lost = false;
 
-					set_initial_d3d_state();
-
 					// Everything's gone!
-					font->clear_cache();
-					bold_font->clear_cache();
+					destroy_fonts();
 					Image::release_all();
 					Shader::release_all();
 
+					set_initial_d3d_state();
+
 					// So reload it!
 					Shader::reload_all();
-					load_fonts();
+					setup_default_shader();
+
 					Image::reload_all();
 
 					set_screen_size(real_screen_size.w, real_screen_size.h);
 					set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
+
+					load_fonts();
 				}
 			}
 		}
@@ -1399,29 +1421,31 @@ void Engine::update_projection()
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 void Engine::set_initial_d3d_state()
 {
-		d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
-		d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-		d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
-		d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-		d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
+	d3d_device->SetRenderState(D3DRS_LIGHTING, FALSE);
+	d3d_device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	d3d_device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	d3d_device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	d3d_device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	d3d_device->SetRenderState(D3DRS_ZENABLE, D3DZB_FALSE);
 
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
-		if (d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT) != D3D_OK) {
-			infomsg("SetSamplerState failed\n");
-		}
+	if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP) != D3D_OK) {
+		infomsg("SetSamplerState failed\n");
+	}
+	if (d3d_device->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP) != D3D_OK) {
+		infomsg("SetSamplerState failed\n");
+	}
+	if (d3d_device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT) != D3D_OK) {
+		infomsg("SetSamplerState failed\n");
+	}
+	if (d3d_device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT) != D3D_OK) {
+		infomsg("SetSamplerState failed\n");
+	}
 
-		d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
+	d3d_device->SetFVF(NOOSKEWL_ENGINE_FVF);
 
-		d3d_device->BeginScene();
+	enable_depth_buffer(false);
+
+	d3d_device->BeginScene();
 }
 #endif
 
@@ -1462,6 +1486,13 @@ void Engine::clear_buffers()
 {
 	clear(black);
 	clear_depth_buffer(1.0f);
+}
+
+void Engine::setup_default_shader()
+{
+	current_shader = default_shader;
+	current_shader->use();
+	current_shader->set_float("global_alpha", 1.0f);
 }
 
 bool Engine::save_game(SDL_RWops *file)

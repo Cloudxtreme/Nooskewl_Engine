@@ -139,6 +139,7 @@ private:
 	void load_milestones();
 	void load_translation();
 	void clear_buffers();
+	void setup_default_shader();
 
 	bool save_milestones(SDL_RWops *file);
 	bool load_milestones(SDL_RWops *file);
