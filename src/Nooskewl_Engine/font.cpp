@@ -17,11 +17,11 @@ Font::Font(std::string filename, int size) :
 
 	file = open_file(filename);
 
-	if (noo.use_lowres_font) {
-		font = TTF_OpenFontRW(file, true, size);
+	if (noo.use_hires_font) {
+		font = TTF_OpenFontRW(file, true, int(size * noo.scale / noo.font_scale));
 	}
 	else {
-		font = TTF_OpenFontRW(file, true, int(size * noo.scale / noo.font_scale));
+		font = TTF_OpenFontRW(file, true, size);
 	}
 
 	if (font == 0) {
@@ -106,7 +106,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 			g->start();
 
 			if (shadow_type == DROP_SHADOW) {
-				float sub = noo.use_lowres_font ? 0.0f : 1.0f;
+				float sub = noo.use_hires_font ? 1.0f : 0.01f;
 				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/noo.font_scale-sub, pos.y), Image::FLIP_V);
 				g->draw_tinted(shadow_colour, Point<float>(pos.x, pos.y+noo.scale/noo.font_scale-sub), Image::FLIP_V);
 				g->draw_tinted(shadow_colour, Point<float>(pos.x+noo.scale/noo.font_scale-sub, pos.y+noo.scale/noo.font_scale-sub), Image::FLIP_V);
