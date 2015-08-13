@@ -432,19 +432,16 @@ Pause_GUI::Pause_GUI() :
 
 	TGUI_Widget *pad = new TGUI_Widget(1.0f, 1.0f);
 	pad->set_center_x(true);
-	pad->set_center_y(true);
 	pad->set_padding(5);
 	pad->set_parent(window);
 
 	TGUI_Widget *column1 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.33f);
 	column1->set_center_x(true);
-	column1->set_center_y(true);
 	column1->set_padding_bottom(resume_button->get_height() + 5);
 	column1->set_parent(pad);
 
 	TGUI_Widget *column2 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.34f);
 	column2->set_center_x(true);
-	column2->set_center_y(true);
 	column2->set_padding_left(5);
 	column2->set_padding_right(5);
 	column2->set_padding_bottom(resume_button->get_height() + 5);
@@ -610,7 +607,6 @@ Pause_GUI::Pause_GUI() :
 
 	TGUI_Widget *column3 = new TGUI_Widget(0.33f, height);
 	column3->set_center_x(true);
-	column3->set_center_y(true);
 	column3->set_padding_bottom(resume_button->get_height() + 5);
 	column3->set_parent(pad);
 
