@@ -409,7 +409,15 @@ Pause_GUI::Pause_GUI() :
 {
 	quitting = quit = false;
 
-	// These buttons are needed right away (resume_button)
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	Widget_Window *window = new Widget_Window(0.95f, 0.95f);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
 	quit_button = new Widget_Text_Button(noo.t->translate(8), 0.33f, -1);
 	quit_button->set_center_x(true);
 
@@ -421,30 +429,34 @@ Pause_GUI::Pause_GUI() :
 	resume_button = new Widget_Text_Button(noo.t->translate(10), 0.33f, -1);
 	resume_button->set_center_x(true);
 
-	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
-	SDL_Colour background_colour = { 0, 0, 0, 192 };
-	modal_main_widget->set_background_colour(background_colour);
+	Widget *button_container = new Widget(1.0f, quit_button->get_height());
+	button_container->set_center_x(true);
+	button_container->set_float_bottom(true);
+	button_container->set_padding(5);
+	button_container->set_parent(window);
 
-	Widget_Window *window = new Widget_Window(0.95f, 0.95f);
-	window->set_center_x(true);
-	window->set_center_y(true);
-	window->set_parent(modal_main_widget);
+	quit_button->set_parent(button_container);
+	save_button->set_parent(button_container);
+	resume_button->set_parent(button_container);
 
 	TGUI_Widget *pad = new TGUI_Widget(1.0f, 1.0f);
 	pad->set_center_x(true);
-	pad->set_padding(5);
+	pad->set_padding_left(5);
+	pad->set_padding_right(5);
+	pad->set_padding_top(5);
+	pad->set_padding_bottom(5 + quit_button->get_height());
 	pad->set_parent(window);
 
 	TGUI_Widget *column1 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.33f);
 	column1->set_center_x(true);
-	column1->set_padding_bottom(resume_button->get_height() + 5);
+	column1->set_padding_bottom(quit_button->get_height() + 5);
 	column1->set_parent(pad);
 
 	TGUI_Widget *column2 = new TGUI_Widget(TGUI_Widget::FIT_Y, 0.34f);
 	column2->set_center_x(true);
 	column2->set_padding_left(5);
 	column2->set_padding_right(5);
-	column2->set_padding_bottom(resume_button->get_height() + 5);
+	column2->set_padding_bottom(quit_button->get_height() + 5);
 	column2->set_parent(pad);
 
 	stats = noo.map->get_entity(0)->get_stats();
@@ -593,21 +605,9 @@ Pause_GUI::Pause_GUI() :
 	sobriety = new Widget_Label("", -1);
 	sobriety->set_parent(column2);
 
-	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h); // must layout early to get padding in loop below
-
-	std::vector<TGUI_Widget *> &v = column2->get_children();
-	int height = 0;
-
-	for (size_t i = 0; i < v.size(); i++) {
-		TGUI_Widget *w = v[i];
-		if (w->get_break_line()) {
-			height += w->get_height() + w->get_padding_top() + w->get_padding_bottom();
-		}
-	}
-
-	TGUI_Widget *column3 = new TGUI_Widget(0.33f, height);
+	TGUI_Widget *column3 = new TGUI_Widget(0.33f, 1.0f);
 	column3->set_center_x(true);
-	column3->set_padding_bottom(resume_button->get_height() + 5);
+	column3->set_padding_bottom(quit_button->get_height() + 5);
 	column3->set_parent(pad);
 
 	items_button = new Widget_Text_Button(TRANSLATE("Items")END, 1.0f, -1);
@@ -621,17 +621,7 @@ Pause_GUI::Pause_GUI() :
 	armour_button = new Widget_Text_Button(TRANSLATE("Armour")END, 1.0f, -1);
 	armour_button->set_parent(column3);
 
-	Widget *button_container = new Widget(1.0f, quit_button->get_height());
-	button_container->set_center_x(true);
-	button_container->set_float_bottom(true);
-	button_container->set_padding(5);
-	button_container->set_parent(window);
-
-	quit_button->set_parent(button_container);
-	save_button->set_parent(button_container);
-	resume_button->set_parent(button_container);
-
-	gui->layout(); // must layout again...
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 
 	gui->set_focus(resume_button);
 
