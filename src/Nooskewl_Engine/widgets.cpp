@@ -493,7 +493,7 @@ void Widget_List::handle_event(TGUI_Event *event)
 		bool top_arrow = top > 0;
 		bool bottom_arrow;
 		int vr = visible_rows();
-		if ((int)items.size() <= vr || top < (int)items.size() - vr) {
+		if ((int)items.size() > vr && top < (int)items.size() - vr) {
 			bottom_arrow = true;
 		}
 		else {
@@ -565,7 +565,7 @@ void Widget_List::draw()
 		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+7.0f));
 	}
 	int vr = visible_rows();
-	if ((int)items.size() <= vr || top < (int)items.size() - vr) {
+	if ((int)items.size() > vr && top < (int)items.size() - vr) {
 		int height = used_height();
 		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y+height), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-7.0f));
 	}
