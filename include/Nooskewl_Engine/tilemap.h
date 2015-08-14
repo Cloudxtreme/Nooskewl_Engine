@@ -11,6 +11,25 @@ class Image;
 class NOOSKEWL_ENGINE_EXPORT Tilemap
 {
 public:
+	struct Group {
+		// bit field flags
+		enum Type {
+			GROUP_NONE        = 0,
+			GROUP_OBJECT      = 1,
+			GROUP_SHADOW      = 1 << 1,
+			GROUP_CHAIR_ANY   = 1 << 2,
+			GROUP_CHAIR_NORTH = 1 << 3,
+			GROUP_CHAIR_EAST  = 1 << 4,
+			GROUP_CHAIR_SOUTH = 1 << 5,
+			GROUP_CHAIR_WEST  = 1 << 6
+		};
+
+		int type;
+		int layer;
+		Point<int> position;
+		Size<int> size;
+	};
+
 	Tilemap(std::string map_filename);
 	~Tilemap();
 
@@ -25,22 +44,10 @@ public:
 	void draw(int layer, Point<float> position, bool use_depth_buffer = true);
 	void draw_shadows(int layer, Point<float> position);
 
+	std::vector<Group *> get_groups(int layer);
+
 private:
 	float get_z(int layer, int x, int y);
-
-	struct Group {
-		// bit field flags
-		enum Type {
-			GROUP_NONE = 0,
-			GROUP_OBJECT = 1,
-			GROUP_SHADOW = 2
-		};
-
-		int type;
-		int layer;
-		Point<int> position;
-		Size<int> size;
-	};
 
 	struct Layer
 	{
