@@ -125,8 +125,44 @@ void Player_Brain::handle_event(TGUI_Event *event)
 								int dy = click.y - player_pos.y;
 								bool activated = false;
 								if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
+
+									std::vector<Tilemap::Group *> groups = noo.map->get_tilemap()->get_groups(-1);
+
+									bool collides_with_chair = false;
+
+									for (size_t i = 0; i < groups.size(); i++) {
+										Tilemap::Group *g = groups[i];
+
+										int x1_1 = click.x;
+										int y1_1 = click.y;
+										int x2_1 = click.x + 1;
+										int y2_1 = click.y + 1;
+
+										int x1_2 = g->position.x;
+										int y1_2 = g->position.y;
+										int x2_2 = g->position.x + g->size.w;
+										int y2_2 = g->position.y + g->size.h;
+
+										if (x1_1 >= x2_2 || x2_1 <= x1_2 || y1_1 >= y2_2 || y2_1 <= y1_2) {
+											continue;
+										}
+
+										if (g->position == click) {
+											if (
+												(g->type & Tilemap::Group::GROUP_CHAIR_ANY) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
+											) {
+												collides_with_chair = true;
+												break;
+											}
+										}
+									}
+
 									std::vector<Map_Entity *> colliding_entities = noo.map->get_colliding_entities(-1, click, Size<int>(1, 1));
-									if (colliding_entities.size() > 0) {
+									if (collides_with_chair || colliding_entities.size() > 0) {
 										Direction direction;
 										if (dx < 0) {
 											direction = W;
