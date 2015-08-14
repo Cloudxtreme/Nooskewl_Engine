@@ -277,6 +277,22 @@ void Tilemap::draw_shadows(int layer, Point<float> position)
 	noo.current_shader->use();
 }
 
+std::vector<Tilemap::Group *> Tilemap::get_groups(int layer)
+{
+	int start_layer = layer < 0 ? 0 : layer;
+	int end_layer = layer < 0 ? num_layers - 1 : layer;
+
+	std::vector<Group *> g;
+
+	for (int i = start_layer; i <= end_layer; i++) {
+		Layer l = layers[i];
+
+		g.insert(g.end(), l.groups.begin(), l.groups.end());
+	}
+
+	return g;
+}
+
 float Tilemap::get_z(int layer, int x, int y)
 {
 	Layer l = layers[layer];
