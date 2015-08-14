@@ -28,7 +28,7 @@ void Item::defaults()
 {
 	type = OTHER;
 	name =  "Unknown";
-	condition = 0xffff / 2;
+	condition = 0xffff;
 	weight = 0;
 	min_attack = max_attack = 0;
 	min_defense = max_defense = 0;
