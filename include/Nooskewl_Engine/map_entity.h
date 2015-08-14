@@ -45,6 +45,8 @@ public:
 	void set_stats(Stats *stats);
 	void set_high(bool high);
 	void set_z(int z);
+	void set_pre_sit_position(Point<int> pre_sit_position);
+	void lock_sit_direction(bool lock);
 
 	int get_id();
 	std::string get_name();
@@ -120,6 +122,11 @@ private:
 
 	bool high;
 	int z;
+
+	bool pre_sit_position_set;
+	Point<int> pre_sit_position;
+
+	bool sit_direction_locked;
 };
 
 } // End namespace Nooskewl_Engine

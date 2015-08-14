@@ -15,6 +15,13 @@
 
 using namespace Nooskewl_Engine;
 
+static void make_solid_callback(void *data)
+{
+	Map_Entity *entity = (Map_Entity *)data;
+
+	entity->set_solid(true);
+}
+
 static int current_id;
 
 void Map_Entity::new_game_started()
@@ -42,7 +49,9 @@ Map_Entity::Map_Entity(std::string name) :
 	type(OTHER),
 	stats(0),
 	high(false),
-	z(0)
+	z(0),
+	pre_sit_position_set(false),
+	sit_direction_locked(false)
 {
 	id = current_id++;
 
@@ -183,6 +192,16 @@ void Map_Entity::set_sitting(bool sitting)
 		moving = false;
 	}
 	set_direction(direction);
+
+	if (sitting == false && pre_sit_position_set) {
+		std::list<A_Star::Node *> path = noo.map->find_path(position, pre_sit_position);
+		if (path.size() > 0) {
+			pre_sit_position_set = false;
+			set_path(path, make_solid_callback, this);
+		}
+	}
+
+	sit_direction_locked = false;
 }
 
 void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, void *callback_data)
@@ -231,6 +250,17 @@ void Map_Entity::set_high(bool high)
 void Map_Entity::set_z(int z)
 {
 	this->z = z;
+}
+
+void Map_Entity::set_pre_sit_position(Point<int> pre_sit_position)
+{
+	this->pre_sit_position = pre_sit_position;
+	pre_sit_position_set = true;
+}
+
+void Map_Entity::lock_sit_direction(bool lock)
+{
+	sit_direction_locked = lock;
 }
 
 int Map_Entity::get_id()
@@ -373,7 +403,7 @@ bool Map_Entity::maybe_move()
 
 	if ((following_path || input_enabled == true) && brain) {
 		if (brain->l) {
-			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false)) {
 				moving = true;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
@@ -382,10 +412,12 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			set_direction(W);
+			if (!sitting || !sit_direction_locked) {
+				set_direction(W);
+			}
 		}
 		else if (brain->r) {
-			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(1, 0), Size<int>(1, 1)) == false) {
+			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(1, 0), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = E;
 				offset = Point<float>(-1, 0);
@@ -395,10 +427,12 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			set_direction(E);
+			if (!sitting || !sit_direction_locked) {
+				set_direction(E);
+			}
 		}
 		else if (brain->u) {
-			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(0, -1), Size<int>(1, 1)) == false) {
+			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, -1), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = N;
 				offset = Point<float>(0, 1);
@@ -408,10 +442,12 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			set_direction(N);
+			if (!sitting || !sit_direction_locked) {
+				set_direction(N);
+			}
 		}
 		else if (brain->d) {
-			if (!sitting && noo.map->is_solid(-1, this, position + Point<int>(0, 1), Size<int>(1, 1)) == false) {
+			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, 1), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = S;
 				offset = Point<float>(0, -1);
@@ -421,10 +457,12 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			set_direction(S);
+			if (!sitting || !sit_direction_locked) {
+				set_direction(S);
+			}
 		}
 		else if (brain->b1 && sitting) {
-			sitting = false;
+			set_sitting(false);
 			set_direction(direction);
 		}
 	}
@@ -629,7 +667,6 @@ void Map_Entity::follow_path()
 	}
 
 	moving = true;
-	sitting = false;
 
 	maybe_move();
 }
