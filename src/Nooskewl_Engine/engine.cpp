@@ -1701,6 +1701,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 		else if (key == "solid") {
 			entity->set_solid(atoi(value.c_str()) != 0);
 		}
+		else if (key == "high") {
+			entity->set_high(atoi(value.c_str()) != 0);
+		}
 		else if (key == "stats") {
 			has_stats = true;
 		}
