@@ -95,6 +95,8 @@ private:
 
 	static bool quitting;
 	static bool quit;
+	static bool showing_items;
+	static bool set_the_labels;
 
 	Widget_Text_Button *quit_button;
 	Widget_Text_Button *save_button;
@@ -109,8 +111,8 @@ private:
 	Widget_Label *mp_label;
 	Widget_Label *experience_label;
 
-	Widget_Label *weapon_label;
-	Widget_Label *armour_label;
+	Widget_Image *weapon_image;
+	Widget_Image *armour_image;
 
 	Widget_Label *attack_label;
 	Widget_Label *defense_label;
@@ -155,7 +157,7 @@ private:
 
 class NOOSKEWL_ENGINE_EXPORT Items_GUI : public GUI {
 public:
-	Items_GUI(Item::Type type);
+	Items_GUI(Item::Type type, Callback callback);
 
 	void handle_event(TGUI_Event *event);
 	bool update();
@@ -175,7 +177,10 @@ private:
 
 	std::vector<int> indices; // index into inventory
 
+	Item::Type type;
 	bool exit_menu;
+
+	Callback callback;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {

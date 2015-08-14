@@ -22,6 +22,8 @@ bool Title_GUI::loaded;
 
 bool Pause_GUI::quitting;
 bool Pause_GUI::quit;
+bool Pause_GUI::showing_items;
+bool Pause_GUI::set_the_labels;
 
 GUI::GUI() :
 	focus(0)
@@ -401,6 +403,14 @@ void Pause_GUI::callback(void *data)
 	if (quitting) {
 		quitting = false;
 		quit = data != 0;
+		if (quit) {
+			showing_items = false;
+			set_the_labels = false;
+		}
+	}
+	else if (showing_items) {
+		showing_items = false;
+		set_the_labels = true;
 	}
 }
 
@@ -510,18 +520,18 @@ Pause_GUI::Pause_GUI() :
 	experience = new Widget_Label("", -1);
 	experience->set_parent(column1);
 
-	weapon_label = new Widget_Label(TRANSLATE("Weapon")END + ": ", -1);
-	weapon_label->set_break_line(true);
-	weapon_label->set_padding_top((int)noo.font->get_height()+2);
-	weapon_label->set_parent(column1);
+	weapon_image = new Widget_Image(new Image("weapon_icon.tga"));
+	weapon_image->set_break_line(true);
+	weapon_image->set_padding_top((int)noo.font->get_height()+2);
+	weapon_image->set_parent(column1);
 
 	weapon = new Widget_Label("", -1);
 	weapon->set_padding_top((int)noo.font->get_height()+2);
 	weapon->set_parent(column1);
 
-	armour_label = new Widget_Label(TRANSLATE("Armour")END + ": ", -1);
-	armour_label->set_break_line(true);
-	armour_label->set_parent(column1);
+	armour_image = new Widget_Image(new Image("armour_icon.tga"));
+	armour_image->set_break_line(true);
+	armour_image->set_parent(column1);
 
 	armour = new Widget_Label("", -1);
 	armour->set_parent(column1);
@@ -668,19 +678,30 @@ bool Pause_GUI::update()
 	}
 
 	if (items_button->pressed()) {
-		Items_GUI *items_gui = new Items_GUI(Item::OTHER);
+		showing_items = true;
+		set_the_labels = false;
+		Items_GUI *items_gui = new Items_GUI(Item::OTHER, callback);
 		items_gui->start();
 		noo.guis.push_back(items_gui);
 	}
 	else if (weapons_button->pressed()) {
-		Items_GUI *items_gui = new Items_GUI(Item::WEAPON);
+		showing_items = true;
+		set_the_labels = false;
+		Items_GUI *items_gui = new Items_GUI(Item::WEAPON, callback);
 		items_gui->start();
 		noo.guis.push_back(items_gui);
 	}
 	else if (armour_button->pressed()) {
-		Items_GUI *items_gui = new Items_GUI(Item::ARMOUR);
+		showing_items = true;
+		set_the_labels = false;
+		Items_GUI *items_gui = new Items_GUI(Item::ARMOUR, callback);
 		items_gui->start();
 		noo.guis.push_back(items_gui);
+	}
+
+	if (set_the_labels) {
+		set_the_labels = false;
+		set_labels();
 	}
 
 	return do_return(true);
@@ -732,11 +753,17 @@ void Pause_GUI::set_labels()
 	mp->set_text(string_printf("%d/%d", stats->mp, stats->max_mp));
 	experience->set_text(string_printf("%d", stats->experience));
 
-	if (stats->weapon != 0) {
-		weapon->set_text(stats->weapon->name);
+	if (stats->weapon_index >= 0) {
+		weapon->set_text(stats->inventory->items[stats->weapon_index][0]->name);
 	}
-	if (stats->armour != 0) {
-		armour->set_text(stats->armour->name);
+	else {
+		weapon->set_text("");
+	}
+	if (stats->armour_index >= 0) {
+		armour->set_text(stats->inventory->items[stats->armour_index][0]->name);
+	}
+	else {
+		armour->set_text("");
 	}
 
 	attack->set_text(string_printf("%d", stats->attack));
@@ -752,23 +779,21 @@ void Pause_GUI::set_labels()
 	rest->set_text(string_printf("%d%%", int((((float)stats->rest / 0xffff) * 2.0f - 1.0f) * 100)));
 	sobriety->set_text(string_printf("%d%%", int((((float)stats->sobriety / 0xffff) * 2.0f - 1.0f) * 100)));
 
-	int max_w = 0;
+	int max_w;
 
+	max_w = 0;
 	max_w = MAX(max_w, alignment_label->get_width());
 	max_w = MAX(max_w, sex_label->get_width());
+	alignment_label->set_width(max_w);
+	sex_label->set_width(max_w);
+
+	max_w = 0;
 	max_w = MAX(max_w, hp_label->get_width());
 	max_w = MAX(max_w, mp_label->get_width());
 	max_w = MAX(max_w, experience_label->get_width());
-	max_w = MAX(max_w, weapon_label->get_width());
-	max_w = MAX(max_w, armour_label->get_width());
-
-	alignment_label->set_width(max_w);
-	sex_label->set_width(max_w);
 	hp_label->set_width(max_w);
 	mp_label->set_width(max_w);
 	experience_label->set_width(max_w);
-	weapon_label->set_width(max_w);
-	armour_label->set_width(max_w);
 
 	max_w = 0;
 	max_w = MAX(max_w, attack_label->get_width());
@@ -818,8 +843,10 @@ bool Pause_GUI::fade_done(bool fading_in) {
 
 //--
 
-Items_GUI::Items_GUI(Item::Type type) :
-	exit_menu(false)
+Items_GUI::Items_GUI(Item::Type type, Callback callback) :
+	type(type),
+	exit_menu(false),
+	callback(callback)
 {
 	stats = noo.map->get_entity(0)->get_stats();
 
@@ -841,6 +868,8 @@ Items_GUI::Items_GUI(Item::Type type) :
 	Inventory *inventory = stats->inventory;
 	std::vector< std::vector<Item *> > &items = inventory->items;
 
+	int hilight = -1;
+
 	std::vector<std::string> item_list;
 	for (size_t i = 0; i < items.size(); i++) {
 		int count = items[i].size();
@@ -849,6 +878,12 @@ Items_GUI::Items_GUI(Item::Type type) :
 				std::string name = items[i][0]->name;
 				item_list.push_back(itos(count) + " " + name);
 				indices.push_back(i);
+				if (type == Item::WEAPON && i == stats->weapon_index) {
+					hilight = item_list.size() - 1;
+				}
+				else if (type == Item::ARMOUR && i == stats->armour_index) {
+					hilight = item_list.size() - 1;
+				}
 			}
 		}
 	}
@@ -864,6 +899,7 @@ Items_GUI::Items_GUI(Item::Type type) :
 		list = new Widget_List(0.4f, 1.0f);
 		std::vector<std::string> &v = list->get_items();
 		v.insert(v.begin(), item_list.begin(), item_list.end());
+		list->set_hilight(hilight);
 		list->set_parent(pad);
 	}
 
@@ -917,8 +953,38 @@ bool Items_GUI::update()
 {
 	set_labels();
 
+	int pressed;
+
 	if (done_button->pressed() || exit_menu) {
+		callback(0);
 		return do_return(false);
+	}
+	else if (list && ((pressed = list->pressed()) >= 0)) {
+		int index = indices[pressed];
+		if (type == Item::WEAPON) {
+			if (stats->weapon_index == index) {
+				stats->weapon_index = -1;
+				list->set_hilight(-1);
+			}
+			else {
+				stats->weapon_index = index;
+				list->set_hilight(index);
+			}
+		}
+		else if (type == Item::ARMOUR) {
+			if (stats->armour_index == index) {
+				stats->armour_index = -1;
+				list->set_hilight(-1);
+			}
+			else {
+				stats->armour_index = index;
+				list->set_hilight(index);
+			}
+		}
+		else {
+			// FIXME
+		}
+		set_labels();
 	}
 
 	return do_return(true);
