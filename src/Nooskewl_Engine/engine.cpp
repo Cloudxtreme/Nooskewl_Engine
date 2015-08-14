@@ -1842,6 +1842,12 @@ Stats *Engine::load_stats(SDL_RWops *file)
 			else if (key == "experience") {
 				stats->experience = v;
 			}
+			else if (key == "weapon") {
+				stats->weapon_index = v;
+			}
+			else if (key == "armour") {
+				stats->armour_index = v;
+			}
 		}
 	}
 
