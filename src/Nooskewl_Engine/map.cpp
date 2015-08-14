@@ -130,9 +130,13 @@ std::vector<Map_Entity *> Map::get_colliding_entities(int layer, Point<int> posi
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		Point<int> p = e->get_position();
-		Size<int> size1(size.w/noo.tile_size, 1); // FIXME: change this if we get 'big' entities
-		if (p.x >= position.x && p.x < position.x+size.w && p.y >= position.y && p.y < position.y+size.h) {
+		Point<int> pos1 = e->get_position() * noo.tile_size;
+		Size<int> size1 = e->get_size();
+		pos1.x += noo.tile_size / 2 - size1.w / 2;
+		pos1.y -= (size1.h - noo.tile_size);
+		Point<int> pos2 = position * noo.tile_size;
+		Size<int> size2 = size * noo.tile_size;
+		if (!(pos1.x >= pos2.x+size2.w || pos1.x+size1.w <= pos2.x || pos1.y >= pos2.y+size2.h || pos1.y+size1.h <= pos2.y)) {
 			result.push_back(e);
 		}
 	}
@@ -408,7 +412,9 @@ bool Map::activate(Map_Entity *entity)
 	entity->stop();
 	Direction dir = entity->get_direction();
 	Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
-	Size<int> size(noo.tile_size, noo.tile_size);
+	Size<int> size = entity->get_size();
+	pos.x += noo.tile_size / 2 - size.w / 2;
+	pos.y -= (size.h - noo.tile_size);
 	switch (dir) {
 		case N:
 			pos.y -= noo.tile_size*2;
@@ -440,25 +446,20 @@ bool Map::activate(Map_Entity *entity)
 		}
 	}
 
-	// check for chairs
-	// NOTE: dividing here
-	pos /= noo.tile_size;
-	size /= noo.tile_size;
-
 	switch (dir) {
 		case N:
-			pos.y++;
-			size.h--;
+			pos.y += noo.tile_size;
+			size.h -= noo.tile_size;
 			break;
 		case E:
-			size.w--;
+			size.w -= noo.tile_size;
 			break;
 		case S:
-			size.h--;
+			size.h -= noo.tile_size;
 			break;
 		case W:
-			pos.x++;
-			size.w--;
+			pos.x += noo.tile_size;
+			size.w -= noo.tile_size;
 			break;
 	}
 
@@ -476,6 +477,10 @@ bool Map::activate(Map_Entity *entity)
 		int y1_2 = g->position.y;
 		int x2_2 = g->position.x + g->size.w;
 		int y2_2 = g->position.y + g->size.h;
+		x1_2 *= noo.tile_size;
+		y1_2 *= noo.tile_size;
+		x2_2 *= noo.tile_size;
+		y2_2 *= noo.tile_size;
 
 		if (x1_1 >= x2_2 || x2_1 <= x1_2 || y1_1 >= y2_2 || y2_1 <= y1_2) {
 			continue;
