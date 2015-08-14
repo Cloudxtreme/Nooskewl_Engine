@@ -11,6 +11,27 @@
 
 using namespace Nooskewl_Engine;
 
+struct Sit_Data {
+	Map_Entity *entity;
+	bool any;
+	Direction direction;
+};
+
+static void sit_callback(void *data)
+{
+	Sit_Data *sit_data = (Sit_Data *)data;
+
+	if (!sit_data->any) {
+		sit_data->entity->set_direction(sit_data->direction);
+	}
+	sit_data->entity->set_sitting(true);
+	if (!sit_data->any) {
+		sit_data->entity->lock_sit_direction(true);
+	}
+
+	delete sit_data;
+}
+
 const float Map::PAN_BACK_SPEED = 2.0f;
 
 void Map::new_game_started()
@@ -192,9 +213,9 @@ Point<float> Map::get_pan()
 	return pan;
 }
 
-std::list<A_Star::Node *> Map::find_path(Point<int> start, Point<int> goal)
+std::list<A_Star::Node *> Map::find_path(Point<int> start, Point<int> goal, bool check_solids)
 {
-	return a_star->find_path(start, goal);
+	return a_star->find_path(start, goal, check_solids);
 }
 
 bool Map::is_speech_active()
@@ -416,6 +437,119 @@ bool Map::activate(Map_Entity *entity)
 				b->activate(entity);
 			}
 			return true;
+		}
+	}
+
+	// check for chairs
+	// NOTE: dividing here
+	pos /= noo.tile_size;
+	size /= noo.tile_size;
+
+	switch (dir) {
+		case N:
+			pos.y++;
+			size.h--;
+			break;
+		case E:
+			size.w--;
+			break;
+		case S:
+			size.h--;
+			break;
+		case W:
+			pos.x++;
+			size.w--;
+			break;
+	}
+
+	std::vector<Tilemap::Group *> groups = tilemap->get_groups(-1);
+
+	for (size_t i = 0; i < groups.size(); i++) {
+		Tilemap::Group *g = groups[i];
+
+		int x1_1 = pos.x;
+		int y1_1 = pos.y;
+		int x2_1 = pos.x + size.w;
+		int y2_1 = pos.y + size.h;
+
+		int x1_2 = g->position.x;
+		int y1_2 = g->position.y;
+		int x2_2 = g->position.x + g->size.w;
+		int y2_2 = g->position.y + g->size.h;
+
+		if (x1_1 >= x2_2 || x2_1 <= x1_2 || y1_1 >= y2_2 || y2_1 <= y1_2) {
+			continue;
+		}
+
+		Point<int> entity_pos = entity->get_position();
+
+		if (g->position == entity_pos) {
+			if (
+				(g->type & Tilemap::Group::GROUP_CHAIR_ANY) ||
+				(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
+				(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
+				(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
+				(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
+			) {
+				entity->set_sitting(true);
+
+				return true;
+			}
+		}
+		else {
+			if (is_solid(-1, 0, g->position, Size<int>(1, 1), true, false)) {
+				continue;
+			}
+
+			bool any;
+			Direction direction = entity->get_direction();
+
+			std::list<A_Star::Node *> path;
+
+			if (g->type & Tilemap::Group::GROUP_CHAIR_ANY) {
+				any = true;
+				path = find_path(entity_pos, g->position, false);
+			}
+			else {
+				any = false;
+				if (direction == N) {
+					if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
+						path = find_path(entity_pos, g->position, false);
+						direction = S;
+					}
+				}
+				else if (direction == E) {
+					if (g->type & Tilemap::Group::GROUP_CHAIR_WEST) {
+						path = find_path(entity_pos, g->position, false);
+						direction = W;
+					}
+				}
+				else if (direction == S) {
+					if (g->type & Tilemap::Group::GROUP_CHAIR_NORTH) {
+						path = find_path(entity_pos, g->position, false);
+						direction = N;
+					}
+				}
+				else {
+					if (g->type & Tilemap::Group::GROUP_CHAIR_EAST) {
+						path = find_path(entity_pos, g->position, false);
+						direction = E;
+					}
+				}
+			}
+
+			if (path.size() > 0) {
+				entity->set_pre_sit_position(entity_pos);
+				entity->set_solid(false);
+
+				Sit_Data *sit_data = new Sit_Data;
+				sit_data->entity = entity;
+				sit_data->any = any;
+				sit_data->direction = direction;
+				entity->set_path(path, sit_callback, sit_data);
+
+				return true;
+			}
 		}
 	}
 
