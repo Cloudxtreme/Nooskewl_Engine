@@ -38,7 +38,7 @@ Map_Entity::Map_Entity(std::string name) :
 	speed(0.1f),
 	offset(0.0f, 0.0f),
 	solid(true),
-	size(noo.tile_size, noo.tile_size*2),
+	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false),
 	sitting(false),
 	input_enabled(true),
@@ -117,6 +117,11 @@ void Map_Entity::set_sprite(Sprite *sprite)
 void Map_Entity::set_position(Point<int> position)
 {
 	this->position = position;
+}
+
+void Map_Entity::set_size(Size<int> size)
+{
+	this->size = size;
 }
 
 void Map_Entity::set_offset(Point<float> offset)
@@ -357,8 +362,9 @@ int Map_Entity::get_z()
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
-	Size<int> size2(this->size.w, noo.tile_size);
-	if (pos.x >= position.x+size.w || pos.x+size2.w <= position.x || pos.y >= position.y+size.h || pos.y+size2.h <= position.y) {
+	pos.x += noo.tile_size / 2 - this->size.w / 2;
+	pos.y -= (this->size.h - noo.tile_size);
+	if (pos.x >= position.x+size.w || pos.x+this->size.w <= position.x || pos.y >= position.y+size.h || pos.y+this->size.h <= position.y) {
 		return false;
 	}
 	return true;
@@ -366,7 +372,8 @@ bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 
 bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &collide_pos)
 {
-	if (this->position.x >= position.x && this->position.x < position.x+size.w && this->position.y >= position.y && this->position.y < position.y+size.h) {
+	Size<int> size2 = this->size / noo.tile_size;
+	if (!(this->position.x >= position.x+size.w || this->position.x+size2.w <= position.x || this->position.y >= position.y+size.h || this->position.y+size2.h <= position.y)) {
 		collide_pos = Point<int>(this->position.x-position.x, this->position.y-position.y);
 		return true;
 	}
@@ -375,12 +382,16 @@ bool Map_Entity::tiles_collide(Point<int> position, Size<int> size, Point<int> &
 
 bool Map_Entity::entity_collides(Map_Entity *entity)
 {
-	Point<int> pos = (position + offset) * noo.tile_size;
+	Point<int> pos1 = (position + offset) * noo.tile_size;
+	Size<int> size1 = size;
+	pos1.x += noo.tile_size / 2 - size1.w / 2;
+	pos1.y -= (size1.h - noo.tile_size);
 	Point<int> pos2 = (entity->get_position() + entity->get_offset()) * noo.tile_size;
-	Size<int> size1(size.w, noo.tile_size); // FIXME: change this if we get 'big' entities
-	Size<int> size2(entity->get_size().w, noo.tile_size); // FIXME and this
+	Size<int> size2 = entity->get_size();
+	pos2.x += noo.tile_size / 2 - size2.w / 2;
+	pos2.y -= (size2.h - noo.tile_size);
 
-	if ((pos.x >= pos2.x+size2.w) || (pos.x+size1.w <= pos2.x) || (pos.y >= pos2.y+size2.h) || (pos.y+size1.h <= pos2.y)) {
+	if ((pos1.x >= pos2.x+size2.w) || (pos1.x+size1.w <= pos2.x) || (pos1.y >= pos2.y+size2.h) || (pos1.y+size1.h <= pos2.y)) {
 		return false;
 	}
 
@@ -718,6 +729,10 @@ bool Map_Entity::save(SDL_RWops *file)
 
 	if (solid == false) {
 		SDL_fprintf(file, ",solid=%d", solid ? 1 : 0);
+	}
+
+	if (high == true) {
+		SDL_fprintf(file, ",high=%d", high ? 1 : 0);
 	}
 
 	if (stats != 0) {
