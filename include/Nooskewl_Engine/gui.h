@@ -168,9 +168,9 @@ private:
 	Widget_List *list;
 	Widget_Text_Button *done_button;
 
-	Widget_Label *condition_label;
 	Widget_Label *weight_label;
 	Widget_Label *value_label;
+	Widget_Label *condition_label;
 	Widget_Label *properties_label;
 
 	std::vector<int> indices; // index into inventory
