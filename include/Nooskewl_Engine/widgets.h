@@ -138,6 +138,8 @@ public:
 	int pressed();
 	int get_selected();
 
+	void set_hilight(int hilight);
+
 private:
 	void init();
 	void up();
@@ -159,6 +161,8 @@ private:
 	bool clicked;
 	Point<int> mouse_down_point;
 	int mouse_down_row;
+
+	int hilight;
 };
 
 } // End namespace Nooskewl_Engine

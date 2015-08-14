@@ -557,7 +557,17 @@ void Widget_List::draw()
 				enable_focus_shader(false);
 			}
 		}
-		noo.font->draw(noo.white, items[i], Point<int>(calculated_x+2, y+1));
+		SDL_Colour colour;
+		if  (i == hilight) {
+			colour.r = 255;
+			colour.g = 255;
+			colour.b = 0;
+			colour.a = 255;
+		}
+		else {
+			colour = noo.white;
+		}
+		noo.font->draw(colour, items[i], Point<int>(calculated_x+2, y+1));
 		noo.font->disable_shadow();
 	}
 
@@ -588,6 +598,11 @@ int Widget_List::get_selected()
 	return selected;
 }
 
+void Widget_List::set_hilight(int hilight)
+{
+	this->hilight = hilight;
+}
+
 void Widget_List::init()
 {
 	accepts_focus = true;
@@ -603,6 +618,8 @@ void Widget_List::init()
 	pressed_item = -1;
 
 	mouse_down = false;
+
+	hilight = -1;
 }
 
 void Widget_List::up()
