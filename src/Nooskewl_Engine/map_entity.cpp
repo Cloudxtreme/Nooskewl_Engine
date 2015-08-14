@@ -747,7 +747,7 @@ bool Map_Entity::save(SDL_RWops *file)
 	if (stats != 0) {
 		SDL_fprintf(
 			file,
-			"stats=name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d\n",
+			"stats=name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d,weapon=%d,armour=%d\n",
 			stats->name.c_str(),
 			stats->profile_pic->filename.c_str(),
 			(int)stats->alignment,
@@ -763,7 +763,9 @@ bool Map_Entity::save(SDL_RWops *file)
 			stats->luck,
 			stats->speed,
 			stats->strength,
-			stats->experience
+			stats->experience,
+			stats->weapon_index,
+			stats->armour_index
 		);
 
 		if (stats->inventory != 0) {
