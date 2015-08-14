@@ -16,14 +16,14 @@ A_Star::~A_Star()
 	destroy_nodes(closed);
 }
 
-std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
+std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal, bool check_solids)
 {
 	delete final_node;
 	final_node = 0;
 	destroy_nodes(open);
 	destroy_nodes(closed);
 
-	if (map->is_solid(-1, 0, goal, Size<int>(1, 1))) {
+	if (check_solids && map->is_solid(-1, 0, goal, Size<int>(1, 1))) {
 		// No path since the goal is solid
 		std::list<Node *> path;
 		return path;
@@ -51,10 +51,10 @@ std::list<A_Star::Node *> A_Star::find_path(Point<int> start, Point<int> goal)
 			return path;
 		}
 		else {
-			branch(node, Point<int>(0, -1), goal);
-			branch(node, Point<int>(-1, 0), goal);
-			branch(node, Point<int>(1, 0), goal);
-			branch(node, Point<int>(0, 1), goal);
+			branch(node, Point<int>(0, -1), goal, check_solids);
+			branch(node, Point<int>(-1, 0), goal, check_solids);
+			branch(node, Point<int>(1, 0), goal, check_solids);
+			branch(node, Point<int>(0, 1), goal, check_solids);
 		}
 		closed.push_back(node);
 	}
@@ -102,10 +102,10 @@ void A_Star::destroy_nodes(std::list<Node *> &list)
 	}
 }
 
-void A_Star::branch(Node *node, Point<int> offset, Point<int> goal)
+void A_Star::branch(Node *node, Point<int> offset, Point<int> goal, bool check_solids)
 {
 	Point<int> new_position = node->position + offset;
-	if (map->is_solid(-1, 0, new_position, Size<int>(1, 1))) {
+	if (check_solids && map->is_solid(-1, 0, new_position, Size<int>(1, 1))) {
 		return;
 	}
 

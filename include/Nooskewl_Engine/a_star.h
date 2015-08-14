@@ -21,14 +21,14 @@ public:
 	A_Star(Map *map);
 	~A_Star();
 
-	std::list<Node *> find_path(Point<int> start, Point<int> goal);
+	std::list<Node *> find_path(Point<int> start, Point<int> goal, bool check_solids = true);
 
 private:
 	Node *find_in_list(Point<int> position, std::list<Node *> &list);
 	void remove_from_list(Node *node, std::list<Node *> &list);
 	void add_to_open(Node *node);
 	void destroy_nodes(std::list<Node *> &list);
-	void branch(Node *node, Point<int> offset, Point<int> goal);
+	void branch(Node *node, Point<int> offset, Point<int> goal, bool check_solids = true);
 	int heuristic(Point<int> start, Point<int> end);
 
 	Map *map;
