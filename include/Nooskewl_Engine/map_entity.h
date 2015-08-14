@@ -33,6 +33,7 @@ public:
 	void load_sprite(std::string name);
 	void set_sprite(Sprite *sprite);
 	void set_position(Point<int> position);
+	void set_size(Size<int> size);
 	void set_offset(Point<float> offset);
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
