@@ -105,45 +105,50 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		if (noo.player->is_input_enabled()) {
 			if (pressed) {
 				if (dragged == false) {
-					Point<float> mouse_pos(event->mouse.x, event->mouse.y);
-					float moved_distance = (mouse_pos-pressed_pos).length();
-					if (moved_distance < (float)TOLERANCE) {
-						Point<float> map_offset = noo.map->get_offset();
-						Point<float> map_pan = noo.map->get_pan();
-						Point<int> click((int)event->mouse.x, (int)event->mouse.y);
-						Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
-						click -= map_offset;
-						click += map_pan;
-						click /= noo.tile_size;
-						Point<int> player_pos = noo.player->get_position();
-						if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
-							int dx = click.x - player_pos.x;
-							int dy = click.y - player_pos.y;
-							bool activated = false;
-							if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
-								std::vector<Map_Entity *> colliding_entities = noo.map->get_colliding_entities(-1, click, Size<int>(1, 1));
-								if (colliding_entities.size() > 0) {
-									Direction direction;
-									if (dx < 0) {
-										direction = W;
+					if (noo.player->is_sitting()) {
+						noo.player->set_sitting(false);
+					}
+					else {
+						Point<float> mouse_pos(event->mouse.x, event->mouse.y);
+						float moved_distance = (mouse_pos-pressed_pos).length();
+						if (moved_distance < (float)TOLERANCE) {
+							Point<float> map_offset = noo.map->get_offset();
+							Point<float> map_pan = noo.map->get_pan();
+							Point<int> click((int)event->mouse.x, (int)event->mouse.y);
+							Size<int> tilemap_size = noo.map->get_tilemap()->get_size() * noo.tile_size;
+							click -= map_offset;
+							click += map_pan;
+							click /= noo.tile_size;
+							Point<int> player_pos = noo.player->get_position();
+							if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
+								int dx = click.x - player_pos.x;
+								int dy = click.y - player_pos.y;
+								bool activated = false;
+								if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
+									std::vector<Map_Entity *> colliding_entities = noo.map->get_colliding_entities(-1, click, Size<int>(1, 1));
+									if (colliding_entities.size() > 0) {
+										Direction direction;
+										if (dx < 0) {
+											direction = W;
+										}
+										else if (dx > 0) {
+											direction = E;
+										}
+										else if (dy < 0) {
+											direction = N;
+										}
+										else {
+											direction = S;
+										}
+										noo.player->set_direction(direction);
+										activated = noo.map->activate(noo.player);
 									}
-									else if (dx > 0) {
-										direction = E;
-									}
-									else if (dy < 0) {
-										direction = N;
-									}
-									else {
-										direction = S;
-									}
-									noo.player->set_direction(direction);
-									activated = noo.map->activate(noo.player);
 								}
-							}
-							if (activated == false) {
-								std::list<A_Star::Node *> path = noo.map->find_path(player_pos, click);
-								if (path.size() > 0) {
-									noo.player->set_path(path);
+								if (activated == false) {
+									std::list<A_Star::Node *> path = noo.map->find_path(player_pos, click);
+									if (path.size() > 0) {
+										noo.player->set_path(path);
+									}
 								}
 							}
 						}
