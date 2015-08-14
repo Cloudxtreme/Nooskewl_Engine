@@ -231,6 +231,11 @@ public:
 		return this->x == rhs.x && this->y == rhs.y;
 	}
 
+	inline bool operator!=(const Point<T> &rhs)
+	{
+		return this->x != rhs.x || this->y != rhs.y;
+	}
+
 	inline Point<T> operator+(const T &rhs)
 	{
 		Point<T> p;
