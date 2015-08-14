@@ -47,10 +47,10 @@ public:
 	uint16_t rest;
 	uint16_t sobriety;
 
-	Item *weapon;
-	Item *armour;
-
 	Inventory *inventory;
+
+	int weapon_index; // indices into inventory
+	int armour_index;
 
 	Stats();
 	Stats(std::string name);
