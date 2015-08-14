@@ -322,9 +322,9 @@ bool Title_GUI::check_loaded()
 bool Title_GUI::fade_done(bool fade_in)
 {
 	if (fade_in == false) {
-		if (do_new_game) {
-			Map::new_game_started();
+		Map::new_game_started();
 
+		if (do_new_game) {
 			noo.player = new Map_Entity("player");
 			noo.player->set_brain(new Player_Brain());
 			noo.player->load_sprite("player");
@@ -870,9 +870,6 @@ Items_GUI::Items_GUI(Item::Type type) :
 	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
 	info->set_parent(pad);
 
-	condition_label = new Widget_Label("", 70);
-	condition_label->set_parent(info);
-
 	weight_label = new Widget_Label("", 70);
 	weight_label->set_parent(info);
 	weight_label->set_break_line(true);
@@ -880,6 +877,9 @@ Items_GUI::Items_GUI(Item::Type type) :
 	value_label = new Widget_Label("", 70);
 	value_label->set_parent(info);
 	value_label->set_break_line(true);
+
+	condition_label = new Widget_Label("", 70);
+	condition_label->set_parent(info);
 
 	properties_label = new Widget_Label("", 70);
 	properties_label->set_parent(info);
@@ -928,12 +928,16 @@ void Items_GUI::set_labels()
 {
 	if (list != 0) {
 		int selected = list->get_selected();
+		selected = indices[selected];
 		Item *item = stats->inventory->items[selected][0];
 
-		int condition = 100 * item->condition / 16383;
-		condition_label->set_text(TRANSLATE("Condition")END + ": " + itos(condition) + "%");
+		int condition = 100 * item->condition / 0xffff;
 
 		weight_label->set_text(TRANSLATE("Weight")END + ": " + itos(item->weight));
+
+		if (item->type != Item::OTHER) {
+			condition_label->set_text(TRANSLATE("Condition")END + ": " + itos(condition) + "%");
+		}
 
 		int value = int(item->min_value + ((condition / 100.0f) * (item->max_value - item->min_value)));
 
