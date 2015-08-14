@@ -66,8 +66,8 @@ void Stats::defaults()
 	rest = 0xffff / 2;
 	sobriety = 0xffff / 2;
 
-	weapon = 0;
-	armour = 0;
+	weapon_index = -1;
+	armour_index = -1;
 
 	inventory = new Inventory();
 }
@@ -129,10 +129,10 @@ void Stats::handle_tag(XML *xml)
 			}
 		}
 		else if (tag == "weapon") {
-			weapon = new Item(xml->get_value());
+			weapon_index = atoi(xml->get_value().c_str());
 		}
 		else if (tag == "armour") {
-			armour = new Item(xml->get_value());
+			armour_index = atoi(xml->get_value().c_str());
 		}
 		else if (tag == "hp") {
 			hp = XML_Helpers::handle_numeric_tag(xml);
