@@ -142,12 +142,12 @@ private:
 	void setup_default_shader();
 
 	bool save_milestones(SDL_RWops *file);
-	bool load_milestones(SDL_RWops *file);
-	bool load_map(SDL_RWops *file);
-	Map_Entity *load_entity(SDL_RWops *file);
-	Brain *load_brain(SDL_RWops *file);
-	Stats *load_stats(SDL_RWops *file);
-	bool load_inventory(SDL_RWops *file, Stats *stats);
+	bool load_milestones(SDL_RWops *file, int version);
+	bool load_map(SDL_RWops *file, int version);
+	Map_Entity *load_entity(SDL_RWops *file, int version);
+	Brain *load_brain(SDL_RWops *file, int version);
+	Stats *load_stats(SDL_RWops *file, int version);
+	bool load_inventory(SDL_RWops *file, Stats *stats, int version);
 
 	SDL_Window *window;
 	bool vsync;

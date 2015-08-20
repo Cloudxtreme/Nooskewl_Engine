@@ -625,24 +625,33 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 #endif
 	}
 
+	bool is_escape;
+	if ((event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) || (event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2)) {
+		is_escape = true;
+	}
+	else {
+		is_escape = false;
+	}
+
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
 		noo_gui->handle_event(&event);
 		if (event.type == TGUI_FOCUS) {
 			widget_mml->play(false);
 		}
+		else if (is_escape && dynamic_cast<Title_GUI *>(noo_gui) != 0) {
+			return false;
+		}
+
 	}
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
 
-		if (
-			map->is_speech_active() == false &&
-			((event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) ||
-			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2))) {
-				noo.button_mml->play(false);
-				Pause_GUI *pause_gui = new Pause_GUI();
-				pause_gui->start();
-				guis.push_back(pause_gui);
+		if (map->is_speech_active() == false && is_escape) {
+			noo.button_mml->play(false);
+			Pause_GUI *pause_gui = new Pause_GUI();
+			pause_gui->start();
+			guis.push_back(pause_gui);
 		}
 	}
 
@@ -1507,7 +1516,7 @@ void Engine::setup_default_shader()
 
 bool Engine::save_game(SDL_RWops *file)
 {
-	SDL_fprintf(file, "version=101\n");
+	SDL_fprintf(file, "version=102\n");
 	if (save_milestones(file) == false) {
 		return false;
 	}
@@ -1539,10 +1548,10 @@ bool Engine::load_game(SDL_RWops *file)
 	std::string version = t.next();
 	int version_i = atoi(version.c_str());
 	// Do something with version
-	if (load_milestones(file) == false) {
+	if (load_milestones(file, version_i) == false) {
 		return false;
 	}
-	bool ret = load_map(file);
+	bool ret = load_map(file, version_i);
 	if (ret == true && version_i < 101) {
 		// Version 101 added stats load/save
 		noo.player->load_stats("player");
@@ -1550,7 +1559,7 @@ bool Engine::load_game(SDL_RWops *file)
 	return ret;
 }
 
-bool Engine::load_milestones(SDL_RWops *file)
+bool Engine::load_milestones(SDL_RWops *file, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1584,7 +1593,7 @@ bool Engine::load_milestones(SDL_RWops *file)
 	return true;
 }
 
-bool Engine::load_map(SDL_RWops *file)
+bool Engine::load_map(SDL_RWops *file, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1619,7 +1628,7 @@ bool Engine::load_map(SDL_RWops *file)
 		return false;
 	}
 
-	noo.player = load_entity(file);
+	noo.player = load_entity(file, version);
 	if (noo.player == 0) {
 		return false;
 	}
@@ -1631,7 +1640,7 @@ bool Engine::load_map(SDL_RWops *file)
 	noo.map->add_entity(noo.player);
 
 	for (int i = 1; i < num_entities; i++) {
-		Map_Entity *entity = load_entity(file);
+		Map_Entity *entity = load_entity(file, version);
 		if (entity == 0) {
 			return false;
 		}
@@ -1641,9 +1650,9 @@ bool Engine::load_map(SDL_RWops *file)
 	return true;
 }
 
-Map_Entity *Engine::load_entity(SDL_RWops *file)
+Map_Entity *Engine::load_entity(SDL_RWops *file, int version)
 {
-	Brain *brain = load_brain(file);
+	Brain *brain = load_brain(file, version);
 
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1716,7 +1725,7 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 	}
 
 	if (has_stats) {
-		Stats *stats = load_stats(file);
+		Stats *stats = load_stats(file, version);
 		if (stats == 0) {
 			delete entity;
 			return 0;
@@ -1724,7 +1733,7 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 		entity->set_stats(stats);
 
 		if (has_inventory) {
-			load_inventory(file, stats);
+			load_inventory(file, stats, version);
 		}
 	}
 
@@ -1734,7 +1743,7 @@ Map_Entity *Engine::load_entity(SDL_RWops *file)
 	return entity;
 }
 
-Brain *Engine::load_brain(SDL_RWops *file)
+Brain *Engine::load_brain(SDL_RWops *file, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1768,7 +1777,7 @@ Brain *Engine::load_brain(SDL_RWops *file)
 	return brain;
 }
 
-Stats *Engine::load_stats(SDL_RWops *file)
+Stats *Engine::load_stats(SDL_RWops *file, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1854,7 +1863,7 @@ Stats *Engine::load_stats(SDL_RWops *file)
 	return stats;
 }
 
-bool Engine::load_inventory(SDL_RWops *file, Stats *stats)
+bool Engine::load_inventory(SDL_RWops *file, Stats *stats, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1870,6 +1879,11 @@ bool Engine::load_inventory(SDL_RWops *file, Stats *stats)
 
 	t = Tokenizer(options, ',');
 	std::string option;
+
+	if (version >= 102) {
+		option = t.next();
+		stats->inventory->gold = atoi(option.c_str());
+	}
 
 	while ((option = t.next()) != "") {
 		Tokenizer t2(option, '=');
