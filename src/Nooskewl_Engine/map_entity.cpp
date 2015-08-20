@@ -33,6 +33,7 @@ Map_Entity::Map_Entity(std::string name) :
 	name(name),
 	direction(S),
 	sprite(0),
+	brain(0),
 	position(0, 0),
 	moving(false),
 	speed(0.1f),
@@ -769,7 +770,7 @@ bool Map_Entity::save(SDL_RWops *file)
 		);
 
 		if (stats->inventory != 0) {
-			SDL_fprintf(file, "inventory=");
+			SDL_fprintf(file, "inventory=%d,", stats->inventory->gold);
 			std::vector< std::vector<Item *> > &v = stats->inventory->items;
 			int count = 0;
 			for (size_t i = 0; i < v.size(); i++) {
