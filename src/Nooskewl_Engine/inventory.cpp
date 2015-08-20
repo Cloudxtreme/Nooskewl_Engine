@@ -4,6 +4,11 @@
 
 using namespace Nooskewl_Engine;
 
+static bool sort_items(std::vector<Item *> &a, std::vector<Item *> &b)
+{
+	return a[0]->name < b[0]->name;
+}
+
 Inventory::Inventory()
 {
 	gold = 0;
@@ -21,6 +26,8 @@ void Inventory::add(Item *item)
 	else {
 		items[index].push_back(item);
 	}
+
+	sort();
 }
 
 void Inventory::remove(Item *item)
@@ -45,6 +52,28 @@ int Inventory::get_total_weight()
 	}
 
 	return total_weight;
+}
+
+void Inventory::sort(int start, int end)
+{
+	std::vector< std::vector<Item *> >::iterator start_it;
+	std::vector< std::vector<Item *> >::iterator end_it;
+
+	if (start < 0) {
+		start_it = items.begin();
+		end_it = items.end();
+	}
+	else {
+		start_it = items.begin() + start;
+		if (end < 0 || end >= (int)items.size()) {
+			end_it = items.end();
+		}
+		else {
+			end_it = items.begin() + end;
+		}
+	}
+
+	std::sort(start_it, end_it, sort_items);
 }
 
 int Inventory::find(Item *item)

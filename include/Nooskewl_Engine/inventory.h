@@ -18,6 +18,7 @@ public:
 	void remove(Item *item);
 
 	int get_total_weight();
+	void sort(int start = -1, int end = -1);
 
 private:
 	int find(Item *item);
