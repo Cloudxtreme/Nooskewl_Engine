@@ -51,6 +51,7 @@ Map_Entity::Map_Entity(std::string name) :
 	stats(0),
 	high(false),
 	z(0),
+	z_add(0),
 	pre_sit_position_set(false),
 	sit_direction_locked(false)
 {
@@ -256,6 +257,11 @@ void Map_Entity::set_high(bool high)
 void Map_Entity::set_z(int z)
 {
 	this->z = z;
+}
+
+void Map_Entity::set_z_add(int z_add)
+{
+	this->z_add = z_add;
 }
 
 void Map_Entity::set_pre_sit_position(Point<int> pre_sit_position)
@@ -597,7 +603,7 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 
 	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 	// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
-	float draw_z = use_depth_buffer ? -(1.0f - (float)((position.y*noo.tile_size)+(offset.y*noo.tile_size))/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
+	float draw_z = use_depth_buffer ? 0.01f * ((float)((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(float)(noo.map->get_tilemap()->get_size().h*noo.tile_size)+z_add) : 0.0f;
 
 	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y), draw_z);
 
@@ -734,6 +740,10 @@ bool Map_Entity::save(SDL_RWops *file)
 
 	if (high == true) {
 		SDL_fprintf(file, ",high=%d", high ? 1 : 0);
+	}
+
+	if (z_add != 0) {
+		SDL_fprintf(file, ",z_add=%d", z_add);
 	}
 
 	if (stats != 0) {

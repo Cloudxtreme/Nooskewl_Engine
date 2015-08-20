@@ -46,6 +46,7 @@ public:
 	void set_stats(Stats *stats);
 	void set_high(bool high);
 	void set_z(int z);
+	void set_z_add(int z_add);
 	void set_pre_sit_position(Point<int> pre_sit_position);
 	void lock_sit_direction(bool lock);
 
@@ -123,6 +124,7 @@ private:
 
 	bool high;
 	int z;
+	int z_add;
 
 	bool pre_sit_position_set;
 	Point<int> pre_sit_position;
