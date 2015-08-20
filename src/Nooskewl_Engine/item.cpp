@@ -52,6 +52,12 @@ bool Item::load(std::string name)
 	return true;
 }
 
+int Item::get_value()
+{
+	int c = 100 * condition / 0xffff;
+	return int(min_value + ((c / 100.0f) * (max_value - min_value)));
+}
+
 void Item::handle_tag(XML *xml)
 {
 	std::string tag = xml->get_name();

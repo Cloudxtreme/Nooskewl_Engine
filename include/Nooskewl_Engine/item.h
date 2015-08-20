@@ -34,6 +34,8 @@ public:
 	void defaults();
 	bool load(std::string name);
 
+	int get_value();
+
 private:
 	void handle_tag(XML *xml);
 };
