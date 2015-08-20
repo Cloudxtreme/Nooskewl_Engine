@@ -260,7 +260,10 @@ void Map::update_camera()
 {
 	for (size_t i = 0; i < collisions.size(); i++) {
 		std::pair<Map_Entity *, Map_Entity *> &p = collisions[i];
-		p.first->get_brain()->collide(p.second);
+		Brain *brain = p.first->get_brain();
+		if (brain) {
+			brain->collide(p.second);
+		}
 	}
 	collisions.clear();
 
