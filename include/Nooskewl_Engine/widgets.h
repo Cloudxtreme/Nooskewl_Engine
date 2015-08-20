@@ -134,11 +134,13 @@ public:
 	void handle_event(TGUI_Event *event);
 	void draw();
 
-	std::vector<std::string> &get_items();
+	void set_items(std::vector<std::string> new_items);
 	int pressed();
 	int get_selected();
+	void set_selected(int selected);
 
-	void set_hilight(int hilight);
+	void set_hilight(int index, bool onoff);
+	bool is_hilighted(int index);
 
 private:
 	void init();
@@ -162,7 +164,7 @@ private:
 	Point<int> mouse_down_point;
 	int mouse_down_row;
 
-	int hilight;
+	std::vector<int> hilight;
 };
 
 } // End namespace Nooskewl_Engine

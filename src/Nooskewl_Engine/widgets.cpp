@@ -558,7 +558,7 @@ void Widget_List::draw()
 			}
 		}
 		SDL_Colour colour;
-		if  (i == hilight) {
+		if  (is_hilighted(i)) {
 			colour.r = 255;
 			colour.g = 255;
 			colour.b = 0;
@@ -581,9 +581,11 @@ void Widget_List::draw()
 	}
 }
 
-std::vector<std::string> &Widget_List::get_items()
+void Widget_List::set_items(std::vector<std::string> new_items)
 {
-	return items;
+	items.clear();
+	items.insert(items.begin(), new_items.begin(), new_items.end());
+	accepts_focus = items.size() != 0;
 }
 
 int Widget_List::pressed()
@@ -598,9 +600,30 @@ int Widget_List::get_selected()
 	return selected;
 }
 
-void Widget_List::set_hilight(int hilight)
+void Widget_List::set_selected(int selected)
 {
-	this->hilight = hilight;
+	this->selected = selected;
+}
+
+void Widget_List::set_hilight(int index, bool onoff)
+{
+	std::vector<int>::iterator it = std::find(hilight.begin(), hilight.end(), index);
+
+	if (onoff) {
+		if (it == hilight.end()) {
+			hilight.push_back(index);
+		}
+	}
+	else {
+		if (it != hilight.end()) {
+			hilight.erase(it);
+		}
+	}
+}
+
+bool Widget_List::is_hilighted(int index)
+{
+	return std::find(hilight.begin(), hilight.end(), index) != hilight.end();
 }
 
 void Widget_List::init()
@@ -618,8 +641,6 @@ void Widget_List::init()
 	pressed_item = -1;
 
 	mouse_down = false;
-
-	hilight = -1;
 }
 
 void Widget_List::up()
