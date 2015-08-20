@@ -1,5 +1,5 @@
-#ifndef Widget_H
-#define Widget_H
+#ifndef GUI_H
+#define GUI_H
 
 #include "Nooskewl_Engine/main.h"
 #include "Nooskewl_Engine/item.h"
@@ -107,6 +107,7 @@ private:
 	Widget_Image *profile_image;
 	Widget_Label *alignment_label;
 	Widget_Label *sex_label;
+	Widget_Label *gold_label;
 	Widget_Label *hp_label;
 	Widget_Label *mp_label;
 	Widget_Label *experience_label;
@@ -129,6 +130,7 @@ private:
 	Widget_Label *name;
 	Widget_Label *alignment;
 	Widget_Label *sex;
+	Widget_Label *gold;
 	Widget_Label *hp;
 	Widget_Label *mp;
 	Widget_Label *experience;
@@ -229,4 +231,4 @@ private:
 
 } // End namespace Nooskewl_Engine
 
-#endif // Widget_H
+#endif // GUI_H

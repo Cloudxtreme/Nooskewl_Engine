@@ -497,6 +497,13 @@ Pause_GUI::Pause_GUI() :
 	sex = new Widget_Label("", -1);
 	sex->set_parent(column1);
 
+	gold_label = new Widget_Label(TRANSLATE("Gold")END + ": ", -1);
+	gold_label->set_break_line(true);
+	gold_label->set_parent(column1);
+
+	gold = new Widget_Label("", -1);
+	gold->set_parent(column1);
+
 	hp_label = new Widget_Label(TRANSLATE("HP")END + ": ", -1);
 	hp_label->set_break_line(true);
 	hp_label->set_padding_top((int)noo.font->get_height()+2);
@@ -749,6 +756,8 @@ void Pause_GUI::set_labels()
 		sex->set_text(TRANSLATE("Unknown")END);
 	}
 
+	gold->set_text(string_printf("%d", stats->inventory->gold));
+
 	hp->set_text(string_printf("%d/%d", stats->hp, stats->max_hp));
 	mp->set_text(string_printf("%d/%d", stats->mp, stats->max_mp));
 	experience->set_text(string_printf("%d", stats->experience));
@@ -784,8 +793,10 @@ void Pause_GUI::set_labels()
 	max_w = 0;
 	max_w = MAX(max_w, alignment_label->get_width());
 	max_w = MAX(max_w, sex_label->get_width());
+	max_w = MAX(max_w, gold_label->get_width());
 	alignment_label->set_width(max_w);
 	sex_label->set_width(max_w);
+	gold_label->set_width(max_w);
 
 	max_w = 0;
 	max_w = MAX(max_w, hp_label->get_width());
@@ -897,29 +908,29 @@ Items_GUI::Items_GUI(Item::Type type, Callback callback) :
 	}
 	else {
 		list = new Widget_List(0.4f, 1.0f);
-		std::vector<std::string> &v = list->get_items();
-		v.insert(v.begin(), item_list.begin(), item_list.end());
-		list->set_hilight(hilight);
+		list->set_items(item_list);
+		list->set_hilight(hilight, true);
 		list->set_parent(pad);
 	}
 
 	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
 	info->set_parent(pad);
 
-	weight_label = new Widget_Label("", 70);
-	weight_label->set_parent(info);
+	weight_label = new Widget_Label(TRANSLATE("Weight")END + ": -", 70);
 	weight_label->set_break_line(true);
+	weight_label->set_parent(info);
 
-	value_label = new Widget_Label("", 70);
-	value_label->set_parent(info);
+	value_label = new Widget_Label(TRANSLATE("Value")END + ": -", 70);
 	value_label->set_break_line(true);
+	value_label->set_parent(info);
 
-	condition_label = new Widget_Label("", 70);
+	condition_label = new Widget_Label(TRANSLATE("Condition")END + ": -", 70);
+	condition_label->set_break_line(true);
 	condition_label->set_parent(info);
 
 	properties_label = new Widget_Label("", 70);
-	properties_label->set_parent(info);
 	properties_label->set_break_line(true);
+	properties_label->set_parent(info);
 
 	done_button = new Widget_Text_Button(TRANSLATE("Done")END, -1, -1);
 	done_button->set_parent(pad);
@@ -964,26 +975,27 @@ bool Items_GUI::update()
 		if (type == Item::WEAPON) {
 			if (stats->weapon_index == index) {
 				stats->weapon_index = -1;
-				list->set_hilight(-1);
+				list->set_hilight(index, false);
 			}
 			else {
 				stats->weapon_index = index;
-				list->set_hilight(index);
+				list->set_hilight(index, true);
 			}
 		}
 		else if (type == Item::ARMOUR) {
 			if (stats->armour_index == index) {
 				stats->armour_index = -1;
-				list->set_hilight(-1);
+				list->set_hilight(index, false);
 			}
 			else {
 				stats->armour_index = index;
-				list->set_hilight(index);
+				list->set_hilight(index, true);
 			}
 		}
 		else {
 			// FIXME
 		}
+
 		set_labels();
 	}
 
@@ -1004,10 +1016,19 @@ void Items_GUI::set_labels()
 		if (item->type != Item::OTHER) {
 			condition_label->set_text(TRANSLATE("Condition")END + ": " + itos(condition) + "%");
 		}
+		else {
+			condition_label->set_text(TRANSLATE("Condition")END + ": -");
+		}
 
-		int value = int(item->min_value + ((condition / 100.0f) * (item->max_value - item->min_value)));
+		int value = item->get_value();
 
 		value_label->set_text(TRANSLATE("Value")END + ": " + itos(value));
+
+		int attack = int(item->min_attack + ((condition / 100.0f) * (item->max_attack - item->min_attack)));
+
+		if (item->type == Item::WEAPON) {
+			properties_label->set_text(TRANSLATE("Attack")END + ": " + itos(attack));
+		}
 	}
 
 	gui->layout();
