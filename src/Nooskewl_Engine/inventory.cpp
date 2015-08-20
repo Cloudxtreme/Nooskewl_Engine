@@ -4,7 +4,7 @@
 
 using namespace Nooskewl_Engine;
 
-static bool sort_items(std::vector<Item *> &a, std::vector<Item *> &b)
+static bool sort_items(const std::vector<Item *> &a, const std::vector<Item *> &b)
 {
 	return a[0]->name < b[0]->name;
 }
