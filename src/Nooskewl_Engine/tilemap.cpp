@@ -304,8 +304,8 @@ float Tilemap::get_z(int layer, int x, int y)
 		if (x >= g->position.x && y >= g->position.y && x < (g->position.x+g->size.w) && y < (g->position.y+g->size.h)) {
 			// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 			// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
-			return -(1.0f - ((float)((g->position.y + g->size.h - 1) * noo.tile_size) / (float)(size.h * noo.tile_size))) * 0.01f;
+			return 0.01f * ((float)((g->position.y + g->size.h - 1) * noo.tile_size) / (float)(size.h * noo.tile_size));
 		}
 	}
-	return -(1.0f - ((float)(y * noo.tile_size) / (float)(size.h * noo.tile_size))) * 0.01f;
+	return 0.01f * ((float)(y * noo.tile_size) / (float)(size.h * noo.tile_size));
 }
