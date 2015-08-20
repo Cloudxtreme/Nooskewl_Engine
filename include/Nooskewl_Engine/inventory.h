@@ -9,7 +9,7 @@ class Item;
 
 class NOOSKEWL_ENGINE_EXPORT Inventory {
 public:
-	Uint32 gold;
+	int32_t gold;
 	std::vector< std::vector<Item *> > items;
 
 	Inventory();
