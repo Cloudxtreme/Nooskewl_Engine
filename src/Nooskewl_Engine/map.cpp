@@ -197,6 +197,16 @@ Map_Entity *Map::get_entity(int id)
 	return 0;
 }
 
+Map_Entity *Map::find_entity(std::string name)
+{
+	for (size_t i = 0; i < entities.size(); i++) {
+		if (entities[i]->get_name() == name) {
+			return entities[i];
+		}
+	}
+	return 0;
+}
+
 std::string Map::get_map_name()
 {
 	return map_name;

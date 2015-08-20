@@ -44,6 +44,7 @@ public:
 	void check_triggers(Map_Entity *entity);
 	void get_new_map_details(std::string &map_name, Point<int> &position, Direction &direction);
 	Map_Entity *get_entity(int id);
+	Map_Entity *find_entity(std::string name);
 	std::string get_map_name();
 	Tilemap *get_tilemap();
 	Point<float> get_offset();
