@@ -11,12 +11,16 @@ using namespace Nooskewl_Engine;
 Image *Widget::button_image;
 Image *Widget::button_image_pressed;
 Image *Widget::slider_image;
+Image *Widget::radio_image;
+Image *Widget::radio_selected_image;
 
 void Widget::static_start()
 {
 	button_image = new Image("button.tga");
 	button_image_pressed = new Image("button_pressed.tga");
 	slider_image = new Image("slider_tab.tga");
+	radio_image = new Image("radio.tga");
+	radio_selected_image = new Image("radio_selected.tga");
 }
 
 void Widget::static_end()
@@ -24,6 +28,8 @@ void Widget::static_end()
 	delete button_image;
 	delete button_image_pressed;
 	delete slider_image;
+	delete radio_image;
+	delete radio_selected_image;
 }
 
 void Widget::enable_focus_shader(bool enable)
@@ -781,4 +787,100 @@ void Widget_Slider::draw()
 int Widget_Slider::get_value()
 {
 	return value;
+}
+
+//--
+	
+Widget_Radio_Button::Widget_Radio_Button(std::string text) :
+	Widget(0, 0),
+	text(text),
+	selected(false)
+{
+	w = int(radio_image->size.w + 1 + noo.font->get_text_width(text));
+	h = int(noo.font->get_height()) + 2;
+
+	accepts_focus = true;
+}
+
+void Widget_Radio_Button::handle_event(TGUI_Event *event)
+{
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed && event->type == TGUI_KEY_DOWN) {
+		if (event->keyboard.code == TGUIK_SPACE || event->keyboard.code == TGUIK_RETURN) {
+			select();
+		}
+	}
+	else if (focussed && event->type == TGUI_JOY_DOWN) {
+		if (event->joystick.button == noo.joy_b1) {
+			select();
+		}
+	}
+	else if (event->type == TGUI_MOUSE_DOWN) {
+		TGUI_Event e = tgui_get_relative_event(this, event);
+
+		if (e.mouse.x >= 0 && e.mouse.y >= 0) {
+			select();
+		}
+	}
+}
+
+void Widget_Radio_Button::draw()
+{
+	Image *image;
+
+	if (selected) {
+		image = radio_selected_image;
+	}
+	else {
+		image = radio_image;
+	}
+
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed) {
+		enable_focus_shader(true);
+	}
+
+	image->draw_single(Point<int>(calculated_x, calculated_y));
+
+	if (focussed) {
+		enable_focus_shader(false);
+	}
+
+	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
+	noo.font->draw(noo.white, text, Point<int>(calculated_x + image->size.w + 1, calculated_y));
+	noo.font->disable_shadow();
+}
+
+int Widget_Radio_Button::get_selected()
+{
+	return selected;
+}
+
+void Widget_Radio_Button::set_selected(bool selected)
+{
+	if (selected) {
+		select();
+	}
+	else {
+		this->selected = false;
+	}
+}
+
+void Widget_Radio_Button::set_group(Group group)
+{
+	this->group = group;
+}
+
+void Widget_Radio_Button::select()
+{
+	selected = true;
+
+	for (size_t i = 0; i < group.size(); i++) {
+		Widget_Radio_Button *b = group[i];
+		if (b != this) {
+			b->set_selected(false);
+		}
+	}
 }

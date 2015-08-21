@@ -31,6 +31,8 @@ protected:
 	static Image *button_image;
 	static Image *button_image_pressed;
 	static Image *slider_image;
+	static Image *radio_image;
+	static Image *radio_selected_image;
 
 	void init();
 
@@ -182,6 +184,29 @@ private:
 	int stops;
 	int value;
 	bool mouse_down;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Widget_Radio_Button : public Widget
+{
+public:
+	typedef std::vector<Widget_Radio_Button *> Group;
+
+	Widget_Radio_Button(std::string text);
+
+	void handle_event(TGUI_Event *event);
+	void draw();
+
+	int get_selected();
+	void set_selected(bool selected);
+
+	void set_group(Group group);
+
+private:
+	void select();
+
+	std::string text;
+	bool selected;
+	Group group;
 };
 
 } // End namespace Nooskewl_Engine
