@@ -44,6 +44,7 @@ public:
 	void set_type(Type type);
 	void load_stats(std::string name);
 	void set_stats(Stats *stats);
+	void set_low(bool low);
 	void set_high(bool high);
 	void set_z(int z);
 	void set_z_add(int z_add);
@@ -66,6 +67,7 @@ public:
 	bool is_input_enabled();
 	Type get_type();
 	Stats *get_stats();
+	bool is_low();
 	bool is_high();
 	int get_z();
 
@@ -122,6 +124,7 @@ private:
 	Type type;
 	Stats *stats;
 
+	bool low;
 	bool high;
 	int z;
 	int z_add;

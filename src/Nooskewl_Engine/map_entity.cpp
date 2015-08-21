@@ -49,6 +49,7 @@ Map_Entity::Map_Entity(std::string name) :
 	has_blink(false),
 	type(OTHER),
 	stats(0),
+	low(false),
 	high(false),
 	z(0),
 	z_add(0),
@@ -249,6 +250,11 @@ void Map_Entity::set_stats(Stats *stats)
 	this->stats = stats;
 }
 
+void Map_Entity::set_low(bool low)
+{
+	this->low = low;
+}
+
 void Map_Entity::set_high(bool high)
 {
 	this->high = high;
@@ -354,6 +360,11 @@ Map_Entity::Type Map_Entity::get_type()
 Stats *Map_Entity::get_stats()
 {
 	return stats;
+}
+
+bool Map_Entity::is_low()
+{
+	return low;
 }
 
 bool Map_Entity::is_high()
@@ -736,6 +747,10 @@ bool Map_Entity::save(SDL_RWops *file)
 
 	if (solid == false) {
 		SDL_fprintf(file, ",solid=%d", solid ? 1 : 0);
+	}
+
+	if (low == true) {
+		SDL_fprintf(file, ",low=%d", low ? 1 : 0);
 	}
 
 	if (high == true) {
