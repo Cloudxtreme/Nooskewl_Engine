@@ -650,9 +650,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 		if (map->is_speech_active() == false && is_escape) {
 			noo.button_mml->play(false);
-			Pause_GUI *pause_gui = new Pause_GUI();
-			pause_gui->start();
-			guis.push_back(pause_gui);
+			m.dll_pause();
 		}
 	}
 
@@ -1768,6 +1766,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version)
 		}
 		else if (key == "solid") {
 			entity->set_solid(atoi(value.c_str()) != 0);
+		}
+		else if (key == "low") {
+			entity->set_low(atoi(value.c_str()) != 0);
 		}
 		else if (key == "high") {
 			entity->set_high(atoi(value.c_str()) != 0);
