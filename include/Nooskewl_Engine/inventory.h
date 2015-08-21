@@ -19,6 +19,7 @@ public:
 
 	int get_total_weight();
 	void sort(int start = -1, int end = -1);
+	std::string to_string();
 
 private:
 	int find(Item *item);

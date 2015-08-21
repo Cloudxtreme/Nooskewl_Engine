@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/stats.h"
@@ -74,6 +75,22 @@ void Inventory::sort(int start, int end)
 	}
 
 	std::sort(start_it, end_it, sort_items);
+}
+
+std::string Inventory::to_string()
+{
+	std::string s = itos(gold) + ",";
+	int count = 0;
+	for (size_t i = 0; i < items.size(); i++) {
+		int num = items[i].size();
+		if (num != 0) {
+			Item *item = items[i][0];
+			s += string_printf("%s%s=%d", count == 0 ? "" : ",", item->id.c_str(), num);
+			count++;
+		}
+	}
+
+	return s;
 }
 
 int Inventory::find(Item *item)
