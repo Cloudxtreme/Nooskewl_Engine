@@ -243,6 +243,35 @@ std::string string_printf(const char *fmt, ...)
 	return buf;
 }
 
+std::string escape_string(std::string s, char c)
+{
+	std::string ret;
+
+	for (int i = 0; i < (int)s.length(); i++) {
+		if (s[i] == c) {
+			ret += "\\";
+		}
+		ret += s.substr(i, 1);
+	}
+
+	return ret;
+}
+
+std::string unescape_string(std::string s)
+{
+	std::string ret;
+
+	for (int i = 0; i < (int)s.length(); i++) {
+		if (s[i] != '\\') {
+			ret += s.substr(i, 1);
+		}
+	}
+
+	return ret;
+}
+
+std::string unescape_string(std::string);
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 List_Directory::List_Directory(std::string filespec) :
 	got_first(false),

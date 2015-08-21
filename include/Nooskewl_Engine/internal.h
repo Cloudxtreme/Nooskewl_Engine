@@ -80,6 +80,9 @@ NOOSKEWL_ENGINE_EXPORT std::string itos(int i);
 int check_args(int argc, char **argv, std::string arg);
 NOOSKEWL_ENGINE_EXPORT std::string string_printf(const char *fmt, ...);
 
+NOOSKEWL_ENGINE_EXPORT std::string escape_string(std::string s, char c);
+NOOSKEWL_ENGINE_EXPORT std::string unescape_string(std::string);
+
 #if defined NOOSKEWL_ENGINE_WINDOWS
 HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor);
 #elif defined __linux__
