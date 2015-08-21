@@ -780,18 +780,7 @@ bool Map_Entity::save(SDL_RWops *file)
 		);
 
 		if (stats->inventory != 0) {
-			SDL_fprintf(file, "inventory=%d,", stats->inventory->gold);
-			std::vector< std::vector<Item *> > &v = stats->inventory->items;
-			int count = 0;
-			for (size_t i = 0; i < v.size(); i++) {
-				int num = v[i].size();
-				if (num != 0) {
-					Item *item = v[i][0];
-					SDL_fprintf(file, "%s%s=%d", count == 0 ? "" : ",", item->id.c_str(), num);
-					count++;
-				}
-			}
-			SDL_fprintf(file, "\n");
+			SDL_fprintf(file, "inventory=%s\n", stats->inventory->to_string());
 		}
 	}
 
