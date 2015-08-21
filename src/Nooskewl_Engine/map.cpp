@@ -380,7 +380,15 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		if (!e->is_high()) {
+		if (e->is_low()) {
+			e->draw_shadows(e->get_draw_position() + offset);
+			e->draw(e->get_draw_position() + offset, use_depth_buffer);
+		}
+	}
+
+	for (size_t i = 0; i < entities.size(); i++) {
+		Map_Entity *e = entities[i];
+		if (!e->is_high() && !e->is_low()) {
 			e->draw_shadows(e->get_draw_position() + offset);
 		}
 	}
@@ -391,7 +399,7 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		if (!e->is_high()) {
+		if (!e->is_high() && !e->is_low()) {
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
 	}
