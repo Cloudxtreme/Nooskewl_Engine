@@ -1939,23 +1939,7 @@ bool Engine::load_inventory(SDL_RWops *file, Stats *stats, int version)
 		return false;
 	}
 
-	t = Tokenizer(options, ',');
-	std::string option;
-
-	if (version >= 102) {
-		option = t.next();
-		stats->inventory->gold = atoi(option.c_str());
-	}
-
-	while ((option = t.next()) != "") {
-		Tokenizer t2(option, '=');
-		std::string key = t2.next();
-		std::string value = t2.next();
-		int num = atoi(value.c_str());
-		for (int i = 0; i < num; i++) {
-			stats->inventory->add(new Item(key));
-		}
-	}
+	stats->inventory->from_string(options);
 
 	return true;
 }

@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/stats.h"
+#include "Nooskewl_Engine/tokenizer.h"
 
 using namespace Nooskewl_Engine;
 
@@ -91,6 +92,27 @@ std::string Inventory::to_string()
 	}
 
 	return s;
+}
+
+void Inventory::from_string(std::string s)
+{
+	Tokenizer t = Tokenizer(s, ',');
+	std::string option;
+
+	while ((option = t.next()) != "") {
+		if (option.find('=') == std::string::npos) {
+			gold = atoi(option.c_str());
+		}
+		else {
+			Tokenizer t2(option, '=');
+			std::string key = t2.next();
+			std::string value = t2.next();
+			int num = atoi(value.c_str());
+			for (int i = 0; i < num; i++) {
+				add(new Item(key));
+			}
+		}
+	}
 }
 
 int Inventory::find(Item *item)
