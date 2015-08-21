@@ -887,6 +887,8 @@ void Widget_Radio_Button::set_group(Group group)
 
 void Widget_Radio_Button::select()
 {
+	noo.button_mml->play(false);
+
 	selected = true;
 
 	for (size_t i = 0; i < group.size(); i++) {
