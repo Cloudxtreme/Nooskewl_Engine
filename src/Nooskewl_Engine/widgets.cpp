@@ -602,6 +602,11 @@ void Widget_List::set_items(std::vector<std::string> new_items)
 			gui->focus_something();
 		}
 	}
+	else {
+		if (selected < 0) {
+			selected = 0;
+		}
+	}
 }
 
 int Widget_List::pressed()
@@ -646,7 +651,7 @@ void Widget_List::init()
 {
 	accepts_focus = true;
 	top = 0;
-	selected = 0;
+	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
 	hilight_colour.r = 62;
