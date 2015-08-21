@@ -1573,6 +1573,9 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 	}
 	else {
 		*loaded_time = 0;
+
+		// BIG COMPATIBILITY CHANGES IN 103
+		return false;
 	}
 
 	if (load_milestones(file, version_i) == false) {
