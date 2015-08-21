@@ -13,6 +13,7 @@ class Vertex_Cache;
 
 typedef bool (*DLL_Start)();
 typedef void (*DLL_End)();
+typedef void (*DLL_Pause)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
 typedef Brain *(*Brain_Getter)(std::string options);
 
@@ -34,10 +35,13 @@ void infomsg(const char *fmt, ...);
 void printGLerror(const char *fmt, ...);
 
 struct Module {
+	// Game DLL functions
 	DLL_Start dll_start;
 	DLL_End dll_end;
+	DLL_Pause dll_pause;
 	Map_Logic_Getter dll_get_map_logic;
 	Brain_Getter dll_get_brain;
+
 	// audio
 	SDL_mutex *mixer_mutex;
 	SDL_AudioSpec device_spec;
@@ -74,7 +78,7 @@ NOOSKEWL_ENGINE_EXPORT void SDL_fprintf(SDL_RWops *file, const char *fmt, ...);
 SDL_RWops *open_file(std::string filename);
 NOOSKEWL_ENGINE_EXPORT std::string itos(int i);
 int check_args(int argc, char **argv, std::string arg);
-std::string string_printf(const char *fmt, ...);
+NOOSKEWL_ENGINE_EXPORT std::string string_printf(const char *fmt, ...);
 
 #if defined NOOSKEWL_ENGINE_WINDOWS
 HICON win_create_icon(HWND wnd, Uint8 *data, Size<int> size, int xfocus, int yfocus, bool is_cursor);
