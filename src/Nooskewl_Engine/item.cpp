@@ -2,6 +2,7 @@
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/stats.h"
+#include "Nooskewl_Engine/tokenizer.h"
 #include "Nooskewl_Engine/xml.h"
 
 using namespace Nooskewl_Engine;
@@ -13,15 +14,65 @@ Item::Item(std::string name) :
 	load(name);
 }
 
+Item::Item() :
+	id("")
+{
+	defaults();
+}
 
 void Item::use(Stats *stats)
 {
 }
 
-bool Item::save(SDL_RWops *file)
+std::string Item::to_string()
 {
-	SDL_fprintf(file, "item=%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d\n", name.c_str(), (int)type, condition, weight, min_attack, max_attack, min_defense, max_defense, min_value, max_value);
-	return true;
+	return string_printf("%s,%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d", id.c_str(), name.c_str(), (int)type, condition, weight, min_attack, max_attack, min_defense, max_defense, min_value, max_value);
+}
+
+void Item::from_string(std::string s)
+{
+	Tokenizer t(s, ',');
+
+	id = t.next();
+
+	name = t.next();
+
+	std::string option;
+
+	while ((option = t.next()) != "") {
+		Tokenizer t2(option, ':');
+
+		std::string key = t2.next();
+		std::string value = t2.next();
+
+		if (key == "type") {
+			type = (Type)atoi(value.c_str());
+		}
+		else if (key == "condition") {
+			condition = atoi(value.c_str());
+		}
+		else if (key == "weight") {
+			weight = atoi(value.c_str());
+		}
+		else if (key == "min_attack") {
+			min_attack = atoi(value.c_str());
+		}
+		else if (key == "max_attack") {
+			max_attack = atoi(value.c_str());
+		}
+		else if (key == "min_defense") {
+			min_defense = atoi(value.c_str());
+		}
+		else if (key == "max_defense") {
+			max_defense = atoi(value.c_str());
+		}
+		else if (key == "min_value") {
+			min_value = atoi(value.c_str());
+		}
+		else if (key == "max_value") {
+			max_value = atoi(value.c_str());
+		}
+	}
 }
 
 void Item::defaults()

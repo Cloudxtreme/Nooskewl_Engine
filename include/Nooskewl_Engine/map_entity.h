@@ -85,7 +85,7 @@ public:
 	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
 	void draw_shadows(Point<float> draw_pos);
 
-	bool save(SDL_RWops *file);
+	bool save(std::string &out);
 
 private:
 	bool maybe_move();

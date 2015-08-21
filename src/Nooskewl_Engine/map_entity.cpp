@@ -707,18 +707,18 @@ void Map_Entity::end_a_star()
 }
 
 
-bool Map_Entity::save(SDL_RWops *file)
+bool Map_Entity::save(std::string &out)
 {
 	if (brain) {
-		if (brain->save(file) == false) {
+		if (brain->save(out) == false) {
 			return false;
 		}
 	}
 	else {
-		SDL_fprintf(file, "brain=0\n");
+		out += string_printf("brain=0\n");
 	}
 
-	SDL_fprintf(file, "%s=", name.c_str());
+	out += string_printf("%s=", name.c_str());
 
 	if (sprite) {
 		std::string xml_filename;
@@ -726,54 +726,53 @@ bool Map_Entity::save(SDL_RWops *file)
 		sprite->get_filenames(xml_filename, image_directory);
 		std::string animation = sprite->get_animation();
 		int started = sprite->is_started() ? 1 : 0;
-		SDL_fprintf(file, "sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
+		out += string_printf("sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
 	}
 
-	SDL_fprintf(file, ",position=%d:%d", position.x, position.y);
+	out += string_printf(",position=%d:%d", position.x, position.y);
 
-	SDL_fprintf(file, ",direction=%d", (int)direction);
+	out += string_printf(",direction=%d", (int)direction);
 
 	if (sitting) {
-		SDL_fprintf(file, ",sitting=%d", (int)sitting);
+		out += string_printf(",sitting=%d", (int)sitting);
 	}
 
 	if (z != 0) {
-		SDL_fprintf(file, ",z=%d", z);
+		out += string_printf(",z=%d", z);
 	}
 
 	if (shadow_type != SHADOW_NONE) {
-		SDL_fprintf(file, ",shadow_type=%d", (int)shadow_type);
+		out += string_printf(",shadow_type=%d", (int)shadow_type);
 	}
 
 	if (solid == false) {
-		SDL_fprintf(file, ",solid=%d", solid ? 1 : 0);
+		out += string_printf(",solid=%d", solid ? 1 : 0);
 	}
 
 	if (low == true) {
-		SDL_fprintf(file, ",low=%d", low ? 1 : 0);
+		out += string_printf(",low=%d", low ? 1 : 0);
 	}
 
 	if (high == true) {
-		SDL_fprintf(file, ",high=%d", high ? 1 : 0);
+		out += string_printf(",high=%d", high ? 1 : 0);
 	}
 
 	if (z_add != 0) {
-		SDL_fprintf(file, ",z_add=%d", z_add);
+		out += string_printf(",z_add=%d", z_add);
 	}
 
 	if (stats != 0) {
-		SDL_fprintf(file, ",stats", stats != 0 ? 1 : 0);
+		out += string_printf(",stats", stats != 0 ? 1 : 0);
 		if (stats->inventory != 0) {
-			SDL_fprintf(file, ",inventory", stats->inventory != 0 ? 1 : 0);
+			out += string_printf(",inventory", stats->inventory != 0 ? 1 : 0);
 		}
 	}
 
-	SDL_fprintf(file, "\n");
+	out += string_printf("\n");
 
 	if (stats != 0) {
-		SDL_fprintf(
-			file,
-			"stats=name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d,weapon=%d,armour=%d\n",
+		out += string_printf(
+			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d,weapon=%d,armour=%d\n",
 			stats->name.c_str(),
 			stats->profile_pic->filename.c_str(),
 			(int)stats->alignment,
@@ -795,7 +794,10 @@ bool Map_Entity::save(SDL_RWops *file)
 		);
 
 		if (stats->inventory != 0) {
-			SDL_fprintf(file, "inventory=%s\n", stats->inventory->to_string().c_str());
+			out += stats->inventory->to_string();
+			if (stats->inventory->items.size() > 0) {
+				out += "\n";
+			}
 		}
 	}
 

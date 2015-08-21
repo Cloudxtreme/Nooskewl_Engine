@@ -80,14 +80,27 @@ void Inventory::sort(int start, int end)
 
 std::string Inventory::to_string()
 {
-	std::string s = itos(gold) + ",";
+	std::string s = itos(gold) + "\n";
+
 	int count = 0;
+
 	for (size_t i = 0; i < items.size(); i++) {
-		int num = items[i].size();
-		if (num != 0) {
-			Item *item = items[i][0];
-			s += string_printf("%s%s=%d", count == 0 ? "" : ",", item->id.c_str(), num);
+		for (size_t j = 0; j < items[i].size(); j++) {
 			count++;
+		}
+	}
+
+	s += itos(count) + "\n";
+
+	int count2 = 0;
+
+	for (size_t i = 0; i < items.size(); i++) {
+		for (size_t j = 0; j < items[i].size(); j++) {
+			s += items[i][j]->to_string();
+			count2++;
+			if (count2 < count) {
+				s += "\n";
+			}
 		}
 	}
 
@@ -96,22 +109,30 @@ std::string Inventory::to_string()
 
 void Inventory::from_string(std::string s)
 {
-	Tokenizer t = Tokenizer(s, ',');
-	std::string option;
+	// Destroy current items
+	for (size_t i = 0; i < items.size(); i++) {
+		for (size_t j = 0; j < items[i].size(); j++) {
+			delete items[i][j];
+		}
+	}
+	items.clear();
 
-	while ((option = t.next()) != "") {
-		if (option.find('=') == std::string::npos) {
-			gold = atoi(option.c_str());
-		}
-		else {
-			Tokenizer t2(option, '=');
-			std::string key = t2.next();
-			std::string value = t2.next();
-			int num = atoi(value.c_str());
-			for (int i = 0; i < num; i++) {
-				add(new Item(key));
-			}
-		}
+	Tokenizer t = Tokenizer(s, '\n');
+
+	std::string gold_s = t.next();
+
+	gold = atoi(gold_s.c_str());
+
+	std::string num_s = t.next();
+
+	int num = atoi(num_s.c_str());
+
+	for (int i = 0; i < num; i++) {
+		std::string item_s = t.next();
+		trim(item_s);
+		Item *item = new Item();
+		item->from_string(item_s);
+		add(item);
 	}
 }
 

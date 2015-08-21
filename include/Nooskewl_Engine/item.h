@@ -27,12 +27,14 @@ public:
 	uint32_t min_value, max_value;
 
 	Item(std::string name);
+	Item();
 
 	virtual void use(Stats *stats);
-	virtual bool save(SDL_RWops *file);
 
 	void defaults();
 	bool load(std::string name);
+	std::string to_string();
+	void from_string(std::string s);
 
 	int get_value();
 

@@ -22,7 +22,7 @@ public:
 	virtual void reset();
 	virtual void set_map_entity(Map_Entity *map_entity);
 
-	virtual bool save(SDL_RWops *file);
+	virtual bool save(std::string &out);
 
 	Map_Entity *get_map_entity();
 

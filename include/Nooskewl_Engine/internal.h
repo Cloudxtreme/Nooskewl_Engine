@@ -15,7 +15,7 @@ typedef bool (*DLL_Start)();
 typedef void (*DLL_End)();
 typedef void (*DLL_Pause)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
-typedef Brain *(*Brain_Getter)(std::string options);
+typedef Brain *(*Brain_Getter)(std::string type, std::string data);
 
 void load_dll();
 void close_dll();

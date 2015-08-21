@@ -9,12 +9,12 @@ namespace Nooskewl_Engine {
 
 class Player_Brain : public Brain {
 public:
-		Player_Brain();
-		~Player_Brain();
+	Player_Brain();
+	~Player_Brain();
 
-		void handle_event(TGUI_Event *event);
-		void reset();
-		bool save(SDL_RWops *file);
+	void handle_event(TGUI_Event *event);
+	void reset();
+	bool save(std::string &out);
 
 private:
 	static const int TOLERANCE = 5;

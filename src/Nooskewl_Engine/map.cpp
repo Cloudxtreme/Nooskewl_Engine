@@ -589,22 +589,28 @@ void Map::schedule_destroy(Map_Entity *entity)
 	}
 }
 
-bool Map::save(SDL_RWops *file)
+bool Map::save(std::string &out)
 {
-	SDL_fprintf(file, "map_name=%s\n", map_name.c_str());
+	out += string_printf("map_name=%s\n", map_name.c_str());
 
-	SDL_fprintf(file, "num_entities=%d\n", entities.size());
+	out += string_printf("num_entities=%d\n", entities.size());
 
-	if (noo.player->save(file) == false) {
+	std::string entity_save;
+
+	if (noo.player->save(entity_save) == false) {
 		return false;
 	}
+
+	out += entity_save;
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *entity = entities[i];
 		if (entity != noo.player) {
-			if (entity->save(file) == false) {
+			entity_save = "";
+			if (entity->save(entity_save) == false) {
 				return false;
 			}
+			out += entity_save;
 		}
 	}
 

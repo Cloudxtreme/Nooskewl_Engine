@@ -52,7 +52,7 @@ public:
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal, bool check_solids = true);
 	bool is_speech_active();
 
-	bool save(SDL_RWops *file);
+	bool save(std::string &out);
 
 private:
 	struct Map_Speech {

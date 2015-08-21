@@ -595,6 +595,13 @@ void Widget_List::set_items(std::vector<std::string> new_items)
 	items.clear();
 	items.insert(items.begin(), new_items.begin(), new_items.end());
 	accepts_focus = items.size() != 0;
+
+	if (items.size() == 0) {
+		selected = -1;
+		if (gui->get_focus() == this) {
+			gui->focus_something();
+		}
+	}
 }
 
 int Widget_List::pressed()

@@ -1523,7 +1523,14 @@ bool Engine::save_game(SDL_RWops *file)
 	if (save_milestones(file) == false) {
 		return false;
 	}
-	return noo.map->save(file);
+
+	std::string map_save;
+
+	bool ret = noo.map->save(map_save);
+
+	SDL_fputs(map_save.c_str(), file);
+
+	return ret;
 }
 
 bool Engine::save_milestones(SDL_RWops *file)
@@ -1709,6 +1716,7 @@ bool Engine::load_map(SDL_RWops *file, int version)
 
 Map_Entity *Engine::load_entity(SDL_RWops *file, int version)
 {
+static int nn;
 	Brain *brain = load_brain(file, version);
 
 	char line[1000];
@@ -1834,7 +1842,16 @@ Brain *Engine::load_brain(SDL_RWops *file, int version)
 		brain = new Player_Brain();
 	}
 	else {
-		return m.dll_get_brain(value);
+		int num_lines = atoi(t.next().c_str());
+
+		std::string brain_s;
+
+		for (int i = 0; i < num_lines; i++) {
+			SDL_fgets(file, line, 1000);
+			brain_s += line;
+		}
+
+		return m.dll_get_brain(type, brain_s);
 	}
 
 	return brain;
@@ -1844,19 +1861,12 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string name = t.next();
-	std::string options = s.substr(name.length()+1);
-
-	if (name != "stats") {
-		return 0;
-	}
+	std::string options = line;
+	trim(options);
 
 	Stats *stats = new Stats();
 
-	t = Tokenizer(options, ',');
+	Tokenizer t = Tokenizer(options, ',');
 	std::string option;
 
 	while ((option = t.next()) != "") {
@@ -1929,18 +1939,23 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 bool Engine::load_inventory(SDL_RWops *file, Stats *stats, int version)
 {
 	char line[1000];
-	SDL_fgets(file, line, 1000);
-	std::string s = line;
-	trim(s);
-	Tokenizer t(s, '=');
-	std::string name = t.next();
-	std::string options = s.substr(name.length()+1);
 
-	if (name != "inventory") {
-		return false;
+	std::string s;
+
+	SDL_fgets(file, line, 1000); // gold
+	s += line;
+
+	SDL_fgets(file, line, 1000); // num items
+	s += line;
+
+	int count = atoi(line);
+
+	for (int i = 0; i < count; i++) {
+		SDL_fgets(file, line, 1000);
+		s += line;
 	}
 
-	stats->inventory->from_string(options);
+	stats->inventory->from_string(s);
 
 	return true;
 }

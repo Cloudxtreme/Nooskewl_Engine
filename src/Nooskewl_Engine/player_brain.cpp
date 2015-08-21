@@ -256,8 +256,8 @@ void Player_Brain::reset()
 	pressed = dragged = false;
 }
 
-bool Player_Brain::save(SDL_RWops *file)
+bool Player_Brain::save(std::string &out)
 {
-	SDL_fprintf(file, "brain=player_brain\n");
+	out += string_printf("brain=player_brain,0\n");
 	return true;
 }
