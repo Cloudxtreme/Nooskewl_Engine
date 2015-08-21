@@ -1511,6 +1511,7 @@ void Engine::setup_default_shader()
 {
 	current_shader = default_shader;
 	current_shader->use();
+	current_shader->set_bool("substitute_yellow", false);
 	current_shader->set_float("global_alpha", 1.0f);
 	current_shader->set_bool("drawing_text", false);
 	current_shader->set_bool("drawing_text_shadow", false);
