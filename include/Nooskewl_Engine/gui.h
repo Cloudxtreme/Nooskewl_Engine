@@ -11,6 +11,7 @@ class Sprite;
 class Widget_Image;
 class Widget_Label;
 class Widget_List;
+class Widget_Radio_Button;
 class Widget_Slider;
 class Widget_Text_Button;
 
@@ -172,6 +173,11 @@ private:
 
 	Widget_List *list;
 	Widget_Text_Button *done_button;
+
+	Widget_Label *action_label;
+	Widget_Radio_Button *use_radio;
+	Widget_Radio_Button *drop_radio;
+	Widget_Radio_Button *discard_radio;
 
 	Widget_Label *weight_label;
 	Widget_Label *value_label;

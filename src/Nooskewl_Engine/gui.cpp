@@ -914,7 +914,32 @@ Items_GUI::Items_GUI(Item::Type type, Callback callback) :
 	TGUI_Widget *info = new TGUI_Widget(0.4f, 1.0f);
 	info->set_parent(pad);
 
+	action_label = new Widget_Label(TRANSLATE("Action")END + ":", 70);
+	action_label->set_parent(info);
+
+	use_radio = new Widget_Radio_Button(TRANSLATE("Use")END);
+	use_radio->set_selected(true);
+	use_radio->set_break_line(true);
+	use_radio->set_parent(info);
+
+	drop_radio = new Widget_Radio_Button(TRANSLATE("Drop")END);
+	drop_radio->set_break_line(true);
+	drop_radio->set_parent(info);
+
+	discard_radio = new Widget_Radio_Button(TRANSLATE("Discard")END);
+	discard_radio->set_break_line(true);
+	discard_radio->set_parent(info);
+
+	Widget_Radio_Button::Group group;
+	group.push_back(use_radio);
+	group.push_back(drop_radio);
+	group.push_back(discard_radio);
+	use_radio->set_group(group);
+	drop_radio->set_group(group);
+	discard_radio->set_group(group);
+
 	weight_label = new Widget_Label(TRANSLATE("Weight")END + ": -", 70);
+	weight_label->set_padding_top(5);
 	weight_label->set_break_line(true);
 	weight_label->set_parent(info);
 
@@ -934,6 +959,14 @@ Items_GUI::Items_GUI(Item::Type type, Callback callback) :
 	done_button->set_parent(pad);
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+
+	if (list) {
+		list->set_right_widget(use_radio);
+	}
+	use_radio->set_right_widget(done_button);
+	drop_radio->set_right_widget(done_button);
+	discard_radio->set_right_widget(done_button);
+	done_button->set_left_widget(use_radio);
 
 	if (list) {
 		gui->set_focus(list);
