@@ -636,14 +636,15 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
-		noo_gui->handle_event(&event);
-		if (event.type == TGUI_FOCUS) {
-			widget_mml->play(false);
+		if (noo_gui->is_fading_out() == false) {
+			noo_gui->handle_event(&event);
+			if (event.type == TGUI_FOCUS) {
+				widget_mml->play(false);
+			}
+			else if (is_escape && dynamic_cast<Title_GUI *>(noo_gui) != 0) {
+				return false;
+			}
 		}
-		else if (is_escape && dynamic_cast<Title_GUI *>(noo_gui) != 0) {
-			return false;
-		}
-
 	}
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
@@ -662,13 +663,16 @@ bool Engine::update()
 	check_joysticks();
 
 	if (guis.size() > 0) {
+		GUI *noo_gui = guis[guis.size()-1];
 		std::vector<GUI *> other_guis;
 		other_guis.insert(other_guis.begin(), guis.begin(), guis.end()-1);
-		GUI *noo_gui = guis[guis.size()-1];
 		if (noo_gui->gui && noo_gui->gui->get_focus() == 0) {
 			noo_gui->gui->set_focus(noo_gui->focus);
 		}
-		if (noo_gui->update() == false) {
+		if (noo_gui->is_fading_out() == false) {
+			noo_gui->update();
+		}
+		else if (noo_gui->is_fadeout_finished()) {
 			// update may have push other GUIs on the stack, so we can't just erase the last one
 			for (size_t i = 0; i < guis.size(); i++) {
 				if (guis[i] == noo_gui) {
@@ -684,10 +688,13 @@ bool Engine::update()
 				noo_gui->focus = noo_gui->gui->get_focus();
 				noo_gui->gui->set_focus(0);
 			}
-			if (noo_gui->update_background() == false) {
+			if (noo_gui->is_fading_out() == false) {
+				noo_gui->update_background();
+			}
+			else if (noo_gui->is_fadeout_finished()) {
 				// update may have push other GUIs on the stack, so we can't just erase the last one
 				for (size_t j = 0; j < guis.size(); j++) {
-		 			if (guis[j] == noo_gui) {
+					if (guis[j] == noo_gui) {
 						guis.erase(guis.begin() + j);
 						break;
 					}

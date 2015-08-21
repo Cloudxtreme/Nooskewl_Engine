@@ -27,6 +27,7 @@ GUI::GUI() :
 	fading_in = true;
 	fading_out = false;
 	fade_start = SDL_GetTicks();
+	fadeout_finished = false;
 }
 
 GUI::~GUI()
@@ -49,16 +50,6 @@ void GUI::handle_event(TGUI_Event *event) {
 	}
 }
 
-bool GUI::update()
-{
-	return true;
-}
-
-bool GUI::update_background()
-{
-	return true;
-}
-
 void GUI::draw_back()
 {
 	if (fade == false) {
@@ -79,6 +70,14 @@ void GUI::draw_back()
 		float p = (SDL_GetTicks() - fade_start) / 200.0f;
 		if (p >= 1.0f) {
 			p = 1.0f;
+
+			if (fadeout_finished == false && fade_done(false) == false) {
+				fadeout_finished = true;
+			}
+			else {
+				fading_out = false;
+				fadeout_finished = false;
+			}
 		}
 		p = 1.0f - p;
 		global_alpha = p;
@@ -92,27 +91,17 @@ void GUI::draw_fore()
 	noo.current_shader->set_float("global_alpha", global_alpha);
 }
 
-bool GUI::do_return(bool ret)
+void GUI::exit()
 {
+	fading_out = true;
+
 	if (fade == false) {
-		return ret;
+		fadeout_finished = true;
 	}
-
-	if (ret == false) {
-		if (fading_out == false) {
-			fading_out = true;
-			fade_start = SDL_GetTicks();
-		}
+	else {
+		fading_out = true;
+		fade_start = SDL_GetTicks();
 	}
-
-	if (fading_out && (SDL_GetTicks()-fade_start) >= 200) {
-		fading_out = false;
-		if (fade_done(false) == false) {
-			return false;
-		}
-	}
-
-	return true;
 }
 
 void GUI::set_noo_gui(TGUI_Widget *widget)
@@ -181,16 +170,17 @@ Title_GUI::~Title_GUI()
 	delete logo;
 }
 
-bool Title_GUI::update()
+void Title_GUI::update()
 {
 	if (check_loaded() == false) {
-		return do_return(false);
+		exit();
+		return;
 	}
 
 	if (new_game_button->pressed()) {
 		do_new_game = true;
-
-		return do_return(false);
+		exit();
+		return;
 	}
 	else if (load_game_button->pressed()) {
 		do_new_game = false;
@@ -202,13 +192,13 @@ bool Title_GUI::update()
 		save_load_gui->start();
 		noo.guis.push_back(save_load_gui);
 	}
-
-	return do_return(true);
 }
 
-bool Title_GUI::update_background()
+void Title_GUI::update_background()
 {
-	return do_return(check_loaded());
+	if (check_loaded() == false) {
+		exit();
+	}
 }
 
 void Title_GUI::draw_back()
@@ -421,12 +411,11 @@ Notification_GUI::Notification_GUI(std::string text)
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 }
 
-bool Notification_GUI::update()
+void Notification_GUI::update()
 {
 	if (ok_button->pressed()) {
-		return do_return(false);
+		exit();
 	}
-	return do_return(true);
 }
 
 //--
@@ -467,17 +456,16 @@ Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback) :
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
 }
 
-bool Yes_No_GUI::update()
+void Yes_No_GUI::update()
 {
 	if (yes_button->pressed()) {
 		callback((void *)1);
-		return do_return(false);
+		exit();
 	}
 	else if (no_button->pressed()) {
 		callback(0);
-		return do_return(false);
+		exit();
 	}
-	return do_return(true);
 }
 
 //--
@@ -535,22 +523,20 @@ Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, C
 	gui->set_focus(slider);
 }
 
-bool Get_Number_GUI::update()
+void Get_Number_GUI::update()
 {
 	value_label->set_text(itos(slider->get_value()));
 
 	gui->layout();
 
 	if (ok_button->pressed()) {
-		callback((void *)slider->get_value());
-		return do_return(false);
+		callback((void *)(int64_t)slider->get_value());
+		exit();
 	}
 	else if (cancel_button->pressed()) {
 		callback((void *)-1);
-		return do_return(false);
+		exit();
 	}
-
-	return do_return(true);
 }
 
 //--
@@ -624,12 +610,9 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
  	}
 }
 
-bool Save_Load_GUI::update()
+void Save_Load_GUI::update()
 {
-	if (gui == 0) {
-		return do_return(false);
-	}
-	else {
-		return do_return(!ok_button->pressed());
+	if (gui == 0 || ok_button->pressed()) {
+		exit();
 	}
 }

@@ -24,17 +24,16 @@ public:
 	GUI();
 	virtual ~GUI();
 
+	bool is_fading_out() { return fading_out; }
+	bool is_fadeout_finished() { return fadeout_finished; }
+
 	void start(); // call after adding all widgets
 
-	/* Take care in these functions: after returning false from
-	 * your update, these can still be called while the fade out
-	 * takes place, so make sure you don't do anything with
-	 * destroy data
-	 */
 	virtual void handle_event(TGUI_Event *event);
-	virtual bool update();
 
-	virtual bool update_background(); // called when the GUI is not the foremost
+	virtual void update() {}
+	virtual void update_background() {} // called when the GUI is not the foremost
+
 	virtual void draw_back();
 	virtual void draw_fore();
 
@@ -43,12 +42,14 @@ public:
 	virtual bool fade_done(bool fade_in) { return false; } // return true to cancel
 
 protected:
+	void exit();
 	void set_noo_gui(TGUI_Widget *widget);
 
 	bool fade;
 	bool fading_in;
 	bool fading_out;
 	Uint32 fade_start;
+	bool fadeout_finished;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Title_GUI : public GUI {
@@ -58,8 +59,8 @@ public:
 	Title_GUI();
 	virtual ~Title_GUI();
 
-	bool update();
-	bool update_background();
+	void update();
+	void update_background();
 	void draw_back();
 	void draw_fore();
 
@@ -89,7 +90,7 @@ class NOOSKEWL_ENGINE_EXPORT Notification_GUI : public GUI {
 public:
 	Notification_GUI(std::string text);
 
-	bool update();
+	void update();
 
 private:
 	Widget_Text_Button *ok_button;
@@ -99,7 +100,7 @@ class NOOSKEWL_ENGINE_EXPORT Yes_No_GUI : public GUI {
 public:
 	Yes_No_GUI(std::string text, Callback callback);
 
-	bool update();
+	void update();
 
 private:
 	Widget_Text_Button *yes_button;
@@ -112,7 +113,7 @@ class NOOSKEWL_ENGINE_EXPORT Get_Number_GUI : public GUI {
 public:
 	Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback);
 
-	bool update();
+	void update();
 
 private:
 	Widget_Slider *slider;
@@ -133,7 +134,7 @@ public:
 
 	Save_Load_GUI(bool saving, Callback callback = 0);
 
-	bool update();
+	void update();
 
 private:
 	TGUI *create_notify_gui(std::string caption);
