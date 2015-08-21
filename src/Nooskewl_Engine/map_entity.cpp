@@ -795,7 +795,7 @@ bool Map_Entity::save(SDL_RWops *file)
 		);
 
 		if (stats->inventory != 0) {
-			SDL_fprintf(file, "inventory=%s\n", stats->inventory->to_string());
+			SDL_fprintf(file, "inventory=%s\n", stats->inventory->to_string().c_str());
 		}
 	}
 
