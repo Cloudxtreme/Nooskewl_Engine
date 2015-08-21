@@ -45,3 +45,8 @@ void Brain::set_map_entity(Map_Entity *map_entity)
 {
 	this->map_entity = map_entity;
 }
+
+Map_Entity *Brain::get_map_entity()
+{
+	return map_entity;
+}

@@ -24,6 +24,8 @@ public:
 
 	virtual bool save(SDL_RWops *file);
 
+	Map_Entity *get_map_entity();
+
 protected:
 	Map_Entity *map_entity;
 };
