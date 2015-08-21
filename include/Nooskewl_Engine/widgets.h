@@ -30,6 +30,7 @@ public:
 protected:
 	static Image *button_image;
 	static Image *button_image_pressed;
+	static Image *slider_image;
 
 	void init();
 
@@ -165,6 +166,22 @@ private:
 	int mouse_down_row;
 
 	std::vector<int> hilight;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Widget_Slider : public Widget
+{
+public:
+	Widget_Slider(int width, int stops, int initial_value);
+
+	void handle_event(TGUI_Event *event);
+	void draw();
+
+	int get_value();
+
+private:
+	int stops;
+	int value;
+	bool mouse_down;
 };
 
 } // End namespace Nooskewl_Engine

@@ -10,17 +10,20 @@ using namespace Nooskewl_Engine;
 
 Image *Widget::button_image;
 Image *Widget::button_image_pressed;
+Image *Widget::slider_image;
 
 void Widget::static_start()
 {
 	button_image = new Image("button.tga");
 	button_image_pressed = new Image("button_pressed.tga");
+	slider_image = new Image("slider_tab.tga");
 }
 
 void Widget::static_end()
 {
 	delete button_image;
 	delete button_image_pressed;
+	delete slider_image;
 }
 
 void Widget::enable_focus_shader(bool enable)
@@ -704,4 +707,78 @@ int Widget_List::visible_rows()
 int Widget_List::used_height()
 {
 	return visible_rows() * row_h;
+}
+
+//--
+
+Widget_Slider::Widget_Slider(int width, int stops, int initial_value) :
+	Widget(width, slider_image->size.h),
+	stops(stops),
+	value(initial_value),
+	mouse_down(false)
+{
+	accepts_focus = true;
+}
+
+void Widget_Slider::handle_event(TGUI_Event *event)
+{
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed && event->type == TGUI_FOCUS) {
+		if (event->focus.type == TGUI_FOCUS_LEFT) {
+			if (value > 0) {
+				value--;
+			}
+		}
+		else if (event->focus.type == TGUI_FOCUS_RIGHT) {
+			if (value < stops-1) {
+				value++;
+			}
+		}
+	}
+	else if (event->type == TGUI_MOUSE_DOWN || (mouse_down && event->type == TGUI_MOUSE_AXIS)) {
+		if (mouse_down) {
+			value = int((((event->mouse.x+1)-calculated_x) / calculated_w) * stops);
+			if (value < 0) {
+				value = 0;
+			}
+			else if (value >= stops) {
+				value = stops-1;
+			}
+		}
+		else {
+			TGUI_Event e = tgui_get_relative_event(this, event);
+			if (e.mouse.x >= 0) {
+				mouse_down = true;
+				value = int(((e.mouse.x+1) / calculated_w) * stops);
+			}
+		}
+	}
+	else if (event->type == TGUI_MOUSE_UP) {
+		mouse_down = false;
+	}
+}
+
+void Widget_Slider::draw()
+{
+	noo.draw_line(noo.black, Point<int>(calculated_x, calculated_y+2), Point<int>(calculated_x+calculated_w-1, calculated_y+2));
+
+	int x = int((float)(value+1) / stops * (calculated_w-1)) - slider_image->size.w / 2;
+
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed) {
+		enable_focus_shader(true);
+	}
+
+	slider_image->draw_single(Point<int>(calculated_x + x, calculated_y));
+
+	if (focussed) {
+		enable_focus_shader(false);
+	}
+}
+
+int Widget_Slider::get_value()
+{
+	return value;
 }
