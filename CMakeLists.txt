@@ -49,7 +49,7 @@ add_library(Nooskewl_Engine SHARED ${LIB_SRC})
 add_executable(Nooskewl_Runner ${RUNNER_SRC})
 
 if(WIN32)
-	set(FLAGS "${FLAGS} /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DNOOSKEWL_ENGINE_WINDOWS /DWITH_SDL")
+	set(FLAGS "${FLAGS} /MP /D_CRT_SECURE_NO_WARNINGS /D_WIN32_WINNT=0x501 /DNOOSKEWL_ENGINE_WINDOWS /DWITH_SDL")
 	set_target_properties(Nooskewl_Engine PROPERTIES COMPILE_FLAGS "/DNOOSKEWL_ENGINE_BUILD ${FLAGS}")
 	set_target_properties(Nooskewl_Runner PROPERTIES COMPILE_FLAGS ${FLAGS})
 	target_link_libraries(Nooskewl_Engine tgui3 SDL2_ttf SDL2 SDL2main glew32 zlib opengl32 d3d9 d3dx9 winmm)
