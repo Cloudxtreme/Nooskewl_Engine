@@ -3,6 +3,7 @@
 #include "Nooskewl_Engine/font.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 #include "Nooskewl_Engine/utf8.h"
 
@@ -23,8 +24,6 @@ Font::Font(std::string filename, int size) :
 	else {
 		font = TTF_OpenFontRW(file, true, size);
 	}
-
-	TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
 
 	if (font == 0) {
 		SDL_RWclose(file);
@@ -75,6 +74,7 @@ float Font::get_height()
 void Font::enable_shadow(SDL_Colour shadow_colour, Shadow_Type shadow_type)
 {
 	this->shadow_colour = shadow_colour,
+	this->shadow_colour.a = 255;
 	this->shadow_type = shadow_type;
 }
 
@@ -97,6 +97,10 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 
 	m.vertex_cache->enable_font_scaling(true);
 
+	noo.current_shader->set_bool("drawing_text", true);
+
+	noo.current_shader->set_bool("drawing_text_shadow", true);
+
 	// Optionally draw a shadow
 	if (shadow_type != NO_SHADOW) {
 		noo.enable_depth_buffer(true);
@@ -106,6 +110,9 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 			Image *g = glyphs[ch];
 
 			g->start();
+
+			noo.current_shader->set_float("xstep", 1.0f / g->size.w);
+			noo.current_shader->set_float("ystep", 1.0f / g->size.h);
 
 			if (shadow_type == DROP_SHADOW) {
 				float sub = noo.use_hires_font ? 1.0f : 0.01f;
@@ -131,11 +138,16 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 		noo.enable_depth_buffer(false);
 	}
 
+	noo.current_shader->set_bool("drawing_text_shadow", false);
+
 	pos.x = dest_position.x;
 	offset = 0;
 
 	while ((ch = utf8_char_next(text, offset)) != 0) {
 		Image *g = glyphs[ch];
+
+		noo.current_shader->set_float("xstep", 1.0f / g->size.w);
+		noo.current_shader->set_float("ystep", 1.0f / g->size.h);
 
 		/* Glyphs are rendered upside down, so we FLIP_V them rather than flip the memory which would be slow */
 
@@ -145,6 +157,7 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 
 		pos.x += g->size.w;
 	}
+	noo.current_shader->set_bool("drawing_text", false);
 
 	m.vertex_cache->enable_font_scaling(false);
 }
@@ -262,7 +275,7 @@ void Font::cache_glyph(Uint32 ch)
 	}
 
 	std::string s = utf8_char_to_string(ch);
-	SDL_Surface *surface = TTF_RenderUTF8_Solid(font, s.c_str(), noo.white);
+	SDL_Surface *surface = TTF_RenderUTF8_Blended(font, s.c_str(), noo.white);
 	if (surface == 0) {
 		errormsg("Error rendering glyph\n");
 		return;
