@@ -11,6 +11,7 @@ class Sprite;
 class Widget_Image;
 class Widget_Label;
 class Widget_List;
+class Widget_Slider;
 class Widget_Text_Button;
 
 class NOOSKEWL_ENGINE_EXPORT GUI {
@@ -204,6 +205,21 @@ public:
 private:
 	Widget_Text_Button *yes_button;
 	Widget_Text_Button *no_button;
+
+	Callback callback;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Get_Number_GUI : public GUI {
+public:
+	Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback);
+
+	bool update();
+
+private:
+	Widget_Slider *slider;
+	Widget_Label *value_label;
+	Widget_Text_Button *ok_button;
+	Widget_Text_Button *cancel_button;
 
 	Callback callback;
 };

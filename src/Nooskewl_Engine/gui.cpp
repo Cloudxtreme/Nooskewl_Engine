@@ -1122,6 +1122,75 @@ bool Yes_No_GUI::update()
 
 //--
 
+Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback) :
+	callback(callback)
+{
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	Widget_Window *window = new Widget_Window(110, 60);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
+	Widget_Label *label = new Widget_Label(text, window->get_width() - 10);
+	label->set_padding(5);
+	label->set_center_x(true);
+	label->set_parent(window);
+
+	slider = new Widget_Slider(100, stops, initial_value);
+	slider->set_center_x(true);
+	slider->set_clear_float_x(true);
+	slider->set_break_line(true);
+	slider->set_parent(window);
+
+	value_label = new Widget_Label("", 50);
+	value_label->set_padding_top(5);
+	value_label->set_center_x(true);
+	value_label->set_clear_float_x(true);
+	value_label->set_break_line(true);
+	value_label->set_parent(window);
+
+	ok_button = new Widget_Text_Button(TRANSLATE("OK")END);
+	ok_button->set_center_x(true);
+	ok_button->set_padding_right(2);
+
+	cancel_button = new Widget_Text_Button(TRANSLATE("Cancel")END);
+	cancel_button->set_center_x(true);
+	cancel_button->set_padding_left(2);
+
+	Widget *button_container = new Widget(1.0f, ok_button->get_height());
+	button_container->set_float_bottom(true);
+	button_container->set_padding_bottom(5);
+	button_container->set_parent(window);
+
+	ok_button->set_parent(button_container);
+	cancel_button->set_parent(button_container);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+}
+
+bool Get_Number_GUI::update()
+{
+	value_label->set_text(itos(slider->get_value()));
+
+	gui->layout();
+
+	if (ok_button->pressed()) {
+		callback((void *)slider->get_value());
+		return do_return(false);
+	}
+	else if (cancel_button->pressed()) {
+		callback((void *)-1);
+		return do_return(false);
+	}
+
+	return do_return(true);
+}
+
+//--
+
 Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	saving(saving),
 	callback(callback)
