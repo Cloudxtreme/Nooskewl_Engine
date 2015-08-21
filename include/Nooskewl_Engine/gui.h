@@ -26,8 +26,14 @@ public:
 
 	void start(); // call after adding all widgets
 
+	/* Take care in these functions: after returning false from
+	 * your update, these can still be called while the fade out
+	 * takes place, so make sure you don't do anything with
+	 * destroy data
+	 */
 	virtual void handle_event(TGUI_Event *event);
 	virtual bool update();
+
 	virtual bool update_background(); // called when the GUI is not the foremost
 	virtual void draw_back();
 	virtual void draw_fore();
