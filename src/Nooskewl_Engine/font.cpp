@@ -24,6 +24,8 @@ Font::Font(std::string filename, int size) :
 		font = TTF_OpenFontRW(file, true, size);
 	}
 
+	TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+
 	if (font == 0) {
 		SDL_RWclose(file);
 		throw LoadError("TTF_OpenFontRW failed");
