@@ -196,7 +196,7 @@ public:
 	void handle_event(TGUI_Event *event);
 	void draw();
 
-	int get_selected();
+	bool is_selected();
 	void set_selected(bool selected);
 
 	void set_group(Group group);

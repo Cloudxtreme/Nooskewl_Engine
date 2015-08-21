@@ -853,7 +853,7 @@ void Widget_Radio_Button::draw()
 	noo.font->disable_shadow();
 }
 
-int Widget_Radio_Button::get_selected()
+bool Widget_Radio_Button::is_selected()
 {
 	return selected;
 }
