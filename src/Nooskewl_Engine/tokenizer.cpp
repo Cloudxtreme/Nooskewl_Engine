@@ -15,7 +15,18 @@ std::string Tokenizer::next()
 		return "";
 	}
 
-	size_t next_delim = s.find(delimiter, offset);
+	size_t next_delim;
+
+	size_t tmp_o = offset;
+
+	while (true) {
+		next_delim = s.find(delimiter, tmp_o);
+		if (next_delim != 0 && s[next_delim-1] == '\\') {
+			tmp_o = next_delim + 1;
+			continue;
+		}
+		break;
+	}
 	std::string ret;
 
 	if (next_delim == std::string::npos) {
