@@ -1156,6 +1156,8 @@ Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, C
 	ok_button->set_center_x(true);
 	ok_button->set_padding_right(2);
 
+	slider->set_down_widget(ok_button);
+
 	cancel_button = new Widget_Text_Button(TRANSLATE("Cancel")END);
 	cancel_button->set_center_x(true);
 	cancel_button->set_padding_left(2);
@@ -1169,6 +1171,8 @@ Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, C
 	cancel_button->set_parent(button_container);
 
 	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+
+	gui->set_focus(slider);
 }
 
 bool Get_Number_GUI::update()
