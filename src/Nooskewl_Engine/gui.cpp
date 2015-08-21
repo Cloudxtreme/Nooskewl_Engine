@@ -324,7 +324,7 @@ bool Title_GUI::check_loaded()
 bool Title_GUI::fade_done(bool fade_in)
 {
 	if (fade_in == false) {
-		Map::new_game_started();
+		noo.new_game_started();
 
 		if (do_new_game) {
 			noo.player = new Map_Entity("player");
@@ -361,11 +361,14 @@ bool Title_GUI::fade_done(bool fade_in)
 			if (file != NULL) {
 				Map::new_game_started();
 
-				bool result = noo.load_game(file);
+				int loaded_time;
+				bool result = noo.load_game(file, &loaded_time);
 
 				SDL_RWclose(file);
 
 				if (result == true) {
+					noo.game_loaded(loaded_time);
+
 					noo.last_map_name = "--LOADED--";
 
 					noo.map->start();
@@ -418,6 +421,8 @@ Pause_GUI::Pause_GUI() :
 	exit_menu(false)
 {
 	quitting = quit = false;
+
+	noo.game_paused();
 
 	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
@@ -660,14 +665,8 @@ void Pause_GUI::handle_event(TGUI_Event *event)
 
 bool Pause_GUI::update()
 {
-	if (exit_menu) {
-		return do_return(false);
-	}
-	else if (check_quit() == false) {
-		return do_return(false);
-	}
-
-	if (resume_button->pressed()) {
+	if (exit_menu || check_quit() == false || resume_button->pressed()) {
+		noo.game_unpaused();
 		return do_return(false);
 	}
 	else if (save_button->pressed()) {
@@ -683,8 +682,7 @@ bool Pause_GUI::update()
 		yes_no_gui->start();
 		noo.guis.push_back(yes_no_gui);
 	}
-
-	if (items_button->pressed()) {
+	else if (items_button->pressed()) {
 		showing_items = true;
 		set_the_labels = false;
 		Items_GUI *items_gui = new Items_GUI(Item::OTHER, callback);

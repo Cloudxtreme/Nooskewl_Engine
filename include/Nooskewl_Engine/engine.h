@@ -123,7 +123,14 @@ public:
 	void play_music(std::string name);
 
 	bool save_game(SDL_RWops *file);
-	bool load_game(SDL_RWops *file);
+	bool load_game(SDL_RWops *file, int *loaded_time);
+
+	// For keeping track of time
+	void new_game_started();
+	void game_loaded(int loaded_time);
+	void game_paused();
+	void game_unpaused();
+	int get_play_time();
 
 private:
 	void init_video();
@@ -206,6 +213,12 @@ private:
 	Uint32 fancy_draw_start;
 
 	MML *widget_mml;
+
+	int loaded_time;
+	time_t session_start;
+	bool paused;
+	time_t pause_start;
+	int paused_time;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

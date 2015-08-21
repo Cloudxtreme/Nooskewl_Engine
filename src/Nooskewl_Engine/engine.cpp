@@ -86,7 +86,8 @@ Engine::Engine() :
 	milestones(0),
 	num_milestones(0),
 	depth_buffer_enabled(false),
-	doing_map_transition(false)
+	doing_map_transition(false),
+	paused(false)
 {
 }
 
@@ -1519,7 +1520,8 @@ void Engine::setup_default_shader()
 
 bool Engine::save_game(SDL_RWops *file)
 {
-	SDL_fprintf(file, "version=102\n");
+	SDL_fprintf(file, "version=103\n");
+	SDL_fprintf(file, "time=%d\n", get_play_time());
 	if (save_milestones(file) == false) {
 		return false;
 	}
@@ -1536,7 +1538,7 @@ bool Engine::save_milestones(SDL_RWops *file)
 	return true;
 }
 
-bool Engine::load_game(SDL_RWops *file)
+bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1550,7 +1552,24 @@ bool Engine::load_game(SDL_RWops *file)
 	}
 	std::string version = t.next();
 	int version_i = atoi(version.c_str());
-	// Do something with version
+
+	if (version_i >= 103) {
+		SDL_fgets(file, line, 1000);
+		std::string s = line;
+		trim(s);
+		Tokenizer t(s, '=');
+		std::string tag = t.next();
+		if (tag != "time") {
+			errormsg("Missing time in save state");
+			return false;
+		}
+		std::string loaded_time_s = t.next();
+		*loaded_time = atoi(loaded_time_s.c_str());
+	}
+	else {
+		*loaded_time = 0;
+	}
+
 	if (load_milestones(file, version_i) == false) {
 		return false;
 	}
@@ -1560,6 +1579,43 @@ bool Engine::load_game(SDL_RWops *file)
 		noo.player->load_stats("player");
 	}
 	return ret;
+}
+
+void Engine::new_game_started()
+{
+	Map::new_game_started();
+
+	loaded_time = 0;
+	session_start = time(0);
+	paused_time = 0;
+}
+
+void Engine::game_loaded(int loaded_time)
+{
+	this->loaded_time = loaded_time;
+	session_start = time(0);
+	paused_time = 0;
+}
+
+void Engine::game_paused()
+{
+	pause_start = time(0);
+	paused = true;
+}
+
+void Engine::game_unpaused()
+{
+	paused_time += int(time(0) - pause_start);
+	paused = false;
+}
+
+int Engine::get_play_time()
+{
+	int play_time = int((time(0) - session_start) - paused_time + loaded_time);
+	if (paused) {
+		play_time -= int(time(0) - pause_start);
+	}
+	return play_time;
 }
 
 bool Engine::load_milestones(SDL_RWops *file, int version)
