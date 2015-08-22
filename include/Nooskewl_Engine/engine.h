@@ -29,6 +29,7 @@ public:
 	MML *music;
 	MML *button_mml;
 	MML *item_mml;
+	MML *widget_mml;
 	// Graphics
 	std::string window_title; // set this first thing to change it
 	float scale;
@@ -211,8 +212,6 @@ private:
 	static const int map_transition_duration = 500;
 
 	Uint32 fancy_draw_start;
-
-	MML *widget_mml;
 
 	int loaded_time;
 	time_t session_start;
