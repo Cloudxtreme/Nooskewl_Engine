@@ -41,13 +41,14 @@ void Map::new_game_started()
 	noo.clear_milestones();
 }
 
-Map::Map(std::string map_name) :
+Map::Map(std::string map_name, bool been_here_before) :
 	offset(0.0f, 0.0f),
 	panning(false),
 	speech(0),
 	map_name(map_name),
 	new_map_name(""),
-	a_star(0)
+	a_star(0),
+	been_here_before(been_here_before)
 {
 	tilemap = new Tilemap(map_name);
 
@@ -74,7 +75,7 @@ void Map::start()
 	a_star = new A_Star(this);
 
 	if (ml) {
-		ml->start();
+		ml->start(been_here_before);
 	}
 }
 
@@ -589,7 +590,7 @@ void Map::schedule_destroy(Map_Entity *entity)
 	}
 }
 
-bool Map::save(std::string &out)
+bool Map::save(std::string &out, bool save_player)
 {
 	out += string_printf("map_name=%s\n", map_name.c_str());
 
@@ -597,11 +598,13 @@ bool Map::save(std::string &out)
 
 	std::string entity_save;
 
-	if (noo.player->save(entity_save) == false) {
-		return false;
-	}
+	if (save_player) {
+		if (noo.player->save(entity_save) == false) {
+			return false;
+		}
 
-	out += entity_save;
+		out += entity_save;
+	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *entity = entities[i];

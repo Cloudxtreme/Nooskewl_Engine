@@ -9,7 +9,7 @@ class Map_Entity;
 
 class NOOSKEWL_ENGINE_EXPORT Map_Logic {
 public:
-	virtual void start();
+	virtual void start(bool been_here_before);
 	virtual void end();
 	virtual void trigger(Map_Entity *entity);
 	virtual void update();

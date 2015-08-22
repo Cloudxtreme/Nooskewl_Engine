@@ -18,7 +18,7 @@ public:
 
 	static void new_game_started();
 
-	Map(std::string map_name);
+	Map(std::string map_name, bool been_here_before);
 	~Map();
 
 	void start();
@@ -52,7 +52,7 @@ public:
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal, bool check_solids = true);
 	bool is_speech_active();
 
-	bool save(std::string &out);
+	bool save(std::string &out, bool save_player);
 
 private:
 	struct Map_Speech {
@@ -91,6 +91,8 @@ private:
 
 	// Collided with, collider
 	std::vector< std::pair<Map_Entity *, Map_Entity *> > collisions;
+
+	bool been_here_before;
 };
 
 } // End namespace Nooskewl_Engine

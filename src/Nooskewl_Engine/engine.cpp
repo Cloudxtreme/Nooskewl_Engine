@@ -25,6 +25,8 @@
 
 #include "Nooskewl_Engine/engine_translation_English.h"
 
+#define CURRENT_SAVE_STATE_VERSION 104
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 #define NOOSKEWL_ENGINE_FVF (D3DFVF_XYZ | D3DFVF_TEX2 | D3DFVF_TEXCOORDSIZE2(0) | D3DFVF_TEXCOORDSIZE4(1))
 #endif
@@ -237,7 +239,7 @@ bool Engine::start(int argc, char **argv)
 	button_mml = new MML("button.mml");
 	item_mml = new MML("item.mml");
 	widget_mml = new MML("widget.mml");
-	
+
 	Uint32 last_frame = SDL_GetTicks();
 	accumulated_delay = 0;
 
@@ -706,11 +708,28 @@ bool Engine::update()
 
 	if (doing_map_transition == false) {
 		if (map && map->update() == false) {
+
 			map->get_new_map_details(new_map_name, new_map_position, new_map_direction);
+
 			if (new_map_name != "") {
+				save_map(map, false);
+
 				old_map = map;
 				last_map_name = old_map->get_map_name();
-				map = new Map(new_map_name);
+
+				std::map<std::string, std::pair<int, std::string> >::iterator it;
+				if ((it = map_saves.find(new_map_name)) != map_saves.end()) {
+					std::pair<std::string, std::pair<int, std::string> > p = *it;
+					std::pair<int, std::string> p2 = p.second;
+					std::string map_s = p2.second;
+					SDL_RWops *string_file = SDL_RWFromMem((void *)map_s.c_str(), map_s.length());
+					map = load_map(string_file, p2.first, false);
+					SDL_RWclose(string_file);
+				}
+				else {
+					map = new Map(new_map_name, false);
+				}
+
 				player->get_brain()->reset();
 				map->add_entity(player);
 				map->start();
@@ -1525,19 +1544,36 @@ void Engine::setup_default_shader()
 
 bool Engine::save_game(SDL_RWops *file)
 {
-	SDL_fprintf(file, "version=103\n");
+	SDL_fprintf(file, "version=%d\n", CURRENT_SAVE_STATE_VERSION);
+
 	SDL_fprintf(file, "time=%d\n", get_play_time());
+
 	if (save_milestones(file) == false) {
 		return false;
 	}
 
-	std::string map_save;
+	SDL_fprintf(file, "%s\n", map->get_map_name().c_str()); // save current map name
 
-	bool ret = noo.map->save(map_save);
+	save_map(map, true);
 
-	SDL_fputs(map_save.c_str(), file);
+	SDL_fprintf(file, "%d\n", map_saves.size());
 
-	return ret;
+	std::map<std::string, std::pair<int, std::string> >::iterator it;
+
+	for (it = map_saves.begin(); it != map_saves.end(); it++) {
+		std::pair<std::string, std::pair<int, std::string> > p = *it;
+		std::pair<int, std::string> p2 = p.second;
+
+		SDL_fprintf(file, "%s\n", p.first.c_str());
+
+		SDL_fprintf(file, "%d\n", p2.first);
+
+		SDL_fputs(p2.second.c_str(), file);
+
+		SDL_fprintf(file, "--END MAP--\n");
+	}
+
+	return true;
 }
 
 bool Engine::save_milestones(SDL_RWops *file)
@@ -1563,9 +1599,9 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 		return false;
 	}
 	std::string version = t.next();
-	int version_i = atoi(version.c_str());
+	save_state_version = atoi(version.c_str());
 
-	if (version_i >= 103) {
+	if (save_state_version >= 103) {
 		SDL_fgets(file, line, 1000);
 		std::string s = line;
 		trim(s);
@@ -1585,15 +1621,51 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 		return false;
 	}
 
-	if (load_milestones(file, version_i) == false) {
+	if (load_milestones(file, save_state_version) == false) {
 		return false;
 	}
-	bool ret = load_map(file, version_i);
-	if (ret == true && version_i < 101) {
-		// Version 101 added stats load/save
-		noo.player->load_stats("player");
+
+	SDL_fgets(file, line, 1000);
+	std::string current_map = line;
+	trim(current_map);
+
+	map_saves.clear();
+
+	SDL_fgets(file, line, 1000);
+	int num_maps = atoi(line);
+
+	for (int i = 0; i < num_maps; i++) {
+		SDL_fgets(file, line, 1000);
+		std::string map_name = line;
+		trim(map_name);
+
+		SDL_fgets(file, line, 1000);
+		int this_version = atoi(line);
+
+		std::string map_save;
+
+		while (true) {
+			SDL_fgets(file, line, 1000);
+			if (!strncmp(line, "--END MAP--", 11)) {
+				break;
+			}
+			map_save += line;
+		}
+
+		std::pair<int, std::string> p;
+
+		p.first = this_version;
+		p.second = map_save;
+
+		map_saves[map_name] = p;
 	}
-	return ret;
+
+	std::pair<int, std::string> p = map_saves[current_map];
+	SDL_RWops *string_file = SDL_RWFromMem((void *)p.second.c_str(), p.second.length());
+	noo.map = load_map(string_file, p.first, true);
+	SDL_RWclose(string_file);
+
+	return noo.map != 0;
 }
 
 void Engine::new_game_started()
@@ -1667,7 +1739,7 @@ bool Engine::load_milestones(SDL_RWops *file, int version)
 	return true;
 }
 
-bool Engine::load_map(SDL_RWops *file, int version)
+Map *Engine::load_map(SDL_RWops *file, int version, bool load_player)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1680,10 +1752,10 @@ bool Engine::load_map(SDL_RWops *file, int version)
 
 	if (tag != "map_name") {
 		errormsg("Expected map_name in save state\n");
-		return false;
+		return 0;
 	}
 
-	noo.map = new Map(value);
+	Map *map = new Map(value, true);
 
 	SDL_fgets(file, line, 1000);
 	s = line;
@@ -1694,34 +1766,41 @@ bool Engine::load_map(SDL_RWops *file, int version)
 
 	if (tag != "num_entities") {
 		errormsg("Expected num_entities in save state\n");
-		return false;
+		delete map;
+		return 0;
 	}
 	int num_entities = atoi(value.c_str());
 	if (num_entities < 1) {
 		errormsg("Expected at least 1 entity in save state\n");
-		return false;
+		delete map;
+		return 0;
 	}
 
-	noo.player = load_entity(file, version);
-	if (noo.player == 0) {
-		return false;
-	}
-	else if (noo.player->get_name() != "player") {
-		errormsg("Expected player first in save state\n");
-		return false;
-	}
+	if (load_player) {
+		noo.player = load_entity(file, version);
+		if (noo.player == 0) {
+			delete map;
+			return 0;
+		}
+		else if (noo.player->get_name() != "player") {
+			errormsg("Expected player first in save state\n");
+			delete map;
+			return 0;
+		}
 
-	noo.map->add_entity(noo.player);
+		map->add_entity(noo.player);
+	}
 
 	for (int i = 1; i < num_entities; i++) {
 		Map_Entity *entity = load_entity(file, version);
 		if (entity == 0) {
-			return false;
+			delete map;
+			return 0;
 		}
-		noo.map->add_entity(entity);
+		map->add_entity(entity);
 	}
 
-	return true;
+	return map;
 }
 
 Map_Entity *Engine::load_entity(SDL_RWops *file, int version)
@@ -1966,6 +2045,23 @@ bool Engine::load_inventory(SDL_RWops *file, Stats *stats, int version)
 	}
 
 	stats->inventory->from_string(s);
+
+	return true;
+}
+
+bool Engine::save_map(Map *map, bool save_player)
+{
+	std::string map_save;
+	if (map->save(map_save, save_player) == false) {
+		return false;
+	}
+
+	std::pair<int, std::string> p;
+
+	p.first = CURRENT_SAVE_STATE_VERSION;
+	p.second = map_save;
+
+	map_saves[map->get_map_name()] = p;
 
 	return true;
 }

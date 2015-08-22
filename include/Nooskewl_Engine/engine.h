@@ -133,6 +133,8 @@ public:
 	void game_unpaused();
 	int get_play_time();
 
+	bool save_map(Map *map, bool save_player);
+
 private:
 	void init_video();
 	void shutdown_video();
@@ -151,7 +153,7 @@ private:
 
 	bool save_milestones(SDL_RWops *file);
 	bool load_milestones(SDL_RWops *file, int version);
-	bool load_map(SDL_RWops *file, int version);
+	Map *load_map(SDL_RWops *file, int version, bool load_player);
 	Map_Entity *load_entity(SDL_RWops *file, int version);
 	Brain *load_brain(SDL_RWops *file, int version);
 	Stats *load_stats(SDL_RWops *file, int version);
@@ -218,6 +220,10 @@ private:
 	bool paused;
 	time_t pause_start;
 	int paused_time;
+
+	std::map<std::string, std::pair<int, std::string> > map_saves;
+
+	int save_state_version;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
