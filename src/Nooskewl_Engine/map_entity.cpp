@@ -596,30 +596,54 @@ bool Map_Entity::update(bool can_move)
 
 void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 {
-	if (has_blink) {
-		noo.current_shader->set_bool("substitute_yellow", true);
-		Uint32 ticks = SDL_GetTicks();
-		if (ticks > next_blink) {
-			if (ticks > next_blink + 50) {
-				set_next_blink();
-			}
-			noo.current_shader->set_float_vector("substitute_colour", 4, blink_colour, 1);
-		}
-		else {
-			noo.current_shader->set_float_vector("substitute_colour", 4, eye_colour, 1);
-		}
-	}
-
 	Image *image = sprite->get_current_image();
 
 	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
 	// 0.01f is big enough that a 16 bit depth buffer still works and small enough it looks right
 	float draw_z = use_depth_buffer ? -(1.0f - ((position.y*noo.tile_size)+(offset.y*noo.tile_size)+z_add)/(noo.map->get_tilemap()->get_size().h*noo.tile_size)) * 0.01f : 0.0f;
 
-	image->draw_z_single(Point<float>(draw_pos.x, draw_pos.y), draw_z);
+	Point<float> source_position(0.0f, 0.0f);
+	Size<float> source_size((float)image->size.w, (float)image->size.h);
 
-	if (has_blink) {
-		noo.current_shader->set_bool("substitute_yellow", false);
+	if (draw_pos.x < 0.0f) {
+		source_position.x -= draw_pos.x;
+		source_size.w += draw_pos.x;
+		draw_pos.x = 0.0f;
+	}
+	if (draw_pos.x + source_size.w >= noo.screen_size.w) {
+		float extra = (draw_pos.x + source_size.w) - noo.screen_size.w;
+		source_size.w -= extra;
+	}
+	if (draw_pos.y < 0.0f) {
+		source_position.y -= draw_pos.y;
+		source_size.h += draw_pos.y;
+		draw_pos.y = 0.0f;
+	}
+	if (draw_pos.y + source_size.h >= noo.screen_size.h) {
+		float extra = (draw_pos.y + source_size.h) - noo.screen_size.h;
+		source_size.h -= extra;
+	}
+
+	if (source_size.w > 0.0f && source_size.h > 0.0f) {
+		if (has_blink) {
+			noo.current_shader->set_bool("substitute_yellow", true);
+			Uint32 ticks = SDL_GetTicks();
+			if (ticks > next_blink) {
+				if (ticks > next_blink + 50) {
+					set_next_blink();
+				}
+				noo.current_shader->set_float_vector("substitute_colour", 4, blink_colour, 1);
+			}
+			else {
+				noo.current_shader->set_float_vector("substitute_colour", 4, eye_colour, 1);
+			}
+		}
+
+		image->draw_region_z_single(source_position, source_size, draw_pos, draw_z, 0);
+
+		if (has_blink) {
+			noo.current_shader->set_bool("substitute_yellow", false);
+		}
 	}
 }
 
