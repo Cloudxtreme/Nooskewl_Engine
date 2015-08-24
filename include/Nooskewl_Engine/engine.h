@@ -49,7 +49,6 @@ public:
 	SDL_Colour white;
 	SDL_Colour magenta;
 	Font *font;
-	Font *bold_font;
 	Image *window_image;
 	Image *name_box_image_top;
 	Image *name_box_image_bottom;
