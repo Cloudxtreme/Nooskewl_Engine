@@ -1368,7 +1368,7 @@ void Engine::load_fonts()
 	font_scale = use_hires_font ? 1.0f : noo.scale;
 
 	font = new Font("font.ttf", 8);
-	bold_font = new Font("font_bold.ttf", 8);
+	//bold_font = new Font("font_bold.ttf", 7);
 }
 
 void Engine::destroy_fonts()
