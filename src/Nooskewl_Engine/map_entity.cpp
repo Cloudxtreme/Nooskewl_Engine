@@ -20,6 +20,10 @@ static void make_solid_callback(void *data)
 	Map_Entity *entity = (Map_Entity *)data;
 
 	entity->set_solid(true);
+	
+	if (entity->get_direction() == N) {
+		entity->set_z_add(entity->get_z_add() + 1);
+	}
 }
 
 static int current_id;
@@ -377,6 +381,11 @@ int Map_Entity::get_z()
 	return z;
 }
 
+int Map_Entity::get_z_add()
+{
+	return z_add;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
@@ -594,7 +603,7 @@ bool Map_Entity::update(bool can_move)
 	return true;
 }
 
-void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
+void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting_n)
 {
 	Image *image = sprite->get_current_image();
 
@@ -604,6 +613,10 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer)
 
 	Point<float> source_position(0.0f, 0.0f);
 	Size<float> source_size((float)image->size.w, (float)image->size.h);
+
+	if (sitting_n) {
+		source_size.h *= 0.75f;
+	}
 
 	if (draw_pos.x < 0.0f) {
 		source_position.x -= draw_pos.x;

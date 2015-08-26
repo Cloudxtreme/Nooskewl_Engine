@@ -422,6 +422,9 @@ void Map::draw(bool use_depth_buffer)
 			e->draw_shadows(e->get_draw_position() + offset);
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
+		else if (e->is_sitting() && e->get_direction() == N) {
+			e->draw(e->get_draw_position() + offset, use_depth_buffer, true);
+		}
 	}
 
 	if (speech) {
@@ -508,6 +511,8 @@ bool Map::activate(Map_Entity *entity)
 			continue;
 		}
 
+		Point<int> collide_pos = Point<int>(MAX(x1_1, x1_2), MAX(y1_1, y1_2)) / noo.tile_size;
+
 		Point<int> entity_pos = entity->get_position();
 
 		if (g->position == entity_pos) {
@@ -535,31 +540,31 @@ bool Map::activate(Map_Entity *entity)
 
 			if (g->type & Tilemap::Group::GROUP_CHAIR_ANY) {
 				any = true;
-				path = find_path(entity_pos, g->position, false);
+				path = find_path(entity_pos, collide_pos, false);
 			}
 			else {
 				any = false;
 				if (direction == N) {
 					if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
-						path = find_path(entity_pos, g->position, false);
+						path = find_path(entity_pos, collide_pos, false);
 						direction = S;
 					}
 				}
 				else if (direction == E) {
 					if (g->type & Tilemap::Group::GROUP_CHAIR_WEST) {
-						path = find_path(entity_pos, g->position, false);
+						path = find_path(entity_pos, collide_pos, false);
 						direction = W;
 					}
 				}
 				else if (direction == S) {
 					if (g->type & Tilemap::Group::GROUP_CHAIR_NORTH) {
-						path = find_path(entity_pos, g->position, false);
+						path = find_path(entity_pos, collide_pos, false);
 						direction = N;
 					}
 				}
 				else {
 					if (g->type & Tilemap::Group::GROUP_CHAIR_EAST) {
-						path = find_path(entity_pos, g->position, false);
+						path = find_path(entity_pos, collide_pos, false);
 						direction = E;
 					}
 				}
@@ -574,6 +579,10 @@ bool Map::activate(Map_Entity *entity)
 				sit_data->any = any;
 				sit_data->direction = direction;
 				entity->set_path(path, sit_callback, sit_data);
+
+				if (direction == N) {
+					entity->set_z_add(entity->get_z_add() - 1);
+				}
 
 				return true;
 			}

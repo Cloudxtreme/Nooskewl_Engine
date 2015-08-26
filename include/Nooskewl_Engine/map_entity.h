@@ -70,6 +70,7 @@ public:
 	bool is_low();
 	bool is_high();
 	int get_z();
+	int get_z_add();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -82,7 +83,7 @@ public:
 	// return false to destroy
 	bool update(bool can_move);
 	// draws with z values
-	void draw(Point<float> draw_pos, bool use_depth_buffer = true);
+	void draw(Point<float> draw_pos, bool use_depth_buffer = true, bool sitting_n = false);
 	void draw_shadows(Point<float> draw_pos);
 
 	bool save(std::string &out);
