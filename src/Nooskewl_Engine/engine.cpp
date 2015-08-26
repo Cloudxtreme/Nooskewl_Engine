@@ -624,10 +624,6 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
 		}
-		else if (event.type == TGUI_MOUSE_DOWN && event.mouse.x < noo.tile_size && event.mouse.y < noo.tile_size) {
-			event.type = TGUI_KEY_DOWN;
-			event.keyboard.code = TGUIK_ESCAPE;
-		}
 	}
 
 	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
@@ -638,6 +634,11 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 #elif defined __APPLE__
 		macosx_set_custom_cursor();
 #endif
+	}
+
+	if (event.type == TGUI_MOUSE_DOWN && event.mouse.x < noo.tile_size && event.mouse.y < noo.tile_size) {
+		event.type = TGUI_KEY_DOWN;
+		event.keyboard.code = TGUIK_ESCAPE;
 	}
 
 	bool is_escape;
@@ -697,10 +698,10 @@ bool Engine::update()
 			for (size_t i = 0; i < guis.size(); i++) {
 				if (guis[i] == noo_gui) {
 					guis.erase(guis.begin() + i);
+					delete noo_gui;
 					break;
 				}
 			}
-			delete noo_gui;
 		}
 		for (size_t i = 0; i < other_guis.size(); i++) {
 			noo_gui = other_guis[i];
@@ -716,10 +717,10 @@ bool Engine::update()
 				for (size_t j = 0; j < guis.size(); j++) {
 					if (guis[j] == noo_gui) {
 						guis.erase(guis.begin() + j);
+						delete noo_gui;
 						break;
 					}
 				}
-				delete noo_gui;
 			}
 		}
 	}
