@@ -668,6 +668,12 @@ bool Engine::update()
 {
 	check_joysticks();
 
+	if (map == 0 && guis.size() == 0) {
+		Title_GUI *title_gui = new Title_GUI();
+		title_gui->start();
+		guis.push_back(title_gui);
+	}
+
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
 		std::vector<GUI *> other_guis;
