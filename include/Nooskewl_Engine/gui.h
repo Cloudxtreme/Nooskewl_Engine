@@ -25,7 +25,7 @@ public:
 	virtual ~GUI();
 
 	bool is_fading_out() { return fading_out; }
-	bool is_fadeout_finished() { return fadeout_finished; }
+	bool is_fadeout_finished();
 
 	void start(); // call after adding all widgets
 
@@ -49,7 +49,6 @@ protected:
 	bool fading_in;
 	bool fading_out;
 	Uint32 fade_start;
-	bool fadeout_finished;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Title_GUI : public GUI {

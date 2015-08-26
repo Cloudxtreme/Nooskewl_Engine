@@ -27,7 +27,6 @@ GUI::GUI() :
 	fading_in = true;
 	fading_out = false;
 	fade_start = SDL_GetTicks();
-	fadeout_finished = false;
 }
 
 GUI::~GUI()
@@ -70,14 +69,6 @@ void GUI::draw_back()
 		float p = (SDL_GetTicks() - fade_start) / 200.0f;
 		if (p >= 1.0f) {
 			p = 1.0f;
-
-			if (fadeout_finished == false && fade_done(false) == false) {
-				fadeout_finished = true;
-			}
-			else {
-				fading_out = false;
-				fadeout_finished = false;
-			}
 		}
 		p = 1.0f - p;
 		global_alpha = p;
@@ -91,15 +82,29 @@ void GUI::draw_fore()
 	noo.current_shader->set_float("global_alpha", global_alpha);
 }
 
+bool GUI::is_fadeout_finished() {
+	if (fading_out) {
+		if (fade == false) {
+			return true;
+		}
+		else if ((SDL_GetTicks() - fade_start) >= 200) {
+			if (fade_done(false) == false) {
+				return true;
+			}
+			else {
+				fading_out = false;
+			}
+		}
+	}
+
+	return false;
+}
+
 void GUI::exit()
 {
 	fading_out = true;
 
-	if (fade == false) {
-		fadeout_finished = true;
-	}
-	else {
-		fading_out = true;
+	if (fade) {
 		fade_start = SDL_GetTicks();
 	}
 }
