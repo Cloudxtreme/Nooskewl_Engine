@@ -618,6 +618,10 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
 		}
+		else if (event.type == TGUI_MOUSE_DOWN && event.mouse.x < noo.tile_size && event.mouse.y < noo.tile_size) {
+			event.type = TGUI_KEY_DOWN;
+			event.keyboard.code = TGUIK_ESCAPE;
+		}
 	}
 
 	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
@@ -814,6 +818,9 @@ void Engine::draw()
 			guis[i]->draw_fore();
 		}
 	}
+
+	SDL_Colour red = { 128, 0,  0, 128 };
+	draw_triangle(red, Point<int>(0, 0), Point<int>(noo.tile_size-1, 0), Point<int>(0, noo.tile_size-1));
 
 	flip();
 
