@@ -783,7 +783,7 @@ void Widget_Slider::handle_event(TGUI_Event *event)
 
 void Widget_Slider::draw()
 {
-	noo.draw_line(noo.black, Point<float>((float)calculated_x, calculated_y+2.5), Point<float>(float(calculated_x+calculated_w-1), calculated_y+2.5));
+	noo.draw_line(noo.black, Point<float>((float)calculated_x, calculated_y+2.5f), Point<float>(float(calculated_x+calculated_w-1), calculated_y+2.5f));
 
 	int x = int((float)value / (stops-1) * (calculated_w-1) - slider_image->size.w / 2);
 
