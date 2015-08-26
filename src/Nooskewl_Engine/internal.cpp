@@ -338,7 +338,7 @@ std::string List_Directory::next()
 #endif // NOOSKEWL_ENGINE_WINDOWS
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-/* The following Windows icon creation code comes from Allegro, http://liballeg.org */
+/* The following Windows icon and other mouse cursor creation code comes from Allegro, http://liballeg.org */
 
 #define WINDOWS_RGB(r,g,b)  ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 

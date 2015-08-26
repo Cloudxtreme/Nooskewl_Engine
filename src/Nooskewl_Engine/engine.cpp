@@ -25,6 +25,10 @@
 
 #include "Nooskewl_Engine/engine_translation_English.h"
 
+#ifdef __APPLE__
+#include "Nooskewl_Engine/macosx.h"
+#endif
+
 #define CURRENT_SAVE_STATE_VERSION 104
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
@@ -284,6 +288,8 @@ void Engine::end()
 #elif defined __linux__
 	X11::XUndefineCursor(x_display, x_window);
 	X11::XFreeCursor(x_display, mouse_cursor);
+#elif defined __APPLE__
+	macosx_destroy_custom_cursor();
 #endif
 
 	shutdown_video();
@@ -629,6 +635,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		SetCursor(mouse_cursor);
 #elif defined __linux__
 		X11::XDefineCursor(x_display, x_window, mouse_cursor);
+#elif defined __APPLE__
+		macosx_set_custom_cursor();
 #endif
 	}
 
@@ -1450,6 +1458,8 @@ void Engine::set_mouse_cursor()
 	mouse_cursor = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, true);
 #elif defined __linux__
 	mouse_cursor = x_create_cursor(x_display, pixels, size, 0, 0);
+#elif defined __APPLE__
+	macosx_create_custom_cursor(pixels, size, 0, 0);
 #endif
 	delete[] pixels;
 }

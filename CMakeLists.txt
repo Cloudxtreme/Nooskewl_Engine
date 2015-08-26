@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(Nooskewl_Engine CXX)
+project(Nooskewl_Engine)
 
 include_directories("include")
 
@@ -40,6 +40,10 @@ set(LIB_SRC
 	src/Nooskewl_Engine/xml.cpp
 )
 
+if(APPLE)
+	list(APPEND LIB_SRC src/Nooskewl_Engine/macosx.M)
+endif()
+
 set(RUNNER_SRC
 	src/Nooskewl_Runner/runner.cpp
 )
@@ -61,7 +65,7 @@ else()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWITH_SDL")
 	if(APPLE)
 		set_target_properties(Nooskewl_Engine PROPERTIES MACOSX_RPATH on)
-		set_target_properties(Nooskewl_Engine PROPERTIES LINK_FLAGS "-framework OpenGL")
+		set_target_properties(Nooskewl_Engine PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa")
 		set_target_properties(Nooskewl_Engine PROPERTIES BUILD_WITH_INSTALL_RPATH on)
 		set_target_properties(Nooskewl_Runner PROPERTIES BUILD_WITH_INSTALL_RPATH on)
 		set_target_properties(Nooskewl_Engine PROPERTIES INSTALL_RPATH "@executable_path")
