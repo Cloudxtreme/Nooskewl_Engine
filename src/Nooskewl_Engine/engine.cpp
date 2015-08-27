@@ -93,7 +93,8 @@ Engine::Engine() :
 	num_milestones(0),
 	depth_buffer_enabled(false),
 	doing_map_transition(false),
-	paused(false)
+	paused(false),
+	escape_triangle_size(8.0f)
 {
 }
 
@@ -624,6 +625,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		if (event.mouse.x < 0 || event.mouse.x >= screen_size.w || event.mouse.y < 0 || event.mouse.y >= screen_size.h) {
 			return true;
 		}
+
+		mouse_pos = Point<int>((int)event.mouse.x, (int)event.mouse.y);
 	}
 
 	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
@@ -676,6 +679,19 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 bool Engine::update()
 {
 	check_joysticks();
+
+	if (mouse_pos.x < noo.tile_size && mouse_pos.y < noo.tile_size) {
+		escape_triangle_size += 0.5f;
+		if (escape_triangle_size > noo.tile_size-1) {
+			escape_triangle_size = noo.tile_size-1.0f;
+		}
+	}
+	else {
+		escape_triangle_size -= 0.5f;
+		if (escape_triangle_size < noo.tile_size/2) {
+			escape_triangle_size = noo.tile_size/2.0f;
+		}
+	}
 
 	if (map == 0 && guis.size() == 0) {
 		Title_GUI *title_gui = new Title_GUI();
@@ -835,7 +851,7 @@ void Engine::draw()
 	}
 
 	SDL_Colour red = { 128, 0,  0, 128 };
-	draw_triangle(red, Point<int>(0, 0), Point<int>(noo.tile_size-1, 0), Point<int>(0, noo.tile_size-1));
+	draw_triangle(red, Point<int>(0, 0), Point<int>((int)escape_triangle_size, 0), Point<int>(0, (int)escape_triangle_size));
 
 	flip();
 

@@ -223,6 +223,9 @@ private:
 	std::map<std::string, std::pair<int, std::string> > map_saves;
 
 	int save_state_version;
+
+	float escape_triangle_size;
+	Point<int> mouse_pos;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
