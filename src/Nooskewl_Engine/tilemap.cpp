@@ -63,9 +63,6 @@ Tilemap::Tilemap(std::string map_filename)
 				layers[layer].y[row][col] = (char)SDL_fgetc(f);
 				layers[layer].sheet[row][col] = (char)SDL_fgetc(f);
 				layers[layer].solid[row][col] = SDL_fgetc(f) != 0;
-				if (layers[layer].sheet[row][col] != 0 && layers[layer].sheet[row][col] != -1) {
-				}
-
 				if (layers[layer].x[row][col] >= 0 && std::find(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end(), layers[layer].sheet[row][col]) == layers[layer].sheets_used.end()) {
 					layers[layer].sheets_used.push_back(layers[layer].sheet[row][col]);
 				}
