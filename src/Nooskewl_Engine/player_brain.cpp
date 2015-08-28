@@ -149,7 +149,6 @@ void Player_Brain::handle_event(TGUI_Event *event)
 
 										if (g->position == click) {
 											if (
-												(g->type & Tilemap::Group::GROUP_CHAIR_ANY) ||
 												(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
 												(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
 												(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||

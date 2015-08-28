@@ -49,7 +49,7 @@ public:
 	void set_z(int z);
 	void set_z_add(int z_add);
 	void set_pre_sit_position(Point<int> pre_sit_position);
-	void lock_sit_direction(bool lock);
+	void set_sit_directions(int sit_directions);
 
 	int get_id();
 	std::string get_name();
@@ -133,7 +133,8 @@ private:
 	bool pre_sit_position_set;
 	Point<int> pre_sit_position;
 
-	bool sit_direction_locked;
+	int sit_directions;
+	bool sat;
 };
 
 } // End namespace Nooskewl_Engine

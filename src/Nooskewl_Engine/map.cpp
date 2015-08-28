@@ -13,7 +13,7 @@ using namespace Nooskewl_Engine;
 
 struct Sit_Data {
 	Map_Entity *entity;
-	bool any;
+	int sit_directions;
 	Direction direction;
 };
 
@@ -21,13 +21,9 @@ static void sit_callback(void *data)
 {
 	Sit_Data *sit_data = (Sit_Data *)data;
 
-	if (!sit_data->any) {
-		sit_data->entity->set_direction(sit_data->direction);
-	}
+	sit_data->entity->set_direction(sit_data->direction);
 	sit_data->entity->set_sitting(true);
-	if (!sit_data->any) {
-		sit_data->entity->lock_sit_direction(true);
-	}
+	sit_data->entity->set_sit_directions(sit_data->sit_directions);
 
 	delete sit_data;
 }
@@ -517,13 +513,13 @@ bool Map::activate(Map_Entity *entity)
 
 		if (g->position == entity_pos) {
 			if (
-				(g->type & Tilemap::Group::GROUP_CHAIR_ANY) ||
 				(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
 				(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
 				(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
 				(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
 			) {
 				entity->set_sitting(true);
+				entity->set_sit_directions(g->type);
 
 				return true;
 			}
@@ -533,40 +529,32 @@ bool Map::activate(Map_Entity *entity)
 				continue;
 			}
 
-			bool any;
 			Direction direction = entity->get_direction();
 
 			std::list<A_Star::Node *> path;
 
-			if (g->type & Tilemap::Group::GROUP_CHAIR_ANY) {
-				any = true;
-				path = find_path(entity_pos, collide_pos, false);
+			if (direction == N) {
+				if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
+					path = find_path(entity_pos, collide_pos, false);
+					direction = S;
+				}
+			}
+			else if (direction == E) {
+				if (g->type & Tilemap::Group::GROUP_CHAIR_WEST) {
+					path = find_path(entity_pos, collide_pos, false);
+					direction = W;
+				}
+			}
+			else if (direction == S) {
+				if (g->type & Tilemap::Group::GROUP_CHAIR_NORTH) {
+					path = find_path(entity_pos, collide_pos, false);
+					direction = N;
+				}
 			}
 			else {
-				any = false;
-				if (direction == N) {
-					if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
-						path = find_path(entity_pos, collide_pos, false);
-						direction = S;
-					}
-				}
-				else if (direction == E) {
-					if (g->type & Tilemap::Group::GROUP_CHAIR_WEST) {
-						path = find_path(entity_pos, collide_pos, false);
-						direction = W;
-					}
-				}
-				else if (direction == S) {
-					if (g->type & Tilemap::Group::GROUP_CHAIR_NORTH) {
-						path = find_path(entity_pos, collide_pos, false);
-						direction = N;
-					}
-				}
-				else {
-					if (g->type & Tilemap::Group::GROUP_CHAIR_EAST) {
-						path = find_path(entity_pos, collide_pos, false);
-						direction = E;
-					}
+				if (g->type & Tilemap::Group::GROUP_CHAIR_EAST) {
+					path = find_path(entity_pos, collide_pos, false);
+					direction = E;
 				}
 			}
 
@@ -576,13 +564,9 @@ bool Map::activate(Map_Entity *entity)
 
 				Sit_Data *sit_data = new Sit_Data;
 				sit_data->entity = entity;
-				sit_data->any = any;
+				sit_data->sit_directions = (int)g->type;
 				sit_data->direction = direction;
 				entity->set_path(path, sit_callback, sit_data);
-
-				if (direction == N) {
-					entity->set_z_add(entity->get_z_add() - 1);
-				}
 
 				return true;
 			}

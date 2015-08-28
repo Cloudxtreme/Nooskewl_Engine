@@ -17,11 +17,10 @@ public:
 			GROUP_NONE        = 0,
 			GROUP_OBJECT      = 1,
 			GROUP_SHADOW      = 1 << 1,
-			GROUP_CHAIR_ANY   = 1 << 2,
-			GROUP_CHAIR_NORTH = 1 << 3,
-			GROUP_CHAIR_EAST  = 1 << 4,
-			GROUP_CHAIR_SOUTH = 1 << 5,
-			GROUP_CHAIR_WEST  = 1 << 6
+			GROUP_CHAIR_NORTH = 1 << 2,
+			GROUP_CHAIR_EAST  = 1 << 3,
+			GROUP_CHAIR_SOUTH = 1 << 4,
+			GROUP_CHAIR_WEST  = 1 << 5
 		};
 
 		int type;

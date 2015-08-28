@@ -20,10 +20,6 @@ static void make_solid_callback(void *data)
 	Map_Entity *entity = (Map_Entity *)data;
 
 	entity->set_solid(true);
-	
-	if (entity->get_direction() == N) {
-		entity->set_z_add(entity->get_z_add() + 1);
-	}
 }
 
 static int current_id;
@@ -58,7 +54,8 @@ Map_Entity::Map_Entity(std::string name) :
 	z(0),
 	z_add(0),
 	pre_sit_position_set(false),
-	sit_direction_locked(false)
+	sit_directions(0),
+	sat(false)
 {
 	id = current_id++;
 
@@ -205,15 +202,27 @@ void Map_Entity::set_sitting(bool sitting)
 	}
 	set_direction(direction);
 
-	if (sitting == false && pre_sit_position_set) {
-		std::list<A_Star::Node *> path = noo.map->find_path(position, pre_sit_position);
-		if (path.size() > 0) {
-			pre_sit_position_set = false;
-			set_path(path, make_solid_callback, this);
+	if (sitting == false) {
+		if (sat && direction == N) {
+			set_z_add(get_z_add() + 1);
 		}
+		if (pre_sit_position_set) {
+			std::list<A_Star::Node *> path = noo.map->find_path(position, pre_sit_position);
+			if (path.size() > 0) {
+				pre_sit_position_set = false;
+				set_path(path, make_solid_callback, this);
+			}
+		}
+		sat = false;
+	}
+	else {
+		if (direction == N) {
+			set_z_add(get_z_add() - 1);
+		}
+		sat = true;
 	}
 
-	sit_direction_locked = false;
+	sit_directions = 0;
 }
 
 void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, void *callback_data)
@@ -280,9 +289,9 @@ void Map_Entity::set_pre_sit_position(Point<int> pre_sit_position)
 	pre_sit_position_set = true;
 }
 
-void Map_Entity::lock_sit_direction(bool lock)
+void Map_Entity::set_sit_directions(int sit_directions)
 {
-	sit_direction_locked = lock;
+	this->sit_directions = sit_directions;
 }
 
 int Map_Entity::get_id()
@@ -450,7 +459,10 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || !sit_direction_locked) {
+			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_WEST)) {
+				if (sitting && direction == N) {
+					set_z_add(get_z_add()+1);
+				}
 				set_direction(W);
 			}
 		}
@@ -465,7 +477,10 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || !sit_direction_locked) {
+			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_EAST)) {
+				if (sitting && direction == N) {
+					set_z_add(get_z_add()+1);
+				}
 				set_direction(E);
 			}
 		}
@@ -480,7 +495,10 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || !sit_direction_locked) {
+			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_NORTH)) {
+				if (sitting && direction != N) {
+					set_z_add(get_z_add()-1);
+				}
 				set_direction(N);
 			}
 		}
@@ -495,7 +513,10 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || !sit_direction_locked) {
+			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_SOUTH)) {
+				if (sitting && direction == N) {
+					set_z_add(get_z_add()+1);
+				}
 				set_direction(S);
 			}
 		}
@@ -795,7 +816,11 @@ bool Map_Entity::save(std::string &out)
 	}
 
 	if (z_add != 0) {
-		out += string_printf(",z_add=%d", z_add);
+		int z = z_add;
+		if (sitting && direction == N) {
+			z += 1;
+		}
+		out += string_printf(",z_add=%d", z);
 	}
 
 	if (stats != 0) {
