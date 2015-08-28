@@ -89,10 +89,11 @@ namespace Nooskewl_Engine {
 typedef void (*Callback)(void *data);
 
 enum Direction {
-	N = 1,
+	DIRECTION_UNKNOWN,
+	N,
 	S,
 	E,
-	W
+	W,
 };
 
 } // End namespace Nooskewl_Engine

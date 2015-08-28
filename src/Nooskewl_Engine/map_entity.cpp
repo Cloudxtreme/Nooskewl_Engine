@@ -41,6 +41,7 @@ Map_Entity::Map_Entity(std::string name) :
 	solid(true),
 	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false),
+	activate_next_tile(false),
 	sitting(false),
 	input_enabled(true),
 	following_path(false),
@@ -53,7 +54,7 @@ Map_Entity::Map_Entity(std::string name) :
 	high(false),
 	z(0),
 	z_add(0),
-	pre_sit_position_set(false),
+	pre_sit_direction(DIRECTION_UNKNOWN),
 	sit_directions(0),
 	sat(false)
 {
@@ -206,10 +207,23 @@ void Map_Entity::set_sitting(bool sitting)
 		if (sat && direction == N) {
 			set_z_add(get_z_add() + 1);
 		}
-		if (pre_sit_position_set) {
+		if (pre_sit_direction != DIRECTION_UNKNOWN) {
+			Point<int> pre_sit_position = position;
+			if (pre_sit_direction == N) {
+				pre_sit_position.y++;
+			}
+			else if (pre_sit_direction == E) {
+				pre_sit_position.x--;
+			}
+			else if (pre_sit_direction == S) {
+				pre_sit_position.y--;
+			}
+			else {
+				pre_sit_position.x++;
+			}
 			std::list<A_Star::Node *> path = noo.map->find_path(position, pre_sit_position);
 			if (path.size() > 0) {
-				pre_sit_position_set = false;
+				pre_sit_direction = DIRECTION_UNKNOWN;
 				set_path(path, make_solid_callback, this);
 			}
 		}
@@ -283,15 +297,19 @@ void Map_Entity::set_z_add(int z_add)
 	this->z_add = z_add;
 }
 
-void Map_Entity::set_pre_sit_position(Point<int> pre_sit_position)
+void Map_Entity::set_pre_sit_direction(Direction direction)
 {
-	this->pre_sit_position = pre_sit_position;
-	pre_sit_position_set = true;
+	this->pre_sit_direction = direction;
 }
 
 void Map_Entity::set_sit_directions(int sit_directions)
 {
 	this->sit_directions = sit_directions;
+}
+
+void Map_Entity::set_activate_next_tile(bool onoff)
+{
+	this->activate_next_tile = onoff;
 }
 
 int Map_Entity::get_id()
@@ -393,6 +411,11 @@ int Map_Entity::get_z()
 int Map_Entity::get_z_add()
 {
 	return z_add;
+}
+
+bool Map_Entity::is_moving()
+{
+	return moving;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
@@ -550,6 +573,9 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
+					if (activate_next_tile) {
+						noo.map->activate(this);
+					}
 				}
 				else {
 					if (following_path) {
@@ -569,6 +595,9 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
+					if (activate_next_tile) {
+						noo.map->activate(this);
+					}
 				}
 				else {
 					if (following_path) {
@@ -588,6 +617,9 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
+					if (activate_next_tile) {
+						noo.map->activate(this);
+					}
 				}
 				else {
 					if (following_path) {
@@ -607,6 +639,9 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
+					if (activate_next_tile) {
+						noo.map->activate(this);
+					}
 				}
 				else {
 					if (following_path) {
@@ -793,6 +828,7 @@ bool Map_Entity::save(std::string &out)
 
 	if (sitting) {
 		out += string_printf(",sitting=%d", (int)sitting);
+		out += string_printf(",pre_sit_direction=%d", (int)pre_sit_direction);
 	}
 
 	if (z != 0) {

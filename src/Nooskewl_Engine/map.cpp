@@ -430,7 +430,13 @@ void Map::draw(bool use_depth_buffer)
 
 bool Map::activate(Map_Entity *entity)
 {
+	bool moving = entity->is_moving();
 	entity->stop();
+	if (moving) {
+		entity->set_activate_next_tile(true);
+		return false;
+	}
+
 	Direction dir = entity->get_direction();
 	Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
 	Size<int> size = entity->get_size();
@@ -559,7 +565,7 @@ bool Map::activate(Map_Entity *entity)
 			}
 
 			if (path.size() > 0) {
-				entity->set_pre_sit_position(entity_pos);
+				entity->set_pre_sit_direction(entity->get_direction());
 				entity->set_solid(false);
 
 				Sit_Data *sit_data = new Sit_Data;

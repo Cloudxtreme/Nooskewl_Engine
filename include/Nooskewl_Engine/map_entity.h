@@ -48,8 +48,9 @@ public:
 	void set_high(bool high);
 	void set_z(int z);
 	void set_z_add(int z_add);
-	void set_pre_sit_position(Point<int> pre_sit_position);
+	void set_pre_sit_direction(Direction direction);
 	void set_sit_directions(int sit_directions);
+	void set_activate_next_tile(bool onoff);
 
 	int get_id();
 	std::string get_name();
@@ -71,6 +72,7 @@ public:
 	bool is_high();
 	int get_z();
 	int get_z_add();
+	bool is_moving();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -107,6 +109,7 @@ private:
 	bool solid;
 	Size<int> size;
 	bool stop_next_tile;
+	bool activate_next_tile;
 	bool sitting;
 	bool input_enabled;
 
@@ -130,8 +133,7 @@ private:
 	int z;
 	int z_add;
 
-	bool pre_sit_position_set;
-	Point<int> pre_sit_position;
+	Direction pre_sit_direction;
 
 	int sit_directions;
 	bool sat;
