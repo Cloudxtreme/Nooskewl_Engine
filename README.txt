@@ -16,9 +16,18 @@ behaviour to your maps. Brain is another Nooskewl_Engine class that gives
 entities their behaviour. You use classes derived from Brain to give your
 entities custom behaviour.
 
+The DLL also has dll_start, dll_end and dll_pause functions that get called
+at the appropriate times. dll_start and dll_end are called when the game
+starts and exits, respectively. dll_pause is called any time the user
+activates the pause menu (ESCAPE key from a map screen) so you can include
+a custom pause screen.
+
 The game reads its data from a CPA (Crystal Picnic Archive) file. CPA is a
 compressed file with an index and the data concatenated together and can be
 created by the mkcpa* scripts in the tools/ directory of Nooskewl Engine.
 
 You can name your game DLL and CPA anything you want and the engine will pick
 it up if its in the current directory.
+
+See the Monster RPG 3 repo for an example game implementation using Nooskewl
+Engine.
