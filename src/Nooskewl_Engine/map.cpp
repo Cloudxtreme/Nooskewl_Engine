@@ -441,7 +441,10 @@ void Map::draw(bool use_depth_buffer)
 bool Map::activate(Map_Entity *entity)
 {
 	bool moving = entity->is_moving();
-	entity->stop();
+	bool following_path = entity->is_following_path();
+	if (!following_path) {
+		entity->stop();
+	}
 	if (moving) {
 		entity->set_activate_next_tile(true);
 		return false;

@@ -573,7 +573,8 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
-					if (activate_next_tile) {
+					if (!following_path && activate_next_tile) {
+						activate_next_tile = false;
 						noo.map->activate(this);
 					}
 				}
@@ -595,7 +596,8 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
-					if (activate_next_tile) {
+					if (!following_path && activate_next_tile) {
+						activate_next_tile = false;
 						noo.map->activate(this);
 					}
 				}
@@ -617,7 +619,8 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
-					if (activate_next_tile) {
+					if (!following_path && activate_next_tile) {
+						activate_next_tile = false;
 						noo.map->activate(this);
 					}
 				}
@@ -639,7 +642,8 @@ bool Map_Entity::update(bool can_move)
 				noo.map->check_triggers(this);
 				if (stop_next_tile) {
 					stop_now();
-					if (activate_next_tile) {
+					if (!following_path && activate_next_tile) {
+						activate_next_tile = false;
 						noo.map->activate(this);
 					}
 				}
@@ -797,6 +801,10 @@ void Map_Entity::end_a_star()
 {
 	following_path = false;
 	path.clear();
+	if (activate_next_tile) {
+		activate_next_tile = false;
+		noo.map->activate(this);
+	}
 }
 
 
