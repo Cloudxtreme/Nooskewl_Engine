@@ -28,6 +28,16 @@ static void sit_callback(void *data)
 	delete sit_data;
 }
 
+struct Map_Entity_Distance {
+	Map_Entity *entity;
+	float distance;
+};
+
+static bool sort_by_distance(Map_Entity_Distance &a, Map_Entity_Distance &b)
+{
+	return a.distance < b.distance;
+}
+
 const float Map::PAN_BACK_SPEED = 2.0f;
 
 void Map::new_game_started()
@@ -458,8 +468,22 @@ bool Map::activate(Map_Entity *entity)
 			size.w += noo.tile_size * 2;
 			break;
 	}
+
+	std::vector<Map_Entity_Distance> v;
+
 	for (size_t j = 0; j < entities.size(); j++) {
-		Map_Entity *e = entities[j];
+		Map_Entity_Distance m;
+		m.entity = entities[j];
+		Point<int> p = entity->get_position()-m.entity->get_position();
+		Size<int> s(p.x, p.y);
+		m.distance = s.length();
+		v.push_back(m);
+	}
+
+	std::sort(v.begin(), v.end(), sort_by_distance);
+
+	for (size_t j = 0; j < v.size(); j++) {
+		Map_Entity *e = v[j].entity;
 		if (e->get_id() == 0) {
 			continue;
 		}
