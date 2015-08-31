@@ -33,7 +33,7 @@ struct Map_Entity_Distance {
 	float distance;
 };
 
-static bool sort_by_distance(Map_Entity_Distance &a, Map_Entity_Distance &b)
+static bool sort_by_distance(const Map_Entity_Distance &a, const Map_Entity_Distance &b)
 {
 	return a.distance < b.distance;
 }
