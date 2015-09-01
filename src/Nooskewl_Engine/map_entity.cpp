@@ -197,6 +197,30 @@ void Map_Entity::set_solid(bool solid)
 
 void Map_Entity::set_sitting(bool sitting)
 {
+	Point<int> stand_position;
+
+	if (sitting == false) {
+		if (pre_sit_direction != DIRECTION_UNKNOWN) {
+			stand_position = position;
+
+			if (direction == N) {
+				stand_position.y--;
+			}
+			else if (direction == E) {
+				stand_position.x++;
+			}
+			else if (direction == S) {
+				stand_position.y++;
+			}
+			else {
+				stand_position.x--;
+			}
+			if (noo.map->is_solid(-1, 0, stand_position, Size<int>(1, 1), true, true)) {
+				return;
+			}
+		}
+	}
+
 	this->sitting = sitting;
 	if (sitting) {
 		moving = false;
@@ -208,20 +232,7 @@ void Map_Entity::set_sitting(bool sitting)
 			set_z_add(get_z_add() + 1);
 		}
 		if (pre_sit_direction != DIRECTION_UNKNOWN) {
-			Point<int> pre_sit_position = position;
-			if (pre_sit_direction == N) {
-				pre_sit_position.y++;
-			}
-			else if (pre_sit_direction == E) {
-				pre_sit_position.x--;
-			}
-			else if (pre_sit_direction == S) {
-				pre_sit_position.y--;
-			}
-			else {
-				pre_sit_position.x++;
-			}
-			std::list<A_Star::Node *> path = noo.map->find_path(position, pre_sit_position);
+			std::list<A_Star::Node *> path = noo.map->find_path(position, stand_position);
 			if (path.size() > 0) {
 				pre_sit_direction = DIRECTION_UNKNOWN;
 				set_path(path, make_solid_callback, this);
