@@ -553,39 +553,34 @@ Save_Load_GUI::Save_Load_GUI(bool saving, Callback callback) :
 	std::string caption;
 
 	if (saving) {
-		if (noo.player->is_input_enabled() && !noo.player->is_following_path()) {
-			std::string filename;
+		std::string filename;
 #ifdef __APPLE__
-			filename = SDL_GetBasePath();
-			const char *p = filename.c_str();
-			const char *p2 = strstr(p, ".app");
-			if (p2) {
-				filename = filename.substr(0, p2-p + 4) + "/../test.save";
-			}
-			else {
-				filename = ""; // error
-			}
-#else
-			filename = "test.save";
-#endif
-
-			SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "w");
-
-			if (file == 0 || noo.save_game(file) == false) {
-				if (callback) callback((void *)ERR);
-				caption = noo.t->translate(2);
-			}
-			else {
-				if (callback) callback((void *)SAVE);
-				caption = noo.t->translate(3);
-			}
-
-			if (file != 0) {
-				SDL_RWclose(file);
-			}
+		filename = SDL_GetBasePath();
+		const char *p = filename.c_str();
+		const char *p2 = strstr(p, ".app");
+		if (p2) {
+			filename = filename.substr(0, p2-p + 4) + "/../test.save";
 		}
 		else {
-			caption = TRANSLATE("You can't save now!")END;
+			filename = ""; // error
+		}
+#else
+		filename = "test.save";
+#endif
+
+		SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "w");
+
+		if (file == 0 || noo.save_game(file) == false) {
+			if (callback) callback((void *)ERR);
+			caption = noo.t->translate(2);
+		}
+		else {
+			if (callback) callback((void *)SAVE);
+			caption = noo.t->translate(3);
+		}
+
+		if (file != 0) {
+			SDL_RWclose(file);
 		}
 	}
 	else {

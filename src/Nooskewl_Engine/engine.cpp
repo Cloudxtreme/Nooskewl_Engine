@@ -667,7 +667,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
 
-		if (map->is_speech_active() == false && is_escape) {
+		if (noo.player->is_input_enabled() && !noo.player->is_following_path() && map->is_speech_active() == false && is_escape) {
 			noo.button_mml->play(false);
 			m.dll_pause();
 		}
