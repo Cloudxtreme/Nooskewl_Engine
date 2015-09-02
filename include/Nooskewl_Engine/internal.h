@@ -14,7 +14,7 @@ class Vertex_Cache;
 typedef bool (*DLL_Start)();
 typedef void (*DLL_End)();
 typedef void (*DLL_Pause)();
-typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name);
+typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name, int last_visited_time);
 typedef Brain *(*Brain_Getter)(std::string type, std::string data);
 
 void load_dll();

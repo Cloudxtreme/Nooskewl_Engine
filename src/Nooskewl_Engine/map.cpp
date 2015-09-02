@@ -54,12 +54,11 @@ Map::Map(std::string map_name, bool been_here_before, int last_visited_time) :
 	map_name(map_name),
 	new_map_name(""),
 	a_star(0),
-	been_here_before(been_here_before),
-	last_visited_time(last_visited_time)
+	been_here_before(been_here_before)
 {
 	tilemap = new Tilemap(map_name);
 
-	ml = m.dll_get_map_logic(map_name);
+	ml = m.dll_get_map_logic(map_name, last_visited_time);
 }
 
 Map::~Map()
@@ -82,7 +81,7 @@ void Map::start()
 	a_star = new A_Star(this);
 
 	if (ml) {
-		ml->start(been_here_before, last_visited_time);
+		ml->start(been_here_before);
 	}
 }
 

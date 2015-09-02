@@ -1860,7 +1860,6 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 
 Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 {
-static int nn;
 	Brain *brain = load_brain(file, version);
 
 	char line[1000];
