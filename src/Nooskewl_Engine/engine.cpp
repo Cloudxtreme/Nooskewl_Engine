@@ -2078,6 +2078,12 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 			else if (key == "armour") {
 				stats->armour_index = v;
 			}
+			else if (key == "status") {
+				stats->status = (Stats::Status)v;
+			}
+			else if (key == "status_start") {
+				stats->status_start = v;
+			}
 		}
 	}
 

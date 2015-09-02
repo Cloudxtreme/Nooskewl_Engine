@@ -46,6 +46,8 @@ void Stats::defaults()
 
 	profile_pic = 0;
 
+	status = NORMAL;
+
 	alignment = NEUTRAL;
 
 	sex = UNKNOWN;
@@ -69,6 +71,7 @@ void Stats::defaults()
 
 	int current_time = noo.get_play_time();
 
+	status_start = current_time;
 	ate_time = current_time;
 	drank_time = current_time;
 	rested_time = current_time;
@@ -97,6 +100,12 @@ bool Stats::load(std::string name)
 	return true;
 }
 
+void Stats::set_status(Status status)
+{
+	this->status = status;
+	status_start = noo.get_play_time();
+}
+
 void Stats::handle_tag(XML *xml)
 {
 	std::string tag = xml->get_name();
@@ -111,6 +120,9 @@ void Stats::handle_tag(XML *xml)
 	else {
 		if (tag == "name") {
 			this->name = xml->get_value();
+		}
+		else if (tag == "status") {
+			status = (Status)XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "alignment") {
 			std::string value = xml->get_value();

@@ -595,6 +595,11 @@ bool Map_Entity::update(bool can_move)
 			int step = MIN(20, 0xffff - stats->sobriety);
 			stats->sobriety += step;
 		}
+		if (stats->status == Stats::SICK) {
+			if (stats->status_start < current_time-(5*60)) {
+				stats->set_status(Stats::NORMAL);
+			}
+		}
 	}
 
 	if (moving == false) {
@@ -914,7 +919,7 @@ bool Map_Entity::save(std::string &out)
 
 	if (stats != 0) {
 		out += string_printf(
-			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,luck=%d,speed=%d,strength=%d,experience=%d,karma=%d,hunger=%d,thirst=%d,rest=%d,sobriety=%d,weapon=%d,armour=%d\n",
+			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,luck=%d,speed=%d,strength=%d,experience=%d,karma=%d,hunger=%d,thirst=%d,rest=%d,sobriety=%d,weapon=%d,armour=%d,status=%d,status_start=%d\n",
 			stats->name.c_str(),
 			stats->profile_pic->filename.c_str(),
 			(int)stats->alignment,
@@ -936,7 +941,9 @@ bool Map_Entity::save(std::string &out)
 			stats->rest,
 			stats->sobriety,
 			stats->weapon_index,
-			stats->armour_index
+			stats->armour_index,
+			(int)stats->status,
+			stats->status_start
 		);
 
 		if (stats->inventory != 0) {

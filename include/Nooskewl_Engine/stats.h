@@ -23,9 +23,16 @@ public:
 		UNKNOWN
 	};
 
+	enum Status {
+		NORMAL,
+		SICK
+	};
+
 	std::string name;
 
 	Image *profile_pic;
+
+	Status status;
 
 	Alignment alignment;
 
@@ -47,6 +54,8 @@ public:
 	uint16_t rest;
 	uint16_t sobriety;
 
+	// Times
+	int status_start;
 	int ate_time;
 	int drank_time;
 	int rested_time;
@@ -63,6 +72,8 @@ public:
 
 	void defaults();
 	bool load(std::string name);
+
+	void set_status(Status status);
 
 private:
 	void handle_tag(XML *xml);
