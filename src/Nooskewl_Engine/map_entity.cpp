@@ -912,9 +912,6 @@ bool Map_Entity::save(std::string &out)
 
 		if (stats->inventory != 0) {
 			out += stats->inventory->to_string();
-			if (stats->inventory->items.size() > 0) {
-				out += "\n";
-			}
 		}
 	}
 

@@ -82,26 +82,11 @@ std::string Inventory::to_string()
 {
 	std::string s = itos(gold) + "\n";
 
-	int count = 0;
+	s += itos(items.size()) + "\n";
 
 	for (size_t i = 0; i < items.size(); i++) {
-		for (size_t j = 0; j < items[i].size(); j++) {
-			count++;
-		}
-	}
-
-	s += itos(count) + "\n";
-
-	int count2 = 0;
-
-	for (size_t i = 0; i < items.size(); i++) {
-		for (size_t j = 0; j < items[i].size(); j++) {
-			s += items[i][j]->to_string();
-			count2++;
-			if (count2 < count) {
-				s += "\n";
-			}
-		}
+		s += itos(items[i].size()) + ":";
+		s += items[i][0]->to_string() + "\n";
 	}
 
 	return s;
@@ -128,11 +113,18 @@ void Inventory::from_string(std::string s)
 	int num = atoi(num_s.c_str());
 
 	for (int i = 0; i < num; i++) {
-		std::string item_s = t.next();
+		Tokenizer t2(t.next(), ':');
+
+		std::string count_s = t2.next();
+		int count = atoi(count_s.c_str());
+		std::string item_s = t2.next();
 		trim(item_s);
-		Item *item = new Item();
-		item->from_string(item_s);
-		add(item);
+
+		for (int i = 0; i < count; i++) {
+			Item *item = new Item();
+			item->from_string(item_s);
+			add(item);
+		}
 	}
 }
 
