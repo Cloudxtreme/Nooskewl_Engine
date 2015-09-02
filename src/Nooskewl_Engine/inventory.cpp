@@ -85,7 +85,7 @@ std::string Inventory::to_string()
 	s += itos(items.size()) + "\n";
 
 	for (size_t i = 0; i < items.size(); i++) {
-		s += itos(items[i].size()) + ":";
+		s += itos(items[i].size()) + ",";
 		s += items[i][0]->to_string() + "\n";
 	}
 
@@ -113,11 +113,14 @@ void Inventory::from_string(std::string s)
 	int num = atoi(num_s.c_str());
 
 	for (int i = 0; i < num; i++) {
-		Tokenizer t2(t.next(), ':');
+		std::string line = t.next();
+
+		Tokenizer t2(line, ',');
 
 		std::string count_s = t2.next();
 		int count = atoi(count_s.c_str());
-		std::string item_s = t2.next();
+
+		std::string item_s = line.substr(count_s.length()+1);
 		trim(item_s);
 
 		for (int i = 0; i < count; i++) {
