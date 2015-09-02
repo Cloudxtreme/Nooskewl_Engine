@@ -572,6 +572,31 @@ void Map_Entity::handle_event(TGUI_Event *event)
 
 bool Map_Entity::update(bool can_move)
 {
+	// Update stats
+	if (stats) {
+		int current_time = noo.get_play_time();
+		if (stats->ate_time < current_time) {
+			stats->ate_time = current_time;
+			int step = MIN(20, 0xffff - stats->hunger);
+			stats->hunger += step;
+		}
+		if (stats->drank_time < current_time) {
+			stats->drank_time = current_time;
+			int step = MIN(20, 0xffff - stats->thirst);
+			stats->thirst += step;
+		}
+		if (stats->rested_time < current_time) {
+			stats->rested_time = current_time;
+			int step = MIN(20, stats->rest);
+			stats->rest -= step;
+		}
+		if (stats->used_time < current_time) {
+			stats->used_time = current_time;
+			int step = MIN(20, 0xffff - stats->sobriety);
+			stats->sobriety += step;
+		}
+	}
+
 	if (moving == false) {
 		maybe_move();
 	}
@@ -889,7 +914,7 @@ bool Map_Entity::save(std::string &out)
 
 	if (stats != 0) {
 		out += string_printf(
-			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,karma=%d,luck=%d,speed=%d,strength=%d,experience=%d,weapon=%d,armour=%d\n",
+			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,luck=%d,speed=%d,strength=%d,experience=%d,karma=%d,hunger=%d,thirst=%d,rest=%d,sobriety=%d,weapon=%d,armour=%d\n",
 			stats->name.c_str(),
 			stats->profile_pic->filename.c_str(),
 			(int)stats->alignment,
@@ -901,11 +926,15 @@ bool Map_Entity::save(std::string &out)
 			stats->attack,
 			stats->defense,
 			stats->agility,
-			stats->karma,
 			stats->luck,
 			stats->speed,
 			stats->strength,
 			stats->experience,
+			stats->karma,
+			stats->hunger,
+			stats->thirst,
+			stats->rest,
+			stats->sobriety,
 			stats->weapon_index,
 			stats->armour_index
 		);

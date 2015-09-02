@@ -47,6 +47,11 @@ public:
 	uint16_t rest;
 	uint16_t sobriety;
 
+	int ate_time;
+	int drank_time;
+	int rested_time;
+	int used_time; // alcohol/drugs
+
 	Inventory *inventory;
 
 	int weapon_index; // indices into inventory

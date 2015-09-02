@@ -152,8 +152,8 @@ private:
 
 	bool save_milestones(SDL_RWops *file);
 	bool load_milestones(SDL_RWops *file, int version);
-	Map *load_map(SDL_RWops *file, int version, bool load_player);
-	Map_Entity *load_entity(SDL_RWops *file, int version);
+	Map *load_map(SDL_RWops *file, int version, bool load_player, int time);
+	Map_Entity *load_entity(SDL_RWops *file, int version, int time);
 	Brain *load_brain(SDL_RWops *file, int version);
 	Stats *load_stats(SDL_RWops *file, int version);
 	bool load_inventory(SDL_RWops *file, Stats *stats, int version);

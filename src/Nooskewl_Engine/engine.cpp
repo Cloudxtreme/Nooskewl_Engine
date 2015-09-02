@@ -758,7 +758,7 @@ bool Engine::update()
 					std::pair<int, std::string> p2 = p.second;
 					std::string map_s = p2.second;
 					SDL_RWops *string_file = SDL_RWFromMem((void *)map_s.c_str(), map_s.length());
-					map = load_map(string_file, p2.first, false);
+					map = load_map(string_file, p2.first, false, get_play_time());
 					SDL_RWclose(string_file);
 				}
 				else {
@@ -1700,7 +1700,7 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 
 	std::pair<int, std::string> p = map_saves[current_map];
 	SDL_RWops *string_file = SDL_RWFromMem((void *)p.second.c_str(), p.second.length());
-	noo.map = load_map(string_file, p.first, true);
+	noo.map = load_map(string_file, p.first, true, *loaded_time);
 	SDL_RWclose(string_file);
 
 	return noo.map != 0;
@@ -1777,7 +1777,7 @@ bool Engine::load_milestones(SDL_RWops *file, int version)
 	return true;
 }
 
-Map *Engine::load_map(SDL_RWops *file, int version, bool load_player)
+Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 {
 	char line[1000];
 	SDL_fgets(file, line, 1000);
@@ -1815,7 +1815,7 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player)
 	}
 
 	if (load_player) {
-		noo.player = load_entity(file, version);
+		noo.player = load_entity(file, version, time);
 		if (noo.player == 0) {
 			delete map;
 			return 0;
@@ -1830,7 +1830,7 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player)
 	}
 
 	for (int i = 1; i < num_entities; i++) {
-		Map_Entity *entity = load_entity(file, version);
+		Map_Entity *entity = load_entity(file, version, time);
 		if (entity == 0) {
 			delete map;
 			return 0;
@@ -1841,7 +1841,7 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player)
 	return map;
 }
 
-Map_Entity *Engine::load_entity(SDL_RWops *file, int version)
+Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 {
 static int nn;
 	Brain *brain = load_brain(file, version);
@@ -1931,6 +1931,12 @@ static int nn;
 			delete entity;
 			return 0;
 		}
+
+		stats->ate_time = time;
+		stats->drank_time = time;
+		stats->rested_time = time;
+		stats->used_time = time;
+
 		entity->set_stats(stats);
 
 		if (has_inventory) {
@@ -2039,9 +2045,6 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 			else if (key == "agility") {
 				stats->agility = v;
 			}
-			else if (key == "karma") {
-				stats->karma = v;
-			}
 			else if (key == "luck") {
 				stats->luck = v;
 			}
@@ -2053,6 +2056,21 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 			}
 			else if (key == "experience") {
 				stats->experience = v;
+			}
+			else if (key == "karma") {
+				stats->karma = v;
+			}
+			else if (key == "hunger") {
+				stats->hunger = v;
+			}
+			else if (key == "thirst") {
+				stats->thirst = v;
+			}
+			else if (key == "rest") {
+				stats->rest = v;
+			}
+			else if (key == "sobriety") {
+				stats->sobriety = v;
 			}
 			else if (key == "weapon") {
 				stats->weapon_index = v;

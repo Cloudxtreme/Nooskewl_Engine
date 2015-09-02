@@ -1,3 +1,4 @@
+#include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/inventory.h"
@@ -55,16 +56,23 @@ void Stats::defaults()
 	attack = 0;
 	defense = 0;
 	agility = 0;
-	karma = 0xffff / 2;
 	luck = 0;
 	speed = 0;
 	strength = 0;
 	experience = 0;
 
-	hunger = 0xffff / 2;
-	thirst = 0xffff / 2;
-	rest = 0xffff / 2;
-	sobriety = 0xffff / 2;
+	karma = 0xffff / 2;
+	hunger = 0;
+	thirst = 0;
+	rest = 0xffff;
+	sobriety = 0xffff;
+
+	int current_time = noo.get_play_time();
+
+	ate_time = current_time;
+	drank_time = current_time;
+	rested_time = current_time;
+	used_time = current_time;
 
 	weapon_index = -1;
 	armour_index = -1;
