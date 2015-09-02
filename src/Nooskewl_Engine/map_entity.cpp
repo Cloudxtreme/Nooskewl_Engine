@@ -323,6 +323,11 @@ void Map_Entity::set_activate_next_tile(bool onoff)
 	this->activate_next_tile = onoff;
 }
 
+void Map_Entity::set_name(std::string name)
+{
+	this->name = name;
+}
+
 int Map_Entity::get_id()
 {
 	return id;

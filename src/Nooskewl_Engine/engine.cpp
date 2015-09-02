@@ -10,6 +10,7 @@
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
+#include "Nooskewl_Engine/map_logic.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/sample.h"
@@ -1812,6 +1813,8 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 
 	Map *map = new Map(map_name, true, last_visited_time);
 
+	Map_Logic *ml = map->get_map_logic();
+
 	SDL_fgets(file, line, 1000);
 	s = line;
 	trim(s);
@@ -1843,16 +1846,26 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 			return 0;
 		}
 
-		map->add_entity(noo.player);
+		noo.player = ml->mutate_loaded_entity(noo.player);
+
+		if (noo.player) {
+			map->add_entity(noo.player);
+		}
 	}
 
 	for (int i = 1; i < num_entities; i++) {
 		Map_Entity *entity = load_entity(file, version, time);
+
 		if (entity == 0) {
 			delete map;
 			return 0;
 		}
-		map->add_entity(entity);
+
+		entity = ml->mutate_loaded_entity(entity);
+
+		if (entity) {
+			map->add_entity(entity);
+		}
 	}
 
 	return map;

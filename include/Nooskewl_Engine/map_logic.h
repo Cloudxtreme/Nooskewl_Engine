@@ -14,6 +14,7 @@ public:
 	virtual void trigger(Map_Entity *entity);
 	virtual void update();
 	virtual void activate(Map_Entity *activator, Map_Entity *activated);
+	virtual Map_Entity *mutate_loaded_entity(Map_Entity *entity);
 };
 
 } // End namespace Nooskewl_Engine

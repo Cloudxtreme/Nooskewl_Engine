@@ -51,6 +51,7 @@ public:
 	void set_pre_sit_direction(Direction direction);
 	void set_sit_directions(int sit_directions);
 	void set_activate_next_tile(bool onoff);
+	void set_name(std::string name);
 
 	int get_id();
 	std::string get_name();

@@ -244,6 +244,11 @@ bool Map::is_speech_active()
 	return speech != 0;
 }
 
+Map_Logic *Map::get_map_logic()
+{
+	return ml;
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {

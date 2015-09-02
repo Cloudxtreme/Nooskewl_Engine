@@ -21,3 +21,8 @@ void Map_Logic::update()
 void Map_Logic::activate(Map_Entity *activator, Map_Entity *activated)
 {
 }
+
+Map_Entity *Map_Logic::mutate_loaded_entity(Map_Entity *entity)
+{
+	return entity;
+}
