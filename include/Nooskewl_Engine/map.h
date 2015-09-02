@@ -18,7 +18,7 @@ public:
 
 	static void new_game_started();
 
-	Map(std::string map_name, bool been_here_before);
+	Map(std::string map_name, bool been_here_before, int last_visited_time);
 	~Map();
 
 	void start();
@@ -93,6 +93,8 @@ private:
 	std::vector< std::pair<Map_Entity *, Map_Entity *> > collisions;
 
 	bool been_here_before;
+
+	int last_visited_time;
 };
 
 } // End namespace Nooskewl_Engine

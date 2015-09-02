@@ -321,7 +321,7 @@ bool Title_GUI::fade_done(bool fade_in)
 			noo.player->set_brain(new Player_Brain());
 			noo.player->load_sprite("player");
 			noo.player->load_stats("player");
-			noo.map = new Map("start.map", false);
+			noo.map = new Map("start.map", false, 0);
 			noo.map->add_entity(noo.player);
 			noo.map->start();
 			noo.map->update_camera();

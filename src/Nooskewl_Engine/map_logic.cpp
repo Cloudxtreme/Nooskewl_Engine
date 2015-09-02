@@ -2,7 +2,7 @@
 
 using namespace Nooskewl_Engine;
 
-void Map_Logic::start(bool been_here_before)
+void Map_Logic::start(bool been_here_before, int last_visited_time)
 {
 }
 

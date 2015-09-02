@@ -762,7 +762,7 @@ bool Engine::update()
 					SDL_RWclose(string_file);
 				}
 				else {
-					map = new Map(new_map_name, false);
+					map = new Map(new_map_name, false, get_play_time());
 				}
 
 				player->get_brain()->reset();
@@ -1793,7 +1793,24 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 		return 0;
 	}
 
-	Map *map = new Map(value, true);
+	std::string map_name = value;
+
+	SDL_fgets(file, line, 1000);
+	s = line;
+	trim(s);
+	t = Tokenizer(s, '=');
+	tag = t.next();
+	value = t.next();
+
+	if (tag != "time") {
+		errormsg("Expected time in save state\n");
+		delete map;
+		return 0;
+	}
+
+	int last_visited_time = atoi(value.c_str());
+
+	Map *map = new Map(map_name, true, last_visited_time);
 
 	SDL_fgets(file, line, 1000);
 	s = line;
