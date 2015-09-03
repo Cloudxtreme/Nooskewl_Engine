@@ -1484,12 +1484,14 @@ void Engine::set_mouse_cursor()
 
 void Engine::set_window_icon()
 {
+#ifndef __APPLE__
 	Size<int> size;
 	unsigned char *pixels = Image::read_tga("images/icon.tga", size);
 	SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + size.w * (size.h-1) * 4, size.w, size.h, 32, -size.w * 4, 0xff, 0xff00, 0xff0000, 0xff000000);
 	SDL_SetWindowIcon(window, surface);
 	SDL_FreeSurface(surface);
 	delete[] pixels;
+#endif
 }
 
 void Engine::update_projection()
