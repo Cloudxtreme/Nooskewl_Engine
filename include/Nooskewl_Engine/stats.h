@@ -3,6 +3,11 @@
 
 #include "Nooskewl_Engine/main.h"
 
+// Xlib.h #define's Status as int
+#ifdef __linux__
+#undef Status
+#endif
+
 namespace Nooskewl_Engine {
 
 class Item;
