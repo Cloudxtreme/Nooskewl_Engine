@@ -103,6 +103,8 @@ void Map_Entity::set_brain(Brain *brain)
 	this->brain = brain;
 	if (brain) {
 		brain->set_map_entity(this);
+		// Update the brain one time so there are no potential flashes of state
+		brain->update();
 	}
 }
 
