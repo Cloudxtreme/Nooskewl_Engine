@@ -16,6 +16,15 @@ Inventory::Inventory()
 	gold = 0;
 }
 
+Inventory::~Inventory()
+{
+	for (size_t i = 0; i < items.size(); i++) {
+		for (size_t j = 0; j < items[i].size(); j++) { 
+			delete items[i][j];
+		}
+	}
+}
+
 void Inventory::add(Item *item)
 {
 	int index = find(item);

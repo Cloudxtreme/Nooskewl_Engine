@@ -100,6 +100,8 @@ bool Item::load(std::string name)
 		handle_tag(x);
 	}
 
+	delete xml;
+
 	return true;
 }
 

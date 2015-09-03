@@ -38,6 +38,7 @@ Stats::Stats(std::string name)
 Stats::~Stats()
 {
 	delete profile_pic;
+	delete inventory;
 }
 
 void Stats::defaults()
@@ -96,6 +97,8 @@ bool Stats::load(std::string name)
 		std::string tag = x->get_name();
 		handle_tag(x);
 	}
+
+	delete xml;
 
 	return true;
 }

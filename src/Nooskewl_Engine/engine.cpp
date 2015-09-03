@@ -306,6 +306,8 @@ void Engine::end()
 
 	delete miscellaneous_xml;
 
+	clear_milestones();
+
 	m.dll_end();
 	close_dll();
 

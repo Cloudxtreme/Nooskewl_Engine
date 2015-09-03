@@ -13,6 +13,7 @@ public:
 	std::vector< std::vector<Item *> > items;
 
 	Inventory();
+	~Inventory();
 
 	void add(Item *item);
 	void remove(Item *item);

@@ -254,6 +254,8 @@ void Map::handle_event(TGUI_Event *event)
 	if (speech) {
 		if (speech->handle_event(event) == false) {
 			delete speech;
+			Map_Speech *ms = speeches[0];
+			delete ms;
 			speeches.erase(speeches.begin());
 			if (speeches.size() > 0) {
 				speech = new Speech(speeches[0]->text, speeches[0]->callback, speeches[0]->callback_data);
