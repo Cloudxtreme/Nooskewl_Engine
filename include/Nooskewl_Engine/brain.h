@@ -17,7 +17,7 @@ public:
 
 	virtual void handle_event(TGUI_Event *event);
 	virtual void update();
-	virtual void activate(Map_Entity *activator);
+	virtual bool activate(Map_Entity *activator);
 	virtual void collide(Map_Entity *collider);
 	virtual void reset();
 	virtual void set_map_entity(Map_Entity *map_entity);

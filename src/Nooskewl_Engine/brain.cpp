@@ -22,8 +22,9 @@ void Brain::update()
 {
 }
 
-void Brain::activate(Map_Entity *activator)
+bool Brain::activate(Map_Entity *activator)
 {
+	return false;
 }
 
 void Brain::collide(Map_Entity *collider)

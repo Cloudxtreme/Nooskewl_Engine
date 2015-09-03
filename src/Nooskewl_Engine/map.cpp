@@ -498,12 +498,13 @@ bool Map::activate(Map_Entity *entity)
 			continue;
 		}
 		if (e->pixels_collide(pos, size)) {
-			ml->activate(entity, e);
 			Brain *b = e->get_brain();
 			if (b) {
-				b->activate(entity);
+				if (b->activate(entity)) {
+					ml->activate(entity, e);
+					return true;
+				}
 			}
-			return true;
 		}
 	}
 
