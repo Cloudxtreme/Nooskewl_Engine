@@ -111,23 +111,6 @@ int Item::get_value()
 	return int(min_value + ((c / 100.0f) * (max_value - min_value)));
 }
 
-std::string Item::weight_to_string()
-{
-	int tenths = weight % 100;
-	int hundredths = tenths % 10;
-	tenths /= 10;
-	int units = weight / 100;
-	std::string result = itos(units);
-	if (tenths != 0 || hundredths != 0) {
-		result += ".";
-		result += itos(tenths);
-		if (hundredths != 0) {
-			result += itos(hundredths);
-		}
-	}
-	return result;
-}
-
 void Item::handle_tag(XML *xml)
 {
 	std::string tag = xml->get_name();

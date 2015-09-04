@@ -9,6 +9,8 @@ class Item;
 
 class NOOSKEWL_ENGINE_EXPORT Inventory {
 public:
+	static std::string weight_to_string(int weight);
+
 	int32_t gold;
 	std::vector< std::vector<Item *> > items;
 

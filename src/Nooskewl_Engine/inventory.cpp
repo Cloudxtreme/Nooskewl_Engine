@@ -11,6 +11,23 @@ static bool sort_items(const std::vector<Item *> &a, const std::vector<Item *> &
 	return a[0]->name < b[0]->name;
 }
 
+std::string Inventory::weight_to_string(int weight)
+{
+	int tenths = weight % 100;
+	int hundredths = tenths % 10;
+	tenths /= 10;
+	int units = weight / 100;
+	std::string result = itos(units);
+	if (tenths != 0 || hundredths != 0) {
+		result += ".";
+		result += itos(tenths);
+		if (hundredths != 0) {
+			result += itos(hundredths);
+		}
+	}
+	return result;
+}
+
 Inventory::Inventory()
 {
 	gold = 0;
@@ -57,7 +74,7 @@ int Inventory::get_total_weight()
 	int total_weight = 0;
 
 	for (size_t i = 0; i < items.size(); i++) {
-		for (size_t j = 0; j < items.size(); j++) {
+		for (size_t j = 0; j < items[i].size(); j++) {
 			total_weight += items[i][j]->weight;
 		}
 	}
