@@ -21,8 +21,8 @@ public:
 	virtual void collide(Map_Entity *collider);
 	virtual void reset();
 	virtual void set_map_entity(Map_Entity *map_entity);
-
 	virtual bool save(std::string &out);
+	virtual bool killme(); // return true to die before being added to map
 
 	Map_Entity *get_map_entity();
 

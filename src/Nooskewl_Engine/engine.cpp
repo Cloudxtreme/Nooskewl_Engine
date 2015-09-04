@@ -1865,10 +1865,17 @@ Map *Engine::load_map(SDL_RWops *file, int version, bool load_player, int time)
 			return 0;
 		}
 
-		entity = ml->mutate_loaded_entity(entity);
+		Brain *brain = entity->get_brain();
 
-		if (entity) {
-			map->add_entity(entity);
+		if (brain && brain->killme()) {
+			delete entity;
+		}
+		else {
+			entity = ml->mutate_loaded_entity(entity);
+
+			if (entity) {
+				map->add_entity(entity);
+			}
 		}
 	}
 

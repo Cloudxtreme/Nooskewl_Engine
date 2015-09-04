@@ -51,3 +51,8 @@ Map_Entity *Brain::get_map_entity()
 {
 	return map_entity;
 }
+
+bool Brain::killme()
+{
+	return false;
+}
