@@ -116,7 +116,7 @@ public:
 	void draw_9patch_tinted(SDL_Colour tint, Image *image, Point<int> dest_position, Size<int> dest_size);
 	void draw_9patch(Image *image, Point<int> dest_position, Size<int> dest_size);
 	void reset_fancy_draw();
-	void fancy_draw(std::string text, Point<int> position);
+	void fancy_draw(SDL_Colour colour, std::string text, Point<int> position);
 
 	void load_palette(std::string name);
 	std::string load_text(std::string filename);
@@ -133,6 +133,8 @@ public:
 	int get_play_time();
 
 	bool save_map(Map *map, bool save_player);
+
+	void add_notification(std::string text);
 
 private:
 	void init_video();
@@ -226,6 +228,9 @@ private:
 
 	float escape_triangle_size;
 	Point<int> mouse_pos;
+
+	std::vector<std::string> notifications;
+	Uint32 notification_start_time;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

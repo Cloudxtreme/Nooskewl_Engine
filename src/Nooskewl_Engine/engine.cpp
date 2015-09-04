@@ -840,7 +840,7 @@ void Engine::draw()
 				int y = screen_size.h - 10 - h;
 				y += (SDL_GetTicks() / 500) % 2 == 0 ? 0 : 1;
 				draw_quad(black, Point<int>(x - 3, y - 3), Size<int>(w + 6, h + 6));
-				fancy_draw(text, Point<int>(x, y));
+				fancy_draw(white, text, Point<int>(x, y));
 			}
 		}
 
@@ -856,6 +856,52 @@ void Engine::draw()
 	SDL_Colour red = { 128, 0,  0, 128 };
 	draw_triangle(red, Point<int>(0, 0), Point<int>((int)escape_triangle_size, 0), Point<int>(0, (int)escape_triangle_size));
 
+	if (notifications.size() > 0) {
+		const int duration = 5000;
+		const int fade = 500;
+
+		int now = SDL_GetTicks();
+		int elapsed = now - notification_start_time;
+		if (elapsed > duration) {
+			elapsed = duration;
+		}
+
+		std::string text = notifications[0];
+		int w = (int)font->get_text_width(text);
+		int h = (int)font->get_height();
+		int x = screen_size.w - w - 25;
+		const int max_y = 25;
+		int y = max_y;
+
+		if (elapsed >= (duration-fade)) {
+			y -= 25 * (elapsed - (duration-fade)) / fade;
+		}
+		else {
+			y += (SDL_GetTicks() / 500) % 2 == 0 ? 0 : 1;
+		}
+
+		int alpha;
+
+		if (elapsed < fade) {
+			alpha = 255 * elapsed / fade;
+		}
+		else if (elapsed >= (duration-fade)) {
+			alpha = 255 - (255 * (elapsed-(duration-fade)) / fade);
+		}
+		else {
+			alpha = 255;
+		}
+
+		SDL_Colour colour = { 0, 0, 0, alpha };
+		draw_quad(colour, Point<int>(x - 3, y - 3), Size<int>(w + 6, h + 6));
+		colour.r = colour.g = colour.b = alpha;
+		fancy_draw(colour, text, Point<int>(x, y));
+
+		if (elapsed >= duration) {
+			notifications.erase(notifications.begin());
+			notification_start_time = now;
+		}
+	}
 	flip();
 
 	// TIMING
@@ -1275,14 +1321,14 @@ void Engine::reset_fancy_draw()
 	fancy_draw_start = SDL_GetTicks();
 }
 
-void Engine::fancy_draw(std::string text, Point<int> position)
+void Engine::fancy_draw(SDL_Colour colour, std::string text, Point<int> position)
 {
 	Uint32 t = (SDL_GetTicks() - fancy_draw_start) % 2000;
 
 	int count = text.length();
 
 	if (t < 1000 || count < 2) {
-		font->draw(white, text, position);
+		font->draw(colour, text, position);
 	}
 	else {
 		t = t - 1000;
@@ -1303,7 +1349,7 @@ void Engine::fancy_draw(std::string text, Point<int> position)
 			}
 			float dx = x * p;
 			std::string c = text.substr(i, 1);
-			font->draw(white, c, Point<float>(position.x + dx, (float)position.y));
+			font->draw(colour, c, Point<float>(position.x + dx, (float)position.y));
 			x += font->get_text_width(c);
 		}
 	}
@@ -2169,6 +2215,14 @@ bool Engine::save_map(Map *map, bool save_player)
 	map_saves[map->get_map_name()] = p;
 
 	return true;
+}
+
+void Engine::add_notification(std::string text)
+{
+	if (notifications.size() == 0) {
+		notification_start_time = SDL_GetTicks();
+	}
+	notifications.push_back(text);
 }
 
 } // End namespace Nooskewl_Engine
