@@ -37,6 +37,7 @@ public:
 	void from_string(std::string s);
 
 	int get_value();
+	std::string weight_to_string();
 
 private:
 	void handle_tag(XML *xml);
