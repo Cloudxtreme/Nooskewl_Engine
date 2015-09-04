@@ -697,6 +697,8 @@ bool Engine::update()
 	}
 
 	if (map == 0 && guis.size() == 0) {
+		notifications.clear();
+
 		Title_GUI *title_gui = new Title_GUI();
 		title_gui->start();
 		guis.push_back(title_gui);
