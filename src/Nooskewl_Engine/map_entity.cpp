@@ -613,9 +613,17 @@ bool Map_Entity::update(bool can_move)
 		maybe_move();
 	}
 
+	float curr_speed;
+	if (stats && stats->inventory && stats->inventory->get_total_weight() > stats->strength * 1000) {
+		curr_speed = speed / 10;
+	}
+	else {
+		curr_speed = speed;
+	}
+
 	if (moving) {
 		if (offset.x < 0) {
-			offset.x += speed;
+			offset.x += curr_speed;
 			if (offset.x >= 0) {
 				offset.x = 0;
 				noo.map->check_triggers(this);
@@ -638,7 +646,7 @@ bool Map_Entity::update(bool can_move)
 			}
 		}
 		else if (offset.x > 0) {
-			offset.x -= speed;
+			offset.x -= curr_speed;
 			if (offset.x <= 0) {
 				offset.x = 0;
 				noo.map->check_triggers(this);
@@ -661,7 +669,7 @@ bool Map_Entity::update(bool can_move)
 			}
 		}
 		if (offset.y < 0) {
-			offset.y += speed;
+			offset.y += curr_speed;
 			if (offset.y >= 0) {
 				offset.y = 0;
 				noo.map->check_triggers(this);
@@ -684,7 +692,7 @@ bool Map_Entity::update(bool can_move)
 			}
 		}
 		else if (offset.y > 0) {
-			offset.y -= speed;
+			offset.y -= curr_speed;
 			if (offset.y <= 0) {
 				offset.y = 0;
 				noo.map->check_triggers(this);
