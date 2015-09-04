@@ -25,6 +25,8 @@ public:
 	std::string to_string();
 	void from_string(std::string s);
 	Inventory *clone();
+	void remove(Inventory *inventory); // remove matching items
+	void remove(std::string id); // remove first item with id == id
 
 private:
 	int find(Item *item);

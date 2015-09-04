@@ -161,8 +161,41 @@ Inventory *Inventory::clone()
 {
 	Inventory *inventory = new Inventory();
 	inventory->gold = gold;
-	inventory->items = items;
+
+	for (size_t i = 0; i < items.size(); i++) {
+		inventory->items.push_back(std::vector<Item *>());
+		for (size_t j = 0; j < items[i].size(); j++) {
+			inventory->items[i].push_back(items[i][j]->clone());
+		}
+	}
+
 	return inventory;
+}
+
+void Inventory::remove(Inventory *inventory)
+{
+	for (size_t i = 0; i < inventory->items.size(); i++) {
+		for (size_t j = 0; j < inventory->items[i].size(); j++) {
+			std::string id = inventory->items[i][j]->id;
+			remove(id);
+		}
+	}
+}
+
+void Inventory::remove(std::string id)
+{
+	for (size_t i = 0; i < items.size(); i++) {
+		for (size_t j = 0; j < items[i].size(); j++) {
+			if (items[i][j]->id == id) {
+				delete items[i][j];
+				items[i].erase(items[i].begin() + j);
+				if (items[i].size() == 0) {
+					items.erase(items.begin() + i);
+				}
+				return;
+			}
+		}
+	}
 }
 
 int Inventory::find(Item *item)
