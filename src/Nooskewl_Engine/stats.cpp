@@ -108,6 +108,11 @@ void Stats::set_status(Status status)
 	if (status == SICK && this->status != SICK) {
 		noo.add_notification(TRANSLATE("You feel sick...")END);
 	}
+	else if (status == DRUNK && this->status != DRUNK) {
+		noo.add_notification(TRANSLATE("You're drunk...")END);
+		noo.add_notification(TRANSLATE("You lost karma...")END);
+		karma -= MIN(500, karma);
+	}
 	this->status = status;
 	status_start = noo.get_play_time();
 }

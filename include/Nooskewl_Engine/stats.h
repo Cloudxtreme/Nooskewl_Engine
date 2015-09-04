@@ -30,7 +30,8 @@ public:
 
 	enum Status {
 		NORMAL,
-		SICK
+		SICK,
+		DRUNK
 	};
 
 	std::string name;
