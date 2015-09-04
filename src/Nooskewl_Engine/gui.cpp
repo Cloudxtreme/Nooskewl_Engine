@@ -475,6 +475,68 @@ void Yes_No_GUI::update()
 
 //--
 
+Yes_No_Always_GUI::Yes_No_Always_GUI(std::string text, int milestone, Callback callback) :
+	milestone(milestone),
+	callback(callback)
+{
+	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
+	SDL_Colour background_colour = { 0, 0, 0, 192 };
+	modal_main_widget->set_background_colour(background_colour);
+
+	Widget_Window *window = new Widget_Window(100, 50);
+	window->set_center_x(true);
+	window->set_center_y(true);
+	window->set_parent(modal_main_widget);
+
+	Widget_Label *label = new Widget_Label(text, window->get_width() - 10);
+	label->set_padding(5);
+	label->set_center_x(true);
+	label->set_parent(window);
+
+	yes_button = new Widget_Text_Button(noo.t->translate(12));
+	yes_button->set_center_x(true);
+	yes_button->set_padding_right(2);
+
+	no_button = new Widget_Text_Button(noo.t->translate(6));
+	no_button->set_center_x(true);
+	no_button->set_padding_left(2);
+	no_button->set_padding_right(2);
+
+	always_button = new Widget_Text_Button(TRANSLATE("Always")END);
+	always_button->set_center_x(true);
+	always_button->set_padding_left(2);
+
+	Widget *button_container = new Widget(1.0f, yes_button->get_height());
+	button_container->set_float_bottom(true);
+	button_container->set_padding_bottom(5);
+	button_container->set_parent(window);
+
+	yes_button->set_parent(button_container);
+	no_button->set_parent(button_container);
+	always_button->set_parent(button_container);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+}
+
+void Yes_No_Always_GUI::update()
+{
+	if (yes_button->pressed()) {
+		callback((void *)1);
+		exit();
+	}
+	else if (no_button->pressed()) {
+		callback(0);
+		exit();
+	}
+	else if (always_button->pressed()) {
+		noo.set_milestone(milestone, true);
+		callback((void *)1);
+		exit();
+	}
+}
+
+//--
+
 Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback) :
 	callback(callback)
 {

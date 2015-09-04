@@ -108,6 +108,22 @@ private:
 	Callback callback;
 };
 
+class NOOSKEWL_ENGINE_EXPORT Yes_No_Always_GUI : public GUI {
+public:
+	Yes_No_Always_GUI(std::string text, int milestone, Callback callback);
+
+	void update();
+
+private:
+	Widget_Text_Button *yes_button;
+	Widget_Text_Button *no_button;
+	Widget_Text_Button *always_button;
+
+	int milestone;
+
+	Callback callback;
+};
+
 class NOOSKEWL_ENGINE_EXPORT Get_Number_GUI : public GUI {
 public:
 	Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback);
