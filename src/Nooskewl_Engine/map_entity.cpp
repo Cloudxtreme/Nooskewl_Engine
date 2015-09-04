@@ -607,6 +607,11 @@ bool Map_Entity::update(bool can_move)
 				stats->set_status(Stats::NORMAL);
 			}
 		}
+		if (stats->status == Stats::DRUNK) {
+			if (stats->sobriety >= 0xffff * 3 / 4) {
+				stats->set_status(Stats::NORMAL);
+			}
+		}
 	}
 
 	if (moving == false) {
