@@ -157,6 +157,14 @@ void Inventory::from_string(std::string s)
 	}
 }
 
+Inventory *Inventory::clone()
+{
+	Inventory *inventory = new Inventory();
+	inventory->gold = gold;
+	inventory->items = items;
+	return inventory;
+}
+
 int Inventory::find(Item *item)
 {
 	int index = -1;
