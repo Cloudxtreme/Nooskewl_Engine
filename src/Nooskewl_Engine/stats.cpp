@@ -105,6 +105,9 @@ bool Stats::load(std::string name)
 
 void Stats::set_status(Status status)
 {
+	if (status == SICK && this->status != SICK) {
+		noo.add_notification(TRANSLATE("You feel sick...")END);
+	}
 	this->status = status;
 	status_start = noo.get_play_time();
 }
