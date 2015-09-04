@@ -37,6 +37,7 @@ public:
 	void from_string(std::string s);
 
 	int get_value();
+	Item *clone();
 
 private:
 	void handle_tag(XML *xml);

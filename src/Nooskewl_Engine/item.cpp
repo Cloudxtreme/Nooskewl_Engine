@@ -111,6 +111,25 @@ int Item::get_value()
 	return int(min_value + ((c / 100.0f) * (max_value - min_value)));
 }
 
+Item *Item::clone()
+{
+	Item *item = new Item();
+
+	item->id = id;
+	item->type = type;
+	item->name = name;
+	item->weight = weight;
+	item->condition = condition;
+	item->min_attack = min_attack;
+	item->max_attack = max_attack;
+	item->min_defense = min_defense;
+	item->max_defense = max_defense;
+	item->min_value = min_value;
+	item->max_value = max_value;
+
+	return item;
+}
+
 void Item::handle_tag(XML *xml)
 {
 	std::string tag = xml->get_name();
