@@ -654,9 +654,9 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	hilight_colour.r = 62;
-	hilight_colour.g = 140;
-	hilight_colour.b = 189;
+	hilight_colour.r = 0;
+	hilight_colour.g = 137;
+	hilight_colour.b = 230;
 	hilight_colour.a = 255;
 
 	pressed_item = -1;
