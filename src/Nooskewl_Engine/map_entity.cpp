@@ -36,7 +36,7 @@ Map_Entity::Map_Entity(std::string name) :
 	brain(0),
 	position(0, 0),
 	moving(false),
-	speed(0.1f),
+	speed(0.09f),
 	offset(0.0f, 0.0f),
 	solid(true),
 	size(noo.tile_size, noo.tile_size),
