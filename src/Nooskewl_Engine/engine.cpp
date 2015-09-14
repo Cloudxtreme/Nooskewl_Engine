@@ -1534,13 +1534,24 @@ void Engine::set_mouse_cursor()
 
 void Engine::set_window_icon()
 {
-#ifndef __APPLE__
+#if defined __linux__
 	Size<int> size;
 	unsigned char *pixels = Image::read_tga("images/icon.tga", size);
 	SDL_Surface *surface = SDL_CreateRGBSurfaceFrom(pixels + size.w * (size.h-1) * 4, size.w, size.h, 32, -size.w * 4, 0xff, 0xff00, 0xff0000, 0xff000000);
 	SDL_SetWindowIcon(window, surface);
 	SDL_FreeSurface(surface);
 	delete[] pixels;
+#elif defined NOOSKEWL_ENGINE_WINDOWS
+	Size<int> size;
+	unsigned char *pixels = Image::read_tga("images/icon16.tga", size);
+	HICON icon_sm = win_create_icon(GetActiveWindow(), pixels, size, 0, 0, false);
+	delete[] pixels;
+	SendMessage(GetActiveWindow(), WM_SETICON, ICON_SMALL, (LPARAM)icon_sm);
+
+	pixels = Image::read_tga("images/icon24.tga", size);
+	HICON icon_big = win_create_icon(GetActiveWindow(), pixels, size, 0, 0, false);
+	delete[] pixels;
+	SendMessage(GetActiveWindow(), WM_SETICON, ICON_BIG, (LPARAM)icon_big);
 #endif
 }
 
