@@ -13,6 +13,7 @@ public:
 	static void update();
 
 	bool play(float volume, bool loop);
+	bool play(float volume, Uint32 play_length);
 
 private:
 	SDL_AudioSpec *spec;
@@ -24,6 +25,7 @@ struct SampleInstance {
 	SDL_AudioSpec *spec;
 	Uint8 *data;
 	Uint32 length;
+	Uint32 play_length;
 	Uint32 offset;
 	bool loop;
 	float volume;

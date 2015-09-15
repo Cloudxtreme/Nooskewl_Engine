@@ -50,19 +50,36 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	std::vector<SampleInstance *>::iterator it;
 	for (it = m.playing_samples.begin(); it != m.playing_samples.end();) {
 		SampleInstance *s = *it;
-		int length;
-		if (s->loop) {
-			length = stream_length;
-		}
-		else {
-			length = s->length - s->offset;
-			if (length > stream_length) {
-				length = stream_length;
+		int count = 0;
+		while (count < stream_length) {
+			Uint32 orig_length = s->length - s->offset;
+			if (orig_length > (Uint32)stream_length) {
+				orig_length = stream_length;
 			}
-		}
-		SDL_MixAudioFormat(stream, s->data+s->offset, m.device_spec.format, length, (int)(s->volume * 128.0f));
-		if (s->loop == false) {
-			s->offset += length;
+			Uint32 play_length;
+			if (s->play_length != s->length) {
+				float p = (float)s->play_length / s->length;
+				play_length = Uint32(p * orig_length);
+				if (play_length > (Uint32)stream_length) {
+					play_length = stream_length;
+					orig_length = Uint32(play_length / p);
+				}
+				for (Uint32 i = 0; i < play_length/2; i++) {
+					int16_t sample = *((int16_t *)s->data + (s->offset/2) + Uint32(i / p));
+					*((int16_t *)stream + i) = sample;
+				}
+			}
+			else {
+				play_length = orig_length;
+				SDL_MixAudioFormat(stream, s->data+s->offset, m.device_spec.format, orig_length, (int)(s->volume * 128.0f));
+			}
+			s->offset += orig_length;
+			if (s->loop) {
+				count += play_length;
+			}
+			else {
+				break;
+			}
 		}
 		if (s->loop == false && s->offset >= s->length) {
 			it = m.playing_samples.erase(it);

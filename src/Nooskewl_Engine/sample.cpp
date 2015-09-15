@@ -48,8 +48,35 @@ bool Sample::play(float volume, bool loop)
 	s->spec = spec;
 	s->data = data;
 	s->length = length;
+	s->play_length = length;
 	s->offset = 0;
 	s->loop = loop;
+	s->volume = volume;
+
+	SDL_LockMutex(m.mixer_mutex);
+	m.playing_samples.push_back(s);
+	SDL_UnlockMutex(m.mixer_mutex);
+
+	return true;
+}
+
+bool Sample::play(float volume, Uint32 play_length)
+{
+	if (noo.mute) {
+		return true;
+	}
+
+	SampleInstance *s = new SampleInstance();
+	if (s == 0) {
+		return false;
+	}
+
+	s->spec = spec;
+	s->data = data;
+	s->length = length;
+	s->play_length = play_length;
+	s->offset = 0;
+	s->loop = false;
 	s->volume = volume;
 
 	SDL_LockMutex(m.mixer_mutex);
