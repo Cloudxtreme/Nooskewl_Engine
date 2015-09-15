@@ -1544,14 +1544,14 @@ void Engine::set_window_icon()
 #elif defined NOOSKEWL_ENGINE_WINDOWS
 	Size<int> size;
 	unsigned char *pixels = Image::read_tga("images/icon16.tga", size);
-	HICON icon_sm = win_create_icon(GetActiveWindow(), pixels, size, 0, 0, false);
+	HICON icon_small = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, false);
+	SetClassLong(GetActiveWindow(), GCL_HICONSM, (LONG)icon_small);
 	delete[] pixels;
-	SendMessage(GetActiveWindow(), WM_SETICON, ICON_SMALL, (LPARAM)icon_sm);
 
 	pixels = Image::read_tga("images/icon24.tga", size);
-	HICON icon_big = win_create_icon(GetActiveWindow(), pixels, size, 0, 0, false);
+	HICON icon_big = win_create_icon(GetActiveWindow(), (Uint8 *)pixels, size, 0, 0, false);
+	SetClassLong(GetActiveWindow(), GCL_HICON, (LONG)icon_big);
 	delete[] pixels;
-	SendMessage(GetActiveWindow(), WM_SETICON, ICON_BIG, (LPARAM)icon_big);
 #endif
 }
 

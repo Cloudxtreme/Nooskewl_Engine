@@ -21,6 +21,8 @@ int main(int argc, char **argv)
 
 static bool run_main(int argc, char **argv)
 {
+	SDL_RegisterApp("MORPG3", 0, 0);
+
 	if (noo.start(argc, argv) == false) {
 		return false;
 	}
