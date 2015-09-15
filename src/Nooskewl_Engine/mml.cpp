@@ -375,7 +375,7 @@ void MML::Internal::Track::generate(short *buf, int samples, float t, const char
 			break;
 		case HIHAT:
 			if (t == 0.0f) {
-				hihat->play(get_volume(), (Uint32)samples);
+				hihat->play(get_volume(), (Uint32)samples * 2);
 			}
 			sample += samples;
 			note_fulfilled += samples;
