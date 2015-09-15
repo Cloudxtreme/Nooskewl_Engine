@@ -211,7 +211,7 @@ void Title_GUI::draw_back()
 	int scale1 = 4;
 	int x1 = -static_logo->size.w / 2 * scale1;
 	int y1 = -static_logo->size.h / 2 * scale1;
-	int scale2 = 8;
+	int scale2 = 7;
 	int x2 = -static_logo->size.w / 4 * scale2;
 	int y2 = -static_logo->size.h / 4 * scale2;
 	int dx1 = x1 + static_logo->size.w / 2 * scale1;
