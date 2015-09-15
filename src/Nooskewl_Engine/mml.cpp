@@ -1,8 +1,24 @@
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/mml.h"
+#include "Nooskewl_Engine/sample.h"
 
 using namespace Nooskewl_Engine;
+
+Sample *MML::bass_drum;
+Sample *MML::hihat;
+
+void MML::start()
+{
+	bass_drum = new Sample("bass_drum.wav");
+	hihat = new Sample("hihat.wav");
+}
+
+void MML::end()
+{
+	delete bass_drum;
+	delete hihat;
+}
 
 std::vector<MML::Internal *> MML::loaded_mml;
 
@@ -349,6 +365,20 @@ void MML::Internal::Track::generate(short *buf, int samples, float t, const char
 			break;
 		case TRIANGLE:
 			triangle(buf, samples, t, pitch, 0.0f);
+			break;
+		case BASS_DRUM:
+			if (t == 0.0f) {
+				bass_drum->play(get_volume(), false);
+			}
+			sample += samples;
+			note_fulfilled += samples;
+			break;
+		case HIHAT:
+			if (t == 0.0f) {
+				hihat->play(get_volume(), false);
+			}
+			sample += samples;
+			note_fulfilled += samples;
 			break;
 	};
 }

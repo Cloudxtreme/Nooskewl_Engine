@@ -5,8 +5,16 @@
 
 namespace Nooskewl_Engine {
 
+class Sample;
+
 class NOOSKEWL_ENGINE_EXPORT MML {
 public:
+	static Sample *bass_drum;
+	static Sample *hihat;
+
+	static void start();
+	static void end();
+
 	static void mix(Uint8 *buf, int stream_length);
 
 	MML(std::string filename, bool load_from_filesystem = false);
@@ -31,7 +39,9 @@ private:
 				NOISE,
 				SAWTOOTH,
 				SINE,
-				TRIANGLE
+				TRIANGLE,
+				BASS_DRUM,
+				HIHAT
 			};
 
 			// pad is # of samples of silence to pad the end with so all tracks are even

@@ -59,9 +59,11 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 			if (length > stream_length) {
 				length = stream_length;
 			}
-			s->offset += length;
 		}
 		SDL_MixAudioFormat(stream, s->data+s->offset, m.device_spec.format, length, (int)(s->volume * 128.0f));
+		if (s->loop == false) {
+			s->offset += length;
+		}
 		if (s->loop == false && s->offset >= s->length) {
 			it = m.playing_samples.erase(it);
 		}
@@ -135,6 +137,8 @@ bool Engine::start(int argc, char **argv)
 	}
 
 	init_audio();
+
+	MML::start();
 
 	int play_mml;
 	if ((play_mml = check_args(argc, argv, "+play-mml")) > 0) {
@@ -261,6 +265,8 @@ void Engine::end()
 	delete button_mml;
 	delete item_mml;
 	delete widget_mml;
+
+	MML::end();
 
 	if (map) {
 		map->end();
