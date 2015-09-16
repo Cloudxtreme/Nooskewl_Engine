@@ -52,36 +52,45 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 		SampleInstance *s = *it;
 		int count = 0;
 		while (count < stream_length) {
-			Uint32 orig_length = s->length - s->offset;
-			if (orig_length > (Uint32)stream_length) {
-				orig_length = stream_length;
-			}
-			Uint32 play_length;
+			Uint32 length;
+
 			if (s->play_length != s->length) {
-				float p = (float)s->play_length / s->length;
-				play_length = Uint32(p * orig_length);
-				if (play_length > (Uint32)stream_length) {
-					play_length = stream_length;
-					orig_length = Uint32(play_length / p);
+				length = s->play_length - s->offset;
+				if (length > (Uint32)stream_length) {
+					length = stream_length;
 				}
-				for (Uint32 i = 0; i < play_length/2; i++) {
-					int16_t sample = *((int16_t *)s->data + (s->offset/2) + Uint32(i / p));
-					*((int16_t *)stream + i) = sample;
+
+				float p = (float)s->play_length / s->length;
+
+				for (Uint32 i = 0; i < length; i += 2) {
+					int o = int((s->offset + i) / p) / 2;
+					int16_t sample = *((int16_t *)s->data + o);
+					*((int16_t *)stream + (count + i) / 2) = sample;
 				}
 			}
 			else {
-				play_length = orig_length;
-				SDL_MixAudioFormat(stream, s->data+s->offset, m.device_spec.format, orig_length, (int)(s->volume * 128.0f));
+				length = s->length - s->offset;
+				if (length > (Uint32)stream_length) {
+					length = stream_length;
+				}
+
+				SDL_MixAudioFormat(stream+count, s->data+s->offset, m.device_spec.format, length, (int)(s->volume * 128.0f));
 			}
-			s->offset += orig_length;
+
+			s->offset += length;
+
+			if (s->loop && s->offset >= s->play_length) {
+				s->offset = 0;
+			}
+
 			if (s->loop) {
-				count += play_length;
+				count += length;
 			}
 			else {
 				break;
 			}
 		}
-		if (s->loop == false && s->offset >= s->length) {
+		if (s->loop == false && s->offset >= s->play_length) {
 			it = m.playing_samples.erase(it);
 		}
 		else {
