@@ -157,7 +157,7 @@ bool MML::Internal::Track::update(short *buf, int length)
 		else {
 			fulfilled += to_generate;
 		}
-		generate(buf + buffer_fulfilled, to_generate, t, tok.c_str(), octave);
+		generate(buf + buffer_fulfilled, length_in_samples, to_generate, t, tok.c_str(), octave);
 		buffer_fulfilled = fulfilled;
 		bool get_next_note = false;
 		if (note_fulfilled >= length_in_samples) {
@@ -333,7 +333,7 @@ void MML::Internal::Track::triangle(short *buf, size_t samples, float t, float f
 	}
 }
 
-void MML::Internal::Track::generate(short *buf, int samples, float t, const char *tok, int octave)
+void MML::Internal::Track::generate(short *buf, int length_in_samples, int samples, float t, const char *tok, int octave)
 {
 	char c = tok[0];
 	int index = 0;
@@ -368,14 +368,21 @@ void MML::Internal::Track::generate(short *buf, int samples, float t, const char
 			break;
 		case BASS_DRUM:
 			if (t == 0.0f) {
-				bass_drum->play(get_volume(), (Uint32)samples * 32);
+				bass_drum->stop_all();
+				bass_drum->play(get_volume(), (Uint32)length_in_samples);
 			}
 			sample += samples;
 			note_fulfilled += samples;
 			break;
 		case HIHAT:
 			if (t == 0.0f) {
-				hihat->play(get_volume(), (Uint32)samples * 2);
+				hihat->stop_all();
+				if (length_in_samples >= hihat->get_length()) {
+					hihat->play(get_volume(), false);
+				}
+				else {
+					hihat->play(get_volume(), (Uint32)length_in_samples);
+				}
 			}
 			sample += samples;
 			note_fulfilled += samples;
@@ -780,7 +787,7 @@ void MML::mix(Uint8 *buf, int stream_length)
 		for (size_t track = 0; track < tracks.size(); track++) {
 			if (tracks[track]->is_playing()) {
 				if (tracks[track]->update((short *)tmp, stream_length/2)) {
-					SDL_MixAudioFormat(buf, tmp, m.device_spec.format, stream_length, 16);
+					SDL_MixAudioFormat(buf, tmp, m.device_spec.format, stream_length, 128/tracks.size());
 				}
 			}
 		}

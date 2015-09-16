@@ -34,6 +34,11 @@ Sample::~Sample()
 	SDL_FreeWAV(data);
 }
 
+Uint32 Sample::get_length()
+{
+	return length / 2; // length is in bytes, function returns samples
+}
+
 bool Sample::play(float volume, bool loop)
 {
 	if (noo.mute) {
@@ -60,6 +65,7 @@ bool Sample::play(float volume, bool loop)
 	return true;
 }
 
+// Play length is passed in in samples
 bool Sample::play(float volume, Uint32 play_length)
 {
 	if (noo.mute) {
@@ -74,7 +80,7 @@ bool Sample::play(float volume, Uint32 play_length)
 	s->spec = spec;
 	s->data = data;
 	s->length = length;
-	s->play_length = play_length;
+	s->play_length = play_length * 2; // convert to bytes
 	s->offset = 0;
 	s->loop = false;
 	s->volume = volume;
@@ -84,4 +90,23 @@ bool Sample::play(float volume, Uint32 play_length)
 	SDL_UnlockMutex(m.mixer_mutex);
 
 	return true;
+}
+
+void Sample::stop_all()
+{
+	SDL_LockMutex(m.mixer_mutex);
+
+	std::vector<SampleInstance *>::iterator it;
+
+	for (it = m.playing_samples.begin(); it != m.playing_samples.end();) {
+		SampleInstance *s = *it;
+		if (s->data == data) {
+			it = m.playing_samples.erase(it);
+		}
+		else {
+			it++;
+		}
+	}
+
+	SDL_UnlockMutex(m.mixer_mutex);
 }

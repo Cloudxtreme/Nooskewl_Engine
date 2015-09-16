@@ -65,7 +65,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 				for (Uint32 i = 0; i < length; i += 2) {
 					int o = int((s->offset + i) / p) / 2;
 					int16_t sample = *((int16_t *)s->data + o);
-					*((int16_t *)stream + (count + i) / 2) = sample;
+					*((int16_t *)stream + (count + i) / 2) = int(sample * s->volume);
 				}
 			}
 			else {

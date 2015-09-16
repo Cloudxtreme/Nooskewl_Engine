@@ -64,7 +64,7 @@ private:
 			void sawtooth(short *buf, size_t samples, float t, float frequency, float phase);
 			void sine(short *buf, size_t samples, float t, float frequency, float phase);
 			void triangle(short *buf, size_t samples, float t, float frequency, float phase);
-			void generate(short *buf, int samples, float t, const char *tok, int octave);
+			void generate(short *buf, int length_in_samples, int samples, float t, const char *tok, int octave);
 
 			float get_frequency(float start_freq);
 			float get_volume();

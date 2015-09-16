@@ -12,8 +12,12 @@ public:
 
 	static void update();
 
+	Uint32 get_length();
+
 	bool play(float volume, bool loop);
 	bool play(float volume, Uint32 play_length);
+
+	void stop_all();
 
 private:
 	SDL_AudioSpec *spec;
