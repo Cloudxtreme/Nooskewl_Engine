@@ -778,7 +778,7 @@ MML::Internal::~Internal()
 	}
 }
 
-void MML::mix(Uint8 *buf, int stream_length)
+void MML::mix(int32_t *buf, int stream_length)
 {
 	Uint8 *tmp = new Uint8[stream_length];
 
@@ -787,7 +787,12 @@ void MML::mix(Uint8 *buf, int stream_length)
 		for (size_t track = 0; track < tracks.size(); track++) {
 			if (tracks[track]->is_playing()) {
 				if (tracks[track]->update((short *)tmp, stream_length/2)) {
-					SDL_MixAudioFormat(buf, tmp, m.device_spec.format, stream_length, 128/tracks.size());
+					for (int i = 0; i < stream_length / 2; i++) {
+						int32_t src1 = *((int32_t *)buf + i);
+						int16_t src2 = int16_t(*((int16_t *)tmp + i) * 0.25f);
+						int32_t result = src1 + src2;
+						*((int32_t *)buf + i) = result;
+					}
 				}
 			}
 		}

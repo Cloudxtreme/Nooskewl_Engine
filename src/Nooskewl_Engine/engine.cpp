@@ -43,10 +43,12 @@ using namespace Nooskewl_Engine;
 
 static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 {
-	const int16_t max = (1 << (16 - 1)) - 1;
-	const int16_t min = -(1 << (16 - 1));
+	const int16_t minval = -(1 << (16 - 1));
+	const int16_t maxval = (1 << (16 - 1)) - 1;
 
-	memset(stream, m.device_spec.silence, stream_length);
+	int32_t *buf = new int32_t[stream_length/2];
+
+	memset(buf, m.device_spec.silence, stream_length * 2);
 
 	SDL_LockMutex(m.mixer_mutex);
 
@@ -56,6 +58,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 		int count = 0;
 		while (count < stream_length) {
 			Uint32 length;
+			float p;
 
 			if (s->play_length != s->length) {
 				length = s->play_length - s->offset;
@@ -63,22 +66,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 					length = stream_length;
 				}
 
-				float p = (float)s->play_length / s->length;
-
-				for (Uint32 i = 0; i < length; i += 2) {
-					int sample_offset = int((s->offset + i) / p) / 2;
-					int16_t sample = *((int16_t *)s->data + sample_offset);
-					int dest_offset = (count + i) / 2;
-					int32_t result = *((int16_t *)stream + dest_offset);
-					result += sample;
-					if (result > max) {
-						result = max;
-					}
-					else if (result < min) {
-						result = min;
-					}
-					*((int16_t *)stream + dest_offset) = int16_t(result * s->volume);
-				}
+				p = (float)s->play_length / s->length;
 			}
 			else {
 				length = s->length - s->offset;
@@ -86,7 +74,16 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 					length = stream_length;
 				}
 
-				SDL_MixAudioFormat(stream+count, s->data+s->offset, m.device_spec.format, length, (int)(s->volume * 128.0f));
+				p = 1.0f;
+			}
+
+			for (Uint32 i = 0; i < length; i += 2) {
+				int sample_offset = int((s->offset + i) / p) / 2;
+				int dest_offset = (count + i) / 2;
+				int16_t src1 = int16_t(*((int16_t *)s->data + sample_offset) * s->volume);
+				int32_t src2 = *((int32_t *)buf + dest_offset);
+				int32_t result = src1 + src2;
+				*((int32_t *)buf + dest_offset) = result;
 			}
 
 			s->offset += length;
@@ -110,7 +107,20 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 		}
 	}
 
-	MML::mix(stream, stream_length);
+	MML::mix(buf, stream_length);
+
+	for (int i = 0; i < stream_length/2; i++) {
+		int32_t sample = buf[i];
+		if (sample < minval) {
+			sample = minval;
+		}
+		else if (sample > maxval) {
+			sample = maxval;
+		}
+		*((int16_t *)stream + i) = sample;
+	}
+
+	delete[] buf;
 
 	SDL_UnlockMutex(m.mixer_mutex);
 }

@@ -15,7 +15,7 @@ public:
 	static void start();
 	static void end();
 
-	static void mix(Uint8 *buf, int stream_length);
+	static void mix(int32_t *buf, int stream_length);
 
 	MML(std::string filename, bool load_from_filesystem = false);
 	~MML();
