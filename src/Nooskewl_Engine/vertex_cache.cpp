@@ -7,6 +7,7 @@
 
 /* So textures don't bleed into each other when tiling. This is about 1/100th of a pixel on a 1024x1024 texture */
 #define SMALL_TEXTURE_OFFSET 0.00001f
+#define CLAMP(v) if (v < 0.0f) v = 0.0f; else if (v > 1.0f) v = 1.0f;
 
 using namespace Nooskewl_Engine;
 
@@ -205,6 +206,11 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 		float tu2 = float(source_position.x + source_size.w) / image->size.w - SMALL_TEXTURE_OFFSET;
 		float tv2 = float(source_position.y + source_size.h) / image->size.h - SMALL_TEXTURE_OFFSET;
 
+		CLAMP(tu)
+		CLAMP(tv)
+		CLAMP(tu2)
+		CLAMP(tv2)
+
 		tv = 1.0f - tv;
 		tv2 = 1.0f - tv2;
 
@@ -332,6 +338,11 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 			tv = (float)source_position.y / image->size.h + SMALL_TEXTURE_OFFSET;
 			tu2 = (float)dest_size.w / source_size.w - SMALL_TEXTURE_OFFSET;
 			tv2 = (float)dest_size.h / source_size.h - SMALL_TEXTURE_OFFSET;
+
+			CLAMP(tu)
+			CLAMP(tv)
+			CLAMP(tu2)
+			CLAMP(tv2)
 		}
 		else {
 			float sx = (float)source_position.x + SMALL_TEXTURE_OFFSET;
@@ -340,9 +351,11 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 			tv = sy / (float)image->size.h;
 			tu2 = (source_position.x + source_size.w - SMALL_TEXTURE_OFFSET) / image->size.w;
 			tv2 = (source_position.y + source_size.h - SMALL_TEXTURE_OFFSET) / image->size.h;
-			if (tu < 0.0f || tv < 0.0f || tu2 < 0.0f || tv2 < 0.0f || tu > 1.0f || tv > 1.0f || tu2 > 1.0f || tv2 > 1.0f) {
-				printf("OOPS\n");
-			}
+
+			CLAMP(tu)
+			CLAMP(tv)
+			CLAMP(tu2)
+			CLAMP(tv2)
 
 			tv = 1.0f - tv;
 			tv2 = 1.0f - tv2;
