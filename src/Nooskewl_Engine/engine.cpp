@@ -43,6 +43,9 @@ using namespace Nooskewl_Engine;
 
 static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 {
+	const int16_t max = (1 << (16 - 1)) - 1;
+	const int16_t min = -(1 << (16 - 1));
+
 	memset(stream, m.device_spec.silence, stream_length);
 
 	SDL_LockMutex(m.mixer_mutex);
@@ -63,9 +66,18 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 				float p = (float)s->play_length / s->length;
 
 				for (Uint32 i = 0; i < length; i += 2) {
-					int o = int((s->offset + i) / p) / 2;
-					int16_t sample = *((int16_t *)s->data + o);
-					*((int16_t *)stream + (count + i) / 2) = int(sample * s->volume);
+					int sample_offset = int((s->offset + i) / p) / 2;
+					int16_t sample = *((int16_t *)s->data + sample_offset);
+					int dest_offset = (count + i) / 2;
+					int32_t result = *((int16_t *)stream + dest_offset);
+					result += sample;
+					if (result > max) {
+						result = max;
+					}
+					else if (result < min) {
+						result = min;
+					}
+					*((int16_t *)stream + dest_offset) = int16_t(result * s->volume);
 				}
 			}
 			else {
@@ -97,6 +109,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 			it++;
 		}
 	}
+
 	MML::mix(stream, stream_length);
 
 	SDL_UnlockMutex(m.mixer_mutex);
