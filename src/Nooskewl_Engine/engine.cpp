@@ -55,23 +55,24 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	std::vector<SampleInstance *>::iterator it;
 	for (it = m.playing_samples.begin(); it != m.playing_samples.end();) {
 		SampleInstance *s = *it;
-		int count = 0;
+		int count = s->silence;
+		s->silence = 0;
 		while (count < stream_length) {
 			Uint32 length;
 			float p;
 
 			if (s->play_length != s->length) {
 				length = s->play_length - s->offset;
-				if (length > (Uint32)stream_length) {
-					length = stream_length;
+				if (length > (Uint32)(stream_length - count)) {
+					length = stream_length - count;
 				}
 
 				p = (float)s->play_length / s->length;
 			}
 			else {
 				length = s->length - s->offset;
-				if (length > (Uint32)stream_length) {
-					length = stream_length;
+				if (length > (Uint32)(stream_length - count)) {
+					length = stream_length - count;
 				}
 
 				p = 1.0f;

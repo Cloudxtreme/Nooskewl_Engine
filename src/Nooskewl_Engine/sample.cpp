@@ -55,6 +55,7 @@ bool Sample::play(float volume, bool loop)
 	s->length = length;
 	s->play_length = length;
 	s->offset = 0;
+	s->silence = 0;
 	s->loop = loop;
 	s->volume = volume;
 
@@ -66,7 +67,7 @@ bool Sample::play(float volume, bool loop)
 }
 
 // Play length is passed in in samples
-bool Sample::play(float volume, Uint32 play_length)
+bool Sample::play(float volume, Uint32 silence, Uint32 play_length)
 {
 	if (noo.mute) {
 		return true;
@@ -82,6 +83,7 @@ bool Sample::play(float volume, Uint32 play_length)
 	s->length = length;
 	s->play_length = play_length * 2; // convert to bytes
 	s->offset = 0;
+	s->silence = silence * 2; // convert to bytes
 	s->loop = false;
 	s->volume = volume;
 

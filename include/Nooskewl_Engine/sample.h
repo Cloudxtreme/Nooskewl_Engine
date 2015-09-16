@@ -15,7 +15,7 @@ public:
 	Uint32 get_length();
 
 	bool play(float volume, bool loop);
-	bool play(float volume, Uint32 play_length);
+	bool play(float volume, Uint32 silence, Uint32 play_length);
 
 	void stop_all();
 
@@ -31,6 +31,7 @@ struct SampleInstance {
 	Uint32 length;
 	Uint32 play_length;
 	Uint32 offset;
+	Uint32 silence;
 	bool loop;
 	float volume;
 };
