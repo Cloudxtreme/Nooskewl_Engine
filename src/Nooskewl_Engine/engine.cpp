@@ -41,14 +41,18 @@
 
 using namespace Nooskewl_Engine;
 
+static int32_t *audio_buf;
+
 static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 {
 	const int16_t minval = -(1 << (16 - 1));
 	const int16_t maxval = (1 << (16 - 1)) - 1;
 
-	int32_t *buf = new int32_t[stream_length/2];
+	if (audio_buf == 0) {
+		audio_buf = new int32_t[stream_length/2];
+	}
 
-	memset(buf, m.device_spec.silence, stream_length * 2);
+	memset(audio_buf, m.device_spec.silence, stream_length * 2);
 
 	SDL_LockMutex(m.mixer_mutex);
 
@@ -82,9 +86,9 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 				int sample_offset = int((s->offset + i) / p) / 2;
 				int dest_offset = (count + i) / 2;
 				int16_t src1 = int16_t(*((int16_t *)s->data + sample_offset) * s->volume);
-				int32_t src2 = *((int32_t *)buf + dest_offset);
+				int32_t src2 = *((int32_t *)audio_buf + dest_offset);
 				int32_t result = src1 + src2;
-				*((int32_t *)buf + dest_offset) = result;
+				*((int32_t *)audio_buf + dest_offset) = result;
 			}
 
 			s->offset += length;
@@ -108,10 +112,10 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 		}
 	}
 
-	MML::mix(buf, stream_length);
+	MML::mix(audio_buf, stream_length);
 
 	for (int i = 0; i < stream_length/2; i++) {
-		int32_t sample = buf[i];
+		int32_t sample = audio_buf[i];
 		if (sample < minval) {
 			sample = minval;
 		}
@@ -120,8 +124,6 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 		}
 		*((int16_t *)stream + i) = sample;
 	}
-
-	delete[] buf;
 
 	SDL_UnlockMutex(m.mixer_mutex);
 }
@@ -604,6 +606,9 @@ void Engine::shutdown_audio()
 	}
 
 	SDL_DestroyMutex(m.mixer_mutex);
+	
+	delete[] audio_buf;
+	audio_buf = 0;
 }
 
 bool Engine::handle_event(SDL_Event *sdl_event)
