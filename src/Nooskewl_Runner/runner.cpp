@@ -21,7 +21,9 @@ int main(int argc, char **argv)
 
 static bool run_main(int argc, char **argv)
 {
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	SDL_RegisterApp("MORPG3", 0, 0);
+#endif
 
 	if (noo.start(argc, argv) == false) {
 		return false;
