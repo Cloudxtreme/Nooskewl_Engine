@@ -149,7 +149,8 @@ Engine::Engine() :
 	depth_buffer_enabled(false),
 	doing_map_transition(false),
 	paused(false),
-	escape_triangle_size(8.0f)
+	escape_triangle_size(8.0f),
+	fullscreen_window(false)
 {
 }
 
@@ -735,6 +736,11 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			noo.button_mml->play(false);
 			m.dll_pause();
 		}
+	}
+
+	if (!fullscreen && event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_f) {
+		fullscreen_window = !fullscreen_window;
+		SDL_SetWindowFullscreen(window, fullscreen_window ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	}
 
 	return true;

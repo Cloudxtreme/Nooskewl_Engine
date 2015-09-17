@@ -231,6 +231,8 @@ private:
 
 	std::vector<std::string> notifications;
 	Uint32 notification_start_time;
+
+	bool fullscreen_window;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
