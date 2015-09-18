@@ -425,8 +425,9 @@ void Notification_GUI::update()
 
 //--
 
-Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback) :
-	callback(callback)
+Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback, void *callback_data) :
+	callback(callback),
+	callback_data(callback_data)
 {
 	Widget *modal_main_widget = new Widget(1.0f, 1.0f);
 	SDL_Colour background_colour = { 0, 0, 0, 192 };
@@ -464,11 +465,17 @@ Yes_No_GUI::Yes_No_GUI(std::string text, Callback callback) :
 void Yes_No_GUI::update()
 {
 	if (yes_button->pressed()) {
-		callback((void *)1);
+		Callback_Data d;
+		d.choice = true;
+		d.userdata = callback_data;
+		callback((void *)&d);
 		exit();
 	}
 	else if (no_button->pressed()) {
-		callback(0);
+		Callback_Data d;
+		d.choice = false;
+		d.userdata = callback_data;
+		callback((void *)&d);
 		exit();
 	}
 }

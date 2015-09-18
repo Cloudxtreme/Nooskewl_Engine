@@ -97,7 +97,12 @@ private:
 
 class NOOSKEWL_ENGINE_EXPORT Yes_No_GUI : public GUI {
 public:
-	Yes_No_GUI(std::string text, Callback callback);
+	struct Callback_Data {
+		bool choice;
+		void *userdata;
+	};
+
+	Yes_No_GUI(std::string text, Callback callback, void *callback_data = 0);
 
 	void update();
 
@@ -106,6 +111,7 @@ private:
 	Widget_Text_Button *no_button;
 
 	Callback callback;
+	void *callback_data;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Yes_No_Always_GUI : public GUI {
