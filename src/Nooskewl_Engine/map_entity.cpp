@@ -330,6 +330,11 @@ void Map_Entity::set_name(std::string name)
 	this->name = name;
 }
 
+void Map_Entity::set_stop_next_tile(bool stop_next_tile)
+{
+	this->stop_next_tile = stop_next_tile;
+}
+
 int Map_Entity::get_id()
 {
 	return id;

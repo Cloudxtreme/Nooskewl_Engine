@@ -52,6 +52,7 @@ public:
 	void set_sit_directions(int sit_directions);
 	void set_activate_next_tile(bool onoff);
 	void set_name(std::string name);
+	void set_stop_next_tile(bool stop_next_tile);
 
 	int get_id();
 	std::string get_name();
