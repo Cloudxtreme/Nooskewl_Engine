@@ -14,6 +14,7 @@ public:
 
 	static void start();
 	static void end();
+	static void pause_all();
 
 	static void mix(int32_t *buf, int stream_length);
 
@@ -50,6 +51,7 @@ private:
 
 			void play(bool loop);
 			void stop();
+			void pause();
 			// Must be called regularly (~1.0/60.0 seconds). Returns true if generated any samples.
 			bool update(short *buf, int length);
 
@@ -100,6 +102,7 @@ private:
 			bool padded;
 			bool loop;
 			bool playing;
+			bool paused;
 		};
 
 		std::vector<Track *> tracks;

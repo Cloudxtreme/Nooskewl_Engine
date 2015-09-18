@@ -21,6 +21,7 @@ public:
 	Map(std::string map_name, bool been_here_before, int last_visited_time);
 	~Map();
 
+	void start_audio();
 	void start();
 	void end();
 

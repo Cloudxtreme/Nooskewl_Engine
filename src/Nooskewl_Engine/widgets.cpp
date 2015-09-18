@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/shader.h"
+#include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/widgets.h"
 
 using namespace Nooskewl_Engine;
@@ -806,7 +807,7 @@ int Widget_Slider::get_value()
 }
 
 //--
-	
+
 Widget_Radio_Button::Widget_Radio_Button(std::string text) :
 	Widget(0, 0),
 	text(text),
@@ -901,4 +902,69 @@ void Widget_Radio_Button::select()
 			b->set_selected(false);
 		}
 	}
+}
+
+Widget_Sprite::Widget_Sprite(Sprite *sprite, bool destroy) :
+	Widget(sprite->get_current_image()->size.w, sprite->get_current_image()->size.h),
+	sprite(sprite),
+	destroy(destroy)
+{
+}
+
+Widget_Sprite::~Widget_Sprite()
+{
+	if (destroy) {
+		delete sprite;
+	}
+}
+
+void Widget_Sprite::draw()
+{
+	bool focussed = gui->get_focus() == this;
+
+	if (focussed) {
+		enable_focus_shader(true);
+	}
+
+	sprite->get_current_image()->draw_single(Point<int>(calculated_x, calculated_y));
+
+	if (focussed) {
+		enable_focus_shader(false);
+	}
+}
+
+void Widget_Sprite::set_animation(std::string name)
+{
+	sprite->set_animation(name);
+}
+
+Widget_Sprite_Toggle::Widget_Sprite_Toggle(Sprite *sprite, bool value, bool destroy) :
+	Widget_Sprite(sprite, destroy),
+	value(value)
+{
+	accepts_focus = true;
+}
+
+Widget_Sprite_Toggle::~Widget_Sprite_Toggle()
+{
+}
+
+void Widget_Sprite_Toggle::handle_event(TGUI_Event *event)
+{
+	if (gui->get_event_owner(event) == this) {
+		if (event->type == TGUI_MOUSE_DOWN) {
+			value = !value;
+		}
+		else if (event->type == TGUI_KEY_DOWN && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == noo.key_b1)) {
+			value = !value;
+		}
+		else if (event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b1) {
+			value = !value;
+		}
+	}
+}
+
+bool Widget_Sprite_Toggle::get_value()
+{
+	return value;
 }

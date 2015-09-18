@@ -8,6 +8,8 @@ using namespace Nooskewl_Engine;
 Sample *MML::bass_drum;
 Sample *MML::hihat;
 
+std::vector<MML::Internal *> MML::loaded_mml;
+
 void MML::start()
 {
 	bass_drum = new Sample("bass_drum.wav");
@@ -20,7 +22,14 @@ void MML::end()
 	delete hihat;
 }
 
-std::vector<MML::Internal *> MML::loaded_mml;
+void MML::pause_all()
+{
+	for (size_t i = 0; i < loaded_mml.size(); i++) {
+		for (size_t j = 0; j < loaded_mml[i]->tracks.size(); j++) {
+			loaded_mml[i]->tracks[j]->pause();
+		}
+	}
+}
 
 #define TWO_PI (2.0f * (float)M_PI)
 #define STREAM_FREQUENCY 44100
@@ -118,8 +127,10 @@ MML::Internal::Track::Track(Type type, std::string text, std::vector< std::pair<
 	pitch_envelopes(pitch_envelopes),
 	dutycycles(dutycycles),
 	pad(pad),
-	playing(false)
+	playing(false),
+	paused(false)
 {
+	reset();
 }
 
 MML::Internal::Track::~Track()
@@ -128,7 +139,7 @@ MML::Internal::Track::~Track()
 
 void MML::Internal::Track::play(bool loop)
 {
-	reset();
+	paused = false;
 
 	playing = true;
 
@@ -137,6 +148,13 @@ void MML::Internal::Track::play(bool loop)
 
 void MML::Internal::Track::stop()
 {
+	paused = false;
+	playing = false;
+}
+
+void MML::Internal::Track::pause()
+{
+	paused = true;
 	playing = false;
 }
 
@@ -191,6 +209,10 @@ bool MML::Internal::Track::update(short *buf, int length)
 					else {
 						memset(buf, m.device_spec.silence, sizeof(short) * length);
 						done = true;
+						if (loop == false) {
+							stop();
+							reset();
+						}
 						return true;
 					}
 				}
@@ -368,7 +390,6 @@ void MML::Internal::Track::generate(short *buf, int length_in_samples, int sampl
 			break;
 		case BASS_DRUM:
 			if (t == 0.0f) {
-				bass_drum->stop_all();
 				bass_drum->play(get_volume(), buffer_fulfilled, (Uint32)length_in_samples);
 			}
 			sample += samples;
@@ -376,7 +397,6 @@ void MML::Internal::Track::generate(short *buf, int length_in_samples, int sampl
 			break;
 		case HIHAT:
 			if (t == 0.0f) {
-				hihat->stop_all();
 				if (length_in_samples >= (int)hihat->get_length()) {
 					hihat->play(get_volume(), buffer_fulfilled, hihat->get_length());
 				}

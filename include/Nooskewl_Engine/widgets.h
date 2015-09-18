@@ -7,6 +7,7 @@ namespace Nooskewl_Engine {
 
 class GUI;
 class Image;
+class Sprite;
 
 class NOOSKEWL_ENGINE_EXPORT Widget : public TGUI_Widget {
 public:
@@ -207,6 +208,35 @@ private:
 	std::string text;
 	bool selected;
 	Group group;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Widget_Sprite : public Widget
+{
+public:
+	Widget_Sprite(Sprite *sprite, bool destroy = true);
+	virtual ~Widget_Sprite();
+
+	void draw();
+
+	void set_animation(std::string name);
+
+private:
+	Sprite *sprite;
+	bool destroy;
+};
+
+class NOOSKEWL_ENGINE_EXPORT Widget_Sprite_Toggle : public Widget_Sprite
+{
+public:
+	Widget_Sprite_Toggle(Sprite *sprite, bool value, bool destroy = true);
+	~Widget_Sprite_Toggle();
+
+	void handle_event(TGUI_Event *event);
+
+	bool get_value();
+
+private:
+	bool value;
 };
 
 } // End namespace Nooskewl_Engine

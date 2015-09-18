@@ -1506,15 +1506,16 @@ std::string Engine::load_text(std::string filename)
 
 void Engine::play_music(std::string name)
 {
-	if (music && music->get_name() == name) {
-		return;
-	}
-
 	SDL_LockMutex(m.mixer_mutex);
 
-	delete music;
-	music = new MML(name);
-	music->play(true);
+	if (music && music->get_name() == name) {
+		music->play(true);
+	}
+	else {
+		delete music;
+		music = new MML(name);
+		music->play(true);
+	}
 
 	SDL_UnlockMutex(m.mixer_mutex);
 }

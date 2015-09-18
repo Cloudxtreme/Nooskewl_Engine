@@ -76,8 +76,17 @@ Map::~Map()
 	}
 }
 
+void Map::start_audio()
+{
+	if (ml) {
+		ml->start_audio();
+	}
+}
+
 void Map::start()
 {
+	start_audio();
+
 	a_star = new A_Star(this);
 
 	if (ml) {
