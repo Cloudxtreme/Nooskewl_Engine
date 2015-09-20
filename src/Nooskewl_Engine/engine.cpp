@@ -65,6 +65,8 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 			Uint32 length;
 			float p;
 
+			bool interpolate;
+
 			if (s->play_length != s->length) {
 				length = s->play_length - s->offset;
 				if (length > (Uint32)(stream_length - count)) {
@@ -72,6 +74,8 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 				}
 
 				p = (float)s->play_length / s->length;
+
+				interpolate = true;
 			}
 			else {
 				length = s->length - s->offset;
@@ -80,12 +84,20 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 				}
 
 				p = 1.0f;
+
+				interpolate = false;
 			}
 
 			for (Uint32 i = 0; i < length; i += 2) {
 				int sample_offset = int((s->offset + i) / p) / 2;
+				if (sample_offset == 0) {
+					interpolate = false;
+				}
 				int dest_offset = (count + i) / 2;
 				int16_t src1 = int16_t(*((int16_t *)s->data + sample_offset) * s->volume);
+				if (interpolate) {
+					src1 = int16_t(0.75f * src1 + 0.25f * *((int16_t *)s->data + (sample_offset-1)) * s->volume);
+				}
 				int32_t src2 = *((int32_t *)audio_buf + dest_offset);
 				int32_t result = src1 + src2;
 				*((int32_t *)audio_buf + dest_offset) = result;

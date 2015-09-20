@@ -390,19 +390,14 @@ void MML::Internal::Track::generate(short *buf, int length_in_samples, int sampl
 			break;
 		case BASS_DRUM:
 			if (t == 0.0f) {
-				bass_drum->play(get_volume(), buffer_fulfilled, (Uint32)length_in_samples);
+				bass_drum->play(get_volume(), false);
 			}
 			sample += samples;
 			note_fulfilled += samples;
 			break;
 		case HIHAT:
 			if (t == 0.0f) {
-				if (length_in_samples >= (int)hihat->get_length()) {
-					hihat->play(get_volume(), buffer_fulfilled, hihat->get_length());
-				}
-				else {
-					hihat->play(get_volume(), buffer_fulfilled, (Uint32)length_in_samples);
-				}
+				hihat->play(get_volume(), false);
 			}
 			sample += samples;
 			note_fulfilled += samples;
