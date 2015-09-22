@@ -69,6 +69,23 @@ void Inventory::remove(Item *item)
 	}
 }
 
+int Inventory::find(std::string id)
+{
+	int index = -1;
+
+	for (size_t i = 0; i < items.size(); i++) {
+		if (items[i].size() > 0) {
+			Item *it = items[i][0];
+			if (it->id == id) {
+				index = i;
+				break;
+			}
+		}
+	}
+
+	return index;
+}
+
 int Inventory::get_total_weight()
 {
 	int total_weight = 0;

@@ -19,6 +19,7 @@ public:
 
 	void add(Item *item);
 	void remove(Item *item);
+	int find(std::string id); // < 0 == no match
 
 	int get_total_weight();
 	void sort(int start = -1, int end = -1);
