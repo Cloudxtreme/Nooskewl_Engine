@@ -488,35 +488,6 @@ bool Map::activate(Map_Entity *entity)
 			break;
 	}
 
-	std::vector<Map_Entity_Distance> v;
-
-	for (size_t j = 0; j < entities.size(); j++) {
-		Map_Entity_Distance m;
-		m.entity = entities[j];
-		Point<int> p = entity->get_position()-m.entity->get_position();
-		Size<int> s(p.x, p.y);
-		m.distance = s.length();
-		v.push_back(m);
-	}
-
-	std::sort(v.begin(), v.end(), sort_by_distance);
-
-	for (size_t j = 0; j < v.size(); j++) {
-		Map_Entity *e = v[j].entity;
-		if (e->get_id() == 0) {
-			continue;
-		}
-		if (e->pixels_collide(pos, size)) {
-			Brain *b = e->get_brain();
-			if (b) {
-				if (b->activate(entity)) {
-					ml->activate(entity, e);
-					return true;
-				}
-			}
-		}
-	}
-
 	switch (dir) {
 		case N:
 			pos.y += noo.tile_size;
@@ -619,6 +590,35 @@ bool Map::activate(Map_Entity *entity)
 				entity->set_path(path, sit_callback, sit_data);
 
 				return true;
+			}
+		}
+	}
+
+	std::vector<Map_Entity_Distance> v;
+
+	for (size_t j = 0; j < entities.size(); j++) {
+		Map_Entity_Distance m;
+		m.entity = entities[j];
+		Point<int> p = entity->get_position()-m.entity->get_position();
+		Size<int> s(p.x, p.y);
+		m.distance = s.length();
+		v.push_back(m);
+	}
+
+	std::sort(v.begin(), v.end(), sort_by_distance);
+
+	for (size_t j = 0; j < v.size(); j++) {
+		Map_Entity *e = v[j].entity;
+		if (e->get_id() == 0) {
+			continue;
+		}
+		if (e->pixels_collide(pos, size)) {
+			ml->activate(entity, e);
+			Brain *b = e->get_brain();
+			if (b) {
+				if (b->activate(entity)) {
+					return true;
+				}
 			}
 		}
 	}
