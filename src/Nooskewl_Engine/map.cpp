@@ -473,35 +473,18 @@ bool Map::activate(Map_Entity *entity)
 	pos.y -= (size.h - noo.tile_size);
 	switch (dir) {
 		case N:
-			pos.y -= noo.tile_size*2;
-			size.h += noo.tile_size * 2;
+			pos.y -= noo.tile_size;
+			size.h += noo.tile_size;
 			break;
 		case E:
-			size.w += noo.tile_size * 2;
+			size.w += noo.tile_size;
 			break;
 		case S:
-			size.h += noo.tile_size * 2;
+			size.h += noo.tile_size;
 			break;
 		case W:
-			pos.x -= noo.tile_size*2;
-			size.w += noo.tile_size * 2;
-			break;
-	}
-
-	switch (dir) {
-		case N:
-			pos.y += noo.tile_size;
-			size.h -= noo.tile_size;
-			break;
-		case E:
-			size.w -= noo.tile_size;
-			break;
-		case S:
-			size.h -= noo.tile_size;
-			break;
-		case W:
-			pos.x += noo.tile_size;
-			size.w -= noo.tile_size;
+			pos.x -= noo.tile_size;
+			size.w += noo.tile_size;
 			break;
 	}
 
@@ -592,6 +575,23 @@ bool Map::activate(Map_Entity *entity)
 				return true;
 			}
 		}
+	}
+
+	switch (dir) {
+		case N:
+			pos.y -= noo.tile_size;
+			size.h += noo.tile_size;
+			break;
+		case E:
+			size.w += noo.tile_size;
+			break;
+		case S:
+			size.h += noo.tile_size;
+			break;
+		case W:
+			pos.x -= noo.tile_size;
+			size.w += noo.tile_size;
+			break;
 	}
 
 	std::vector<Map_Entity_Distance> v;
