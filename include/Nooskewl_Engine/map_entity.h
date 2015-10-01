@@ -53,6 +53,7 @@ public:
 	void set_activate_next_tile(bool onoff);
 	void set_name(std::string name);
 	void set_stop_next_tile(bool stop_next_tile);
+	void set_speed(float speed);
 
 	int get_id();
 	std::string get_name();
@@ -75,6 +76,7 @@ public:
 	int get_z();
 	int get_z_add();
 	bool is_moving();
+	float get_speed();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);

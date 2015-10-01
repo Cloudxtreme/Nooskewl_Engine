@@ -335,6 +335,11 @@ void Map_Entity::set_stop_next_tile(bool stop_next_tile)
 	this->stop_next_tile = stop_next_tile;
 }
 
+void Map_Entity::set_speed(float speed)
+{
+	this->speed = speed;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -439,6 +444,11 @@ int Map_Entity::get_z_add()
 bool Map_Entity::is_moving()
 {
 	return moving;
+}
+
+float Map_Entity::get_speed()
+{
+	return speed;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
