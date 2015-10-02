@@ -910,6 +910,8 @@ bool Map_Entity::save(std::string &out)
 
 	out += string_printf(",direction=%d", (int)direction);
 
+	out += string_printf(",speed=%f", speed);
+
 	if (sitting) {
 		out += string_printf(",sitting=%d", (int)sitting);
 		out += string_printf(",pre_sit_direction=%d", (int)pre_sit_direction);

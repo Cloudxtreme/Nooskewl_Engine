@@ -2053,6 +2053,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		else if (key == "direction") {
 			entity->set_direction((Direction)atoi(value.c_str()));
 		}
+		else if (key == "speed") {
+			entity->set_speed((float)atof(value.c_str()));
+		}
 		else if (key == "sitting") {
 			entity->set_sitting(atoi(value.c_str()) != 0);
 		}
