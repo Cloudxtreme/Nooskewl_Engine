@@ -2096,6 +2096,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		else if (key == "z_add") {
 			entity->set_z_add(atoi(value.c_str()));
 		}
+		else if (key == "should_face") {
+			entity->set_should_face_activator(atoi(value.c_str()) != 0);
+		}
 		else if (key == "stats") {
 			has_stats = true;
 		}

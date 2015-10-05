@@ -56,7 +56,8 @@ Map_Entity::Map_Entity(std::string name) :
 	z_add(0),
 	pre_sit_direction(DIRECTION_UNKNOWN),
 	sit_directions(0),
-	sat(false)
+	sat(false),
+	should_face(true)
 {
 	id = current_id++;
 
@@ -340,6 +341,11 @@ void Map_Entity::set_speed(float speed)
 	this->speed = speed;
 }
 
+void Map_Entity::set_should_face_activator(bool should_face)
+{
+	this->should_face = should_face;
+}
+
 int Map_Entity::get_id()
 {
 	return id;
@@ -449,6 +455,11 @@ bool Map_Entity::is_moving()
 float Map_Entity::get_speed()
 {
 	return speed;
+}
+
+bool Map_Entity::should_face_activator()
+{
+	return should_face;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
@@ -943,6 +954,10 @@ bool Map_Entity::save(std::string &out)
 			z += 1;
 		}
 		out += string_printf(",z_add=%d", z);
+	}
+
+	if (should_face != true) {
+		out += string_printf(",should_face=%d", should_face ? 1 : 0);
 	}
 
 	if (stats != 0) {

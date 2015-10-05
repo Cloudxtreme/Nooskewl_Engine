@@ -54,6 +54,7 @@ public:
 	void set_name(std::string name);
 	void set_stop_next_tile(bool stop_next_tile);
 	void set_speed(float speed);
+	void set_should_face_activator(bool should_face);
 
 	int get_id();
 	std::string get_name();
@@ -77,6 +78,7 @@ public:
 	int get_z_add();
 	bool is_moving();
 	float get_speed();
+	bool should_face_activator();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -141,6 +143,8 @@ private:
 
 	int sit_directions;
 	bool sat;
+
+	bool should_face; // should face player/character when talked to/activated
 };
 
 } // End namespace Nooskewl_Engine
