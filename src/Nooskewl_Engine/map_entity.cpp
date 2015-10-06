@@ -968,6 +968,10 @@ bool Map_Entity::save(std::string &out)
 		out += string_printf(",should_face=%d", should_face ? 1 : 0);
 	}
 
+	if (size.w != 1 || size.h != 1) {
+		out += string_printf(",size=%d:%d", size.w, size.h);
+	}
+
 	if (stats != 0) {
 		out += string_printf(",stats", stats != 0 ? 1 : 0);
 		if (stats->inventory != 0) {

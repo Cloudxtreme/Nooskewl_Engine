@@ -2099,6 +2099,12 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		else if (key == "should_face") {
 			entity->set_should_face_activator(atoi(value.c_str()) != 0);
 		}
+		else if (key == "size") {
+			Tokenizer t(value, ':');
+			std::string w_s = t.next();
+			std::string h_s = t.next();
+			entity->set_size(Size<int>(atoi(w_s.c_str()), atoi(h_s.c_str())));
+		}
 		else if (key == "stats") {
 			has_stats = true;
 		}
