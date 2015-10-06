@@ -17,17 +17,6 @@ struct Sit_Data {
 	Direction direction;
 };
 
-static void sit_callback(void *data)
-{
-	Sit_Data *sit_data = (Sit_Data *)data;
-
-	sit_data->entity->set_direction(sit_data->direction);
-	sit_data->entity->set_sitting(true);
-	sit_data->entity->set_sit_directions(sit_data->sit_directions);
-
-	delete sit_data;
-}
-
 struct Map_Entity_Distance {
 	Map_Entity *entity;
 	float distance;
@@ -45,6 +34,17 @@ void Map::new_game_started()
 	Map_Entity::new_game_started();
 
 	noo.clear_milestones();
+}
+
+void Map::sit_callback(void *data)
+{
+	Sit_Data *sit_data = (Sit_Data *)data;
+
+	sit_data->entity->set_direction(sit_data->direction);
+	sit_data->entity->set_sitting(true);
+	sit_data->entity->set_sit_directions(sit_data->sit_directions);
+
+	delete sit_data;
 }
 
 Map::Map(std::string map_name, bool been_here_before, int last_visited_time) :

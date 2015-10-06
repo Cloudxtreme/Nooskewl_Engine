@@ -79,6 +79,7 @@ public:
 	bool is_moving();
 	float get_speed();
 	bool should_face_activator();
+	bool can_cancel_astar();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);

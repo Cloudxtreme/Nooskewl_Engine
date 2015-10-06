@@ -17,6 +17,7 @@ public:
 	static const float PAN_BACK_SPEED;
 
 	static void new_game_started();
+	static void sit_callback(void *data);
 
 	Map(std::string map_name, bool been_here_before, int last_visited_time);
 	~Map();

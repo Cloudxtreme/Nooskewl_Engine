@@ -619,7 +619,7 @@ void Engine::shutdown_audio()
 	}
 
 	SDL_DestroyMutex(m.mixer_mutex);
-	
+
 	delete[] audio_buf;
 	audio_buf = 0;
 }
@@ -744,7 +744,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	else if (doing_map_transition == false && map) {
 		map->handle_event(&event);
 
-		if (noo.player->is_input_enabled() && !noo.player->is_following_path() && map->is_speech_active() == false && is_escape) {
+		if (noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false && is_escape) {
 			noo.button_mml->play(false);
 			m.dll_pause();
 		}
@@ -1811,8 +1811,6 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 	std::string current_map = line;
 	trim(current_map);
 
-	map_saves.clear();
-
 	SDL_fgets(file, line, 1000);
 	int num_maps = atoi(line);
 
@@ -1853,6 +1851,8 @@ bool Engine::load_game(SDL_RWops *file, int *loaded_time)
 void Engine::new_game_started()
 {
 	Map::new_game_started();
+
+	map_saves.clear();
 
 	loaded_time = 0;
 	session_start = time(0);

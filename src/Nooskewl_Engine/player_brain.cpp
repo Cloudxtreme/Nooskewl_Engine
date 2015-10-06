@@ -21,27 +21,27 @@ Player_Brain::~Player_Brain()
 
 void Player_Brain::handle_event(TGUI_Event *event)
 {
-	bool cancel_pathfind = false;
+	bool cancel_astar = false;
 	if (event->type == TGUI_KEY_DOWN) {
 		if (event->keyboard.code == TGUIK_LEFT) {
 			l = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 		else if (event->keyboard.code == TGUIK_RIGHT) {
 			r = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 		else if (event->keyboard.code == TGUIK_UP) {
 			u = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 		else if (event->keyboard.code == TGUIK_DOWN) {
 			d = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 		else if (event->keyboard.code == noo.key_b1 || event->keyboard.code == TGUIK_RETURN) {
 			b1 = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 	}
 	else if (event->type == TGUI_KEY_UP) {
@@ -94,7 +94,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 	else if (event->type == TGUI_JOY_DOWN) {
 		if (event->joystick.button == noo.joy_b1) {
 			b1 = true;
-			cancel_pathfind = true;
+			cancel_astar = true;
 		}
 	}
 	else if (event->type == TGUI_JOY_UP) {
@@ -109,7 +109,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		}
 	}
 	else if (event->type == TGUI_MOUSE_DOWN && event->mouse.button != SDL_BUTTON_LEFT) {
-		cancel_pathfind = true;
+		cancel_astar = true;
 	}
 	else if (event->type == TGUI_MOUSE_UP) {
 		if (noo.player->is_input_enabled()) {
@@ -257,7 +257,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 		}
 	}
 
-	if (cancel_pathfind && map_entity->is_following_path() && map_entity->is_input_enabled()) {
+	if (cancel_astar && map_entity->can_cancel_astar() && map_entity->is_following_path() && map_entity->is_input_enabled()) {
 		map_entity->set_stop_next_tile(true);
 	}
 }

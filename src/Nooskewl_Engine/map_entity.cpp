@@ -462,6 +462,14 @@ bool Map_Entity::should_face_activator()
 	return should_face;
 }
 
+bool Map_Entity::can_cancel_astar()
+{
+	if (path_callback == make_solid_callback || path_callback == Map::sit_callback) {
+		return false;
+	}
+	return true;
+}
+
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
