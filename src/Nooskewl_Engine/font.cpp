@@ -197,16 +197,23 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 		float this_w = 0.0f;
 		int chars_drawn_this_time = 0;
 		Uint32 ch = utf8_char(p, count);
+		bool set_full = false;
 		while (ch) {
 			cache_glyph(ch);
 			Image *g = glyphs[ch];
 			this_w += g->size.w;
-			if (this_w >= (w * noo.scale / noo.font_scale)) {
+			if (ch == '^' || this_w >= (w * noo.scale / noo.font_scale)) {
 				if (count == 0) {
 					done = true;
 				}
 				else {
-					if (this_w > (w * noo.scale / noo.font_scale)) {
+					if (ch == '^') {
+						max = count;
+						if (set_full) {
+							full = true;
+						}
+					}
+					else if (this_w > (w * noo.scale / noo.font_scale)) {
 						count--;
 					}
 				}
@@ -219,6 +226,10 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 			ch =  utf8_char(p, count);
 			if (chars_drawn+count < chars_to_draw) {
 				chars_drawn_this_time++;
+				set_full = true;
+			}
+			else {
+				set_full = false;
 			}
 		}
 		if (utf8_char(p, count) == 0) {
@@ -237,10 +248,15 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 			}
 			total_position += max;
 			p = utf8_substr(text, total_position);
-			Uint32 ch = utf8_char(p, 0);
-			if (ch == ' ') {
+			Uint32 ch2 = utf8_char(p, 0);
+			if (ch2 == ' ') {
 				total_position++;
 				p = utf8_substr(text, total_position);
+			}
+			else if (ch == '^') {
+				total_position++;
+				done = true;
+				// Don't include in printed string
 			}
 			chars_drawn = total_position;
 			curr_y += line_height;
