@@ -327,6 +327,8 @@ bool Title_GUI::fade_done(bool fade_in)
 			noo.map->update_camera();
 
 			noo.reset_fancy_draw();
+
+			m.dll_game_started();
 		}
 		else {
 			std::string filename;
@@ -349,8 +351,6 @@ bool Title_GUI::fade_done(bool fade_in)
 			std::string caption = "";
 
 			if (file != NULL) {
-				Map::new_game_started();
-
 				int loaded_time;
 				bool result = noo.load_game(file, &loaded_time);
 
@@ -372,6 +372,8 @@ bool Title_GUI::fade_done(bool fade_in)
 
 					caption = noo.t->translate(1);
 				}
+
+				m.dll_game_started();
 			}
 			else {
 				caption = TRANSLATE("No saved games found")END;

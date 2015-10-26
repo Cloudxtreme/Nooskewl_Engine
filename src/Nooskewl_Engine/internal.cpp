@@ -30,11 +30,12 @@ void load_dll()
 
 	m.dll_start = (DLL_Start)dlsym(so_handle, "dll_start");
 	m.dll_end = (DLL_End)dlsym(so_handle, "dll_end");
+	m.dll_game_started = (DLL_End)dlsym(so_handle, "dll_game_started");
 	m.dll_pause = (DLL_Pause)dlsym(so_handle, "dll_pause");
 	m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 	m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
 
-	if (m.dll_start != 0 && m.dll_end != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
+	if (m.dll_start != 0 && m.dll_end != 0 && m.dll_game_started != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
 		infomsg("Using %s\n", filename.c_str());
 		return;
 	}
@@ -56,11 +57,12 @@ void load_dll()
 
 		m.dll_start = (DLL_Start)GetProcAddress(dll_handle, "dll_start");
 		m.dll_end = (DLL_End)GetProcAddress(dll_handle, "dll_end");
+		m.dll_game_started = (DLL_End)GetProcAddress(dll_handle, "dll_game_started");
 		m.dll_pause = (DLL_Pause)GetProcAddress(dll_handle, "dll_pause");
 		m.dll_get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)GetProcAddress(dll_handle, "dll_get_brain");
 
-		if (m.dll_start != 0 && m.dll_end != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
+		if (m.dll_start != 0 && m.dll_end != 0 && m.dll_game_started != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
@@ -73,11 +75,12 @@ void load_dll()
 
 		m.dll_start = (DLL_Start)dlsym(so_handle, "dll_start");
 		m.dll_end = (DLL_End)dlsym(so_handle, "dll_end");
+		m.dll_game_started = (DLL_End)dlsym(so_handle, "dll_game_started");
 		m.dll_pause = (DLL_Pause)dlsym(so_handle, "dll_pause");
 		m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
 
-		if (m.dll_start != 0 && m.dll_end != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
+		if (m.dll_start != 0 && m.dll_end != 0 && m.dll_game_started != 0 && m.dll_pause != 0 && m.dll_get_map_logic != 0 && m.dll_get_brain != 0) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
 		}
