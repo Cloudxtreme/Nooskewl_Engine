@@ -569,10 +569,7 @@ void Widget_List::draw()
 		}
 		SDL_Colour colour;
 		if  (is_hilighted(i)) {
-			colour.r = 255;
-			colour.g = 255;
-			colour.b = 0;
-			colour.a = 255;
+			colour = noo.colours[78]; // yellow
 		}
 		else {
 			colour = noo.white;
@@ -655,10 +652,7 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	hilight_colour.r = 0;
-	hilight_colour.g = 137;
-	hilight_colour.b = 230;
-	hilight_colour.a = 255;
+	hilight_colour = noo.colours[146]; // cyanish
 
 	pressed_item = -1;
 
