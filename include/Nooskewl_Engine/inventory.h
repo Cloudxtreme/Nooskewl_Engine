@@ -9,7 +9,7 @@ class Item;
 
 class NOOSKEWL_ENGINE_EXPORT Inventory {
 public:
-	static std::string weight_to_string(int weight);
+	static std::string decimal_to_string(int decimal);
 
 	int32_t gold;
 	std::vector< std::vector<Item *> > items;

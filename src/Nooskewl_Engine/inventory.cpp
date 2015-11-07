@@ -11,12 +11,12 @@ static bool sort_items(const std::vector<Item *> &a, const std::vector<Item *> &
 	return a[0]->name < b[0]->name;
 }
 
-std::string Inventory::weight_to_string(int weight)
+std::string Inventory::decimal_to_string(int decimal)
 {
-	int tenths = weight % 100;
+	int tenths = decimal % 100;
 	int hundredths = tenths % 10;
 	tenths /= 10;
-	int units = weight / 100;
+	int units = decimal / 100;
 	std::string result = itos(units);
 	if (tenths != 0 || hundredths != 0) {
 		result += ".";
