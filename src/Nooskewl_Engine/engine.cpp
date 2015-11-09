@@ -889,6 +889,19 @@ void Engine::draw()
 {
 	clear_buffers();
 
+	bool drunk = map ? noo.player->get_stats()->status == Stats::DRUNK : false;
+	int ticks = SDL_GetTicks() % 1000;
+	float p = ticks / 1000.0f;
+	float a = p * float(M_PI * 2);
+	int x1 = int(cos(a) * 5);
+	int y1 = int(sin(a) * 5);
+	int x2 = int(cos(a+M_PI) * 10); // a little different so they aren't aligned
+	int y2 = int(sin(a+M_PI) * 10);
+
+	Point<int> screen_offset1(screen_offset.x + x1, screen_offset.y + y1);
+	Point<int> screen_offset2(screen_offset.x + x2, screen_offset.y + y2);
+	Point<int> screen_offset_backup = screen_offset;
+
 	if (doing_map_transition) {
 		Uint32 elapsed = MIN(map_transition_duration-1, SDL_GetTicks() - map_transition_start);
 
@@ -905,6 +918,38 @@ void Engine::draw()
 			old_map->draw();
 		}
 
+		if (drunk) {
+			current_shader->set_global_alpha(0.5f);
+
+			screen_offset = screen_offset1;
+			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
+			if (moved_player_during_map_transition) {
+				map->update_camera();
+				map->draw();
+			}
+			else {
+				old_map->update_camera();
+				old_map->draw();
+			}
+
+			clear_depth_buffer(1.0f);
+
+			screen_offset = screen_offset2;
+			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
+			if (moved_player_during_map_transition) {
+				map->update_camera();
+				map->draw();
+			}
+			else {
+				old_map->update_camera();
+				old_map->draw();
+			}
+
+			screen_offset = screen_offset_backup;
+			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
+			current_shader->set_global_alpha(1.0f);
+		}
+
 		m.vertex_cache->disable_perspective_drawing();
 
 		set_default_projection();
@@ -912,6 +957,24 @@ void Engine::draw()
 	else {
 		if (map) {
 			map->draw();
+
+			if (drunk) {
+				current_shader->set_global_alpha(0.5f);
+
+				screen_offset = screen_offset1;
+				set_default_projection();
+				map->draw();
+
+				clear_depth_buffer(1.0f);
+
+				screen_offset = screen_offset2;
+				set_default_projection();
+				map->draw();
+
+				screen_offset = screen_offset_backup;
+				set_default_projection();
+				current_shader->set_global_alpha(1.0f);
+			}
 
 			if (check_milestone("Input Help") == false) {
 				std::string text = TRANSLATE("Press SPACE")END;
@@ -927,10 +990,32 @@ void Engine::draw()
 
 		for (size_t i = 0; i < guis.size(); i++) {
 			guis[i]->draw_back();
-			if (guis[i]->gui) {
-				guis[i]->gui->draw();
-			}
+			guis[i]->draw();
 			guis[i]->draw_fore();
+		}
+
+		if (drunk) {
+			current_shader->set_global_alpha(0.5f);
+
+			screen_offset = screen_offset1;
+			set_default_projection();
+			for (size_t i = 0; i < guis.size(); i++) {
+				guis[i]->draw_back();
+				guis[i]->draw();
+				guis[i]->draw_fore();
+			}
+
+			screen_offset = screen_offset2;
+			set_default_projection();
+			for (size_t i = 0; i < guis.size(); i++) {
+				guis[i]->draw_back();
+				guis[i]->draw();
+				guis[i]->draw_fore();
+			}
+
+			screen_offset = screen_offset_backup;
+			set_default_projection();
+			current_shader->set_global_alpha(1.0f);
 		}
 	}
 
@@ -1719,9 +1804,9 @@ void Engine::setup_default_shader()
 	current_shader = default_shader;
 	current_shader->use();
 	current_shader->set_bool("substitute_yellow", false);
-	current_shader->set_float("global_alpha", 1.0f);
 	current_shader->set_bool("drawing_text", false);
 	current_shader->set_bool("drawing_text_shadow", false);
+	current_shader->set_global_alpha(1.0f);
 }
 
 bool Engine::save_game(SDL_RWops *file)

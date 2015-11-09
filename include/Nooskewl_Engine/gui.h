@@ -20,6 +20,7 @@ public:
 	TGUI *gui;
 	TGUI_Widget *focus; // backup focus
 	float global_alpha;
+	float global_alpha_backup; // value before we changed it
 
 	GUI();
 	virtual ~GUI();
@@ -35,6 +36,7 @@ public:
 	virtual void update_background() {} // called when the GUI is not the foremost
 
 	virtual void draw_back();
+	virtual void draw();
 	virtual void draw_fore();
 
 	bool do_return(bool ret);
@@ -49,6 +51,8 @@ protected:
 	bool fading_in;
 	bool fading_out;
 	Uint32 fade_start;
+
+	bool hidden;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Title_GUI : public GUI {

@@ -50,7 +50,7 @@ void Widget::enable_focus_shader(bool enable)
 		noo.current_shader->set_float("add_g", add);
 		noo.current_shader->set_float("add_b", add);
 		if (noo_gui) {
-			noo.current_shader->set_float("global_alpha", noo_gui->global_alpha);
+			noo.current_shader->set_global_alpha(noo_gui->global_alpha * noo_gui->global_alpha_backup);
 		}
 	}
 	else {

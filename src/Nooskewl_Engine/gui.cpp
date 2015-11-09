@@ -21,7 +21,8 @@ bool Title_GUI::loading;
 bool Title_GUI::loaded;
 
 GUI::GUI() :
-	focus(0)
+	focus(0),
+	hidden(false)
 {
 	fade = true;
 	fading_in = true;
@@ -55,6 +56,12 @@ void GUI::draw_back()
 		return;
 	}
 
+	global_alpha_backup = noo.current_shader->get_global_alpha();
+
+	if (hidden) {
+		return;
+	}
+	
 	if (fading_in) {
 		float p = (SDL_GetTicks() - fade_start) / 200.0f;
 		if (p >= 1.0f) {
@@ -63,7 +70,7 @@ void GUI::draw_back()
 			fade_done(true);
 		}
 		global_alpha = p;
-		noo.current_shader->set_float("global_alpha", global_alpha);
+		noo.current_shader->set_global_alpha(global_alpha * global_alpha_backup);
 	}
 	else if (fading_out) {
 		float p = (SDL_GetTicks() - fade_start) / 200.0f;
@@ -72,14 +79,29 @@ void GUI::draw_back()
 		}
 		p = 1.0f - p;
 		global_alpha = p;
-		noo.current_shader->set_float("global_alpha", global_alpha);
+		noo.current_shader->set_global_alpha(global_alpha * global_alpha_backup);
+	}
+}
+
+void GUI::draw()
+{
+	if (hidden) {
+		return;
+	}
+
+	if (gui) {
+		gui->draw();
 	}
 }
 
 void GUI::draw_fore()
 {
 	global_alpha = 1.0f;
-	noo.current_shader->set_float("global_alpha", global_alpha);
+	noo.current_shader->set_global_alpha(global_alpha * global_alpha_backup);
+	
+	if (hidden) {
+		return;
+	}
 }
 
 bool GUI::is_fadeout_finished() {

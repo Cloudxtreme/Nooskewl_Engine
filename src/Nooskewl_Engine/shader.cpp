@@ -22,7 +22,8 @@ void Shader::reload_all()
 	}
 }
 
-Shader::Shader(bool opengl, std::string vertex_source, std::string fragment_source)
+Shader::Shader(bool opengl, std::string vertex_source, std::string fragment_source) :
+	global_alpha(1.0f)
 {
 	internal = new Internal();
 
@@ -274,4 +275,15 @@ void Shader::Internal::reload()
 		d3d_effect->SetTechnique(d3d_technique);
 	}
 #endif
+}
+
+float Shader::get_global_alpha()
+{
+	return global_alpha;
+}
+
+void Shader::set_global_alpha(float global_alpha)
+{
+	this->global_alpha = global_alpha;
+	set_float("global_alpha", global_alpha);
 }

@@ -21,6 +21,9 @@ public:
 	bool set_float_vector(std::string name, int num_components, float *vector, int num_elements);
 	void set_bool(std::string name, bool value);
 
+	float get_global_alpha();
+	void set_global_alpha(float global_alpha);
+
 	GLuint get_opengl_shader();
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	LPD3DXEFFECT get_d3d_effect();
@@ -52,6 +55,9 @@ public:
 	Internal *internal;
 
 	static std::vector<Internal *> loaded_shaders;
+
+private:
+	float global_alpha;
 };
 
 } // End namespace Nooskewl_Engine
