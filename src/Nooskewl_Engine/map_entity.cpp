@@ -633,7 +633,7 @@ bool Map_Entity::update(bool can_move)
 		}
 		if (stats->used_time < current_time) {
 			stats->used_time = current_time;
-			int step = MIN(20, 0xffff - stats->sobriety);
+			int step = MIN(300, 0xffff - stats->sobriety); // sobering up completely takes about 3.5 minutes
 			stats->sobriety += step;
 		}
 		if (stats->status == Stats::SICK) {
