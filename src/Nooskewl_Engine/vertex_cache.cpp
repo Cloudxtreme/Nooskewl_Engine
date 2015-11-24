@@ -133,6 +133,9 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[3], Point<float> da, Point<fl
 	if (font_scaling) {
 		scale = noo.font_scale;
 	}
+	else if (noo.target_image) {
+		scale = 1.0f;
+	}
 	else {
 		scale = noo.scale;
 	}
@@ -175,6 +178,9 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 
 	if (font_scaling) {
 		scale = noo.font_scale;
+	}
+	else if (noo.target_image) {
+		scale = 1.0f;
 	}
 	else {
 		scale = noo.scale;
@@ -301,6 +307,9 @@ void Vertex_Cache::cache_z(SDL_Colour vertex_colours[4], Point<float> source_pos
 
 		if (font_scaling) {
 			scale = noo.font_scale;
+		}
+		else if (noo.target_image) {
+			scale = 1.0f;
 		}
 		else {
 			scale = noo.scale;

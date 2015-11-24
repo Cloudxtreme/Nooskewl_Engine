@@ -61,6 +61,7 @@ public:
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	IDirect3DDevice9 *d3d_device;
 	bool d3d_lost;
+	IDirect3DSurface9 *render_target;
 #endif
 	// Input
 	int joy_b1;
@@ -76,6 +77,7 @@ public:
 	Map_Entity *player;
 	std::vector<GUI *> guis;
 	XML *miscellaneous_xml;
+	Image *target_image;
 
 	Engine();
 	~Engine();
@@ -107,6 +109,10 @@ public:
 	void set_map_transition_projection(float angle);
 	void update_projection();
 
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	void set_initial_d3d_state();
+#endif
+
 	void draw_line(SDL_Colour colour, Point<float> a, Point<float> b, float thickness = 1.0f);
 	void draw_rectangle(SDL_Colour colour, Point<float> pos, Size<float> size, float thickness = 1.0f);
 	void draw_triangle(SDL_Colour vertex_colours[3], Point<float> a, Point<float> b, Point<float> c);
@@ -135,6 +141,9 @@ public:
 	bool save_map(Map *map, bool save_player);
 
 	void add_notification(std::string text);
+
+	void set_target_image(Image *image);
+	void set_target_backbuffer();
 
 private:
 	void init_video();
@@ -177,7 +186,6 @@ private:
 	SDL_AudioDeviceID audio_device;
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS
-	void set_initial_d3d_state();
 	HWND hwnd;
 	D3DPRESENT_PARAMETERS d3d_pp;
 	IDirect3D9 *d3d;

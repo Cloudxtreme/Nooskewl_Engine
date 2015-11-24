@@ -162,7 +162,8 @@ Engine::Engine() :
 	doing_map_transition(false),
 	paused(false),
 	escape_triangle_size(8.0f),
-	fullscreen_window(false)
+	fullscreen_window(false),
+	target_image(0)
 {
 }
 
@@ -535,6 +536,8 @@ void Engine::init_video()
 				throw Error("Unable to create D3D device");
 			}
 		}
+
+		d3d_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &render_target);
 
 		set_initial_d3d_state();
 	}
@@ -2413,6 +2416,25 @@ void Engine::add_notification(std::string text)
 		notification_start_time = SDL_GetTicks();
 	}
 	notifications.push_back(text);
+}
+
+void Engine::set_target_image(Image *image)
+{
+	if (target_image != 0) {
+		target_image->release_target();
+	}
+
+	target_image = image;
+
+	target_image->set_target();
+}
+
+void Engine::set_target_backbuffer()
+{
+	if (target_image != 0) {
+		target_image->release_target();
+		target_image = 0;
+	}
 }
 
 } // End namespace Nooskewl_Engine

@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/vertex_cache.h"
 
 static inline unsigned char *pixel_ptr(unsigned char *p, int n, bool flip, int w, int h)
@@ -559,6 +560,61 @@ void Image::draw_single(Point<float> dest_position, int flags)
 	draw_z_single(dest_position, 0.0f, flags);
 }
 
+void Image::set_target()
+{
+	if (noo.opengl) {
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		noo.d3d_device->EndScene();
+
+		if (internal->video_texture->GetSurfaceLevel(0, &internal->render_target) != D3D_OK) {
+			infomsg("Image::set_target: Unable to get texture surface level\n");
+			return;
+		}
+		if (noo.d3d_device->SetRenderTarget(0, internal->render_target) != D3D_OK) {
+			infomsg("Image::set_target: Unable to set render target to texture surface\n");
+			internal->render_target->Release();
+			return;
+		}
+
+		noo.set_initial_d3d_state();
+	}
+#endif
+
+	// Set an ortho projection the size of the image
+	glm::mat4 model = glm::mat4();
+	glm::mat4 view = glm::mat4();
+	glm::mat4 proj = glm::ortho(0.0f, (float)size.w, 0.0f, (float)size.h);
+
+	noo.current_shader->set_matrix("model", glm::value_ptr(model));
+	noo.current_shader->set_matrix("view", glm::value_ptr(view));
+
+	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)size.w, 1.0f / (float)size.h, 0.0f));
+	noo.current_shader->set_matrix("proj", glm::value_ptr(noo.opengl ? proj : d3d_fix * proj));
+}
+
+void Image::release_target()
+{
+	if (noo.opengl) {
+	}
+#ifdef NOOSKEWL_ENGINE_WINDOWS
+	else {
+		noo.d3d_device->EndScene();
+
+		internal->render_target->Release();
+
+		if (noo.d3d_device->SetRenderTarget(0, noo.render_target) != D3D_OK) {
+			infomsg("Image::release_target: Unable to set render target to backbuffer\n");
+		}
+
+		noo.set_initial_d3d_state();
+
+		noo.set_default_projection();
+	}
+#endif
+}
+
 //--
 
 Image::Internal::Internal(std::string filename, bool keep_data) :
@@ -690,9 +746,20 @@ void Image::Internal::upload(unsigned char *pixels)
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
-		int err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
+		int err;
+
+		err = noo.d3d_device->CreateTexture(size.w, size.h, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &video_texture, 0);
+		if (err != D3D_OK) {
+			infomsg("CreateTexture failed for video texture\n");
+		}
+
+		err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &system_texture, 0);
+		if (err != D3D_OK) {
+			infomsg("CreateTexture failed for system texture\n");
+		}
+
 		D3DLOCKED_RECT locked_rect;
-		if (video_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
+		if (system_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
 			for (int y = 0; y < size.h; y++) {
 				unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
 				for (int x = 0; x < size.w; x++) {
@@ -706,11 +773,17 @@ void Image::Internal::upload(unsigned char *pixels)
 					*dest++ = a;
 				}
 			}
-			video_texture->UnlockRect(0);
+			system_texture->UnlockRect(0);
 		}
 		else {
 			infomsg("Unable to lock texture\n");
 		}
+
+		if (noo.d3d_device->UpdateTexture((IDirect3DBaseTexture9 *)system_texture, (IDirect3DBaseTexture9 *)video_texture) != D3D_OK) {
+			infomsg("UpdateTexture failed\n");
+		}
+
+		render_target = 0;
 	}
 #endif
 }

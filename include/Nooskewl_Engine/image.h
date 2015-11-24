@@ -64,6 +64,9 @@ public:
 	void draw_tinted_single(Point<float> dest_position, int flags = 0);
 	void draw_single(Point<float> dest_position, int flags = 0);
 
+	void set_target();
+	void release_target();
+
 private:
 	struct TGA_Header {
 		char idlength;
@@ -103,6 +106,8 @@ private:
 
 	#ifdef NOOSKEWL_ENGINE_WINDOWS
 		LPDIRECT3DTEXTURE9 video_texture;
+		LPDIRECT3DTEXTURE9 system_texture;
+		IDirect3DSurface9 *render_target;
 	#endif
 		GLuint vao;
 		GLuint vbo;
