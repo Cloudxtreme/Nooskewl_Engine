@@ -914,9 +914,8 @@ void Engine::draw()
 	int x2 = int(cos(a+M_PI) * 10); // a little different so they aren't aligned
 	int y2 = int(sin(a+M_PI) * 10);
 
-	Point<int> screen_offset1(screen_offset.x + x1, screen_offset.y + y1);
-	Point<int> screen_offset2(screen_offset.x + x2, screen_offset.y + y2);
-	Point<int> screen_offset_backup = screen_offset;
+	Point<int> screen_offset1(x1, y1);
+	Point<int> screen_offset2(x2, y2);
 
 	if (drunk) {
 		set_target_image(work_image);
@@ -969,12 +968,24 @@ void Engine::draw()
 	if (drunk) {
 		set_target_backbuffer();
 
+		glm::mat4 view_backup;
+		if (doing_map_transition) {
+			view_backup = view;
+			view = glm::mat4();
+			update_projection();
+		}
+
 		work_image->draw_single(Point<int>(0, 0));
 
 		current_shader->set_global_alpha(0.75f);
 
 		work_image->draw_single(screen_offset1);
 		work_image->draw_single(screen_offset2);
+
+		if (doing_map_transition) {
+			view = view_backup;
+			update_projection();
+		}
 
 		current_shader->set_global_alpha(1.0f);
 	}

@@ -584,6 +584,7 @@ void Image::set_target()
 	if (noo.opengl) {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, internal->fbo);
 		glViewport(0, 0, size.w, size.h);
+		glDisable(GL_SCISSOR_TEST);
 
 		proj = glm::ortho(0.0f, (float)size.w, (float)size.h, 0.0f);
 	}
@@ -612,6 +613,8 @@ void Image::set_target()
 
 		noo.set_initial_d3d_state();
 
+		noo.d3d_device->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+
 		proj = glm::ortho(0.0f, (float)size.w, 0.0f, (float)size.h);
 	}
 #endif
@@ -628,7 +631,6 @@ void Image::release_target()
 {
 	if (noo.opengl) {
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-		glViewport(0, 0, noo.real_screen_size.w, noo.real_screen_size.h);
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -640,20 +642,13 @@ void Image::release_target()
 			infomsg("Image::release_target: Unable to set render target to backbuffer\n");
 		}
 
-		D3DVIEWPORT9 viewport;
-		viewport.MinZ = 0;
-		viewport.MaxZ = 1;
-		viewport.X = 0;
-		viewport.Y = 0;
-		viewport.Width = noo.real_screen_size.w;
-		viewport.Height = noo.real_screen_size.h;
-		noo.d3d_device->SetViewport(&viewport);
-
 		noo.set_initial_d3d_state();
 	}
 #endif
 
 	noo.set_default_projection();
+
+	noo.set_screen_size(noo.real_screen_size.w, noo.real_screen_size.h); // this sets the viewport and scissor
 }
 
 //--
