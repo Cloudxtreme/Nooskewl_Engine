@@ -562,7 +562,13 @@ void Image::draw_single(Point<float> dest_position, int flags)
 
 void Image::set_target()
 {
+	glm::mat4 proj;
+
 	if (noo.opengl) {
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, internal->fbo);
+		glViewport(0, 0, size.w, size.h);
+
+		proj = glm::ortho(0.0f, (float)size.w, (float)size.h, 0.0f);
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -578,25 +584,34 @@ void Image::set_target()
 			return;
 		}
 
+		D3DVIEWPORT9 viewport;
+		viewport.MinZ = 0;
+		viewport.MaxZ = 1;
+		viewport.X = 0;
+		viewport.Y = 0;
+		viewport.Width = size.w;
+		viewport.Height = size.h;
+		noo.d3d_device->SetViewport(&viewport);
+
 		noo.set_initial_d3d_state();
+
+		proj = glm::ortho(0.0f, (float)size.w, 0.0f, (float)size.h);
 	}
 #endif
 
 	// Set an ortho projection the size of the image
 	glm::mat4 model = glm::mat4();
 	glm::mat4 view = glm::mat4();
-	glm::mat4 proj = glm::ortho(0.0f, (float)size.w, 0.0f, (float)size.h);
 
-	noo.current_shader->set_matrix("model", glm::value_ptr(model));
-	noo.current_shader->set_matrix("view", glm::value_ptr(view));
-
-	glm::mat4 d3d_fix = glm::translate(glm::mat4(), glm::vec3(-1.0f / (float)size.w, 1.0f / (float)size.h, 0.0f));
-	noo.current_shader->set_matrix("proj", glm::value_ptr(noo.opengl ? proj : d3d_fix * proj));
+	noo.set_matrices(model, view, proj);
+	noo.update_projection();
 }
 
 void Image::release_target()
 {
 	if (noo.opengl) {
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glViewport(0, 0, noo.real_screen_size.w, noo.real_screen_size.h);
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -608,11 +623,20 @@ void Image::release_target()
 			infomsg("Image::release_target: Unable to set render target to backbuffer\n");
 		}
 
-		noo.set_initial_d3d_state();
+		D3DVIEWPORT9 viewport;
+		viewport.MinZ = 0;
+		viewport.MaxZ = 1;
+		viewport.X = 0;
+		viewport.Y = 0;
+		viewport.Width = noo.real_screen_size.w;
+		viewport.Height = noo.real_screen_size.h;
+		noo.d3d_device->SetViewport(&viewport);
 
-		noo.set_default_projection();
+		noo.set_initial_d3d_state();
 	}
 #endif
+
+	noo.set_default_projection();
 }
 
 //--
@@ -652,6 +676,7 @@ Image::Internal::~Internal()
 void Image::Internal::release()
 {
 	if (noo.opengl) {
+		glDeleteFramebuffersEXT(1, &fbo);
 		glDeleteTextures(1, &texture);
 		printGLerror("glDeleteTextures");
 		glDeleteBuffers(1, &vbo);
@@ -743,6 +768,18 @@ void Image::Internal::upload(unsigned char *pixels)
 		printGLerror("glTexParameteri");
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		printGLerror("glTexParameteri");
+
+		GLuint old_fbo;
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
+		printGLerror("glGetIntegerv");
+		glGenFramebuffersEXT(1, &fbo);
+		printGLerror("glGenFramebuffersEXT");
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+		printGLerror("glBindFramebufferEXT");
+		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
+		printGLerror("glFramebufferTexture2DEXT");
+		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
+		printGLerror("glBindFramebufferEXT");
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {

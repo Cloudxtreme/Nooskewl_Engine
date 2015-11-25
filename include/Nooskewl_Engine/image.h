@@ -112,6 +112,7 @@ private:
 		GLuint vao;
 		GLuint vbo;
 		GLuint texture;
+		GLuint fbo;
 	};
 
 	static std::vector<Internal *> loaded_images;

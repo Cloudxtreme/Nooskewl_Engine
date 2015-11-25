@@ -107,6 +107,7 @@ public:
 	void set_screen_size(int w, int h);
 	void set_default_projection();
 	void set_map_transition_projection(float angle);
+	void set_matrices(glm::mat4 &model, glm::mat4 &view, glm::mat4 &proj);
 	void update_projection();
 
 #ifdef NOOSKEWL_ENGINE_WINDOWS

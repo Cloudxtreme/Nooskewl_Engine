@@ -1723,6 +1723,13 @@ void Engine::set_window_icon()
 #endif
 }
 
+void Engine::set_matrices(glm::mat4 &model, glm::mat4 &view, glm::mat4 &proj)
+{
+	this->model = model;
+	this->view = view;
+	this->proj = proj;
+}
+
 void Engine::update_projection()
 {
 	current_shader->set_matrix("model", glm::value_ptr(model));
