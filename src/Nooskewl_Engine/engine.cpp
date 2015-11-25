@@ -163,7 +163,8 @@ Engine::Engine() :
 	paused(false),
 	escape_triangle_size(8.0f),
 	fullscreen_window(false),
-	target_image(0)
+	target_image(0),
+	work_image(0)
 {
 }
 
@@ -566,6 +567,8 @@ void Engine::init_video()
 	set_screen_size(w, h);
 	set_default_projection();
 
+	recreate_work_image();
+
 	m.vertex_cache = new Vertex_Cache();
 	m.vertex_cache->init();
 }
@@ -651,8 +654,13 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 		destroy_fonts();
 
+		delete work_image;
+		work_image = 0;
+
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 		if (opengl == false) {
+			render_target->Release();
+
 			Image::release_all();
 			Shader::release_all();
 
@@ -668,6 +676,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			setup_default_shader();
 
 			Image::reload_all();
+
+			d3d_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &render_target);
 		}
 #endif
 		clear(black);
@@ -676,6 +686,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		set_default_projection();
 
 		load_fonts();
+
+		recreate_work_image();
+
 		return true;
 	}
 
@@ -905,6 +918,11 @@ void Engine::draw()
 	Point<int> screen_offset2(screen_offset.x + x2, screen_offset.y + y2);
 	Point<int> screen_offset_backup = screen_offset;
 
+	if (drunk) {
+		set_target_image(work_image);
+		clear_buffers();
+	}
+
 	if (doing_map_transition) {
 		Uint32 elapsed = MIN(map_transition_duration-1, SDL_GetTicks() - map_transition_start);
 
@@ -921,38 +939,6 @@ void Engine::draw()
 			old_map->draw();
 		}
 
-		if (drunk) {
-			current_shader->set_global_alpha(0.5f);
-
-			screen_offset = screen_offset1;
-			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
-			if (moved_player_during_map_transition) {
-				map->update_camera();
-				map->draw();
-			}
-			else {
-				old_map->update_camera();
-				old_map->draw();
-			}
-
-			clear_depth_buffer(1.0f);
-
-			screen_offset = screen_offset2;
-			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
-			if (moved_player_during_map_transition) {
-				map->update_camera();
-				map->draw();
-			}
-			else {
-				old_map->update_camera();
-				old_map->draw();
-			}
-
-			screen_offset = screen_offset_backup;
-			set_map_transition_projection((float)elapsed / map_transition_duration * (float)M_PI);
-			current_shader->set_global_alpha(1.0f);
-		}
-
 		m.vertex_cache->disable_perspective_drawing();
 
 		set_default_projection();
@@ -960,24 +946,6 @@ void Engine::draw()
 	else {
 		if (map) {
 			map->draw();
-
-			if (drunk) {
-				current_shader->set_global_alpha(0.5f);
-
-				screen_offset = screen_offset1;
-				set_default_projection();
-				map->draw();
-
-				clear_depth_buffer(1.0f);
-
-				screen_offset = screen_offset2;
-				set_default_projection();
-				map->draw();
-
-				screen_offset = screen_offset_backup;
-				set_default_projection();
-				current_shader->set_global_alpha(1.0f);
-			}
 
 			if (check_milestone("Input Help") == false) {
 				std::string text = TRANSLATE("Press SPACE")END;
@@ -996,31 +964,21 @@ void Engine::draw()
 			guis[i]->draw();
 			guis[i]->draw_fore();
 		}
-
-		if (drunk) {
-			current_shader->set_global_alpha(0.5f);
-
-			screen_offset = screen_offset1;
-			set_default_projection();
-			for (size_t i = 0; i < guis.size(); i++) {
-				guis[i]->draw_back();
-				guis[i]->draw();
-				guis[i]->draw_fore();
-			}
-
-			screen_offset = screen_offset2;
-			set_default_projection();
-			for (size_t i = 0; i < guis.size(); i++) {
-				guis[i]->draw_back();
-				guis[i]->draw();
-				guis[i]->draw_fore();
-			}
-
-			screen_offset = screen_offset_backup;
-			set_default_projection();
-			current_shader->set_global_alpha(1.0f);
-		}
 	}
+
+	if (drunk) {
+		set_target_backbuffer();
+
+		work_image->draw_single(Point<int>(0, 0));
+
+		current_shader->set_global_alpha(0.5f);
+
+		work_image->draw_single(screen_offset1);
+		work_image->draw_single(screen_offset2);
+
+		current_shader->set_global_alpha(1.0f);
+	}
+
 
 	SDL_Colour red = { 128, 0,  0, 128 };
 	draw_triangle(red, Point<int>(0, 0), Point<int>((int)escape_triangle_size, 0), Point<int>(0, (int)escape_triangle_size));
@@ -1240,6 +1198,9 @@ void Engine::flip()
 
 					// Everything's gone!
 					destroy_fonts();
+					delete work_image;
+					work_image = 0;
+					render_target->Release();
 					Image::release_all();
 					Shader::release_all();
 
@@ -1257,6 +1218,8 @@ void Engine::flip()
 					set_default_projection(); // FIXME: change this to current projection (update the matrices then call update_projection())
 
 					load_fonts();
+
+					d3d_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &render_target);
 				}
 			}
 		}
@@ -1349,7 +1312,7 @@ void Engine::set_default_projection()
 void Engine::set_map_transition_projection(float angle)
 {
 	model = glm::rotate(glm::mat4(), angle, glm::vec3(0.0f, 1.0f, 0.0f));
-	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/real_screen_size.w), 1.0f * ((screen_size.h*scale)/real_screen_size.h), (angle >= M_PI/2.0f) ? -1.0f : 1.0f));
+	model = glm::scale(model, glm::vec3((angle >= M_PI/2.0f ? -1.0f : 1.0f) * ((screen_size.w*scale)/real_screen_size.w), 1.0f * ((screen_size.h*scale)/real_screen_size.h) * ((target_image == work_image && opengl == false) ? -1.0f : 1.0f), (angle >= M_PI/2.0f) ? -1.0f : 1.0f));
 	view = glm::translate(glm::mat4(), glm::vec3(0.0f, 0.0f, -3.0f));
 	proj = glm::frustum(-1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1000.0f);
 
@@ -2442,6 +2405,14 @@ void Engine::set_target_backbuffer()
 		target_image->release_target();
 		target_image = 0;
 	}
+}
+
+void Engine::recreate_work_image()
+{
+	if (work_image != 0) {
+		delete work_image;
+	}
+	work_image = new Image(Size<int>(real_screen_size.w, real_screen_size.h));
 }
 
 } // End namespace Nooskewl_Engine

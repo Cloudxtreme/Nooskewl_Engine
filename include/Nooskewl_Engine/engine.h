@@ -78,6 +78,7 @@ public:
 	std::vector<GUI *> guis;
 	XML *miscellaneous_xml;
 	Image *target_image;
+	Image *work_image; // screen size
 
 	Engine();
 	~Engine();
@@ -145,6 +146,8 @@ public:
 
 	void set_target_image(Image *image);
 	void set_target_backbuffer();
+
+	void recreate_work_image();
 
 private:
 	void init_video();

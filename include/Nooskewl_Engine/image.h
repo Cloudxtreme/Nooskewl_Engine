@@ -32,6 +32,7 @@ public:
 
 	Image(std::string filename, bool is_absolute_path = false);
 	Image(SDL_Surface *surface);
+	Image(Size<int> size);
 	~Image();
 
 	void release();

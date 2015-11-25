@@ -279,6 +279,23 @@ Image::Image(SDL_Surface *surface) :
 	}
 }
 
+Image::Image(Size<int> size) :
+	filename("--FROM SURFACE--"), // handled the same
+	size(size)
+{
+	unsigned char *pixels = (unsigned char *)calloc(1, size.w * size.h * 4);
+
+	try {
+		internal = new Internal(pixels, size);
+	}
+	catch (Error e) {
+		free(pixels);
+		throw e;
+	}
+
+	free(pixels);
+}
+
 Image::~Image()
 {
 	release();
@@ -686,6 +703,7 @@ void Image::Internal::release()
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		video_texture->Release();
+		system_texture->Release();
 	}
 #endif
 }
