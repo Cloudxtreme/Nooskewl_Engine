@@ -787,6 +787,7 @@ void Image::Internal::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		printGLerror("glTexParameteri");
 
+		// Create an FBO for render-to-texture
 		GLuint old_fbo;
 		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
 		printGLerror("glGetIntegerv");
@@ -796,6 +797,13 @@ void Image::Internal::upload(unsigned char *pixels)
 		printGLerror("glBindFramebufferEXT");
 		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
 		printGLerror("glFramebufferTexture2DEXT");
+
+		// Create a depth buffer
+		glGenRenderbuffers(1, &depth_buffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.w, size.h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+
 		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
 		printGLerror("glBindFramebufferEXT");
 	}

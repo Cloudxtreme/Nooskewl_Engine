@@ -114,6 +114,7 @@ private:
 		GLuint vbo;
 		GLuint texture;
 		GLuint fbo;
+		GLuint depth_buffer;
 	};
 
 	static std::vector<Internal *> loaded_images;
