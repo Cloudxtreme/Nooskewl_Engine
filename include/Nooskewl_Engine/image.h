@@ -90,8 +90,8 @@ private:
 	unsigned char find_colour_in_palette(unsigned char *p);
 
 	struct Internal {
-		Internal(std::string filename, bool keep_data);
-		Internal(unsigned char *pixels, Size<int> size);
+		Internal(std::string filename, bool keep_data, bool support_render_to_texture = false);
+		Internal(unsigned char *pixels, Size<int> size, bool support_render_to_texture = false);
 		~Internal();
 
 		void upload(unsigned char *pixels);
@@ -104,6 +104,8 @@ private:
 		std::string filename;
 		Size<int> size;
 		int refcount;
+
+		bool has_render_to_texture;
 
 	#ifdef NOOSKEWL_ENGINE_WINDOWS
 		LPDIRECT3DTEXTURE9 video_texture;

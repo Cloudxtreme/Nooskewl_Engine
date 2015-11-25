@@ -286,7 +286,7 @@ Image::Image(Size<int> size) :
 	unsigned char *pixels = (unsigned char *)calloc(1, size.w * size.h * 4);
 
 	try {
-		internal = new Internal(pixels, size);
+		internal = new Internal(pixels, size, true); // support render to texture
 	}
 	catch (Error e) {
 		free(pixels);
@@ -658,10 +658,11 @@ void Image::release_target()
 
 //--
 
-Image::Internal::Internal(std::string filename, bool keep_data) :
+Image::Internal::Internal(std::string filename, bool keep_data, bool support_render_to_texture) :
 	loaded_data(0),
 	filename(filename),
-	refcount(1)
+	refcount(1),
+	has_render_to_texture(support_render_to_texture)
 {
 	unsigned char *pixels = reload(keep_data);
 
@@ -674,9 +675,10 @@ Image::Internal::Internal(std::string filename, bool keep_data) :
 	}
 }
 
-Image::Internal::Internal(unsigned char *pixels, Size<int> size) :
+Image::Internal::Internal(unsigned char *pixels, Size<int> size, bool support_render_to_texture) :
 	loaded_data(0),
-	size(size)
+	size(size),
+	has_render_to_texture(support_render_to_texture)
 {
 	filename = "--FROM SURFACE--";
 	upload(pixels);
@@ -693,7 +695,10 @@ Image::Internal::~Internal()
 void Image::Internal::release()
 {
 	if (noo.opengl) {
-		glDeleteFramebuffersEXT(1, &fbo);
+		if (has_render_to_texture) {
+			glDeleteFramebuffersEXT(1, &fbo);
+		}
+
 		glDeleteTextures(1, &texture);
 		printGLerror("glDeleteTextures");
 		glDeleteBuffers(1, &vbo);
@@ -703,7 +708,10 @@ void Image::Internal::release()
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		video_texture->Release();
-		system_texture->Release();
+
+		if (has_render_to_texture) {
+			system_texture->Release();
+		}
 	}
 #endif
 }
@@ -787,63 +795,95 @@ void Image::Internal::upload(unsigned char *pixels)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		printGLerror("glTexParameteri");
 
-		// Create an FBO for render-to-texture
-		GLuint old_fbo;
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
-		printGLerror("glGetIntegerv");
-		glGenFramebuffersEXT(1, &fbo);
-		printGLerror("glGenFramebuffersEXT");
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
-		printGLerror("glBindFramebufferEXT");
-		glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
-		printGLerror("glFramebufferTexture2DEXT");
+		if (has_render_to_texture) {
+			// Create an FBO for render-to-texture
+			GLuint old_fbo;
+			glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
 
-		// Create a depth buffer
-		glGenRenderbuffers(1, &depth_buffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.w, size.h);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+			printGLerror("glGetIntegerv");
+			glGenFramebuffersEXT(1, &fbo);
+			printGLerror("glGenFramebuffersEXT");
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
+			printGLerror("glBindFramebufferEXT");
+			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
+			printGLerror("glFramebufferTexture2DEXT");
 
-		glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
-		printGLerror("glBindFramebufferEXT");
+			// Create a depth buffer
+			glGenRenderbuffers(1, &depth_buffer);
+			glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.w, size.h);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+
+			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
+			printGLerror("glBindFramebufferEXT");
+		}
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
 		int err;
 
-		err = noo.d3d_device->CreateTexture(size.w, size.h, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &video_texture, 0);
-		if (err != D3D_OK) {
-			infomsg("CreateTexture failed for video texture\n");
-		}
-
-		err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &system_texture, 0);
-		if (err != D3D_OK) {
-			infomsg("CreateTexture failed for system texture\n");
-		}
-
-		D3DLOCKED_RECT locked_rect;
-		if (system_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
-			for (int y = 0; y < size.h; y++) {
-				unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
-				for (int x = 0; x < size.w; x++) {
-					unsigned char r = *pixels++;
-					unsigned char g = *pixels++;
-					unsigned char b = *pixels++;
-					unsigned char a = *pixels++;
-					*dest++ = b;
-					*dest++ = g;
-					*dest++ = r;
-					*dest++ = a;
-				}
+		if (has_render_to_texture) {
+			err = noo.d3d_device->CreateTexture(size.w, size.h, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT, &video_texture, 0);
+			if (err != D3D_OK) {
+				infomsg("CreateTexture failed for video texture\n");
 			}
-			system_texture->UnlockRect(0);
+
+			err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_SYSTEMMEM, &system_texture, 0);
+			if (err != D3D_OK) {
+				infomsg("CreateTexture failed for system texture\n");
+			}
+
+			D3DLOCKED_RECT locked_rect;
+			if (system_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
+				for (int y = 0; y < size.h; y++) {
+					unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
+					for (int x = 0; x < size.w; x++) {
+						unsigned char r = *pixels++;
+						unsigned char g = *pixels++;
+						unsigned char b = *pixels++;
+						unsigned char a = *pixels++;
+						*dest++ = b;
+						*dest++ = g;
+						*dest++ = r;
+						*dest++ = a;
+					}
+				}
+				system_texture->UnlockRect(0);
+			}
+			else {
+				infomsg("Unable to lock system texture\n");
+			}
+
+			if (noo.d3d_device->UpdateTexture((IDirect3DBaseTexture9 *)system_texture, (IDirect3DBaseTexture9 *)video_texture) != D3D_OK) {
+				infomsg("UpdateTexture failed\n");
+			}
 		}
 		else {
-			infomsg("Unable to lock texture\n");
-		}
+			err = noo.d3d_device->CreateTexture(size.w, size.h, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED, &video_texture, 0);
+			if (err != D3D_OK) {
+				infomsg("CreateTexture failed for video texture\n");
+			}
 
-		if (noo.d3d_device->UpdateTexture((IDirect3DBaseTexture9 *)system_texture, (IDirect3DBaseTexture9 *)video_texture) != D3D_OK) {
-			infomsg("UpdateTexture failed\n");
+			D3DLOCKED_RECT locked_rect;
+			if (video_texture->LockRect(0, &locked_rect, 0, 0) == D3D_OK) {
+				for (int y = 0; y < size.h; y++) {
+					unsigned char *dest = ((unsigned char *)locked_rect.pBits) + y * locked_rect.Pitch;
+					for (int x = 0; x < size.w; x++) {
+						unsigned char r = *pixels++;
+						unsigned char g = *pixels++;
+						unsigned char b = *pixels++;
+						unsigned char a = *pixels++;
+						*dest++ = b;
+						*dest++ = g;
+						*dest++ = r;
+						*dest++ = a;
+					}
+				}
+				video_texture->UnlockRect(0);
+			}
+			else {
+				infomsg("Unable to lock video texture\n");
+			}
 		}
 
 		render_target = 0;
