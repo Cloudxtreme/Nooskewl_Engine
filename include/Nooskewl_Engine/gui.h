@@ -51,8 +51,6 @@ protected:
 	bool fading_in;
 	bool fading_out;
 	Uint32 fade_start;
-
-	bool hidden;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Title_GUI : public GUI {

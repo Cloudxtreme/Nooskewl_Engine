@@ -21,8 +21,7 @@ bool Title_GUI::loading;
 bool Title_GUI::loaded;
 
 GUI::GUI() :
-	focus(0),
-	hidden(false)
+	focus(0)
 {
 	fade = true;
 	fading_in = true;
@@ -58,10 +57,6 @@ void GUI::draw_back()
 
 	global_alpha_backup = noo.current_shader->get_global_alpha();
 
-	if (hidden) {
-		return;
-	}
-	
 	if (fading_in) {
 		float p = (SDL_GetTicks() - fade_start) / 200.0f;
 		if (p >= 1.0f) {
@@ -85,10 +80,6 @@ void GUI::draw_back()
 
 void GUI::draw()
 {
-	if (hidden) {
-		return;
-	}
-
 	if (gui) {
 		gui->draw();
 	}
@@ -98,10 +89,6 @@ void GUI::draw_fore()
 {
 	global_alpha = 1.0f;
 	noo.current_shader->set_global_alpha(global_alpha * global_alpha_backup);
-	
-	if (hidden) {
-		return;
-	}
 }
 
 bool GUI::is_fadeout_finished() {
