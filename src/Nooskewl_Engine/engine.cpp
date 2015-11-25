@@ -971,7 +971,7 @@ void Engine::draw()
 
 		work_image->draw_single(Point<int>(0, 0));
 
-		current_shader->set_global_alpha(0.5f);
+		current_shader->set_global_alpha(0.75f);
 
 		work_image->draw_single(screen_offset1);
 		work_image->draw_single(screen_offset2);
