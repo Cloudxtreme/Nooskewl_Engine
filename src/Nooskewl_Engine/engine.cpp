@@ -909,13 +909,9 @@ void Engine::draw()
 	int ticks = SDL_GetTicks() % 1000;
 	float p = ticks / 1000.0f;
 	float a = p * float(M_PI * 2);
-	int x1 = int(cos(a) * 5);
-	int y1 = int(sin(a) * 5);
-	int x2 = int(cos(a+M_PI) * 10); // a little different so they aren't aligned
-	int y2 = int(sin(a+M_PI) * 10);
-
-	Point<int> screen_offset1(x1, y1);
-	Point<int> screen_offset2(x2, y2);
+	int x1 = int(cos(a) * MAX(3.0f, real_screen_size.w * 0.005f));
+	int y1 = int(sin(a) * MAX(3.0f, real_screen_size.h * 0.005f));
+	Point<int> drunk_offset(x1, y1);
 
 	if (drunk) {
 		set_target_image(work_image);
@@ -979,8 +975,7 @@ void Engine::draw()
 
 		current_shader->set_global_alpha(0.75f);
 
-		work_image->draw_single(screen_offset1);
-		work_image->draw_single(screen_offset2);
+		work_image->draw_single(drunk_offset);
 
 		if (doing_map_transition) {
 			view = view_backup;
