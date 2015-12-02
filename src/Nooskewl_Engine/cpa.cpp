@@ -18,10 +18,16 @@ static Uint8 *safe_find_char(Uint8 *haystack, char needle, Uint8 *end)
 
 SDL_RWops *CPA::open(std::string filename)
 {
+#ifdef LOAD_FROM_FILESYSTEM
+	filename = std::string(SDL_GetBasePath()) + "/data/" + filename;
+	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
+	return file;
+#else
 	if (!exists(filename)) {
 		return 0;
 	}
 	return SDL_RWFromMem(bytes+info[filename].first, info[filename].second);
+#endif
 }
 
 bool CPA::exists(std::string filename)
@@ -44,6 +50,7 @@ std::vector<std::string> CPA::get_all_filenames()
 
 CPA::CPA()
 {
+#ifndef LOAD_FROM_FILESYSTEM
 #ifdef __APPLE__
 	std::string filename = std::string(SDL_GetBasePath()) + "data.cpa";
 	SDL_RWops *file = SDL_RWFromFile(filename.c_str(), "rb");
@@ -130,6 +137,7 @@ CPA::CPA()
 	else {
 		throw FileNotFoundError("No CPA archive found");
 	}
+#endif
 }
 
 CPA::~CPA()
