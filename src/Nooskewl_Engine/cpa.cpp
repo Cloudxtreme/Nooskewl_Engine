@@ -142,5 +142,7 @@ CPA::CPA()
 
 CPA::~CPA()
 {
+#ifndef LOAD_FROM_FILESYSTEM
 	delete[] bytes;
+#endif
 }
