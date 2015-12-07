@@ -19,7 +19,8 @@ public:
 private:
 	static const int TOLERANCE = 5;
 
-	bool pressed;
+	bool pressed; // mouse button 1
+	bool pressed2; // mouse button 2
 	bool dragged;
 	Point<float> pressed_pos;
 };

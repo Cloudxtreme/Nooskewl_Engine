@@ -10,6 +10,7 @@ using namespace Nooskewl_Engine;
 
 Player_Brain::Player_Brain() :
 	pressed(false),
+	pressed2(false),
 	dragged(false)
 {
 	reset();
@@ -102,10 +103,18 @@ void Player_Brain::handle_event(TGUI_Event *event)
 			b1 = false;
 		}
 	}
-	else if (event->type == TGUI_MOUSE_DOWN && event->mouse.button == SDL_BUTTON_LEFT) {
-		if (noo.player->is_input_enabled()) {
-			pressed = true;
-			pressed_pos = Point<float>(event->mouse.x, event->mouse.y);
+	else if (event->type == TGUI_MOUSE_DOWN) {
+		if (event->mouse.button == SDL_BUTTON_LEFT) {
+			if (noo.player->is_input_enabled()) {
+				pressed = true;
+				pressed_pos = Point<float>(event->mouse.x, event->mouse.y);
+			}
+		}
+		else if (event->mouse.button == SDL_BUTTON_RIGHT) {
+			if (noo.player->is_input_enabled()) {
+				pressed2 = true;
+				pressed_pos = Point<float>(event->mouse.x, event->mouse.y);
+			}
 		}
 	}
 	else if (event->type == TGUI_MOUSE_DOWN && event->mouse.button != SDL_BUTTON_LEFT) {
@@ -113,9 +122,9 @@ void Player_Brain::handle_event(TGUI_Event *event)
 	}
 	else if (event->type == TGUI_MOUSE_UP) {
 		if (noo.player->is_input_enabled()) {
-			if (pressed) {
+			if (pressed || pressed2) {
 				if (dragged == false) {
-					if (noo.player->is_sitting()) {
+					if (pressed && noo.player->is_sitting()) {
 						noo.player->set_sitting(false);
 					}
 					else {
@@ -133,39 +142,43 @@ void Player_Brain::handle_event(TGUI_Event *event)
 							if (click.x >= 0 && click.y >= 0 && click.x < tilemap_size.w && click.y < tilemap_size.h) {
 								int dx = click.x - player_pos.x;
 								int dy = click.y - player_pos.y;
-								bool activated = false;
-								if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
+								bool activated = pressed2 ? true : false;
 
-									std::vector<Tilemap::Group *> groups = noo.map->get_tilemap()->get_groups(-1);
+								if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
 
 									bool collides_with_chair = false;
 
-									for (size_t i = 0; i < groups.size(); i++) {
-										Tilemap::Group *g = groups[i];
+									if (pressed) {
 
-										int x1_1 = click.x;
-										int y1_1 = click.y;
-										int x2_1 = click.x + 1;
-										int y2_1 = click.y + 1;
+										std::vector<Tilemap::Group *> groups = noo.map->get_tilemap()->get_groups(-1);
 
-										int x1_2 = g->position.x;
-										int y1_2 = g->position.y;
-										int x2_2 = g->position.x + g->size.w;
-										int y2_2 = g->position.y + g->size.h;
+										for (size_t i = 0; i < groups.size(); i++) {
+											Tilemap::Group *g = groups[i];
 
-										if (x1_1 >= x2_2 || x2_1 <= x1_2 || y1_1 >= y2_2 || y2_1 <= y1_2) {
-											continue;
-										}
+											int x1_1 = click.x;
+											int y1_1 = click.y;
+											int x2_1 = click.x + 1;
+											int y2_1 = click.y + 1;
 
-										if (g->position == click) {
-											if (
-												(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
-												(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
-												(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
-												(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
-											) {
-												collides_with_chair = true;
-												break;
+											int x1_2 = g->position.x;
+											int y1_2 = g->position.y;
+											int x2_2 = g->position.x + g->size.w;
+											int y2_2 = g->position.y + g->size.h;
+
+											if (x1_1 >= x2_2 || x2_1 <= x1_2 || y1_1 >= y2_2 || y2_1 <= y1_2) {
+												continue;
+											}
+
+											if (g->position == click) {
+												if (
+													(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
+													(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
+													(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
+													(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
+												) {
+													collides_with_chair = true;
+													break;
+												}
 											}
 										}
 									}
@@ -186,7 +199,13 @@ void Player_Brain::handle_event(TGUI_Event *event)
 											direction = S;
 										}
 										noo.player->set_direction(direction);
-										activated = noo.map->activate(noo.player);
+
+										if (pressed) {
+											activated = noo.map->activate(noo.player);
+										}
+										else if (pressed2) {
+											noo.map->choose_action();
+										}
 									}
 								}
 								if (activated == false) {
@@ -201,6 +220,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 				}
 			}
 			pressed = false;
+			pressed2 = false;
 			dragged = false;
 			noo.map->set_panning(false);
 		}
@@ -266,7 +286,7 @@ void Player_Brain::reset()
 {
 	Brain::reset();
 
-	pressed = dragged = false;
+	pressed = pressed2 = dragged = false;
 }
 
 bool Player_Brain::save(std::string &out)

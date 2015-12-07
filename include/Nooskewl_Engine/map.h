@@ -33,6 +33,7 @@ public:
 
 	// Try to activate as entity, returns true on success
 	bool activate(Map_Entity *entity);
+	void choose_action();
 	void schedule_destroy(Map_Entity *entity);
 
 	void add_entity(Map_Entity *entity);
