@@ -147,9 +147,19 @@ Engine noo;
 Engine::Engine() :
 	music(0),
 	window_title("Nooskewl Engine"),
+#ifdef NOOSKEWL_ENGINE_WINDOWS
 	joy_b1(10),
 	joy_b2(11),
+	joy_b3(12),
+#else
+	// Linux
+	joy_b1(0),
+	joy_b2(1),
+	joy_b3(2),
+#endif
 	key_b1(TGUIK_SPACE),
+	key_b2(TGUIK_ESCAPE),
+	key_b3(TGUIK_TAB),
 	map(0),
 	last_map_name(""),
 	tile_size(16),
@@ -734,11 +744,11 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 
 	if (event.type == TGUI_MOUSE_DOWN && event.mouse.x < noo.tile_size && event.mouse.y < noo.tile_size) {
 		event.type = TGUI_KEY_DOWN;
-		event.keyboard.code = TGUIK_ESCAPE;
+		event.keyboard.code = key_b2;
 	}
 
 	bool is_escape;
-	if ((event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_ESCAPE) || (event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2)) {
+	if ((event.type == TGUI_KEY_DOWN && event.keyboard.code == key_b2) || (event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b2)) {
 		is_escape = true;
 	}
 	else {
