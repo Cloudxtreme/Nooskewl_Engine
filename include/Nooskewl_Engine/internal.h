@@ -17,8 +17,7 @@ typedef void (*DLL_Game_Started)();
 typedef void (*DLL_Pause)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name, int last_visited_time);
 typedef Brain *(*Brain_Getter)(std::string type, std::string data);
-typedef std::vector<std::string> (*Actions_Getter)(Map_Entity *entity);
-typedef void (*Action_Taker)(std::string action, Map_Entity *entity);
+typedef void (*Action_Chooser)(Map_Entity *entity);
 
 void load_dll();
 void close_dll();
@@ -45,8 +44,7 @@ struct Module {
 	DLL_Pause dll_pause;
 	Map_Logic_Getter dll_get_map_logic;
 	Brain_Getter dll_get_brain;
-	Actions_Getter dll_get_actions;
-	Action_Taker dll_take_action;
+	Action_Chooser dll_choose_action;
 
 	// audio
 	SDL_mutex *mixer_mutex;

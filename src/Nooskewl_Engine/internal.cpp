@@ -34,8 +34,7 @@ void load_dll()
 	m.dll_pause = (DLL_Pause)dlsym(so_handle, "dll_pause");
 	m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 	m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
-	m.dll_get_actions = (Actions_Getter)dlsym(so_handle, "dll_get_actions");
-	m.dll_take_action = (Action_Taker)dlsym(so_handle, "dll_take_action");
+	m.dll_choose_action = (Action_Chooser)dlsym(so_handle, "dll_choose_action");
 
 	if (
 	m.dll_start != 0 &&
@@ -44,8 +43,7 @@ void load_dll()
 	m.dll_pause != 0 &&
 	m.dll_get_map_logic != 0 &&
 	m.dll_get_brain != 0 &&
-	m.dll_get_actions != 0 &&
-	m.dll_take_action != 0
+	m.dll_choose_action != 0
 	) {
 		infomsg("Using %s\n", filename.c_str());
 		return;
@@ -72,8 +70,7 @@ void load_dll()
 		m.dll_pause = (DLL_Pause)GetProcAddress(dll_handle, "dll_pause");
 		m.dll_get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)GetProcAddress(dll_handle, "dll_get_brain");
-		m.dll_get_actions = (Actions_Getter)GetProcAddress(dll_handle, "dll_get_actions");
-		m.dll_take_action = (Action_Taker)GetProcAddress(dll_handle, "dll_take_action");
+		m.dll_choose_action = (Action_Chooser)GetProcAddress(dll_handle, "dll_choose_action");
 
 		if (
 		m.dll_start != 0 &&
@@ -82,8 +79,7 @@ void load_dll()
 		m.dll_pause != 0 &&
 		m.dll_get_map_logic != 0 &&
 		m.dll_get_brain != 0 &&
-		m.dll_get_actions != 0 &&
-		m.dll_take_action != 0
+		m.dll_choose_action != 0
 		) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
@@ -101,8 +97,7 @@ void load_dll()
 		m.dll_pause = (DLL_Pause)dlsym(so_handle, "dll_pause");
 		m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
-		m.dll_get_actions = (Actions_Getter)dlsym(so_handle, "dll_get_actions");
-		m.dll_take_action = (Action_Taker)dlsym(so_handle, "dll_take_action");
+		m.dll_choose_action = (Action_Chooser)dlsym(so_handle, "dll_choose_action");
 
 		if (
 		m.dll_start != 0 &&
@@ -111,8 +106,7 @@ void load_dll()
 		m.dll_pause != 0 &&
 		m.dll_get_map_logic != 0 &&
 		m.dll_get_brain != 0 &&
-		m.dll_get_actions != 0 &&
-		m.dll_take_action != 0
+		m.dll_choose_action != 0
 		) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
