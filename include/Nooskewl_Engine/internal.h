@@ -17,7 +17,7 @@ typedef void (*DLL_Game_Started)();
 typedef void (*DLL_Pause)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name, int last_visited_time);
 typedef Brain *(*Brain_Getter)(std::string type, std::string data);
-typedef void (*Action_Chooser)(Map_Entity *entity);
+typedef bool (*Action_Chooser)(Map_Entity *entity);
 
 void load_dll();
 void close_dll();

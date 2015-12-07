@@ -286,6 +286,77 @@ void Map::handle_event(TGUI_Event *event)
 				activate(e);
 			}
 		}
+
+		if (
+			(event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b3) ||
+			(event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b3)
+		) {
+			Map_Entity *entity = noo.player;
+
+			Direction dir = entity->get_direction();
+			Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
+			Size<int> size = entity->get_size();
+			pos.x += noo.tile_size / 2 - size.w / 2;
+			pos.y -= (size.h - noo.tile_size);
+			switch (dir) {
+				case N:
+					pos.y -= noo.tile_size;
+					size.h += noo.tile_size;
+					break;
+				case E:
+					size.w += noo.tile_size;
+					break;
+				case S:
+					size.h += noo.tile_size;
+					break;
+				case W:
+					pos.x -= noo.tile_size;
+					size.w += noo.tile_size;
+					break;
+			}
+
+			switch (dir) {
+				case N:
+					pos.y -= noo.tile_size;
+					size.h += noo.tile_size;
+					break;
+				case E:
+					size.w += noo.tile_size;
+					break;
+				case S:
+					size.h += noo.tile_size;
+					break;
+				case W:
+					pos.x -= noo.tile_size;
+					size.w += noo.tile_size;
+					break;
+			}
+
+			std::vector<Map_Entity_Distance> v;
+
+			for (size_t j = 0; j < entities.size(); j++) {
+				Map_Entity_Distance m;
+				m.entity = entities[j];
+				Point<int> p = entity->get_position()-m.entity->get_position();
+				Size<int> s(p.x, p.y);
+				m.distance = s.length();
+				v.push_back(m);
+			}
+
+			std::sort(v.begin(), v.end(), sort_by_distance);
+
+			for (size_t j = 0; j < v.size(); j++) {
+				Map_Entity *e = v[j].entity;
+				if (e->get_id() == 0) {
+					continue;
+				}
+				if (e->pixels_collide(pos, size)) {
+					if (m.dll_choose_action(e)) {
+						break;
+					}
+				}
+			}
+		}
 	}
 }
 
