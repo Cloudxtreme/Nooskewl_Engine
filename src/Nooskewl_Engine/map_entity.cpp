@@ -366,7 +366,7 @@ Size<int> Map_Entity::get_size()
 Point<float> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->size.h;
-		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+draw_offset.x, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h-z+draw_offset.y);
+		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size), (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h-z);
 }
 
 bool Map_Entity::is_solid()
@@ -738,6 +738,8 @@ bool Map_Entity::update(bool can_move)
 
 void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting_n)
 {
+	draw_pos += draw_offset;
+
 	Image *image = sprite->get_current_image();
 
 	// We multiply by 0.01f so the map transition which is 3D keeps graphics on the same plane.
@@ -1054,6 +1056,7 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 		else if (sitting == false) {
 			// FIXME: animate to standing
 			set_solid(true);
+			set_draw_offset(Point<int>(0, 0));
 		}
 		sat = false;
 	}
