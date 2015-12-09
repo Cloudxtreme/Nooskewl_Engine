@@ -67,6 +67,14 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 			}
 			images.push_back(image);
 		}
+		XML *loop_xml = anim->find("loop");
+		bool looping;
+		if (loop_xml && loop_xml->get_value() == "false") {
+			looping = false;
+		}
+		else {
+			looping = true;
+		}
 		XML *delays = anim->find("delays");
 		std::vector<Uint32> delays_vector;
 		if (delays == 0) {
@@ -105,6 +113,7 @@ void Sprite::load(std::string xml_filename, std::string image_directory, bool ab
 			a->delays = delays_vector;
 			a->total_delays = total_delays;
 			a->rand_start = anim->find("rand_start") != 0;
+			a->looping = looping;
 			animations[anim->get_name()] = a;
 		}
 		else {
@@ -205,6 +214,11 @@ Image *Sprite::get_current_image()
 		now = started ? SDL_GetTicks() : end_time;
 		elapsed = now - start_time;
 		anim = animations[current_animation];
+	}
+
+	// Don't loop if loop flag off
+	if (anim->looping == false && elapsed >= anim->total_delays) {
+		return anim->images[anim->images.size()-1];
 	}
 
 	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
