@@ -785,7 +785,19 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting
 			}
 		}
 
-		image->draw_region_z_single(source_position, source_size, draw_pos, draw_z, 0);
+		int flags = 0;
+
+		if (sleeping) {
+			if (pre_sit_sleep_direction == W) {
+				flags |= Image::FLIP_H;
+			}
+			else if (pre_sit_sleep_direction == N) {
+				flags |= Image::FLIP_V;
+			}
+
+		}
+
+		image->draw_region_z_single(source_position, source_size, draw_pos, draw_z, flags);
 
 		if (has_blink) {
 			noo.current_shader->set_bool("substitute_yellow", false);
