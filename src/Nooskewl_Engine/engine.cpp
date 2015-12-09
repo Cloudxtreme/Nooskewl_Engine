@@ -559,18 +559,15 @@ void Engine::init_video()
 	std::string default_vertex_source;
 	std::string default_fragment_source;
 	std::string brighten_fragment_source;
-	std::string shadow_fragment_source;
 
 	std::string tag = opengl ? "glsl" : "hlsl";
 
 	default_vertex_source = load_text("shaders/" + tag + "/default_vertex.txt");
 	default_fragment_source = load_text("shaders/" + tag + "/default_fragment.txt");
 	brighten_fragment_source = load_text("shaders/" + tag + "/brighten_fragment.txt");
-	shadow_fragment_source = load_text("shaders/" + tag + "/shadow_fragment.txt");
 
 	default_shader = new Shader(opengl, default_vertex_source, default_fragment_source);
 	brighten_shader = new Shader(opengl, default_vertex_source, brighten_fragment_source);
-	shadow_shader = new Shader(opengl, default_vertex_source, shadow_fragment_source);
 
 	setup_default_shader();
 
@@ -589,7 +586,6 @@ void Engine::shutdown_video()
 
 	delete default_shader;
 	delete brighten_shader;
-	delete shadow_shader;
 
 	if (opengl) {
 		SDL_GL_DeleteContext(opengl_context);
@@ -1794,7 +1790,6 @@ void Engine::setup_default_shader()
 	current_shader->use();
 	current_shader->set_bool("substitute_yellow", false);
 	current_shader->set_bool("drawing_text", false);
-	current_shader->set_bool("drawing_text_shadow", false);
 	current_shader->set_global_alpha(1.0f);
 }
 
@@ -2154,9 +2149,6 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		}
 		else if (key == "z") {
 			entity->set_z(atoi(value.c_str()));
-		}
-		else if (key == "shadow_type") {
-			entity->set_shadow_type((Map_Entity::Shadow_Type)atoi(value.c_str()));
 		}
 		else if (key == "solid") {
 			entity->set_solid(atoi(value.c_str()) != 0);

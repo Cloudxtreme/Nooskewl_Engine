@@ -46,7 +46,6 @@ Map_Entity::Map_Entity(std::string name) :
 	input_enabled(true),
 	following_path(false),
 	path_callback(0),
-	shadow_type(SHADOW_NONE),
 	has_blink(false),
 	type(OTHER),
 	stats(0),
@@ -264,11 +263,6 @@ void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, voi
 	}
 }
 
-void Map_Entity::set_shadow_type(Shadow_Type shadow_type)
-{
-	this->shadow_type = shadow_type;
-}
-
 void Map_Entity::set_input_enabled(bool enabled)
 {
 	input_enabled = enabled;
@@ -400,11 +394,6 @@ bool Map_Entity::is_solid()
 bool Map_Entity::is_sitting()
 {
 	return sitting;
-}
-
-Map_Entity::Shadow_Type Map_Entity::get_shadow_type()
-{
-	return shadow_type;
 }
 
 bool Map_Entity::is_following_path()
@@ -815,23 +804,6 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting
 	}
 }
 
-void Map_Entity::draw_shadows(Point<float> draw_pos)
-{
-	Image *image = sprite->get_current_image();
-
-	if (shadow_type == SHADOW_TRANSLUCENT_COPY) {
-		Shader *bak = noo.current_shader;
-		noo.current_shader = noo.shadow_shader;
-		noo.current_shader->use();
-		noo.current_shader->set_float("alpha", 0.25f);
-
-		image->draw_single(Point<float>(draw_pos.x, draw_pos.y+4));
-
-		noo.current_shader = bak;
-		noo.current_shader->use();
-	}
-}
-
 void Map_Entity::stop_now()
 {
 	if (following_path) {
@@ -938,10 +910,6 @@ bool Map_Entity::save(std::string &out)
 
 	if (z != 0) {
 		out += string_printf(",z=%d", z);
-	}
-
-	if (shadow_type != SHADOW_NONE) {
-		out += string_printf(",shadow_type=%d", (int)shadow_type);
 	}
 
 	if (solid == false) {

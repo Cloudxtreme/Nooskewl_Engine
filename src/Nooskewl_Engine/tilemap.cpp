@@ -218,62 +218,6 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 	}
 }
 
-void Tilemap::draw_shadows(int layer, Point<float> position)
-{
-	Shader *bak = noo.current_shader;
-	noo.current_shader = noo.shadow_shader;
-	noo.current_shader->use();
-	noo.current_shader->set_float("alpha", 0.25f);
-
-	Layer l = layers[layer];
-
-	for (size_t i = 0; i < l.groups.size(); i++) {
-		Group *g = l.groups[i];
-		if (g->layer != layer || (g->type & Group::GROUP_SHADOW) == 0) {
-			continue;
-		}
-
-		for (size_t sheet = 0; sheet < l.sheets_used.size(); sheet++) {
-			int sheet_num = l.sheets_used[sheet];
-
-			sheets[sheet_num]->start();
-
-			for (int row = g->position.y; row < g->position.y+g->size.h; row++) {
-				for (int col = g->position.x; col < g->position.x+g->size.w; col++) {
-					int s = l.sheet[row][col];
-					if (s == sheet_num) {
-						int x = l.x[row][col];
-						int y = l.y[row][col];
-						int sx = x * noo.tile_size;
-						int sy = y * noo.tile_size;
-						float dx = position.x + col * noo.tile_size;
-						float dy = position.y + (g->position.y + ((g->position.y+g->size.h-1)-row)) * noo.tile_size + 4; // shadow offset is 4
-						int dw = noo.tile_size;
-						int dh = noo.tile_size;
-
-						// FIXME: might have to expand this by the shadow offset
-						// Clipping
-						if (dx < -noo.tile_size || dy < -noo.tile_size || dx >= noo.screen_size.w+noo.tile_size || dy >= noo.screen_size.h+noo.tile_size) {
-							continue;
-						}
-
-						sheets[s]->draw_region(
-							Point<int>(sx, sy),
-							Size<int>(dw, dh),
-							Point<float>(dx, dy)
-						);
-					}
-				}
-			}
-
-			sheets[sheet_num]->end();
-		}
-	}
-
-	noo.current_shader = bak;
-	noo.current_shader->use();
-}
-
 std::vector<Tilemap::Group *> Tilemap::get_groups(int layer)
 {
 	int start_layer = layer < 0 ? 0 : layer;

@@ -16,11 +16,14 @@ public:
 		enum Type {
 			GROUP_NONE        = 0,
 			GROUP_OBJECT      = 1,
-			GROUP_SHADOW      = 1 << 1,
-			GROUP_CHAIR_NORTH = 1 << 2,
-			GROUP_CHAIR_EAST  = 1 << 3,
-			GROUP_CHAIR_SOUTH = 1 << 4,
-			GROUP_CHAIR_WEST  = 1 << 5
+			GROUP_CHAIR_NORTH = 1 << 1,
+			GROUP_CHAIR_EAST  = 1 << 2,
+			GROUP_CHAIR_SOUTH = 1 << 3,
+			GROUP_CHAIR_WEST  = 1 << 4,
+			GROUP_BED_NORTH = 1 << 5,
+			GROUP_BED_EAST  = 1 << 6,
+			GROUP_BED_SOUTH = 1 << 7,
+			GROUP_BED_WEST  = 1 << 8
 		};
 
 		int type;
@@ -41,7 +44,6 @@ public:
 	bool collides(int layer, Point<int> topleft, Point<int> bottomright);
 
 	void draw(int layer, Point<float> position, bool use_depth_buffer = true);
-	void draw_shadows(int layer, Point<float> position);
 
 	std::vector<Group *> get_groups(int layer);
 

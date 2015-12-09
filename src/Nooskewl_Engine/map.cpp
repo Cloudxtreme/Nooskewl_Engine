@@ -404,26 +404,15 @@ void Map::draw(bool use_depth_buffer)
 	int layer;
 
 	for (layer = 0; layer < nlayers/2; layer++) {
-		tilemap->draw_shadows(layer, offset);
 		tilemap->draw(layer, offset);
 	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		if (e->is_low()) {
-			e->draw_shadows(e->get_draw_position() + offset);
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
 	}
-
-	for (size_t i = 0; i < entities.size(); i++) {
-		Map_Entity *e = entities[i];
-		if (!e->is_high() && !e->is_low()) {
-			e->draw_shadows(e->get_draw_position() + offset);
-		}
-	}
-
-	tilemap->draw_shadows(layer, offset);
 
 	noo.enable_depth_buffer(use_depth_buffer);
 
@@ -441,14 +430,12 @@ void Map::draw(bool use_depth_buffer)
 	noo.enable_depth_buffer(false);
 
 	for (; layer < nlayers; layer++) {
-		tilemap->draw_shadows(layer, offset);
 		tilemap->draw(layer, offset);
 	}
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
 		if (e->is_high()) {
-			e->draw_shadows(e->get_draw_position() + offset);
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
 		else if (e->is_sitting() && e->get_direction() == N) {

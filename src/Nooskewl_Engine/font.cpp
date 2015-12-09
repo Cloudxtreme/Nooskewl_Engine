@@ -98,10 +98,6 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 
 	m.vertex_cache->enable_font_scaling(true);
 
-	//noo.current_shader->set_bool("drawing_text", true);
-
-	//noo.current_shader->set_bool("drawing_text_shadow", true);
-
 	// Optionally draw a shadow
 	if (shadow_type != NO_SHADOW) {
 		noo.enable_depth_buffer(true);
@@ -139,8 +135,6 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 		noo.enable_depth_buffer(false);
 	}
 
-	//noo.current_shader->set_bool("drawing_text_shadow", false);
-
 	pos.x = dest_position.x;
 	offset = 0;
 
@@ -158,7 +152,6 @@ void Font::draw(SDL_Colour colour, std::string text, Point<float> dest_position)
 
 		pos.x += g->size.w;
 	}
-	//noo.current_shader->set_bool("drawing_text", false);
 
 	m.vertex_cache->enable_font_scaling(false);
 }

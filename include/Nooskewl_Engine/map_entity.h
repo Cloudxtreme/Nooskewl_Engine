@@ -21,11 +21,6 @@ public:
 		OTHER
 	};
 
-	enum Shadow_Type {
-		SHADOW_NONE,
-		SHADOW_TRANSLUCENT_COPY
-	};
-
 	Map_Entity(std::string name);
 	~Map_Entity();
 
@@ -39,7 +34,6 @@ public:
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
-	void set_shadow_type(Shadow_Type shadow_type);
 	void set_input_enabled(bool enabled);
 	void set_type(Type type);
 	void load_stats(std::string name);
@@ -67,7 +61,6 @@ public:
 	Point<float> get_draw_position();
 	bool is_solid();
 	bool is_sitting();
-	Shadow_Type get_shadow_type();
 	bool is_following_path();
 	bool is_input_enabled();
 	Type get_type();
@@ -93,7 +86,6 @@ public:
 	bool update(bool can_move);
 	// draws with z values
 	void draw(Point<float> draw_pos, bool use_depth_buffer = true, bool sitting_n = false);
-	void draw_shadows(Point<float> draw_pos);
 
 	bool save(std::string &out);
 
@@ -124,8 +116,6 @@ private:
 	std::list<A_Star::Node *> path;
 	Callback path_callback;
 	void *path_callback_data;
-
-	Shadow_Type shadow_type;
 
 	bool has_blink;
 	float eye_colour[4];
