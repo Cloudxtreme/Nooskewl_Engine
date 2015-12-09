@@ -156,7 +156,6 @@ std::vector<Map_Entity *> Map::get_colliding_entities(int layer, Point<int> posi
 		Map_Entity *e = entities[i];
 		Point<int> pos1 = e->get_position() * noo.tile_size;
 		Size<int> size1 = e->get_size();
-		pos1.x += noo.tile_size / 2 - size1.w / 2;
 		pos1.y -= (size1.h - noo.tile_size);
 		Point<int> pos2 = position * noo.tile_size;
 		Size<int> size2 = size * noo.tile_size;
@@ -330,7 +329,7 @@ void Map::update_camera()
 	if (player) {
 		Point<float> p = player->get_draw_position();
 		Size<int> sz = player->get_size();
-		offset = p - noo.screen_size / 2 + sz / 2;
+		offset = p - noo.screen_size / 2 + noo.tile_size / 2.0f;
 		offset += pan;
 		Size<int> tilemap_size = tilemap->get_size();
 		int max_x = (tilemap_size.w * noo.tile_size)-noo.screen_size.w;
@@ -471,7 +470,6 @@ bool Map::activate(Map_Entity *entity)
 	Direction dir = entity->get_direction();
 	Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
 	Size<int> size = entity->get_size();
-	pos.x += noo.tile_size / 2 - size.w / 2;
 	pos.y -= (size.h - noo.tile_size);
 	switch (dir) {
 		case N:
@@ -687,7 +685,6 @@ void Map::choose_action()
 	Direction dir = entity->get_direction();
 	Point<int> pos = entity->get_position() * noo.tile_size + entity->get_offset() * (float)noo.tile_size;
 	Size<int> size = entity->get_size();
-	pos.x += noo.tile_size / 2 - size.w / 2;
 	pos.y -= (size.h - noo.tile_size);
 	switch (dir) {
 		case N:

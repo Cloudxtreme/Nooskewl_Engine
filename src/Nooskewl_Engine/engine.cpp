@@ -2180,6 +2180,12 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		else if (key == "inventory") {
 			has_inventory = true;
 		}
+		else if (key == "draw_offset") {
+			Tokenizer t(value, ':');
+			std::string x_s = t.next();
+			std::string y_s = t.next();
+			entity->set_draw_offset(Point<int>(atoi(x_s.c_str()), atoi(y_s.c_str())));
+		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());
 		}

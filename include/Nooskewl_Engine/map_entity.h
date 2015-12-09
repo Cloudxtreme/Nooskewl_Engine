@@ -30,6 +30,7 @@ public:
 	void set_position(Point<int> position);
 	void set_size(Size<int> size);
 	void set_offset(Point<float> offset);
+	void set_draw_offset(Point<int> draw_offset);
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
@@ -58,6 +59,7 @@ public:
 	Direction get_direction();
 	Point<int> get_position();
 	Point<float> get_offset();
+	Point<int> get_draw_offset();
 	Size<int> get_size();
 	Point<float> get_draw_position();
 	bool is_solid();
@@ -107,7 +109,8 @@ private:
 	Point<int> position;
 	bool moving;
 	float speed;
-	Point<float> offset;
+	Point<float> offset; // offset from tile when moving between tiles
+	Point<int> draw_offset; // added to position when drawing
 	bool solid;
 	Size<int> size;
 	bool stop_next_tile;

@@ -38,6 +38,7 @@ Map_Entity::Map_Entity(std::string name) :
 	moving(false),
 	speed(0.09f),
 	offset(0.0f, 0.0f),
+	draw_offset(0, 0),
 	solid(true),
 	size(noo.tile_size, noo.tile_size),
 	stop_next_tile(false),
@@ -135,6 +136,11 @@ void Map_Entity::set_size(Size<int> size)
 void Map_Entity::set_offset(Point<float> offset)
 {
 	this->offset = offset;
+}
+
+void Map_Entity::set_draw_offset(Point<int> draw_offset)
+{
+	this->draw_offset = draw_offset;
 }
 
 void Map_Entity::set_direction(Direction direction)
@@ -347,6 +353,11 @@ Point<float> Map_Entity::get_offset()
 	return offset;
 }
 
+Point<int> Map_Entity::get_draw_offset()
+{
+	return draw_offset;
+}
+
 Size<int> Map_Entity::get_size()
 {
 	return size;
@@ -355,7 +366,7 @@ Size<int> Map_Entity::get_size()
 Point<float> Map_Entity::get_draw_position()
 {
 		int h = sprite->get_current_image()->size.h;
-		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+(noo.tile_size-sprite->get_current_image()->size.w)/2, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h-z);
+		return Point<float>(position.x*noo.tile_size+(offset.x*(float)noo.tile_size)+draw_offset.x, (position.y+1)*noo.tile_size+(offset.y*(float)noo.tile_size)-h-z+draw_offset.y);
 }
 
 bool Map_Entity::is_solid()
@@ -439,7 +450,6 @@ bool Map_Entity::can_cancel_astar()
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
 {
 	Point<int> pos = this->position * noo.tile_size + this->offset * (float)noo.tile_size;
-	pos.x += noo.tile_size / 2 - this->size.w / 2;
 	pos.y -= (this->size.h - noo.tile_size);
 	if (pos.x >= position.x+size.w || pos.x+this->size.w <= position.x || pos.y >= position.y+size.h || pos.y+this->size.h <= position.y) {
 		return false;
@@ -461,11 +471,9 @@ bool Map_Entity::entity_collides(Map_Entity *entity)
 {
 	Point<int> pos1 = (position + offset) * noo.tile_size;
 	Size<int> size1 = size;
-	pos1.x += noo.tile_size / 2 - size1.w / 2;
 	pos1.y -= (size1.h - noo.tile_size);
 	Point<int> pos2 = (entity->get_position() + entity->get_offset()) * noo.tile_size;
 	Size<int> size2 = entity->get_size();
-	pos2.x += noo.tile_size / 2 - size2.w / 2;
 	pos2.y -= (size2.h - noo.tile_size);
 
 	if ((pos1.x >= pos2.x+size2.w) || (pos1.x+size1.w <= pos2.x) || (pos1.y >= pos2.y+size2.h) || (pos1.y+size1.h <= pos2.y)) {
@@ -924,6 +932,10 @@ bool Map_Entity::save(std::string &out)
 
 	if (size.w != 1 || size.h != 1) {
 		out += string_printf(",size=%d:%d", size.w, size.h);
+	}
+
+	if (draw_offset.x != 0 || draw_offset.y != 0) {
+		out += string_printf(",draw_offset=%d:%d", draw_offset.x, draw_offset.y);
 	}
 
 	if (stats != 0) {
