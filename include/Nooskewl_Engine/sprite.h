@@ -34,6 +34,7 @@ private:
 		std::vector<Uint32> delays;
 		Uint32 total_delays;
 		bool rand_start;
+		bool looping;
 	};
 
 	void load(std::string xml_filename, std::string image_directory, bool absolute_path = false);
