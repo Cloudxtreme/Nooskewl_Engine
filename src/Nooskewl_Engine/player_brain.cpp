@@ -127,6 +127,9 @@ void Player_Brain::handle_event(TGUI_Event *event)
 					if (pressed && noo.player->is_sitting()) {
 						noo.player->set_sitting(false);
 					}
+					else if (pressed && noo.player->is_sleeping()) {
+						noo.player->set_sleeping(false);
+					}
 					else {
 						Point<float> mouse_pos(event->mouse.x, event->mouse.y);
 						float moved_distance = (mouse_pos-pressed_pos).length();
@@ -146,10 +149,9 @@ void Player_Brain::handle_event(TGUI_Event *event)
 
 								if ((abs(dx) <= 2 && dy == 0) || (abs(dy) <= 2 && dx == 0)) {
 
-									bool collides_with_chair = false;
+									bool collides_with_chair_or_bed = false;
 
 									if (pressed) {
-
 										std::vector<Tilemap::Group *> groups = noo.map->get_tilemap()->get_groups(-1);
 
 										for (size_t i = 0; i < groups.size(); i++) {
@@ -169,22 +171,24 @@ void Player_Brain::handle_event(TGUI_Event *event)
 												continue;
 											}
 
-											if (g->position == click) {
-												if (
-													(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
-													(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
-													(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
-													(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
-												) {
-													collides_with_chair = true;
-													break;
-												}
+											if (
+												(g->type & Tilemap::Group::GROUP_CHAIR_NORTH) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_EAST) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) ||
+												(g->type & Tilemap::Group::GROUP_CHAIR_WEST) ||
+												(g->type & Tilemap::Group::GROUP_BED_NORTH) ||
+												(g->type & Tilemap::Group::GROUP_BED_EAST) ||
+												(g->type & Tilemap::Group::GROUP_BED_SOUTH) ||
+												(g->type & Tilemap::Group::GROUP_BED_WEST)
+											) {
+												collides_with_chair_or_bed = true;
+												break;
 											}
 										}
 									}
 
 									std::vector<Map_Entity *> colliding_entities = noo.map->get_colliding_entities(-1, click, Size<int>(1, 1));
-									if (collides_with_chair || colliding_entities.size() > 0) {
+									if (collides_with_chair_or_bed || colliding_entities.size() > 0) {
 										Direction direction;
 										if (dx < 0) {
 											direction = W;

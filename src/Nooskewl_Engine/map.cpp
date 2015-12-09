@@ -546,49 +546,49 @@ bool Map::activate(Map_Entity *entity)
 				is_chair = false;
 				collide_pos = g->position + Point<int>(-1, 1);
 				direction = N;
-				draw_offset = Point<int>(noo.tile_size, 0);
+				draw_offset = Point<int>(0, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_NORTH && direction == W) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(2, 1);
 				direction = N;
-				draw_offset = Point<int>(-noo.tile_size*2, 0);
+				draw_offset = Point<int>(-noo.tile_size*3, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == N) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(0, 2);
 				direction = E;
-				draw_offset = Point<int>(0, -noo.tile_size);
+				draw_offset = Point<int>(-noo.tile_size, 0);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == S) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(0, -1);
 				direction = E;
-				draw_offset = Point<int>(0, noo.tile_size*2);
+				draw_offset = Point<int>(-noo.tile_size, noo.tile_size*3);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == E) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(-1, 0);
 				direction = S;
-				draw_offset = Point<int>(noo.tile_size, noo.tile_size);
+				draw_offset = Point<int>(0, noo.tile_size*2);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == W) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(2, 0);
 				direction = S;
-				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size);
+				draw_offset = Point<int>(-noo.tile_size*3, noo.tile_size*2);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == N) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(1, 2);
 				direction = W;
-				draw_offset = Point<int>(-noo.tile_size, -noo.tile_size);
+				draw_offset = Point<int>(-noo.tile_size*2, 0);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == S) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(1, -1);
 				direction = W;
-				draw_offset = Point<int>(-noo.tile_size, noo.tile_size*2);
+				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size*3);
 			}
 			else if (direction == N) {
 				if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
@@ -620,10 +620,13 @@ bool Map::activate(Map_Entity *entity)
 			}
 
 			if (is_chair == false && entity_pos == collide_pos) {
+				entity->set_pre_sit_sleep_direction(entity->get_direction());
+				entity->set_solid(false);
+
 				entity->set_direction(direction);
-				entity->set_sit_sleep_directions(g->type);
 				entity->set_sleeping(true);
 				entity->set_draw_offset(draw_offset);
+				entity->set_sit_sleep_directions(g->type);
 			}
 			else if (path.size() > 0) {
 				entity->set_pre_sit_sleep_direction(entity->get_direction());
