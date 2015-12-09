@@ -43,6 +43,7 @@ Map_Entity::Map_Entity(std::string name) :
 	stop_next_tile(false),
 	activate_next_tile(false),
 	sitting(false),
+	sleeping(false),
 	input_enabled(true),
 	following_path(false),
 	path_callback(0),
@@ -53,8 +54,8 @@ Map_Entity::Map_Entity(std::string name) :
 	high(false),
 	z(0),
 	z_add(0),
-	pre_sit_direction(DIRECTION_UNKNOWN),
-	sit_directions(0),
+	pre_sit_sleep_direction(DIRECTION_UNKNOWN),
+	sit_sleep_directions(0),
 	sat(false),
 	should_face(true)
 {
@@ -172,6 +173,22 @@ void Map_Entity::set_direction(Direction direction)
 				break;
 		}
 	}
+	else if (sleeping) {
+		switch (direction) {
+			case N:
+				animation_name = "sleep_n";
+				break;
+			case E:
+				animation_name = "sleep_e";
+				break;
+			case S:
+				animation_name = "sleep_s";
+				break;
+			default:
+				animation_name = "sleep_w";
+				break;
+		}
+	}
 	else {
 		switch (direction) {
 			case N:
@@ -199,57 +216,12 @@ void Map_Entity::set_solid(bool solid)
 
 void Map_Entity::set_sitting(bool sitting)
 {
-	Point<int> stand_position;
+	set_sitting_sleeping(true, sitting);
+}
 
-	if (sitting == false) {
-		if (pre_sit_direction != DIRECTION_UNKNOWN) {
-			stand_position = position;
-
-			if (direction == N) {
-				stand_position.y--;
-			}
-			else if (direction == E) {
-				stand_position.x++;
-			}
-			else if (direction == S) {
-				stand_position.y++;
-			}
-			else {
-				stand_position.x--;
-			}
-			if (noo.map->is_solid(-1, 0, stand_position, Size<int>(1, 1), true, true)) {
-				return;
-			}
-		}
-	}
-
-	this->sitting = sitting;
-	if (sitting) {
-		moving = false;
-	}
-	set_direction(direction);
-
-	if (sitting == false) {
-		if (sat && direction == N) {
-			set_z_add(get_z_add() + 1);
-		}
-		if (pre_sit_direction != DIRECTION_UNKNOWN) {
-			std::list<A_Star::Node *> path = noo.map->find_path(position, stand_position);
-			if (path.size() > 0) {
-				pre_sit_direction = DIRECTION_UNKNOWN;
-				set_path(path, make_solid_callback, this);
-			}
-		}
-		sat = false;
-	}
-	else {
-		if (direction == N) {
-			set_z_add(get_z_add() - 1);
-		}
-		sat = true;
-	}
-
-	sit_directions = 0;
+void Map_Entity::set_sleeping(bool sleeping)
+{
+	set_sitting_sleeping(false, sleeping);
 }
 
 void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, void *callback_data)
@@ -305,14 +277,14 @@ void Map_Entity::set_z_add(int z_add)
 	this->z_add = z_add;
 }
 
-void Map_Entity::set_pre_sit_direction(Direction direction)
+void Map_Entity::set_pre_sit_sleep_direction(Direction direction)
 {
-	this->pre_sit_direction = direction;
+	this->pre_sit_sleep_direction = direction;
 }
 
-void Map_Entity::set_sit_directions(int sit_directions)
+void Map_Entity::set_sit_sleep_directions(int sit_sleep_directions)
 {
-	this->sit_directions = sit_directions;
+	this->sit_sleep_directions = sit_sleep_directions;
 }
 
 void Map_Entity::set_activate_next_tile(bool onoff)
@@ -396,6 +368,11 @@ bool Map_Entity::is_sitting()
 	return sitting;
 }
 
+bool Map_Entity::is_sleeping()
+{
+	return sleeping;
+}
+
 bool Map_Entity::is_following_path()
 {
 	return following_path;
@@ -453,7 +430,7 @@ bool Map_Entity::should_face_activator()
 
 bool Map_Entity::can_cancel_astar()
 {
-	if (path_callback == make_solid_callback || path_callback == Map::sit_callback) {
+	if (path_callback == make_solid_callback || path_callback == Map::sit_sleep_callback) {
 		return false;
 	}
 	return true;
@@ -514,7 +491,7 @@ bool Map_Entity::maybe_move()
 
 	if ((following_path || input_enabled == true) && brain) {
 		if (brain->l) {
-			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false)) {
+			if (!sitting && !sleeping && (!solid || noo.map->is_solid(-1, this, position + Point<int>(-1, 0), Size<int>(1, 1)) == false)) {
 				moving = true;
 				offset = Point<float>(1, 0);
 				position += Point<int>(-1, 0);
@@ -523,7 +500,7 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_WEST)) {
+			if ((!sitting && !sleeping) || (sit_sleep_directions & Tilemap::Group::GROUP_CHAIR_WEST)) {
 				if (sitting && direction == N) {
 					set_z_add(get_z_add()+1);
 				}
@@ -531,7 +508,7 @@ bool Map_Entity::maybe_move()
 			}
 		}
 		else if (brain->r) {
-			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(1, 0), Size<int>(1, 1)) == false)) {
+			if (!sitting && !sleeping && (!solid || noo.map->is_solid(-1, this, position + Point<int>(1, 0), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = E;
 				offset = Point<float>(-1, 0);
@@ -541,7 +518,7 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_EAST)) {
+			if ((!sitting && !sleeping) || (sit_sleep_directions & Tilemap::Group::GROUP_CHAIR_EAST)) {
 				if (sitting && direction == N) {
 					set_z_add(get_z_add()+1);
 				}
@@ -549,7 +526,7 @@ bool Map_Entity::maybe_move()
 			}
 		}
 		else if (brain->u) {
-			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, -1), Size<int>(1, 1)) == false)) {
+			if (!sitting && !sleeping && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, -1), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = N;
 				offset = Point<float>(0, 1);
@@ -559,7 +536,7 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_NORTH)) {
+			if ((!sitting && !sleeping) || (sit_sleep_directions & Tilemap::Group::GROUP_CHAIR_NORTH)) {
 				if (sitting && direction != N) {
 					set_z_add(get_z_add()-1);
 				}
@@ -567,7 +544,7 @@ bool Map_Entity::maybe_move()
 			}
 		}
 		else if (brain->d) {
-			if (!sitting && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, 1), Size<int>(1, 1)) == false)) {
+			if (!sitting && !sleeping && (!solid || noo.map->is_solid(-1, this, position + Point<int>(0, 1), Size<int>(1, 1)) == false)) {
 				moving = true;
 				direction = S;
 				offset = Point<float>(0, -1);
@@ -577,7 +554,7 @@ bool Map_Entity::maybe_move()
 			else if (following_path) {
 				stop_now();
 			}
-			if (!sitting || (sit_directions & Tilemap::Group::GROUP_CHAIR_SOUTH)) {
+			if ((!sitting && !sleeping) || (sit_sleep_directions & Tilemap::Group::GROUP_CHAIR_SOUTH)) {
 				if (sitting && direction == N) {
 					set_z_add(get_z_add()+1);
 				}
@@ -586,6 +563,10 @@ bool Map_Entity::maybe_move()
 		}
 		else if (brain->b1 && sitting) {
 			set_sitting(false);
+			set_direction(direction);
+		}
+		else if (brain->b1 && sleeping) {
+			set_sleeping(false);
 			set_direction(direction);
 		}
 	}
@@ -905,7 +886,12 @@ bool Map_Entity::save(std::string &out)
 
 	if (sitting) {
 		out += string_printf(",sitting=%d", (int)sitting);
-		out += string_printf(",pre_sit_direction=%d", (int)pre_sit_direction);
+		out += string_printf(",pre_sit_sleep_direction=%d", (int)pre_sit_sleep_direction);
+	}
+
+	if (sleeping) {
+		out += string_printf(",sleeping=%d", (int)sleeping);
+		out += string_printf(",pre_sit_sleep_direction=%d", (int)pre_sit_sleep_direction);
 	}
 
 	if (z != 0) {
@@ -989,4 +975,70 @@ bool Map_Entity::save(std::string &out)
 void Map_Entity::set_next_blink()
 {
 	next_blink = SDL_GetTicks() + 3000 + (rand() % 3000);
+}
+
+void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
+{
+	Point<int> stand_position;
+
+	if (onoff == false) {
+		if (pre_sit_sleep_direction != DIRECTION_UNKNOWN) {
+			stand_position = position;
+
+			if (direction == N) {
+				stand_position.y--;
+			}
+			else if (direction == E) {
+				stand_position.x++;
+			}
+			else if (direction == S) {
+				stand_position.y++;
+			}
+			else {
+				stand_position.x--;
+			}
+			if (noo.map->is_solid(-1, 0, stand_position, Size<int>(1, 1), true, true)) {
+				return;
+			}
+		}
+	}
+
+	if (sitting) {
+		this->sitting = onoff;
+	}
+	else {
+		this->sleeping = onoff;
+	}
+
+	if (onoff) {
+		moving = false;
+	}
+
+	set_direction(direction);
+
+	if (onoff == false) {
+		if (sitting && sat && direction == N) {
+			set_z_add(get_z_add() + 1);
+		}
+		if (sitting && pre_sit_sleep_direction != DIRECTION_UNKNOWN) {
+			std::list<A_Star::Node *> path = noo.map->find_path(position, stand_position);
+			if (path.size() > 0) {
+				pre_sit_sleep_direction = DIRECTION_UNKNOWN;
+				set_path(path, make_solid_callback, this);
+			}
+		}
+		else if (sitting == false) {
+			// FIXME: animate to standing
+			set_solid(true);
+		}
+		sat = false;
+	}
+	else {
+		if (sitting && direction == N) {
+			set_z_add(get_z_add() - 1);
+		}
+		sat = true;
+	}
+
+	sit_sleep_directions = 0;
 }

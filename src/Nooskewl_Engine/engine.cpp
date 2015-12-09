@@ -2128,8 +2128,11 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 		else if (key == "sitting") {
 			entity->set_sitting(atoi(value.c_str()) != 0);
 		}
-		else if (key == "pre_sit_direction") {
-			entity->set_pre_sit_direction((Direction)atoi(value.c_str()));
+		else if (key == "sleeping") {
+			entity->set_sleeping(atoi(value.c_str()) != 0);
+		}
+		else if (key == "pre_sit_sleep_direction") {
+			entity->set_pre_sit_sleep_direction((Direction)atoi(value.c_str()));
 		}
 		else if (key == "sprite") {
 			Tokenizer t3(value, ':');

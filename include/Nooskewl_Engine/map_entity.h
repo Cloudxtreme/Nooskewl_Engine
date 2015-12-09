@@ -33,6 +33,7 @@ public:
 	void set_direction(Direction direction);
 	void set_solid(bool solid);
 	void set_sitting(bool sitting);
+	void set_sleeping(bool sleeping);
 	void set_path(std::list<A_Star::Node *> path, Callback callback = NULL, void *callback_data = NULL);
 	void set_input_enabled(bool enabled);
 	void set_type(Type type);
@@ -42,8 +43,8 @@ public:
 	void set_high(bool high);
 	void set_z(int z);
 	void set_z_add(int z_add);
-	void set_pre_sit_direction(Direction direction);
-	void set_sit_directions(int sit_directions);
+	void set_pre_sit_sleep_direction(Direction direction);
+	void set_sit_sleep_directions(int sit_sleep_directions);
 	void set_activate_next_tile(bool onoff);
 	void set_name(std::string name);
 	void set_stop_next_tile(bool stop_next_tile);
@@ -61,6 +62,7 @@ public:
 	Point<float> get_draw_position();
 	bool is_solid();
 	bool is_sitting();
+	bool is_sleeping();
 	bool is_following_path();
 	bool is_input_enabled();
 	Type get_type();
@@ -95,6 +97,7 @@ private:
 	void follow_path();
 	void end_a_star();
 	void set_next_blink();
+	void set_sitting_sleeping(bool sitting, bool onoff);
 
 	int id;
 	std::string name;
@@ -110,6 +113,7 @@ private:
 	bool stop_next_tile;
 	bool activate_next_tile;
 	bool sitting;
+	bool sleeping;
 	bool input_enabled;
 
 	bool following_path;
@@ -130,9 +134,9 @@ private:
 	int z;
 	int z_add;
 
-	Direction pre_sit_direction;
+	Direction pre_sit_sleep_direction;
 
-	int sit_directions;
+	int sit_sleep_directions;
 	bool sat;
 
 	bool should_face; // should face player/character when talked to/activated

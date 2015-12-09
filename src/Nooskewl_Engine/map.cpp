@@ -11,10 +11,11 @@
 
 using namespace Nooskewl_Engine;
 
-struct Sit_Data {
+struct Sit_Sleep_Data {
 	Map_Entity *entity;
-	int sit_directions;
+	int sit_sleep_directions;
 	Direction direction;
+	bool is_chair;
 };
 
 struct Map_Entity_Distance {
@@ -36,15 +37,22 @@ void Map::new_game_started()
 	noo.clear_milestones();
 }
 
-void Map::sit_callback(void *data)
+void Map::sit_sleep_callback(void *data)
 {
-	Sit_Data *sit_data = (Sit_Data *)data;
+	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)data;
 
-	sit_data->entity->set_direction(sit_data->direction);
-	sit_data->entity->set_sitting(true);
-	sit_data->entity->set_sit_directions(sit_data->sit_directions);
+	sit_sleep_data->entity->set_direction(sit_sleep_data->direction);
 
-	delete sit_data;
+	if (sit_sleep_data->is_chair) {
+		sit_sleep_data->entity->set_sitting(true);
+	}
+	else {
+		sit_sleep_data->entity->set_sleeping(true);
+	}
+
+	sit_sleep_data->entity->set_sit_sleep_directions(sit_sleep_data->sit_sleep_directions);
+
+	delete sit_sleep_data;
 }
 
 Map::Map(std::string map_name, bool been_here_before, int last_visited_time) :
@@ -281,7 +289,7 @@ void Map::handle_event(TGUI_Event *event)
 			bool is_player = e->get_id() == 0;
 			bool b1_down = is_player && e->get_brain()->b1;
 			e->handle_event(event);
-			if (ml && is_player && !e->is_sitting() && !e->is_following_path() && b1_down == false && e->get_brain()->b1) {
+			if (ml && is_player && !e->is_sitting() && !e->is_sleeping() && !e->is_following_path() && b1_down == false && e->get_brain()->b1) {
 				// activate pressed
 				activate(e);
 			}
@@ -517,7 +525,7 @@ bool Map::activate(Map_Entity *entity)
 				(g->type & Tilemap::Group::GROUP_CHAIR_WEST)
 			) {
 				entity->set_sitting(true);
-				entity->set_sit_directions(g->type);
+				entity->set_sit_sleep_directions(g->type);
 
 				return true;
 			}
@@ -531,7 +539,49 @@ bool Map::activate(Map_Entity *entity)
 
 			std::list<A_Star::Node *> path;
 
-			if (direction == N) {
+			bool is_chair = true;
+
+			if (g->type == Tilemap::Group::GROUP_BED_NORTH && direction == E) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(-1, 1);
+				direction = N;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_NORTH && direction == W) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(2, 1);
+				direction = N;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == N) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(0, 2);
+				direction = E;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == S) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(0, -1);
+				direction = E;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == E) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(-1, 0);
+				direction = S;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == W) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(2, 0);
+				direction = S;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == N) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(1, 2);
+				direction = W;
+			}
+			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == S) {
+				is_chair = false;
+				collide_pos = g->position + Point<int>(1, -1);
+				direction = W;
+			}
+			else if (direction == N) {
 				if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
 					path = find_path(entity_pos, collide_pos, false);
 					direction = S;
@@ -556,15 +606,25 @@ bool Map::activate(Map_Entity *entity)
 				}
 			}
 
-			if (path.size() > 0) {
-				entity->set_pre_sit_direction(entity->get_direction());
+			if (is_chair == false && entity_pos != collide_pos) {
+				path = find_path(entity_pos, collide_pos, false);
+			}
+
+			if (is_chair == false && entity_pos == collide_pos) {
+				entity->set_direction(direction);
+				entity->set_sit_sleep_directions(g->type);
+				entity->set_sleeping(true);
+			}
+			else if (path.size() > 0) {
+				entity->set_pre_sit_sleep_direction(entity->get_direction());
 				entity->set_solid(false);
 
-				Sit_Data *sit_data = new Sit_Data;
-				sit_data->entity = entity;
-				sit_data->sit_directions = (int)g->type;
-				sit_data->direction = direction;
-				entity->set_path(path, sit_callback, sit_data);
+				Sit_Sleep_Data *sit_sleep_data = new Sit_Sleep_Data;
+				sit_sleep_data->entity = entity;
+				sit_sleep_data->sit_sleep_directions = g->type;
+				sit_sleep_data->direction = direction;
+				sit_sleep_data->is_chair = is_chair;
+				entity->set_path(path, sit_sleep_callback, sit_sleep_data);
 
 				return true;
 			}

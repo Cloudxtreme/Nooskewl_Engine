@@ -74,7 +74,7 @@ Tilemap::Tilemap(std::string map_filename)
 
 	for (int i = 0; i < num_groups; i++) {
 		Group *g = new Group;
-		g->type = SDL_fgetc(f);
+		g->type = SDL_ReadLE32(f);
 		g->layer = SDL_fgetc(f);
 		g->position.x = SDL_ReadLE16(f);
 		g->position.y = SDL_ReadLE16(f);
