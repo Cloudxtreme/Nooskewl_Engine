@@ -182,16 +182,36 @@ void Map_Entity::set_direction(Direction direction)
 	else if (sleeping) {
 		switch (direction) {
 			case N:
-				animation_name = "sleep_n";
+				if (pre_sit_sleep_direction == E) {
+					animation_name = "sleep_n_e";
+				}
+				else {
+					animation_name = "sleep_n_w";
+				}
 				break;
 			case E:
-				animation_name = "sleep_e";
+				if (pre_sit_sleep_direction == N) {
+					animation_name = "sleep_e_n";
+				}
+				else {
+					animation_name = "sleep_e_s";
+				}
 				break;
 			case S:
-				animation_name = "sleep_s";
+				if (pre_sit_sleep_direction == E) {
+					animation_name = "sleep_s_e";
+				}
+				else {
+					animation_name = "sleep_s_w";
+				}
 				break;
 			default:
-				animation_name = "sleep_w";
+				if (pre_sit_sleep_direction == N) {
+					animation_name = "sleep_w_n";
+				}
+				else {
+					animation_name = "sleep_w_s";
+				}
 				break;
 		}
 	}
@@ -788,16 +808,6 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting
 		}
 
 		int flags = 0;
-
-		if (sleeping) {
-			if (pre_sit_sleep_direction == W) {
-				flags |= Image::FLIP_H;
-			}
-			else if (pre_sit_sleep_direction == N) {
-				flags |= Image::FLIP_V;
-			}
-
-		}
 
 		image->draw_region_z_single(source_position, source_size, draw_pos, draw_z, flags);
 

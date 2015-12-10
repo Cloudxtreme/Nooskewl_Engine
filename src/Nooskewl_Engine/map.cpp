@@ -1,6 +1,7 @@
 #include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/brain.h"
 #include "Nooskewl_Engine/engine.h"
+#include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
@@ -330,8 +331,11 @@ void Map::update_camera()
 	Map_Entity *player = get_entity(0);
 	if (player) {
 		Point<float> p = player->get_draw_position();
-		Size<int> sz = player->get_size();
-		offset = p - noo.screen_size / 2 + noo.tile_size / 2.0f;
+		int h = player->get_sprite()->get_current_image()->size.h;
+		p.y += (h - noo.tile_size * 2.0f); // adjust for overhanging large frames
+		offset = p - noo.screen_size / 2;
+		offset.x += noo.tile_size / 2.0f;
+		offset.y += noo.tile_size;
 		offset += pan;
 		Size<int> tilemap_size = tilemap->get_size();
 		int max_x = (tilemap_size.w * noo.tile_size)-noo.screen_size.w;
