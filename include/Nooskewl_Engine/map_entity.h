@@ -15,6 +15,7 @@ class Stats;
 class NOOSKEWL_ENGINE_EXPORT Map_Entity {
 public:
 	static void new_game_started();
+	static void end_sleep_callback(void *data);
 
 	enum Type {
 		NPC,

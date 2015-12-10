@@ -17,7 +17,7 @@ using namespace Nooskewl_Engine;
 
 static void make_solid_callback(void *data)
 {
-	Map_Entity *entity = (Map_Entity *)data;
+	Map_Entity *entity = static_cast<Map_Entity *>(data);
 
 	entity->set_solid(true);
 }
@@ -27,6 +27,17 @@ static int current_id;
 void Map_Entity::new_game_started()
 {
 	current_id = 0;
+}
+
+void Map_Entity::end_sleep_callback(void *data)
+{
+	Map_Entity *entity = static_cast<Map_Entity *>(data);
+	entity->set_solid(true);
+	entity->set_draw_offset(Point<int>(0, 0));
+	entity->get_sprite()->set_reverse(false);
+	entity->sleeping = false;
+	entity->set_direction(entity->get_direction()); // set the animation
+	entity->set_input_enabled(true);
 }
 
 Map_Entity::Map_Entity(std::string name) :
@@ -145,6 +156,10 @@ void Map_Entity::set_draw_offset(Point<int> draw_offset)
 
 void Map_Entity::set_direction(Direction direction)
 {
+	if (sleeping && input_enabled == false) {
+		return;
+	}
+
 	this->direction = direction;
 	std::string animation_name;
 	if (moving) {
@@ -1021,18 +1036,21 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 		if (pre_sit_sleep_direction != DIRECTION_UNKNOWN) {
 			stand_position = position;
 
-			if (direction == N) {
-				stand_position.y--;
+			if (sitting) {
+				if (direction == N) {
+					stand_position.y--;
+				}
+				else if (direction == E) {
+					stand_position.x++;
+				}
+				else if (direction == S) {
+					stand_position.y++;
+				}
+				else {
+					stand_position.x--;
+				}
 			}
-			else if (direction == E) {
-				stand_position.x++;
-			}
-			else if (direction == S) {
-				stand_position.y++;
-			}
-			else {
-				stand_position.x--;
-			}
+
 			if (noo.map->is_solid(-1, 0, stand_position, Size<int>(1, 1), true, true)) {
 				return;
 			}
@@ -1042,8 +1060,8 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 	if (sitting) {
 		this->sitting = onoff;
 	}
-	else {
-		this->sleeping = onoff;
+	else if (onoff) {
+		this->sleeping = true; // turned off in end_sleep_callback
 	}
 
 	if (onoff) {
@@ -1064,9 +1082,10 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 			}
 		}
 		else if (sitting == false) {
-			// FIXME: animate to standing
-			set_solid(true);
-			set_draw_offset(Point<int>(0, 0));
+			set_input_enabled(false);
+			sprite->set_reverse(true);
+			sprite->set_animation(sprite->get_animation(), end_sleep_callback, this);
+			sprite->reset();
 		}
 		sat = false;
 	}
