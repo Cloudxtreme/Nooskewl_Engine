@@ -36,7 +36,11 @@ void Map_Entity::end_sleep_callback(void *data)
 	entity->set_draw_offset(Point<int>(0, 0));
 	entity->get_sprite()->set_reverse(false);
 	entity->sleeping = false;
+	Direction d = entity->get_direction();
 	entity->set_direction(entity->get_direction()); // set the animation
+	if (d == S) {
+		entity->set_z_add(entity->get_z_add() - 100);
+	}
 	entity->set_input_enabled(true);
 }
 
@@ -1092,6 +1096,11 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 	else {
 		if (sitting && direction == N) {
 			set_z_add(get_z_add() - 1);
+		}
+		else if (sitting == false) {
+			if (direction == S) {
+				set_z_add(get_z_add() + 100);
+			}
 		}
 		sat = true;
 	}
