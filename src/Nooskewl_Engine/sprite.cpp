@@ -8,7 +8,8 @@ using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
 	previous_animation(""),
-	finished_callback(0)
+	finished_callback(0),
+	reverse(false)
 {
 	load(xml_filename, image_directory, absolute_path);
 	start();
@@ -16,7 +17,8 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absol
 
 Sprite::Sprite(std::string image_directory) :
 	previous_animation(""),
-	finished_callback(0)
+	finished_callback(0),
+	reverse(false)
 {
 	load(image_directory + "/sprite.xml", image_directory);
 	start();
@@ -196,6 +198,16 @@ int Sprite::get_length()
 	return animations[current_animation]->total_delays;
 }
 
+void Sprite::set_reverse(bool reverse)
+{
+	this->reverse = reverse;
+}
+
+bool Sprite::is_reversed()
+{
+	return reverse;
+}
+
 Image *Sprite::get_current_image()
 {
 	Uint32 now = started ? SDL_GetTicks() : end_time;
@@ -222,16 +234,32 @@ Image *Sprite::get_current_image()
 	}
 
 	Uint32 remainder = (anim->total_delays == 0) ? 0 : (elapsed % anim->total_delays);
-	int frame = 0;
+	int frame;
 
-	for (size_t i = 0; i < anim->delays.size(); i++) {
-		Uint32 delay = anim->delays[i];
-		if (remainder >= delay) {
-			remainder -= delay;
-			frame++;
+	if (reverse) {
+		frame = anim->delays.size()-1;
+		for (int i = anim->delays.size()-1; i >= 0; i--) {
+			Uint32 delay = anim->delays[i];
+			if (remainder >= delay) {
+				remainder -= delay;
+				frame--;
+			}
+			else {
+				break;
+			}
 		}
-		else {
-			break;
+	}
+	else {
+		frame = 0;
+		for (size_t i = 0; i < anim->delays.size(); i++) {
+			Uint32 delay = anim->delays[i];
+			if (remainder >= delay) {
+				remainder -= delay;
+				frame++;
+			}
+			else {
+				break;
+			}
 		}
 	}
 

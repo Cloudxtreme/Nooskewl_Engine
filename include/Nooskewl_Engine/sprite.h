@@ -24,6 +24,9 @@ public:
 	bool is_started();
 	int get_length();
 
+	void set_reverse(bool reverse); // play from back to front
+	bool is_reversed();
+
 	Image *get_current_image();
 
 	void get_filenames(std::string &xml_filename, std::string &image_directory);
@@ -53,6 +56,8 @@ private:
 
 	Callback finished_callback;
 	void *finished_callback_data;
+
+	bool reverse;
 };
 
 } // End namespace Nooskewl_Engine
