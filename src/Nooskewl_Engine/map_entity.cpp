@@ -669,10 +669,52 @@ void Map_Entity::update_stats()
 			int step = MIN(20, 0xffff - stats->thirst);
 			stats->thirst += step;
 		}
-		if (stats->rested_time < current_time) {
-			stats->rested_time = current_time;
-			int step = MIN(20, stats->rest);
-			stats->rest -= step;
+		if (sitting) {
+			if (stats->rest == 0xffff) {
+				if (stats->rested_time+20 < current_time) {
+					stats->rested_time = current_time;
+					if (stats->hp < stats->max_hp / 2) {
+						stats->hp++;
+					}
+					if (stats->mp < stats->max_mp / 2) {
+						stats->mp++;
+					}
+				}
+			}
+			else {
+				if (stats->rested_time < current_time) {
+					stats->rested_time = current_time;
+					int step = MIN(100, 0xffff - stats->rest);
+					stats->rest += step;
+				}
+			}
+		}
+		else if (sleeping) {
+			if (stats->rest == 0xffff) {
+				if (stats->rested_time+10 < current_time) {
+					stats->rested_time = current_time;
+					if (stats->hp < stats->max_hp) {
+						stats->hp++;
+					}
+					if (stats->mp < stats->max_mp) {
+						stats->mp++;
+					}
+				}
+			}
+			else {
+				if (stats->rested_time < current_time) {
+					stats->rested_time = current_time;
+					int step = MIN(200, 0xffff - stats->rest);
+					stats->rest += step;
+				}
+			}
+		}
+		else {
+			if (stats->rested_time < current_time) {
+				stats->rested_time = current_time;
+				int step = MIN(20, stats->rest);
+				stats->rest -= step;
+			}
 		}
 		if (stats->used_time < current_time) {
 			stats->used_time = current_time;
