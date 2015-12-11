@@ -23,6 +23,8 @@ class NOOSKEWL_ENGINE_EXPORT Engine {
 public:
 	static const Uint32 TICKS_PER_FRAME = (1000 / 60);
 
+	static void wait_callback(void *data);
+
 	/* Publicly accessible variables */
 	// Audio
 	bool mute;

@@ -140,6 +140,20 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 	SDL_UnlockMutex(m.mixer_mutex);
 }
 
+void Engine::wait_callback(void *data)
+{
+	int v = (int)data;
+
+	if (v <= 0) {
+		return;
+	}
+
+	for (int i = 0; i < v*60; i++) {
+		noo.loaded_time++;
+		noo.update();
+	}
+}
+
 namespace Nooskewl_Engine {
 
 Engine noo;
@@ -775,6 +789,16 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	if (!fullscreen && event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_f) {
 		fullscreen_window = !fullscreen_window;
 		SDL_SetWindowFullscreen(window, fullscreen_window ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+	}
+
+	if (
+		guis.size() == 0 &&
+		(
+			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)
+		)
+	) {
+		GUI *gui = new Get_Number_GUI(TRANSLATE("Minutes to wait:")END, 60, 0, wait_callback);
+		guis.push_back(gui);
 	}
 
 	return true;

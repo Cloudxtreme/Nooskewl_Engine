@@ -88,6 +88,7 @@ public:
 
 	void stop();
 	void handle_event(TGUI_Event *event);
+	void update_stats();
 	// return false to destroy
 	bool update(bool can_move);
 	// draws with z values

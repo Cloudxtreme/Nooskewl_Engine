@@ -138,7 +138,7 @@ void Title_GUI::callback(void *data)
 {
 	if (loading) {
 		loading = false;
-		loaded = (Save_Load_GUI::Save_Load)((int64_t)data) == Save_Load_GUI::LOAD;
+		loaded = (Save_Load_GUI::Save_Load)((int)data) == Save_Load_GUI::LOAD;
 	}
 }
 
@@ -615,7 +615,7 @@ void Get_Number_GUI::update()
 	gui->layout();
 
 	if (ok_button->pressed()) {
-		callback((void *)(int64_t)slider->get_value());
+		callback((void *)(int)slider->get_value());
 		exit();
 	}
 	else if (cancel_button->pressed()) {

@@ -654,9 +654,9 @@ void Map_Entity::handle_event(TGUI_Event *event)
 	}
 }
 
-bool Map_Entity::update(bool can_move)
+// Should be called frequently
+void Map_Entity::update_stats()
 {
-	// Update stats
 	if (stats) {
 		int current_time = noo.get_play_time();
 		if (stats->ate_time < current_time) {
@@ -690,6 +690,11 @@ bool Map_Entity::update(bool can_move)
 			}
 		}
 	}
+}
+
+bool Map_Entity::update(bool can_move)
+{
+	update_stats();
 
 	if (moving == false) {
 		maybe_move();
