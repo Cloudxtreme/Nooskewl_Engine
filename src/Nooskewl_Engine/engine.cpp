@@ -797,7 +797,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)
 		)
 	) {
-		GUI *gui = new Get_Number_GUI(TRANSLATE("Minutes to wait:")END, 60, 0, wait_callback);
+		GUI *gui = new Get_Number_GUI(TRANSLATE("Minutes to wait:")END, 61, 0, wait_callback);
+		gui->start();
 		guis.push_back(gui);
 	}
 
