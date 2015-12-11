@@ -656,15 +656,19 @@ bool Map::activate(Map_Entity *entity)
 				path = find_path(entity_pos, collide_pos, false);
 			}
 
-			entity->set_pre_sit_sleep_direction(entity->get_direction());
-			entity->set_solid(false);
+			Sit_Sleep_Data *sit_sleep_data;
 
-			Sit_Sleep_Data *sit_sleep_data = new Sit_Sleep_Data;
-			sit_sleep_data->entity = entity;
-			sit_sleep_data->sit_sleep_directions = g->type;
-			sit_sleep_data->direction = direction;
-			sit_sleep_data->is_chair = is_chair;
-			sit_sleep_data->draw_offset = draw_offset;
+			if ((is_chair == false && entity_pos == collide_pos) || path.size() > 0) {
+				sit_sleep_data = new Sit_Sleep_Data;
+				entity->set_pre_sit_sleep_direction(entity->get_direction());
+				entity->set_solid(false);
+
+				sit_sleep_data->entity = entity;
+				sit_sleep_data->sit_sleep_directions = g->type;
+				sit_sleep_data->direction = direction;
+				sit_sleep_data->is_chair = is_chair;
+				sit_sleep_data->draw_offset = draw_offset;
+			}
 
 			if (is_chair == false && entity_pos == collide_pos) {
 				walk_close_to_bed(sit_sleep_data);
