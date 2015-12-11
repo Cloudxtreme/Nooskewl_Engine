@@ -30,16 +30,7 @@ static bool sort_by_distance(const Map_Entity_Distance &a, const Map_Entity_Dist
 	return a.distance < b.distance;
 }
 
-const float Map::PAN_BACK_SPEED = 2.0f;
-
-void Map::new_game_started()
-{
-	Map_Entity::new_game_started();
-
-	noo.clear_milestones();
-}
-
-void Map::sit_sleep_callback(void *data)
+static void sit_sleep_handler(void *data)
 {
 	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)data;
 
@@ -56,6 +47,48 @@ void Map::sit_sleep_callback(void *data)
 	sit_sleep_data->entity->set_sit_sleep_directions(sit_sleep_data->sit_sleep_directions);
 
 	delete sit_sleep_data;
+}
+
+static void walk_close_to_bed(Sit_Sleep_Data *data)
+{
+	Point<int> pos = data->entity->get_position();
+	switch (data->entity->get_pre_sit_sleep_direction()) {
+		case N:
+			pos.y--;
+			break;
+		case E:
+			pos.x++;
+			break;
+		case S:
+			pos.y++;
+			break;
+		case W:
+			pos.x--;
+			break;
+	}
+	std::list<A_Star::Node *> path = noo.map->find_path(data->entity->get_position(), pos, false);
+	data->entity->set_path(path, sit_sleep_handler, data);
+}
+
+const float Map::PAN_BACK_SPEED = 2.0f;
+
+void Map::new_game_started()
+{
+	Map_Entity::new_game_started();
+
+	noo.clear_milestones();
+}
+
+void Map::sit_sleep_callback(void *data)
+{
+	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)data;
+
+	if (sit_sleep_data->is_chair == false) {
+		walk_close_to_bed(sit_sleep_data);
+		return;
+	}
+
+	sit_sleep_handler(data);
 }
 
 Map::Map(std::string map_name, bool been_here_before, int last_visited_time) :
@@ -550,49 +583,49 @@ bool Map::activate(Map_Entity *entity)
 				is_chair = false;
 				collide_pos = g->position + Point<int>(-1, 1);
 				direction = N;
-				draw_offset = Point<int>(0, noo.tile_size);
+				draw_offset = Point<int>(-noo.tile_size, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_NORTH && direction == W) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(2, 1);
 				direction = N;
-				draw_offset = Point<int>(-noo.tile_size*3, noo.tile_size);
+				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == N) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(0, 2);
 				direction = E;
-				draw_offset = Point<int>(-noo.tile_size, 0);
+				draw_offset = Point<int>(-noo.tile_size, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_EAST && direction == S) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(0, -1);
 				direction = E;
-				draw_offset = Point<int>(-noo.tile_size, noo.tile_size*3);
+				draw_offset = Point<int>(-noo.tile_size, noo.tile_size*2);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == E) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(-1, 0);
 				direction = S;
-				draw_offset = Point<int>(0, noo.tile_size*2);
+				draw_offset = Point<int>(-noo.tile_size, noo.tile_size*2);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_SOUTH && direction == W) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(2, 0);
 				direction = S;
-				draw_offset = Point<int>(-noo.tile_size*3, noo.tile_size*2);
+				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size*2);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == N) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(1, 2);
 				direction = W;
-				draw_offset = Point<int>(-noo.tile_size*2, 0);
+				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size);
 			}
 			else if (g->type == Tilemap::Group::GROUP_BED_WEST && direction == S) {
 				is_chair = false;
 				collide_pos = g->position + Point<int>(1, -1);
 				direction = W;
-				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size*3);
+				draw_offset = Point<int>(-noo.tile_size*2, noo.tile_size*2);
 			}
 			else if (direction == N) {
 				if (g->type & Tilemap::Group::GROUP_CHAIR_SOUTH) {
@@ -623,27 +656,21 @@ bool Map::activate(Map_Entity *entity)
 				path = find_path(entity_pos, collide_pos, false);
 			}
 
-			if (is_chair == false && entity_pos == collide_pos) {
-				entity->set_pre_sit_sleep_direction(entity->get_direction());
-				entity->set_solid(false);
+			entity->set_pre_sit_sleep_direction(entity->get_direction());
+			entity->set_solid(false);
 
-				entity->set_direction(direction);
-				entity->set_sleeping(true);
-				entity->set_draw_offset(draw_offset);
-				entity->set_sit_sleep_directions(g->type);
+			Sit_Sleep_Data *sit_sleep_data = new Sit_Sleep_Data;
+			sit_sleep_data->entity = entity;
+			sit_sleep_data->sit_sleep_directions = g->type;
+			sit_sleep_data->direction = direction;
+			sit_sleep_data->is_chair = is_chair;
+			sit_sleep_data->draw_offset = draw_offset;
+
+			if (is_chair == false && entity_pos == collide_pos) {
+				walk_close_to_bed(sit_sleep_data);
 			}
 			else if (path.size() > 0) {
-				entity->set_pre_sit_sleep_direction(entity->get_direction());
-				entity->set_solid(false);
-
-				Sit_Sleep_Data *sit_sleep_data = new Sit_Sleep_Data;
-				sit_sleep_data->entity = entity;
-				sit_sleep_data->sit_sleep_directions = g->type;
-				sit_sleep_data->direction = direction;
-				sit_sleep_data->is_chair = is_chair;
-				sit_sleep_data->draw_offset = draw_offset;
 				entity->set_path(path, sit_sleep_callback, sit_sleep_data);
-
 				return true;
 			}
 		}

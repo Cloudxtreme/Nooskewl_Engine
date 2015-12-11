@@ -32,7 +32,6 @@ void Map_Entity::new_game_started()
 void Map_Entity::end_sleep_callback(void *data)
 {
 	Map_Entity *entity = static_cast<Map_Entity *>(data);
-	entity->set_solid(true);
 	entity->set_draw_offset(Point<int>(0, 0));
 	entity->get_sprite()->set_reverse(false);
 	entity->sleeping = false;
@@ -42,6 +41,26 @@ void Map_Entity::end_sleep_callback(void *data)
 		entity->set_z_add(entity->get_z_add() - 100);
 	}
 	entity->set_input_enabled(true);
+
+	Point<int> pos = entity->get_position();
+
+	switch (entity->get_pre_sit_sleep_direction()) {
+		case N:
+			pos.y++;
+			break;
+		case E:
+			pos.x--;
+			break;
+		case S:
+			pos.y--;
+			break;
+		case W:
+			pos.x++;
+			break;
+	}
+
+	std::list<A_Star::Node *> path = noo.map->find_path(entity->get_position(), pos, false);
+	entity->set_path(path, make_solid_callback, entity);
 }
 
 Map_Entity::Map_Entity(std::string name) :
@@ -73,7 +92,8 @@ Map_Entity::Map_Entity(std::string name) :
 	pre_sit_sleep_direction(DIRECTION_UNKNOWN),
 	sit_sleep_directions(0),
 	sat(false),
-	should_face(true)
+	should_face(true),
+	path_count(0)
 {
 	id = current_id++;
 
@@ -272,6 +292,7 @@ void Map_Entity::set_sleeping(bool sleeping)
 void Map_Entity::set_path(std::list<A_Star::Node *> path, Callback callback, void *callback_data)
 {
 	if (path.size() > 0) {
+		path_count++;
 		this->path = path;
 		following_path = true;
 		path_callback = callback;
@@ -484,6 +505,11 @@ bool Map_Entity::can_cancel_astar()
 		return false;
 	}
 	return true;
+}
+
+Direction Map_Entity::get_pre_sit_sleep_direction()
+{
+	return pre_sit_sleep_direction;
 }
 
 bool Map_Entity::pixels_collide(Point<int> position, Size<int> size)
@@ -858,12 +884,16 @@ void Map_Entity::follow_path()
 	}
 
 	if (path.size() == 0) {
+		int old_path_count = path_count;
 		if (path_callback) {
 			path_callback(path_callback_data);
-			path_callback = 0;
 		}
-		end_a_star();
-		stop_now();
+		// If an A* was fired in the callback, don't cancel it
+		if (old_path_count == path_count) {
+			path_callback = 0;
+			end_a_star();
+			stop_now();
+		}
 		return;
 	}
 	A_Star::Node *node = path.front();
@@ -1052,6 +1082,22 @@ void Map_Entity::set_sitting_sleeping(bool sitting, bool onoff)
 				}
 				else {
 					stand_position.x--;
+				}
+			}
+			else {
+				switch (pre_sit_sleep_direction) {
+					case N:
+						stand_position.y++;
+						break;
+					case E:
+						stand_position.x--;
+						break;
+					case S:
+						stand_position.y--;
+						break;
+					case W:
+						stand_position.x++;
+						break;
 				}
 			}
 

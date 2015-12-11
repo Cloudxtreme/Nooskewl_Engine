@@ -78,6 +78,7 @@ public:
 	float get_speed();
 	bool should_face_activator();
 	bool can_cancel_astar();
+	Direction get_pre_sit_sleep_direction();
 
 	// Positions in pixels
 	bool pixels_collide(Point<int> position, Size<int> size);
@@ -144,6 +145,8 @@ private:
 	bool sat;
 
 	bool should_face; // should face player/character when talked to/activated
+
+	int path_count;
 };
 
 } // End namespace Nooskewl_Engine
