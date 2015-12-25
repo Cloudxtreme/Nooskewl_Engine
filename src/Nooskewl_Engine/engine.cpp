@@ -142,7 +142,7 @@ static void audio_callback(void *userdata, Uint8 *stream, int stream_length)
 
 void Engine::wait_callback(void *data)
 {
-	int v = (int)data;
+	int v = (int)(int64_t)data;
 
 	if (v <= 0) {
 		return;
