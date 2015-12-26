@@ -11,6 +11,7 @@ class Shader;
 class NOOSKEWL_ENGINE_EXPORT Image {
 public:
 	friend class NOOSKEWL_ENGINE_EXPORT Shader;
+	friend class NOOSKEWL_ENGINE_EXPORT Vertex_Cache;
 
 	enum Flags {
 		FLIP_H = 1,
@@ -112,8 +113,6 @@ private:
 		LPDIRECT3DTEXTURE9 system_texture;
 		IDirect3DSurface9 *render_target;
 	#endif
-		GLuint vao;
-		GLuint vbo;
 		GLuint texture;
 		GLuint fbo;
 		GLuint depth_buffer;

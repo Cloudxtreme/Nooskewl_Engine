@@ -696,9 +696,6 @@ void Image::Internal::release()
 
 		glDeleteTextures(1, &texture);
 		printGLerror("glDeleteTextures");
-		glDeleteBuffers(1, &vbo);
-		printGLerror("glDeleteBuffers");
-		glDeleteVertexArrays(1, &vao);
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -746,30 +743,9 @@ void Image::Internal::upload(unsigned char *pixels)
 	}
 
 	if (noo.opengl) {
-		glGenVertexArrays(1, &vao);
-		printGLerror("glBindVertexArrays");
-		glBindVertexArray(vao);
-		printGLerror("glBindVertexArray");
-
-		glGenBuffers(1, &vbo);
-		printGLerror("glGenBuffers");
-		if (vbo == 0) {
-			glDeleteVertexArrays(1, &vao);
-			printGLerror("glDeleteVertexArrays");
-			vao = 0;
-			throw GLError("glBenBuffers failed");
-		}
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		printGLerror("glBindBuffer");
-
 		glGenTextures(1, &texture);
 		printGLerror("glGenTextures");
 		if (texture == 0) {
-			glDeleteVertexArrays(1, &vao);
-			vao = 0;
-			glDeleteBuffers(1, &vbo);
-			printGLerror("glDeleteBuffers");
-			vbo = 0;
 			throw GLError("glGenTextures failed");
 		}
 
@@ -793,21 +769,31 @@ void Image::Internal::upload(unsigned char *pixels)
 		if (has_render_to_texture) {
 			// Create an FBO for render-to-texture
 			GLuint old_fbo;
-			glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
 
+			glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, (GLint *)&old_fbo);
 			printGLerror("glGetIntegerv");
+
 			glGenFramebuffersEXT(1, &fbo);
 			printGLerror("glGenFramebuffersEXT");
+
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 			printGLerror("glBindFramebufferEXT");
+
 			glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, texture, 0);
 			printGLerror("glFramebufferTexture2DEXT");
 
 			// Create a depth buffer
 			glGenRenderbuffers(1, &depth_buffer);
+			printGLerror("glGenRenderbuffers");
+
 			glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+			printGLerror("glBindRenderbuffer");
+
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.w, size.h);
+			printGLerror("glRenderbufferStorage");
+
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+			printGLerror("glFramebufferRenderbuffer");
 
 			glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, old_fbo);
 			printGLerror("glBindFramebufferEXT");

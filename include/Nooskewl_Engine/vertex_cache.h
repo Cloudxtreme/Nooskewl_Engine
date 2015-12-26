@@ -42,6 +42,8 @@ private:
 	Size<int> screen_size;
 
 	bool font_scaling;
+
+	GLuint vbo;
 };
 
 } // End namespace Nooskewl_Engine
