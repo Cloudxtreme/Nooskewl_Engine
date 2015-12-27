@@ -24,55 +24,11 @@ Vertex_Cache::Vertex_Cache() :
 Vertex_Cache::~Vertex_Cache()
 {
 	free(vertices);
-	
-	glDeleteBuffers(1, &vbo);
-	printGLerror("glDeleteBuffers");
 }
 
 void Vertex_Cache::init()
 {
 	maybe_resize_cache(256);
-
-	glGenBuffers(1, &vbo);
-	printGLerror("glGenBuffers");
-	if (vbo == 0) {
-		throw GLError("glBenBuffers failed");
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	printGLerror("glBindBuffer");
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*total, vertices, GL_DYNAMIC_DRAW);
-	printGLerror("glBufferData");
-
-	GLuint opengl_shader = noo.current_shader->get_opengl_shader();
-
-	GLint posAttrib = glGetAttribLocation(opengl_shader, "in_position");
-	printGLerror("glGetAttribLocation (in_position)");
-	if (posAttrib != -1) {
-		glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), 0);
-		printGLerror("glVertexAttribPointer (in_position)");
-		glEnableVertexAttribArray(posAttrib);
-		printGLerror("glEnableVertexAttribArray (in_position)");
-	}
-
-	GLint texcoordAttrib = glGetAttribLocation(opengl_shader, "in_texcoord");
-	printGLerror("glGetAttribLocation (in_texcoord)");
-	if (texcoordAttrib != -1) {
-		glVertexAttribPointer(texcoordAttrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-		printGLerror("glVertexAttribPointer (in_texcoord)");
-		glEnableVertexAttribArray(texcoordAttrib);
-		printGLerror("glEnableVertexAttribArray (in_texcoord)");
-	}
-
-	GLint colAttrib = glGetAttribLocation(opengl_shader, "in_colour");
-	printGLerror("glGetAttribLocation (in_colour)");
-	if (colAttrib != -1) {
-		glVertexAttribPointer(colAttrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(5 * sizeof(float)));
-		printGLerror("glVertexAttribPointer (in_colour)");
-		glEnableVertexAttribArray(colAttrib);
-		printGLerror("glEnableVertexAttribArray (in_colour)");
-	}
 }
 
 void Vertex_Cache::start(bool repeat)
@@ -94,14 +50,49 @@ void Vertex_Cache::start(Image *image, bool repeat)
 void Vertex_Cache::end()
 {
 	if (noo.opengl) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		printGLerror("glBindBuffer");
+		GLuint opengl_shader = noo.current_shader->get_opengl_shader();
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)*9*count, vertices, GL_DYNAMIC_DRAW);
-		printGLerror("glBufferData");
+		GLint pos_attrib = glGetAttribLocation(opengl_shader, "in_position");
+		printGLerror("glGetAttribLocation (in_position)");
+		if (pos_attrib == -1) {
+			throw Error("No in_position attribute in shader");
+		}
+		glEnableVertexAttribArray(pos_attrib);
+		printGLerror("glEnableVertexAttribArray (in_position)");
+		glVertexAttribPointer(pos_attrib, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), vertices);
+		printGLerror("glVertexAttribPointer (in_position)");
+
+		GLint texcoord_attrib = glGetAttribLocation(opengl_shader, "in_texcoord");
+		printGLerror("glGetAttribLocation (in_texcoord)");
+		if (pos_attrib == -1) {
+			throw Error("No in_texcoord attribute in shader");
+		}
+		glEnableVertexAttribArray(texcoord_attrib);
+		printGLerror("glEnableVertexAttribArray (in_texcoord)");
+		glVertexAttribPointer(texcoord_attrib, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), &vertices[3]);
+		printGLerror("glVertexAttribPointer (in_texcoord)");
+
+		GLint colour_attrib = glGetAttribLocation(opengl_shader, "in_colour");
+		printGLerror("glGetAttribLocation (in_colour)");
+		if (pos_attrib == -1) {
+			throw Error("No in_colour attribute in shader");
+		}
+		glEnableVertexAttribArray(colour_attrib);
+		printGLerror("glEnableVertexAttribArray (in_colour)");
+		glVertexAttribPointer(colour_attrib, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), &vertices[5]);
+		printGLerror("glVertexAttribPointer (in_colour)");
 
 		glDrawArrays(GL_TRIANGLES, 0, count);
 		printGLerror("glDrawArrays");
+
+		glDisableVertexAttribArray(pos_attrib);
+		printGLerror("glDisableVertexAttribArray");
+
+		glDisableVertexAttribArray(texcoord_attrib);
+		printGLerror("glDisableVertexAttribArray");
+
+		glDisableVertexAttribArray(colour_attrib);
+		printGLerror("glDisableVertexAttribArray");
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
@@ -454,7 +445,7 @@ void Vertex_Cache::cache(SDL_Colour vertex_colours[4], Point<float> source_posit
 
 void Vertex_Cache::maybe_resize_cache(int increase)
 {
-	if (total - count >= increase) {
+	if (total - count >= increase/2) {
 		return;
 	}
 
