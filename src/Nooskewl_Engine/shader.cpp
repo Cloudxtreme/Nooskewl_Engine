@@ -62,8 +62,14 @@ void Shader::set_texture(std::string name, Image *image)
 {
 	if (internal->opengl) {
 		if (image) {
+			glActiveTexture(GL_TEXTURE0);
+			printGLerror("glActiveTexture");
+
 			glBindTexture(GL_TEXTURE_2D, image->internal->texture);
 			printGLerror("glBindTexture");
+
+			GLint loc = glGetUniformLocation(internal->opengl_shader, "tex");
+			glUniform1i(loc, 0);
 		}
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
