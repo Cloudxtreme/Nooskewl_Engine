@@ -64,12 +64,6 @@ void Shader::set_texture(std::string name, Image *image)
 		if (image) {
 			glBindTexture(GL_TEXTURE_2D, image->internal->texture);
 			printGLerror("glBindTexture");
-			/*
-			glBindVertexArray(image->internal->vao);
-			printGLerror("glBindVertexArray");
-			glBindBuffer(GL_ARRAY_BUFFER, image->internal->vbo);
-			printGLerror("glBindBuffer");
-			*/
 		}
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
