@@ -76,6 +76,8 @@ else()
 	endif()
 	if(APPLE)
 		set_target_properties(Nooskewl_Engine PROPERTIES MACOSX_RPATH on)
+		set_target_properties(Nooskewl_Engine PROPERTIES BUILD_WITH_INSTALL_RPATH on)
+
 		set_target_properties(Nooskewl_Engine PROPERTIES LINK_FLAGS "-framework OpenGL -framework Cocoa -framework IOKit -framework CoreAudio -framework AudioUnit -framework ForceFeedback -framework Carbon")
 		set_target_properties(Nooskewl_Runner PROPERTIES BUILD_WITH_INSTALL_RPATH on)
 		set_target_properties(Nooskewl_Runner PROPERTIES INSTALL_RPATH "@executable_path/")
