@@ -7,6 +7,7 @@
 using namespace Nooskewl_Engine;
 
 Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absolute_path) :
+	started(false),
 	previous_animation(""),
 	finished_callback(0),
 	reverse(false)
@@ -16,6 +17,7 @@ Sprite::Sprite(std::string xml_filename, std::string image_directory, bool absol
 }
 
 Sprite::Sprite(std::string image_directory) :
+	started(false),
 	previous_animation(""),
 	finished_callback(0),
 	reverse(false)
