@@ -749,10 +749,11 @@ void Image::Internal::upload(unsigned char *pixels)
 			throw GLError("glGenTextures failed");
 		}
 
-		glBindTexture(GL_TEXTURE_2D, texture);
-		printGLerror("glBindTexture");
 		glActiveTexture(GL_TEXTURE0);
 		printGLerror("glActiveTexture");
+
+		glBindTexture(GL_TEXTURE_2D, texture);
+		printGLerror("glBindTexture");
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.w, size.h, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		printGLerror("glTexImage2D");
