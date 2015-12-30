@@ -796,7 +796,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)
 		)
 	) {
-		GUI *gui = new Get_Number_GUI(TRANSLATE("Minutes to wait:")END, 61, 0, wait_callback);
+		GUI *gui = new Get_Number_GUI(noo.t->translate(15), 61, 0, wait_callback);
 		gui->start();
 		guis.push_back(gui);
 	}
@@ -973,7 +973,7 @@ void Engine::draw()
 			map->draw();
 
 			if (check_milestone("Input Help") == false) {
-				std::string text = TRANSLATE("Press SPACE")END;
+				std::string text = noo.t->translate(17);
 				int w = (int)font->get_text_width(text);
 				int h = (int)font->get_height();
 				int x = screen_size.w / 2 - w / 2;

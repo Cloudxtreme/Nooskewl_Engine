@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 int main(int argc, char **argv)
 {
 	if (argc != 4) {
 		printf("Usage: %s <objname> <matches.txt> <target.txt>\n", argv[0]);
-		exit(0);
+		return 0;
 	}
 
 	FILE *in = fopen(argv[2], "r");

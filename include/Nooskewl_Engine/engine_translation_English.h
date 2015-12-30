@@ -12,4 +12,12 @@ std::string engine_translation_English =
 "10:Resume\n"
 "11:Save\n"
 "12:Yes\n"
+"13:Always\n"
+"14:Cancel\n"
+"15:Minutes to wait:\n"
+"16:No saved games found\n"
+"17:Press SPACE\n"
+"18:You're drunk...\n"
+"19:You feel sick...\n"
+"20:You lost karma...\n"
 ;

@@ -4,6 +4,7 @@
 #include "Nooskewl_Engine/inventory.h"
 #include "Nooskewl_Engine/item.h"
 #include "Nooskewl_Engine/stats.h"
+#include "Nooskewl_Engine/translation.h"
 #include "Nooskewl_Engine/xml.h"
 
 using namespace Nooskewl_Engine;
@@ -106,11 +107,11 @@ bool Stats::load(std::string name)
 void Stats::set_status(Status status)
 {
 	if (status == SICK && this->status != SICK) {
-		noo.add_notification(TRANSLATE("You feel sick...")END);
+		noo.add_notification(noo.t->translate(19));
 	}
 	else if (status == DRUNK && this->status != DRUNK) {
-		noo.add_notification(TRANSLATE("You're drunk...")END);
-		noo.add_notification(TRANSLATE("You lost karma...")END);
+		noo.add_notification(noo.t->translate(18));
+		noo.add_notification(noo.t->translate(20));
 		karma -= MIN(500, karma);
 	}
 	this->status = status;

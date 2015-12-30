@@ -1,2 +1,2 @@
-../../../MonsterRPG3/src
-../../../MonsterRPG3/include
+../../../monster-rpg-3/src
+../../../monster-rpg-3/include

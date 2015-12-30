@@ -385,7 +385,7 @@ bool Title_GUI::fade_done(bool fade_in)
 				m.dll_game_started();
 			}
 			else {
-				caption = TRANSLATE("No saved games found")END;
+				caption = noo.t->translate(16);
 			}
 
 			if (caption != "") {
@@ -520,7 +520,7 @@ Yes_No_Always_GUI::Yes_No_Always_GUI(std::string text, int milestone, Callback c
 	no_button->set_padding_left(2);
 	no_button->set_padding_right(2);
 
-	always_button = new Widget_Text_Button(TRANSLATE("Always")END);
+	always_button = new Widget_Text_Button(noo.t->translate(13));
 	always_button->set_center_x(true);
 	always_button->set_padding_left(2);
 
@@ -585,13 +585,13 @@ Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, C
 	value_label->set_break_line(true);
 	value_label->set_parent(window);
 
-	ok_button = new Widget_Text_Button(TRANSLATE("OK")END);
+	ok_button = new Widget_Text_Button(noo.t->translate(7));
 	ok_button->set_center_x(true);
 	ok_button->set_padding_right(2);
 
 	slider->set_down_widget(ok_button);
 
-	cancel_button = new Widget_Text_Button(TRANSLATE("Cancel")END);
+	cancel_button = new Widget_Text_Button(noo.t->translate(14));
 	cancel_button->set_center_x(true);
 	cancel_button->set_padding_left(2);
 

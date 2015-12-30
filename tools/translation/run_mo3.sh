@@ -1,1 +1,1 @@
-sh extract_strings.sh ../../../MonsterRPG3-data/text/English.utf8 directories_mo3.txt game_t
+sh extract_strings.sh ../../../monster-rpg-3-data/text/English.utf8 directories_mo3.txt game_t
