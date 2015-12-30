@@ -15,6 +15,7 @@ public:
 	Brain();
 	virtual ~Brain();
 
+	virtual void init(); // called immediately after setting map_entity in set_map_entity
 	virtual void handle_event(TGUI_Event *event);
 	virtual void update();
 	virtual bool activate(Map_Entity *activator);

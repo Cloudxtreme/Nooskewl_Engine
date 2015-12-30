@@ -14,6 +14,10 @@ Brain::~Brain()
 {
 }
 
+void Brain::init()
+{
+}
+
 void Brain::handle_event(TGUI_Event *event)
 {
 }
@@ -45,6 +49,7 @@ bool Brain::save(std::string &out)
 void Brain::set_map_entity(Map_Entity *map_entity)
 {
 	this->map_entity = map_entity;
+	init();
 }
 
 Map_Entity *Brain::get_map_entity()
