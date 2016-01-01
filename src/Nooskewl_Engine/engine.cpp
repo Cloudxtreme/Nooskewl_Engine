@@ -790,12 +790,8 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		SDL_SetWindowFullscreen(window, fullscreen_window ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	}
 
-	if (
-		guis.size() == 0 &&
-		(
-			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)
-		)
-	) {
+	if ((guis.size() == 0 && noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false) &&
+			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)) {
 		GUI *gui = new Get_Number_GUI(noo.t->translate(15), 61, 0, wait_callback);
 		gui->start();
 		guis.push_back(gui);
