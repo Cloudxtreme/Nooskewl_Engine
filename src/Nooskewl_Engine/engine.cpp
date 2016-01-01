@@ -1080,7 +1080,11 @@ void Engine::draw()
 		int wanted_delay = TICKS_PER_FRAME - elapsed;
 		int final_delay = wanted_delay + accumulated_delay;
 		if (final_delay > 0) {
-			SDL_Delay(final_delay);
+			// this is extremely inaccurate, so do a busy loop
+			//SDL_Delay(final_delay);
+			Uint32 wait_until = final_delay + SDL_GetTicks();
+			while (SDL_GetTicks() < wait_until)
+				; // do nothing
 			elapsed = SDL_GetTicks() - now;
 			accumulated_delay -= elapsed - wanted_delay;
 		}
