@@ -1020,7 +1020,7 @@ void Engine::draw()
 	draw_triangle(red, Point<int>(0, 0), Point<int>((int)escape_triangle_size, 0), Point<int>(0, (int)escape_triangle_size));
 
 	if (notifications.size() > 0) {
-		const int duration = 5000;
+		const int duration = 3000;
 		const int fade = 500;
 
 		int now = SDL_GetTicks();
