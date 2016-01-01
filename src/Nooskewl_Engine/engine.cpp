@@ -174,7 +174,7 @@ Engine::Engine() :
 	joy_b1(0),
 	joy_b2(1),
 	joy_b3(2),
-	joy_b3(3),
+	joy_b4(3),
 #endif
 	key_b1(TGUIK_SPACE),
 	key_b2(TGUIK_ESCAPE),
