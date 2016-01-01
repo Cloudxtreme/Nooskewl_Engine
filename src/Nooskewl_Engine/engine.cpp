@@ -168,15 +168,18 @@ Engine::Engine() :
 	joy_b1(10),
 	joy_b2(11),
 	joy_b3(12),
+	joy_b4(13),
 #else
 	// Linux
 	joy_b1(0),
 	joy_b2(1),
 	joy_b3(2),
+	joy_b3(3),
 #endif
 	key_b1(TGUIK_SPACE),
 	key_b2(TGUIK_ESCAPE),
 	key_b3(TGUIK_TAB),
+	key_b4(TGUIK_t),
 	map(0),
 	last_map_name(""),
 	tile_size(16),
@@ -794,7 +797,9 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	}
 
 	if ((guis.size() == 0 && noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false) &&
-			(event.type == TGUI_KEY_DOWN && event.keyboard.code == TGUIK_t)) {
+			((event.type == TGUI_KEY_DOWN && event.keyboard.code == key_b4) ||
+			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b4)
+			)) {
 		GUI *gui = new Get_Number_GUI(noo.t->translate(15), 61, 0, wait_callback);
 		gui->start();
 		guis.push_back(gui);

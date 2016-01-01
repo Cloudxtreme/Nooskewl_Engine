@@ -68,9 +68,11 @@ public:
 	int joy_b1;
 	int joy_b2;
 	int joy_b3;
+	int joy_b4;
 	int key_b1;
 	int key_b2;
 	int key_b3;
+	int key_b4;
 	// Other
 	std::string language;
 	Translation *t;
