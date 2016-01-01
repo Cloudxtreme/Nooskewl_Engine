@@ -136,6 +136,7 @@ class NOOSKEWL_ENGINE_EXPORT Get_Number_GUI : public GUI {
 public:
 	Get_Number_GUI(std::string text, int stops, int initial_value, Callback callback);
 
+	void handle_event(TGUI_Event *event);
 	void update();
 
 private:

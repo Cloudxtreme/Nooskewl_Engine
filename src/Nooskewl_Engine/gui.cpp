@@ -608,6 +608,20 @@ Get_Number_GUI::Get_Number_GUI(std::string text, int stops, int initial_value, C
 	gui->set_focus(slider);
 }
 
+void Get_Number_GUI::handle_event(TGUI_Event *event)
+{
+	if (
+		(event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b2) ||
+		(event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b2)) {
+		noo.button_mml->play(false);
+		callback((void *)-1);
+		exit();
+	}
+	else {
+		GUI::handle_event(event);
+	}
+}
+
 void Get_Number_GUI::update()
 {
 	value_label->set_text(itos(slider->get_value()));
