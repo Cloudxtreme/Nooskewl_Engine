@@ -655,7 +655,7 @@ void Engine::shutdown_audio()
 	audio_buf = 0;
 }
 
-bool Engine::handle_event(SDL_Event *sdl_event)
+bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 {
 	if (sdl_event->type == SDL_QUIT) {
 		return false;
@@ -773,6 +773,75 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 	if (guis.size() > 0) {
 		GUI *noo_gui = guis[guis.size()-1];
 		if (noo_gui->is_fading_out() == false) {
+			int x = 0;
+			int y = 0;
+			if (event.type == TGUI_JOY_AXIS && (event.joystick.axis == 0 || event.joystick.axis == 1)) {
+				int axis = event.joystick.axis;
+				int index = find_joy_repeat(false, axis);
+				if (fabsf(event.joystick.value) > 0.25f) {
+					if (index < 0 || is_joystick_repeat) {
+						if (!is_joystick_repeat) {
+							Joy_Repeat jr;
+							jr.is_button = false;
+							jr.axis = axis;
+							jr.value = event.joystick.value < 0 ? -1 : 1;
+							jr.initial_press_time = SDL_GetTicks();
+							jr.down = true;
+							joystick_repeats.push_back(jr);
+						}
+						if (axis == 0) {
+							if (event.joystick.value < 0) {
+								x = -1;
+							}
+							else {
+								x = 1;
+							}
+						}
+						else if (axis == 1) {
+							if (event.joystick.value < 0) {
+								y = -1;
+							}
+							else {
+								y = 1;
+							}
+						}
+					}
+				}
+				else if (index >= 0) {
+					joystick_repeats.erase(joystick_repeats.begin() + index);
+				}
+			}
+			if (event.type == TGUI_KEY_DOWN) {
+				if (event.keyboard.code == TGUIK_LEFT) {
+					x = -1;
+				}
+				else if (event.keyboard.code == TGUIK_RIGHT) {
+					x = 1;
+				}
+				else if (event.keyboard.code == TGUIK_UP) {
+					y = -1;
+				}
+				else if (event.keyboard.code == TGUIK_DOWN) {
+					y = 1;
+				}
+			}
+
+			if (x != 0 || y != 0) {
+				event.type = TGUI_FOCUS;
+				if  (x < 0) {
+					event.focus.type = TGUI_FOCUS_LEFT;
+				}
+				else if (x > 0) {
+					event.focus.type = TGUI_FOCUS_RIGHT;
+				}
+				else if (y < 0) {
+					event.focus.type = TGUI_FOCUS_UP;
+				}
+				else {
+					event.focus.type = TGUI_FOCUS_DOWN;
+				}
+			}
+
 			noo_gui->handle_event(&event);
 			if (event.type == TGUI_FOCUS) {
 				widget_mml->play(false);
@@ -806,12 +875,68 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		game_paused();
 	}
 
+	// joystick button repeat
+	if ((event.type == TGUI_JOY_DOWN || event.type == TGUI_JOY_UP) && is_joystick_repeat == false) {
+		if (event.type == TGUI_JOY_DOWN) {
+			if (find_joy_repeat(true, event.joystick.button) < 0) {
+				Joy_Repeat jr;
+				jr.is_button = true;
+				jr.button = event.joystick.button;
+				jr.initial_press_time = SDL_GetTicks();
+				jr.down = true;
+				joystick_repeats.push_back(jr);
+			}
+		}
+		else {
+			int index = find_joy_repeat(true, event.joystick.button);
+			if (index >= 0) {
+				joystick_repeats.erase(joystick_repeats.begin() + index);
+			}
+		}
+	}
+
 	return true;
 }
 
 bool Engine::update()
 {
 	check_joysticks();
+
+	// joystick repeat
+	for (size_t i = 0; i < joystick_repeats.size(); i++) {
+		Joy_Repeat &jr = joystick_repeats[i];
+		// these define the repeat rate in thousands of a second
+		int initial_delay = 200;
+		int repeat_delay = 50;
+		Uint32 diff = SDL_GetTicks() - jr.initial_press_time;
+		if ((int)diff > initial_delay) {
+			diff -= initial_delay;
+			int elapsed = diff;
+			int mod = elapsed % repeat_delay;
+			if (mod < repeat_delay / 2) {
+				// down
+				if (jr.down == false) {
+					jr.down = true;
+					SDL_Event event;
+					if (jr.is_button) {
+						event.type = SDL_JOYBUTTONDOWN;
+						event.jbutton.button = jr.button;
+						handle_event(&event, true);
+					}
+					else {
+						event.type = SDL_JOYAXISMOTION;
+						event.jaxis.axis = jr.axis;
+						event.jaxis.value = jr.value * 32767;
+						handle_event(&event, true);
+					}
+				}
+			}
+			else {
+				// up
+				jr.down = false;
+			}
+		}
+	}
 
 	if (mouse_pos.x < noo.tile_size && mouse_pos.y < noo.tile_size) {
 		escape_triangle_size += 0.5f;
@@ -2463,6 +2588,19 @@ void Engine::recreate_work_image()
 		delete work_image;
 	}
 	work_image = new Image(Size<int>(real_screen_size.w, real_screen_size.h));
+}
+
+int Engine::find_joy_repeat(bool is_button, int n)
+{
+	for (size_t i = 0; i < joystick_repeats.size(); i++) {
+		if (is_button && joystick_repeats[i].is_button && joystick_repeats[i].button == n) {
+			return i;
+		}
+		if (!is_button && !joystick_repeats[i].is_button && joystick_repeats[i].axis == n) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 } // End namespace Nooskewl_Engine

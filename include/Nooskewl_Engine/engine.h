@@ -92,7 +92,7 @@ public:
 	bool start(int argc, char **argv);
 	void end();
 
-	bool handle_event(SDL_Event *sdl_event);
+	bool handle_event(SDL_Event *sdl_event, bool is_joystick_repeat = false);
 	bool update();
 	void draw();
 
@@ -251,6 +251,17 @@ private:
 	Uint32 notification_start_time;
 
 	bool fullscreen_window;
+
+	struct Joy_Repeat {
+		bool is_button;
+		int button;
+		int axis;
+		int value;
+		Uint32 initial_press_time;
+		bool down;
+	};
+	int find_joy_repeat(bool is_button, int button_or_axis);
+	std::vector<Joy_Repeat> joystick_repeats;
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;
