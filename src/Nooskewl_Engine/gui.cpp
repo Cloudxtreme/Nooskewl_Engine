@@ -629,7 +629,7 @@ void Get_Number_GUI::update()
 	gui->layout();
 
 	if (ok_button->pressed()) {
-		callback((void *)(int)slider->get_value());
+		callback((void *)(intptr_t)slider->get_value());
 		exit();
 	}
 	else if (cancel_button->pressed()) {
