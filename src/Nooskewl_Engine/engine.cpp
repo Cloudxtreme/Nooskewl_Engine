@@ -145,6 +145,7 @@ void Engine::wait_callback(void *data)
 	int v = (int)(int64_t)data;
 
 	if (v <= 0) {
+		noo.game_unpaused();
 		return;
 	}
 
@@ -152,6 +153,8 @@ void Engine::wait_callback(void *data)
 		noo.loaded_time++;
 		noo.update();
 	}
+
+	noo.game_unpaused();
 }
 
 namespace Nooskewl_Engine {
@@ -795,6 +798,7 @@ bool Engine::handle_event(SDL_Event *sdl_event)
 		GUI *gui = new Get_Number_GUI(noo.t->translate(15), 61, 0, wait_callback);
 		gui->start();
 		guis.push_back(gui);
+		game_paused();
 	}
 
 	return true;
