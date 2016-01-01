@@ -865,7 +865,7 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 		SDL_SetWindowFullscreen(window, fullscreen_window ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 	}
 
-	if ((guis.size() == 0 && noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false) &&
+	if ((guis.size() == 0 && map && noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false) &&
 			((event.type == TGUI_KEY_DOWN && event.keyboard.code == key_b4) ||
 			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b4)
 			)) {
