@@ -334,6 +334,8 @@ void Map::handle_event(TGUI_Event *event)
 			(event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b3) ||
 			(event->type == TGUI_JOY_DOWN && event->joystick.button == noo.joy_b3)
 		) {
+			// clear inputs so they don't get stuck
+			noo.player->get_brain()->reset();
 			choose_action();
 		}
 	}

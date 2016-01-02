@@ -856,6 +856,8 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 
 		if (noo.player->is_input_enabled() && !noo.player->is_moving() && map->is_speech_active() == false && is_escape) {
 			noo.button_mml->play(false);
+			// clear inputs so they don't get stuck
+			noo.player->get_brain()->reset();
 			m.dll_pause();
 		}
 	}
@@ -869,6 +871,8 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 			((event.type == TGUI_KEY_DOWN && event.keyboard.code == key_b4) ||
 			(event.type == TGUI_JOY_DOWN && event.joystick.button == joy_b4)
 			)) {
+		// clear inputs so they don't get stuck
+		noo.player->get_brain()->reset();
 		GUI *gui = new Get_Number_GUI(noo.t->translate(15), 61, 0, wait_callback);
 		gui->start();
 		guis.push_back(gui);
