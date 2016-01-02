@@ -704,7 +704,14 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 
 			d3d_device->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &render_target);
 		}
+		else
 #endif
+		{
+			glDisable(GL_SCISSOR_TEST);
+		}
+
+		clear(black);
+		flip();
 		clear(black);
 
 		set_screen_size(width, height);
