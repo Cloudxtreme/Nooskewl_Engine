@@ -194,9 +194,9 @@ void Image::merge_bytes(unsigned char *pixel, unsigned char *p, int bytes, TGA_H
 		// Paletted
 		if (colour->r == 255 && colour->g == 0 && colour->b == 255) {
 			// transparent
-			*pixel++ = 255;
 			*pixel++ = 0;
-			*pixel++ = 255;
+			*pixel++ = 0;
+			*pixel++ = 0;
 			*pixel++ = 0;
 		}
 		else {
