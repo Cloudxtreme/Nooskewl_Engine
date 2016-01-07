@@ -57,14 +57,14 @@ void Stats::defaults()
 	hp = 0;
 	mp = 0;
 
-	characteristics.max_hp = 0;
-	characteristics.max_mp = 0;
-	characteristics.attack = 0;
-	characteristics.defense = 0;
-	characteristics.agility = 0;
-	characteristics.luck = 0;
-	characteristics.speed = 0;
-	characteristics.strength = 0;
+	characteristics.set_max_hp(0);
+	characteristics.set_max_mp(0);
+	characteristics.set_attack(0);
+	characteristics.set_defense(0);
+	characteristics.set_agility(0);
+	characteristics.set_luck(0);
+	characteristics.set_speed(0);
+	characteristics.set_strength(0);
 
 	experience = 0;
 
@@ -173,31 +173,31 @@ void Stats::handle_tag(XML *xml)
 			hp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "max_hp") {
-			characteristics.max_hp = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_max_hp(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "mp") {
 			mp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "max_mp") {
-			characteristics.max_mp = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_max_mp(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "attack") {
-			characteristics.attack = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_attack(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "defense") {
-			characteristics.defense = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_defense(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "agility") {
-			characteristics.agility = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_agility(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "luck") {
-			characteristics.luck = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_luck(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "speed") {
-			characteristics.speed = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_speed(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "strength") {
-			characteristics.strength = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.set_strength(XML_Helpers::handle_numeric_tag(xml));
 		}
 		else if (tag == "experience") {
 			experience = XML_Helpers::handle_numeric_tag(xml);

@@ -2463,31 +2463,31 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 				stats->hp = v;
 			}
 			else if (key == "max_hp") {
-				stats->characteristics.max_hp = v;
+				stats->characteristics.set_max_hp(v);
 			}
 			else if (key == "mp") {
 				stats->mp = v;
 			}
 			else if (key == "max_mp") {
-				stats->characteristics.max_mp = v;
+				stats->characteristics.set_max_mp(v);
 			}
 			else if (key == "attack") {
-				stats->characteristics.attack = v;
+				stats->characteristics.set_attack(v);
 			}
 			else if (key == "defense") {
-				stats->characteristics.defense = v;
+				stats->characteristics.set_defense(v);
 			}
 			else if (key == "agility") {
-				stats->characteristics.agility = v;
+				stats->characteristics.set_agility(v);
 			}
 			else if (key == "luck") {
-				stats->characteristics.luck = v;
+				stats->characteristics.set_luck(v);
 			}
 			else if (key == "speed") {
-				stats->characteristics.speed = v;
+				stats->characteristics.set_speed(v);
 			}
 			else if (key == "strength") {
-				stats->characteristics.strength = v;
+				stats->characteristics.set_strength(v);
 			}
 			else if (key == "experience") {
 				stats->experience = v;

@@ -673,10 +673,10 @@ void Map_Entity::update_stats()
 			if (stats->rest == 0xffff) {
 				if (stats->rested_time+20 < current_time) {
 					stats->rested_time = current_time;
-					if (stats->hp < stats->characteristics.max_hp / 2) {
+					if (stats->hp < stats->characteristics.get_max_hp() / 2) {
 						stats->hp++;
 					}
-					if (stats->mp < stats->characteristics.max_mp / 2) {
+					if (stats->mp < stats->characteristics.get_max_mp() / 2) {
 						stats->mp++;
 					}
 				}
@@ -693,10 +693,10 @@ void Map_Entity::update_stats()
 			if (stats->rest == 0xffff) {
 				if (stats->rested_time+10 < current_time) {
 					stats->rested_time = current_time;
-					if (stats->hp < stats->characteristics.max_hp) {
+					if (stats->hp < stats->characteristics.get_max_hp()) {
 						stats->hp++;
 					}
-					if (stats->mp < stats->characteristics.max_mp) {
+					if (stats->mp < stats->characteristics.get_max_mp()) {
 						stats->mp++;
 					}
 				}
@@ -743,7 +743,7 @@ bool Map_Entity::update(bool can_move)
 	}
 
 	float curr_speed;
-	if (stats && stats->inventory && stats->inventory->get_total_weight() > stats->characteristics.strength * 1000) {
+	if (stats && stats->inventory && stats->inventory->get_total_weight() > stats->characteristics.get_strength() * 1000) {
 		curr_speed = speed / 10;
 	}
 	else {
@@ -1075,15 +1075,15 @@ bool Map_Entity::save(std::string &out)
 			(int)stats->alignment,
 			(int)stats->sex,
 			stats->hp,
-			stats->characteristics.max_hp,
+			stats->characteristics.get_max_hp(),
 			stats->mp,
-			stats->characteristics.max_mp,
-			stats->characteristics.attack,
-			stats->characteristics.defense,
-			stats->characteristics.agility,
-			stats->characteristics.luck,
-			stats->characteristics.speed,
-			stats->characteristics.strength,
+			stats->characteristics.get_max_mp(),
+			stats->characteristics.get_attack(),
+			stats->characteristics.get_defense(),
+			stats->characteristics.get_agility(),
+			stats->characteristics.get_luck(),
+			stats->characteristics.get_speed(),
+			stats->characteristics.get_strength(),
 			stats->experience,
 			stats->karma,
 			stats->hunger,

@@ -34,7 +34,27 @@ public:
 		DRUNK
 	};
 
-	struct Characteristics {
+	class Characteristics {
+	public:
+		uint16_t get_max_hp() { return max_hp; }
+		uint16_t get_max_mp() { return max_mp; }
+		uint16_t get_attack() { return attack; }
+		uint16_t get_defense() { return defense; }
+		uint16_t get_agility() { return agility; }
+		uint16_t get_luck() { return luck; }
+		uint16_t get_speed() { return speed; }
+		uint16_t get_strength() { return strength; }
+
+		void set_max_hp(uint16_t value) { max_hp = value; }
+		void set_max_mp(uint16_t value) { max_mp = value; }
+		void set_attack(uint16_t value) { attack = value; }
+		void set_defense(uint16_t value) { defense = value; }
+		void set_agility(uint16_t value) { agility = value; }
+		void set_luck(uint16_t value) { luck = value; }
+		void set_speed(uint16_t value) { speed = value; }
+		void set_strength(uint16_t value) { strength = value; }
+
+	private:
 		uint16_t max_hp;
 		uint16_t max_mp;
 		uint16_t attack;
