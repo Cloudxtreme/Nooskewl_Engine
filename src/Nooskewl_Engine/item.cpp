@@ -26,7 +26,27 @@ void Item::use(Stats *stats)
 
 std::string Item::to_string()
 {
-	return string_printf("%s,%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d", id.c_str(), name.c_str(), (int)type, condition, weight, min_attack, max_attack, min_defense, max_defense, min_value, max_value);
+	return string_printf("%s,%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d,mod_max_hp:%d,mod_max_mp:%d,mod_attack:%d,mod_defense:%d,mod_agility:%d,mod_luck:%d,mod_speed:%d,mod_strength:%d",
+		id.c_str(),
+		name.c_str(),
+		(int)type,
+		condition,
+		weight,
+		min_attack,
+		max_attack,
+		min_defense,
+		max_defense,
+		min_value,
+		max_value,
+		modifiers.get_max_hp(),
+		modifiers.get_max_mp(),
+		modifiers.get_attack(),
+		modifiers.get_defense(),
+		modifiers.get_agility(),
+		modifiers.get_luck(),
+		modifiers.get_speed(),
+		modifiers.get_strength()
+	);
 }
 
 void Item::from_string(std::string s)
@@ -72,6 +92,30 @@ void Item::from_string(std::string s)
 		else if (key == "max_value") {
 			max_value = atoi(value.c_str());
 		}
+		else if (key == "mod_max_hp") {
+			modifiers.set_max_hp(atoi(value.c_str()));
+		}
+		else if (key == "mod_max_mp") {
+			modifiers.set_max_mp(atoi(value.c_str()));
+		}
+		else if (key == "mod_attack") {
+			modifiers.set_attack(atoi(value.c_str()));
+		}
+		else if (key == "mod_defense") {
+			modifiers.set_defense(atoi(value.c_str()));
+		}
+		else if (key == "mod_agility") {
+			modifiers.set_agility(atoi(value.c_str()));
+		}
+		else if (key == "mod_luck") {
+			modifiers.set_luck(atoi(value.c_str()));
+		}
+		else if (key == "mod_speed") {
+			modifiers.set_speed(atoi(value.c_str()));
+		}
+		else if (key == "mod_strength") {
+			modifiers.set_strength(atoi(value.c_str()));
+		}
 	}
 }
 
@@ -85,14 +129,14 @@ void Item::defaults()
 	min_defense = max_defense = 0;
 	min_value = max_value = 0;
 	
-	modifiers.set_max_hp(0);
-	modifiers.set_max_mp(0);
-	modifiers.set_attack(0);
-	modifiers.set_defense(0);
-	modifiers.set_agility(0);
-	modifiers.set_luck(0);
-	modifiers.set_speed(0);
-	modifiers.set_strength(0);
+	modifiers.set_max_hp(0xffff/2);
+	modifiers.set_max_mp(0xffff/2);
+	modifiers.set_attack(0xffff/2);
+	modifiers.set_defense(0xffff/2);
+	modifiers.set_agility(0xffff/2);
+	modifiers.set_luck(0xffff/2);
+	modifiers.set_speed(0xffff/2);
+	modifiers.set_strength(0xffff/2);
 }
 
 bool Item::load(std::string name)

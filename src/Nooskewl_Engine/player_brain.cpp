@@ -240,7 +240,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 			}
 			if (dragged) {
 				Point<float> moved = pressed_pos - mouse_pos;
-				if (abs(moved.x) > noo.screen_size.w / 2.0f) {
+				if (fabs(moved.x) > noo.screen_size.w / 2.0f) {
 					if (moved.x < 0.0f) {
 						moved.x = -noo.screen_size.w / 2.0f;
 					}
@@ -248,7 +248,7 @@ void Player_Brain::handle_event(TGUI_Event *event)
 						moved.x = noo.screen_size.w / 2.0f;
 					}
 				}
-				if (abs(moved.y) > noo.screen_size.h / 2.0f) {
+				if (fabs(moved.y) > noo.screen_size.h / 2.0f) {
 					if (moved.y < 0.0f) {
 						moved.y = -noo.screen_size.h / 2.0f;
 					}

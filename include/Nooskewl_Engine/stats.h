@@ -1,8 +1,6 @@
 #ifndef STATS_H
 #define STATS_H
 
-#include "Nooskewl_Engine/main.h"
-
 // Xlib.h #define's Status as int
 #ifdef __linux__
 #undef Status
@@ -10,7 +8,6 @@
 
 namespace Nooskewl_Engine {
 
-class Item;
 class Image;
 class Inventory;
 class XML;
@@ -37,32 +34,35 @@ public:
 
 	class Characteristics {
 	public:
-		uint16_t get_max_hp() { return max_hp; }
-		uint16_t get_max_mp() { return max_mp; }
-		uint16_t get_attack() { return attack; }
-		uint16_t get_defense() { return defense; }
-		uint16_t get_agility() { return agility; }
-		uint16_t get_luck() { return luck; }
-		uint16_t get_speed() { return speed; }
-		uint16_t get_strength() { return strength; }
+		Characteristics();
+		Characteristics(const Characteristics &o);
 
-		uint16_t get_modified_max_hp(Stats *stats) { return max_hp + (max_hp * stats->get_max_hp_mod()); }
-		uint16_t get_modified_max_mp(Stats *stats) { return max_mp + (max_mp * stats->get_max_mp_mod()); }
-		uint16_t get_modified_attack(Stats *stats) { return attack + (attack * stats->get_attack_mod()); }
-		uint16_t get_modified_defense(Stats *stats) { return defense + (defense * stats->get_defense_mod()); }
-		uint16_t get_modified_agility(Stats *stats) { return agility + (agility * stats->get_agility_mod()); }
-		uint16_t get_modified_luck(Stats *stats) { return luck + (luck * stats->get_luck_mod()); }
-		uint16_t get_modified_speed(Stats *stats) { return speed + (speed * stats->get_speed_mod()); }
-		uint16_t get_modified_strength(Stats *stats) { return strength + (strength * stats->get_strength_mod()); }
+		uint16_t get_max_hp();
+		uint16_t get_max_mp();
+		uint16_t get_attack();
+		uint16_t get_defense();
+		uint16_t get_agility();
+		uint16_t get_luck();
+		uint16_t get_speed();
+		uint16_t get_strength();
 
-		void set_max_hp(uint16_t value) { max_hp = value; }
-		void set_max_mp(uint16_t value) { max_mp = value; }
-		void set_attack(uint16_t value) { attack = value; }
-		void set_defense(uint16_t value) { defense = value; }
-		void set_agility(uint16_t value) { agility = value; }
-		void set_luck(uint16_t value) { luck = value; }
-		void set_speed(uint16_t value) { speed = value; }
-		void set_strength(uint16_t value) { strength = value; }
+		uint16_t get_modified_max_hp(Stats *stats);
+		uint16_t get_modified_max_mp(Stats *stats);
+		uint16_t get_modified_attack(Stats *stats);
+		uint16_t get_modified_defense(Stats *stats);
+		uint16_t get_modified_agility(Stats *stats);
+		uint16_t get_modified_luck(Stats *stats);
+		uint16_t get_modified_speed(Stats *stats);
+		uint16_t get_modified_strength(Stats *stats);
+
+		void set_max_hp(uint16_t value);
+		void set_max_mp(uint16_t value);
+		void set_attack(uint16_t value);
+		void set_defense(uint16_t value);
+		void set_agility(uint16_t value);
+		void set_luck(uint16_t value);
+		void set_speed(uint16_t value);
+		void set_strength(uint16_t value);
 
 	private:
 		uint16_t max_hp;
@@ -106,8 +106,9 @@ public:
 
 	Inventory *inventory;
 
-	int weapon_index; // indices into inventory
-	int armour_index;
+	// indices into inventory
+	std::vector<int> weapon_indices;
+	std::vector<int> armour_indices;
 
 	Stats();
 	Stats(std::string name);
@@ -118,14 +119,16 @@ public:
 
 	void set_status(Status status);
 
-	float get_max_hp_mod() { return 1.0f; /* FIXME */ }
-	float get_max_mp_mod() { return 1.0f; /* FIXME */ }
-	float get_attack_mod() { return 1.0f; /* FIXME */ }
-	float get_defense_mod() { return 1.0f; /* FIXME */ }
-	float get_agility_mod() { return 1.0f; /* FIXME */ }
-	float get_luck_mod() { return 1.0f; /* FIXME */ }
-	float get_speed_mod() { return 1.0f; /* FIXME */ }
-	float get_strength_mod() { return 1.0f; /* FIXME */ }
+	Characteristics combine_equipment_modifiers();
+
+	float get_max_hp_mod();
+	float get_max_mp_mod();
+	float get_attack_mod();
+	float get_defense_mod();
+	float get_agility_mod();
+	float get_luck_mod();
+	float get_speed_mod();
+	float get_strength_mod();
 
 private:
 	void handle_tag(XML *xml);

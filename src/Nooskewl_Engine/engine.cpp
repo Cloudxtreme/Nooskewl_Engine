@@ -2451,6 +2451,24 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 		else if (key == "profile_pic") {
 			stats->profile_pic = new Image(value, true);
 		}
+		else if (key == "weapon") {
+			Tokenizer t3(value, ':');
+
+			std::string s;
+
+			while ((s = t3.next()) != "") {
+				stats->weapon_indices.push_back(atoi(s.c_str()));
+			}
+		}
+		else if (key == "armour") {
+			Tokenizer t3(value, ':');
+
+			std::string s;
+
+			while ((s = t3.next()) != "") {
+				stats->armour_indices.push_back(atoi(s.c_str()));
+			}
+		}
 		else {
 			int v = atoi(value.c_str());
 			if (key == "alignment") {
@@ -2506,12 +2524,6 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 			}
 			else if (key == "sobriety") {
 				stats->sobriety = v;
-			}
-			else if (key == "weapon") {
-				stats->weapon_index = v;
-			}
-			else if (key == "armour") {
-				stats->armour_index = v;
 			}
 			else if (key == "status") {
 				stats->status = (Stats::Status)v;

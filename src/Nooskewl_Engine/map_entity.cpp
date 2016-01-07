@@ -1068,8 +1068,25 @@ bool Map_Entity::save(std::string &out)
 	out += string_printf("\n");
 
 	if (stats != 0) {
+		std::string weapons;
+		std::string armours;
+
+		for (size_t i = 0; i < stats->weapon_indices.size(); i++) {
+			weapons += itos(stats->weapon_indices[i]);
+			if (i < stats->weapon_indices.size()-1) {
+				weapons += ":";
+			}
+		}
+
+		for (size_t i = 0; i < stats->armour_indices.size(); i++) {
+			armours += itos(stats->armour_indices[i]);
+			if (i < stats->armour_indices.size()-1) {
+				armours += ":";
+			}
+		}
+
 		out += string_printf(
-			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,luck=%d,speed=%d,strength=%d,experience=%d,karma=%d,hunger=%d,thirst=%d,rest=%d,sobriety=%d,weapon=%d,armour=%d,status=%d,status_start=%d\n",
+			"name=%s,profile_pic=%s,alignment=%d,sex=%d,hp=%d,max_hp=%d,mp=%d,max_mp=%d,attack=%d,defense=%d,agility=%d,luck=%d,speed=%d,strength=%d,experience=%d,karma=%d,hunger=%d,thirst=%d,rest=%d,sobriety=%d,weapon=%s,armour=%s,status=%d,status_start=%d\n",
 			stats->name.c_str(),
 			stats->profile_pic->filename.c_str(),
 			(int)stats->alignment,
@@ -1090,8 +1107,8 @@ bool Map_Entity::save(std::string &out)
 			stats->thirst,
 			stats->rest,
 			stats->sobriety,
-			stats->weapon_index,
-			stats->armour_index,
+			weapons.c_str(),
+			armours.c_str(),
 			(int)stats->status,
 			stats->status_start
 		);
