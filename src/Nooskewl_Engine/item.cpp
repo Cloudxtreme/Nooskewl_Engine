@@ -84,6 +84,15 @@ void Item::defaults()
 	min_attack = max_attack = 0;
 	min_defense = max_defense = 0;
 	min_value = max_value = 0;
+	
+	modifiers.set_max_hp(0);
+	modifiers.set_max_mp(0);
+	modifiers.set_attack(0);
+	modifiers.set_defense(0);
+	modifiers.set_agility(0);
+	modifiers.set_luck(0);
+	modifiers.set_speed(0);
+	modifiers.set_strength(0);
 }
 
 bool Item::load(std::string name)
@@ -178,6 +187,30 @@ void Item::handle_tag(XML *xml)
 			XML_Helpers::handle_min_max_tag(xml, min, max);
 			min_value = min;
 			max_value = max;
+		}
+		else if (tag == "mod_max_hp") {
+			modifiers.set_max_hp(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_max_mp") {
+			modifiers.set_max_mp(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_attack") {
+			modifiers.set_attack(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_defense") {
+			modifiers.set_defense(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_agility") {
+			modifiers.set_agility(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_luck") {
+			modifiers.set_luck(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_speed") {
+			modifiers.set_speed(XML_Helpers::handle_numeric_tag(xml));
+		}
+		else if (tag == "mod_strength") {
+			modifiers.set_strength(XML_Helpers::handle_numeric_tag(xml));
 		}
 	}
 }

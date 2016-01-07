@@ -2,10 +2,10 @@
 #define ITEM_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/stats.h"
 
 namespace Nooskewl_Engine {
 
-class Stats;
 class XML;
 
 class NOOSKEWL_ENGINE_EXPORT Item {
@@ -25,6 +25,8 @@ public:
 	uint16_t min_attack, max_attack;
 	uint16_t min_defense, max_defense;
 	uint32_t min_value, max_value;
+
+	Stats::Characteristics modifiers;
 
 	Item(std::string name);
 	Item();
