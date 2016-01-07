@@ -54,15 +54,18 @@ void Stats::defaults()
 
 	sex = UNKNOWN;
 
-	hp = max_hp = 0;
-	mp = max_mp = 0;
+	hp = 0;
+	mp = 0;
 
-	attack = 0;
-	defense = 0;
-	agility = 0;
-	luck = 0;
-	speed = 0;
-	strength = 0;
+	characteristics.max_hp = 0;
+	characteristics.max_mp = 0;
+	characteristics.attack = 0;
+	characteristics.defense = 0;
+	characteristics.agility = 0;
+	characteristics.luck = 0;
+	characteristics.speed = 0;
+	characteristics.strength = 0;
+
 	experience = 0;
 
 	karma = 0xffff / 2;
@@ -170,37 +173,37 @@ void Stats::handle_tag(XML *xml)
 			hp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "max_hp") {
-			max_hp = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.max_hp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "mp") {
 			mp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "max_mp") {
-			max_mp = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.max_mp = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "attack") {
-			attack = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.attack = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "defense") {
-			defense = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.defense = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "agility") {
-			agility = XML_Helpers::handle_numeric_tag(xml);
-		}
-		else if (tag == "karma") {
-			karma = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.agility = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "luck") {
-			luck = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.luck = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "speed") {
-			speed = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.speed = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "strength") {
-			strength = XML_Helpers::handle_numeric_tag(xml);
+			characteristics.strength = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "experience") {
 			experience = XML_Helpers::handle_numeric_tag(xml);
+		}
+		else if (tag == "karma") {
+			karma = XML_Helpers::handle_numeric_tag(xml);
 		}
 		else if (tag == "hunger") {
 			hunger = XML_Helpers::handle_numeric_tag(xml);

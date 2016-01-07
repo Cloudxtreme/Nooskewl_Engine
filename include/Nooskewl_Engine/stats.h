@@ -34,6 +34,17 @@ public:
 		DRUNK
 	};
 
+	struct Characteristics {
+		uint16_t max_hp;
+		uint16_t max_mp;
+		uint16_t attack;
+		uint16_t defense;
+		uint16_t agility;
+		uint16_t luck;
+		uint16_t speed;
+		uint16_t strength;
+	};
+
 	std::string name;
 
 	Image *profile_pic;
@@ -44,15 +55,11 @@ public:
 
 	Sex sex;
 
-	uint16_t hp, max_hp;
-	uint16_t mp, max_mp;
-	uint16_t attack;
-	uint16_t defense;
-	uint16_t agility;
-	uint16_t luck;
-	uint16_t speed;
-	uint16_t strength;
+	uint16_t hp;
+	uint16_t mp;
 	uint32_t experience;
+
+	Characteristics characteristics;
 
 	uint16_t karma;
 	uint16_t hunger;
