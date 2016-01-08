@@ -39,6 +39,11 @@
 #define perfect_w 256
 #define perfect_h 144
 
+static int total_frames = 0;
+static Uint32 fps_start;
+static int fps = 0;
+static bool show_fps = false;
+
 using namespace Nooskewl_Engine;
 
 static int32_t *audio_buf;
@@ -215,6 +220,7 @@ bool Engine::start(int argc, char **argv)
 	opengl = true;
 #endif
 	use_hires_font = check_args(argc, argv, "+hires-font") > 0;
+	show_fps = check_args(argc, argv, "+fps") > 0;
 
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
 	if (mute == false) {
@@ -425,7 +431,7 @@ void Engine::init_video()
 {
 	if (opengl) {
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	}
 
@@ -1206,7 +1212,22 @@ void Engine::draw()
 			notification_start_time = now;
 		}
 	}
+
+	if (show_fps) {
+		font->draw(white, itos(fps), Point<float>(2.0f, 2.0f));
+	}
+
 	flip();
+
+	if (total_frames == 0) {
+		fps_start = SDL_GetTicks();
+	}
+	total_frames++;
+	if (total_frames > 100) {
+		fps = total_frames / ((SDL_GetTicks() - fps_start) / 1000);
+		total_frames = 0;
+		fps_start = SDL_GetTicks();
+	}
 
 	// TIMING
 	// This code is ugly for a reason

@@ -32,6 +32,10 @@ static bool run_main(int argc, char **argv)
 	bool quit = false;
 	bool draw = false;
 
+	Uint32 start = SDL_GetTicks();
+	int frames = 0;
+	bool skip = false;
+
 	while (quit == false) {
 		// LOGIC
 		if (noo.update() == false) {
@@ -52,7 +56,27 @@ static bool run_main(int argc, char **argv)
 			break;
 		}
 
-		noo.draw();
+		if (skip == false) {
+			noo.draw();
+		}
+
+		frames++;
+
+		int diff = SDL_GetTicks() - start;
+		float average;
+		if (diff > 0) {
+			average = frames / (diff / 1000.0f);
+		}
+		else {
+			average = 60.0f;
+		}
+
+		if (average < 59.0f) {
+			skip = true;
+		}
+		else {
+			skip = false;
+		}
 	}
 
 	noo.end();
