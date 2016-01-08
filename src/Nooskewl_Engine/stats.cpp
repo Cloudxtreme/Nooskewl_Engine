@@ -296,42 +296,42 @@ uint16_t Stats::Characteristics::get_strength()
 
 uint16_t Stats::Characteristics::get_modified_max_hp(Stats *stats)
 {
-	return max_hp + (max_hp * stats->get_max_hp_mod());
+	return int16_t(max_hp + (max_hp * stats->get_max_hp_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_max_mp(Stats *stats)
 {
-	return max_mp + (max_mp * stats->get_max_mp_mod());
+	return int16_t(max_mp + (max_mp * stats->get_max_mp_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_attack(Stats *stats)
 {
-	return attack + (attack * stats->get_attack_mod());
+	return int16_t(attack + (attack * stats->get_attack_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_defense(Stats *stats)
 {
-	return defense + (defense * stats->get_defense_mod());
+	return int16_t(defense + (defense * stats->get_defense_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_agility(Stats *stats)
 {
-	return agility + (agility * stats->get_agility_mod());
+	return int16_t(agility + (agility * stats->get_agility_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_luck(Stats *stats)
 {
-	return luck + (luck * stats->get_luck_mod());
+	return int16_t(luck + (luck * stats->get_luck_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_speed(Stats *stats)
 {
-	return speed + (speed * stats->get_speed_mod());
+	return int16_t(speed + (speed * stats->get_speed_mod()));
 }
 
 uint16_t Stats::Characteristics::get_modified_strength(Stats *stats)
 {
-	return strength + (strength * stats->get_strength_mod());
+	return int16_t(strength + (strength * stats->get_strength_mod()));
 }
 
 void Stats::Characteristics::set_max_hp(uint16_t value)
