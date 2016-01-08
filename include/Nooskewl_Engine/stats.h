@@ -32,7 +32,7 @@ public:
 		DRUNK
 	};
 
-	class Characteristics {
+	class NOOSKEWL_ENGINE_EXPORT Characteristics {
 	public:
 		Characteristics();
 		Characteristics(const Characteristics &o);
