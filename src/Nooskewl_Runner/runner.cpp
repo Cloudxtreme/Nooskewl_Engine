@@ -72,7 +72,7 @@ static bool run_main(int argc, char **argv)
 			average = 60.0f;
 		}
 
-		if (average < 59.0f) {
+		if (average < 59.0f) { // allow a little bit of fluctuation, i.e., not 60.0f here
 			skip = true;
 		}
 		else {
