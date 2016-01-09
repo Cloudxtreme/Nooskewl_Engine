@@ -32,6 +32,7 @@ static bool run_main(int argc, char **argv)
 	bool quit = false;
 	bool draw = false;
 
+	// These keep the logic running at around 60 FPS even if drawing isn't
 	Uint32 start = SDL_GetTicks();
 	int frames = 0;
 	bool skip = false;
