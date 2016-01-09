@@ -3,7 +3,6 @@
 FILES=`find * -type f | grep -v LICENSE.txt | grep -v README.txt | grep -v "^flp" | grep -v .DS_Store | sort`
 
 echo "Writing header..."
-# the big space is a tab
 ls -l $FILES | awk '{sum += $5} END {print sum}' > $1
 
 echo "Writing data..."

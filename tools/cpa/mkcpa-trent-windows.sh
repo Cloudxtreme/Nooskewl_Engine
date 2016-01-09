@@ -7,14 +7,13 @@
 FILES=`/c/mingw/msys/1.0/bin/find * -type f | grep -v LICENSE.txt | grep -v README.txt | grep -v "^flp" | sort`
 
 echo "Writing header..."
-# the big space is a tab
-du -bc $FILES | dos2unix | grep "	total$" | cut -f1 > $1
+ls -l $FILES | awk '{sum += $5} END {print sum}' > $1
 
 echo "Writing data..."
 cat $FILES >> $1
 
 echo "Writing info..."
-du -b $FILES | dos2unix >> $1
+ls -l $FILES | awk '{size = $5; name = $9} {printf "%d\t%s\n", size, name}' >> $1
 
 echo "Saving uncompressed archive..."
 cp $1 $1.uncompressed
