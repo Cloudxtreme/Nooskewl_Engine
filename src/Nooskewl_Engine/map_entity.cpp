@@ -657,7 +657,10 @@ void Map_Entity::handle_event(TGUI_Event *event)
 // Should be called frequently
 void Map_Entity::update_stats()
 {
-	if (stats) {
+	/* Don't do this if there's a GUI up. Some GUIs mess around with equipment (buy and sell, etc)
+	 * which can make get_modified_* access stuff out of bounds.
+	 */
+	if (stats && noo.guis.size() == 0) {
 		int current_time = noo.get_play_time();
 		if (stats->ate_time < current_time) {
 			stats->ate_time = current_time;
@@ -743,7 +746,8 @@ bool Map_Entity::update(bool can_move)
 	}
 
 	float curr_speed;
-	if (stats && stats->inventory && stats->inventory->get_total_weight() > stats->characteristics.get_modified_strength(stats) * 1000) {
+	// See comment in update_stats about why guis.size() has to be 0
+	if (noo.guis.size() == 0 && stats && stats->inventory && stats->inventory->get_total_weight() > stats->characteristics.get_modified_strength(stats) * 1000) {
 		curr_speed = speed / 10;
 	}
 	else {
