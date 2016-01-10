@@ -42,7 +42,7 @@ void Widget::enable_focus_shader(bool enable)
 		if (add >= 1.0f) {
 			add = 1.0f - (add - 1.0f);
 		}
-		add *= 0.5f;
+		add *= 0.333f;
 		bak = noo.current_shader;
 		noo.current_shader = noo.brighten_shader;
 		noo.current_shader->use();
@@ -301,6 +301,7 @@ void Widget_Text_Button::draw()
 
 	if (focussed) {
 		enable_focus_shader(true);
+
 		if (_pressed && _hover) {
 			offset = Point<int>(1, 1);
 			noo.draw_9patch(button_image_pressed, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
@@ -308,12 +309,10 @@ void Widget_Text_Button::draw()
 		else {
 			noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 		}
-		enable_focus_shader(false);
 	}
 	else {
 		noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 	}
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	if (_pressed && _hover) {
 		SDL_Colour colour = text_colour;
 		colour.r = Uint8(colour.r * 0.75f);
@@ -324,13 +323,16 @@ void Widget_Text_Button::draw()
 	else {
 		noo.font->draw(text_colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
 	}
-	noo.font->disable_shadow();
+
+	if (focussed) {
+		enable_focus_shader(false);
+	}
 }
 
 void Widget_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
-	text_colour = noo.white;
+	text_colour = noo.black;
 }
 
 void Widget_Text_Button::set_size(float width, float height)
@@ -395,7 +397,7 @@ Widget_Label::Widget_Label(std::string text, int max_w) :
 		this->max_w = max_w;
 	}
 
-	colour = noo.white;
+	colour = noo.black;
 
 	set_text(text);
 }
@@ -404,9 +406,7 @@ void Widget_Label::draw()
 {
 	bool full;
 	int num_lines, width;
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 	noo.font->draw_wrapped(colour, text, Point<int>(calculated_x, calculated_y), max_w, (int)noo.font->get_height()+1, -1, -1, 0, false, full, num_lines, width);
-	noo.font->disable_shadow();
 }
 
 void Widget_Label::set_text(std::string text)
@@ -555,7 +555,6 @@ void Widget_List::handle_event(TGUI_Event *event)
 void Widget_List::draw()
 {
 	for (int i = top; i < (int)items.size() && i < top+visible_rows(); i++) {
-		noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
 		int y = calculated_y + ((i - top) * row_h);
 		if (i == selected) {
 			bool focussed = gui->get_focus() == this;
@@ -569,22 +568,21 @@ void Widget_List::draw()
 		}
 		SDL_Colour colour;
 		if  (is_hilighted(i)) {
-			colour = noo.colours[78]; // yellow
+			colour = noo.colours[34]; // pinkish
 		}
 		else {
-			colour = noo.white;
+			colour = noo.black;
 		}
 		noo.font->draw(colour, items[i], Point<int>(calculated_x+2, y+1));
-		noo.font->disable_shadow();
 	}
 
 	if  (top != 0) {
-		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+7.0f));
+		noo.draw_triangle(noo.black, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+7.0f));
 	}
 	int vr = visible_rows();
 	if ((int)items.size() > vr && top < (int)items.size() - vr) {
 		int height = used_height();
-		noo.draw_triangle(noo.white, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y+height), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-7.0f));
+		noo.draw_triangle(noo.black, Point<float>(calculated_x+calculated_w-4.5f, (float)calculated_y+height), Point<float>(calculated_x+calculated_w-8.0f, calculated_y+height-7.0f), Point<float>(calculated_x+calculated_w-1.0f, calculated_y+height-7.0f));
 	}
 }
 
@@ -652,7 +650,7 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	hilight_colour = noo.colours[146]; // cyanish
+	hilight_colour = noo.colours[53]; // lightish grey
 
 	pressed_item = -1;
 
@@ -859,9 +857,7 @@ void Widget_Radio_Button::draw()
 		enable_focus_shader(false);
 	}
 
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-	noo.font->draw(noo.white, text, Point<int>(calculated_x + image->size.w + 1, calculated_y));
-	noo.font->disable_shadow();
+	noo.font->draw(noo.black, text, Point<int>(calculated_x + image->size.w + 1, calculated_y));
 }
 
 bool Widget_Radio_Button::is_selected()
