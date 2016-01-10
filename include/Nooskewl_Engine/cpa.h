@@ -22,6 +22,7 @@ public:
 private:
 	Uint8 *bytes;
 	std::map< std::string, std::pair<int, int> > info; // offset, size
+	bool load_from_filesystem;
 };
 
 } // End namespace Nooskewl_Engine
