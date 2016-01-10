@@ -81,8 +81,6 @@ bool Speech::handle_event(TGUI_Event *event)
 
 void Speech::draw()
 {
-	noo.font->enable_shadow(noo.shadow_colour, Font::DROP_SHADOW);
-
 	int margin = 2;
 	int pad = noo.window_image->size.h / 3;
 	int extra_per_line = 3;
@@ -96,7 +94,7 @@ void Speech::draw()
 	bool full;
 	int num_lines, width;
 	// NOTE: keep bottom line in sync with this
-	int drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, true, full, num_lines, width);
+	int drawn = noo.font->draw_wrapped(noo.black, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, true, full, num_lines, width);
 
 	if (full) {
 		if (unsigned(offset+drawn) >= text.length()) {
@@ -114,15 +112,13 @@ void Speech::draw()
 		int name_len = (int)noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2;
 		int name_h = line_height + pad * 2; // cover the top line of the window
-		//int name_x = right ? win_x + win_w - name_w : win_x;
 		int name_x = win_x;
 		int name_y = top ? win_y + win_h -noo.window_image->size.w/3 : win_y - name_h + noo.window_image->size.w / 3;
-		//noo.draw_9patch(top ? (right ? noo.name_box_image_bottom_right : noo.name_box_image_bottom) : (right ? noo.name_box_image_top_right : noo.name_box_image_top), Point<int>(name_x, name_y), Size<int>(name_w, name_h));
 		noo.draw_9patch(top ? noo.name_box_image_bottom : noo.name_box_image_top, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
-		noo.font->draw(noo.white, name, Point<int>(name_x+pad, name_y+pad+(top ? pad-1 : 0)));
+		noo.font->draw(noo.black, name, Point<int>(name_x+pad, name_y+pad+(top ? pad-1 : 0)));
 	}
 
-	drawn = noo.font->draw_wrapped(noo.white, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
+	drawn = noo.font->draw_wrapped(noo.black, text.substr(offset), Point<int>(win_x + pad, win_y + pad), win_w - pad * 2, line_height, 3, start_time, TEXT_DELAY, false, full, num_lines, width);
 
 	if (done) {
 		speech_advance->set_animation("done");
@@ -131,10 +127,7 @@ void Speech::draw()
 		speech_advance->set_animation("more");
 	}
 	Image *image = speech_advance->get_current_image();
-	//image->draw_single(Point<int>(right ? win_x+2 : win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-2));
 	image->draw_single(Point<int>(win_x+win_w-image->size.w-2, win_y+win_h-image->size.h-2));
-
-	noo.font->disable_shadow();
 }
 
 void Speech::token(std::string s)
