@@ -316,8 +316,8 @@ void Widget_Text_Button::draw()
 	if (_pressed && _hover) {
 		SDL_Colour colour = text_colour;
 		colour.r = Uint8(colour.r * 0.75f);
-		colour.r = Uint8(colour.g * 0.75f);
-		colour.r = Uint8(colour.b * 0.75f);
+		colour.g = Uint8(colour.g * 0.75f);
+		colour.b = Uint8(colour.b * 0.75f);
 		noo.font->draw(colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
 	}
 	else {
@@ -332,7 +332,7 @@ void Widget_Text_Button::draw()
 void Widget_Text_Button::set_default_colours()
 {
 	button_colour = noo.magenta;
-	text_colour = noo.black;
+	text_colour = noo.white;
 }
 
 void Widget_Text_Button::set_size(float width, float height)
@@ -568,7 +568,7 @@ void Widget_List::draw()
 		}
 		SDL_Colour colour;
 		if  (is_hilighted(i)) {
-			colour = noo.colours[34]; // pinkish
+			colour = noo.colours[30]; // orange
 		}
 		else {
 			colour = noo.black;
@@ -650,7 +650,7 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	hilight_colour = noo.colours[53]; // lightish grey
+	hilight_colour = noo.colours[57]; // grey
 
 	pressed_item = -1;
 
