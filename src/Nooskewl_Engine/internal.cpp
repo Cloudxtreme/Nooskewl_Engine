@@ -308,7 +308,7 @@ List_Directory::List_Directory(std::string filespec) :
 	done(false)
 {
 	handle = FindFirstFile(filespec.c_str(), &ffd);
-	if (handle == 0) {
+	if (handle == INVALID_HANDLE_VALUE) {
 		done = true;
 	}
 }
@@ -327,6 +327,7 @@ std::string List_Directory::next()
 	if (got_first == true) {
 		if (FindNextFile(handle, &ffd) == 0) {
 			done = true;
+			return "";
 		}
 	}
 	else {

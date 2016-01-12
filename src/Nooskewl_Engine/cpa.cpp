@@ -42,11 +42,69 @@ bool CPA::exists(std::string filename)
 std::vector<std::string> CPA::get_all_filenames()
 {
 	std::vector<std::string> v;
-	std::map< std::string, std::pair<int, int> >::iterator it;
 
-	for (it = info.begin(); it != info.end(); it++) {
-		std::pair< std::string, std::pair<int, int> > p = *it;
-		v.push_back(p.first);
+	if (load_from_filesystem) {
+		// Read directory listing from filesystem
+
+		std::vector< std::vector<std::string> > stack;
+		std::vector<std::string> name_stack;
+		std::vector<std::string> curr;
+		List_Directory l("data/*");
+		std::string s;
+
+		while ((s = l.next()) != "") {
+			if (s.c_str()[0] != '.') {
+				curr.push_back(s);
+			}
+		}
+
+		stack.push_back(curr);
+		name_stack.push_back("data");
+
+		while (stack.size() > 0) {
+			while (stack[0].size() > 0) {
+				s = stack[0][0];
+				stack[0].erase(stack[0].begin());
+
+				std::string dir_name;
+
+				for (int i = name_stack.size()-1; i >= 0; i--) {
+					dir_name += name_stack[i] + "/";
+				}
+
+				List_Directory l(dir_name + s + "/*");
+
+				std::string s2;
+
+				curr.clear();
+
+				while ((s2 = l.next()) != "") {
+					if (s2.c_str()[0] != '.') {
+						curr.push_back(s2);
+					}
+				}
+
+				if (curr.size() > 0) {
+					stack.insert(stack.begin(), curr);
+					name_stack.insert(name_stack.begin(), s);
+				}
+				else {
+					std::string filename = dir_name + s;
+					filename = filename.substr(5); // chop data/
+					v.push_back(filename);
+				}
+			}
+			stack.erase(stack.begin());
+			name_stack.erase(name_stack.begin());
+		}
+	}
+	else {
+		std::map< std::string, std::pair<int, int> >::iterator it;
+
+		for (it = info.begin(); it != info.end(); it++) {
+			std::pair< std::string, std::pair<int, int> > p = *it;
+			v.push_back(p.first);
+		}
 	}
 
 	return v;
