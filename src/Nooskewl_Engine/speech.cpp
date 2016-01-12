@@ -82,7 +82,7 @@ bool Speech::handle_event(TGUI_Event *event)
 void Speech::draw()
 {
 	int margin = 2;
-	int pad = noo.window_image->size.h / 3;
+	int pad = noo.speech_window_image->size.h / 3;
 	int extra_per_line = 3;
 	int bottom_padding = speech_advance->get_current_image()->size.h - extra_per_line + 1;
 	int line_height = (int)noo.font->get_height() + extra_per_line;
@@ -106,14 +106,14 @@ void Speech::draw()
 		}
 	}
 
-	noo.draw_9patch(noo.window_image, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
+	noo.draw_9patch(noo.speech_window_image, Point<int>(win_x, win_y), Size<int>(win_w, win_h));
 
 	if (name != "") {
 		int name_len = (int)noo.font->get_text_width(name);
 		int name_w = name_len + pad * 2;
 		int name_h = line_height + pad * 2; // cover the top line of the window
 		int name_x = win_x;
-		int name_y = top ? win_y + win_h -noo.window_image->size.w/3 : win_y - name_h + noo.window_image->size.w / 3;
+		int name_y = top ? win_y + win_h -noo.speech_window_image->size.w/3 : win_y - name_h + noo.speech_window_image->size.w / 3;
 		noo.draw_9patch(top ? noo.name_box_image_bottom : noo.name_box_image_top, Point<int>(name_x, name_y), Size<int>(name_w, name_h));
 		noo.font->draw(noo.black, name, Point<int>(name_x+pad, name_y+pad+(top ? pad-1 : 0)));
 	}

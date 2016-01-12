@@ -52,6 +52,7 @@ public:
 	SDL_Colour magenta;
 	Font *font;
 	Image *window_image;
+	Image *speech_window_image;
 	Image *name_box_image_top;
 	Image *name_box_image_bottom;
 	Image *name_box_image_top_right;

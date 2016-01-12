@@ -321,6 +321,7 @@ bool Engine::start(int argc, char **argv)
 	}
 
 	window_image = new Image("window.tga");
+	speech_window_image = new Image("speech_window.tga");
 	name_box_image_top = new Image("name_box_top.tga");
 	name_box_image_bottom = new Image("name_box_bottom.tga");
 	name_box_image_top_right = new Image("name_box_top_right.tga");
@@ -386,6 +387,7 @@ void Engine::end()
 	guis.clear();
 
 	delete window_image;
+	delete speech_window_image;
 	delete name_box_image_top;
 	delete name_box_image_bottom;
 	delete name_box_image_top_right;

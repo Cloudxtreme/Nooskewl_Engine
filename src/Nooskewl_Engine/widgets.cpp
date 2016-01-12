@@ -400,12 +400,18 @@ Widget_Window::~Widget_Window()
 
 void Widget_Window::draw()
 {
-	noo.draw_9patch(noo.window_image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
+	noo.draw_9patch(image, Point<int>(calculated_x, calculated_y), Size<int>(calculated_w, calculated_h));
 }
 
 void Widget_Window::set_default_colours()
 {
 	background_colour = noo.magenta;
+	image = noo.window_image;
+}
+
+void Widget_Window::set_9patch_image(Image *image)
+{
+	this->image = image;
 }
 
 // --

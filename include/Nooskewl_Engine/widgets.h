@@ -97,10 +97,14 @@ public:
 
 	void draw();
 
+	void set_9patch_image(Image *image);
+
 private:
 	void set_default_colours();
 
 	SDL_Colour background_colour;
+
+	Image *image;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Widget_Label : public Widget
