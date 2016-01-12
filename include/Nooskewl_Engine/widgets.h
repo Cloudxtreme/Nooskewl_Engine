@@ -155,6 +155,7 @@ public:
 
 	void set_hilight(int index, bool onoff);
 	bool is_hilighted(int index);
+	void set_highlight_colour(SDL_Colour colour);
 
 private:
 	void init();
@@ -169,7 +170,8 @@ private:
 	int top;
 	int selected;
 	int row_h;
-	SDL_Colour hilight_colour;
+	SDL_Colour selected_colour;
+	SDL_Colour highlight_colour;
 
 	int pressed_item;
 

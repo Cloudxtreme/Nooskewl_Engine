@@ -595,14 +595,14 @@ void Widget_List::draw()
 			if (focussed) {
 				enable_focus_shader(true);
 			}
-			noo.draw_quad(hilight_colour, Point<int>(calculated_x, y), Size<int>(calculated_w-8, row_h));
+			noo.draw_quad(selected_colour, Point<int>(calculated_x, y), Size<int>(calculated_w-8, row_h));
 			if (focussed) {
 				enable_focus_shader(false);
 			}
 		}
 		SDL_Colour colour;
 		if  (is_hilighted(i)) {
-			colour = noo.colours[30]; // orange
+			colour = highlight_colour;
 		}
 		else {
 			colour = noo.black;
@@ -684,7 +684,8 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	hilight_colour = noo.colours[57]; // grey
+	selected_colour = noo.colours[6]; // light grey
+	highlight_colour = noo.colours[40]; // bright green
 
 	pressed_item = -1;
 
@@ -752,6 +753,11 @@ int Widget_List::visible_rows()
 int Widget_List::used_height()
 {
 	return visible_rows() * row_h;
+}
+
+void Widget_List::set_highlight_colour(SDL_Colour colour)
+{
+	highlight_colour = colour;
 }
 
 //--
