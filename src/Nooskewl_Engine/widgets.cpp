@@ -157,7 +157,7 @@ void Widget_Button::handle_event(TGUI_Event *event)
 			_hover = false;
 		}
 	}
-	if (gui->get_event_owner(event) == this) {
+	if (accepts_focus && gui->get_event_owner(event) == this) {
 		if (event->type == TGUI_KEY_DOWN) {
 			if (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == noo.key_b1) {
 				_pressed = true;
@@ -252,6 +252,7 @@ Widget_Text_Button::Widget_Text_Button(std::string text, int w, int h) :
 	padding = button_image->size.h / 3;
 	set_size((float)w, (float)h);
 	set_default_colours();
+	enabled = true;
 }
 
 Widget_Text_Button::Widget_Text_Button(std::string text, float w, float h) :
@@ -261,6 +262,7 @@ Widget_Text_Button::Widget_Text_Button(std::string text, float w, float h) :
 	padding = button_image->size.h / 3;
 	set_size(w, h);
 	set_default_colours();
+	enabled = true;
 }
 
 Widget_Text_Button::Widget_Text_Button(std::string text, int w, float h) :
@@ -270,6 +272,7 @@ Widget_Text_Button::Widget_Text_Button(std::string text, int w, float h) :
 	padding = button_image->size.h / 3;
 	set_size((float)w, h);
 	set_default_colours();
+	enabled = true;
 }
 
 Widget_Text_Button::Widget_Text_Button(std::string text, float w, int h) :
@@ -279,6 +282,7 @@ Widget_Text_Button::Widget_Text_Button(std::string text, float w, int h) :
 	padding = button_image->size.h / 3;
 	set_size(w, (float)h);
 	set_default_colours();
+	enabled = true;
 }
 
 Widget_Text_Button::Widget_Text_Button(std::string text) :
@@ -288,6 +292,7 @@ Widget_Text_Button::Widget_Text_Button(std::string text) :
 	padding = button_image->size.h / 3;
 	set_size(-1.0f, -1.0f);
 	set_default_colours();
+	enabled = true;
 }
 
 Widget_Text_Button::~Widget_Text_Button()
@@ -343,6 +348,24 @@ void Widget_Text_Button::set_size(float width, float height)
 	if (height < 0) {
 		h = int(noo.font->get_height() + padding * 2 - 1);
 	}
+}
+
+void Widget_Text_Button::set_enabled(bool enabled)
+{
+	this->enabled = enabled;
+	if (enabled == true) {
+		accepts_focus = true;
+		text_colour = noo.white;
+	}
+	else {
+		accepts_focus = false;
+		text_colour = noo.black;
+	}
+}
+
+bool Widget_Text_Button::is_enabled()
+{
+	return enabled;
 }
 
 // --
@@ -423,6 +446,11 @@ void Widget_Label::set_text(std::string text)
 void Widget_Label::set_width(int width)
 {
 	w = width;
+}
+
+void Widget_Label::set_colour(SDL_Colour colour)
+{
+	this->colour = colour;
 }
 
 //--

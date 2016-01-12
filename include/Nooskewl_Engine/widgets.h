@@ -71,6 +71,9 @@ public:
 
 	void draw();
 
+	void set_enabled(bool enabled);
+	bool is_enabled();
+
 private:
 	void set_size(float width, float height);
 	void set_default_colours();
@@ -79,6 +82,8 @@ private:
 	SDL_Colour text_colour;
 	std::string text;
 	int padding;
+
+	bool enabled;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Widget_Window : public Widget
@@ -107,6 +112,7 @@ public:
 
 	void set_text(std::string text);
 	void set_width(int width);
+	void set_colour(SDL_Colour colour);
 
 private:
 	std::string text;
