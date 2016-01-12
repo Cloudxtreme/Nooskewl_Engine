@@ -18,6 +18,8 @@ public:
 
 	std::string id;
 
+	std::string components; // ids separated by :
+
 	Type type;
 	std::string name;
 	int16_t weight; // last two digits are after the decimal
