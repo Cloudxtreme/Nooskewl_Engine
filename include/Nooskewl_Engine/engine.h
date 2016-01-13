@@ -209,6 +209,8 @@ private:
 	X11::Cursor mouse_cursor;
 #endif
 
+	bool use_custom_cursor;
+
 	std::string default_opengl_vertex_source;
 	std::string default_opengl_fragment_source;
 	std::string brighten_opengl_fragment_source;

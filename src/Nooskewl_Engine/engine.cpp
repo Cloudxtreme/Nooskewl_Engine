@@ -191,6 +191,7 @@ Engine::Engine() :
 	joy(0),
 	num_joysticks(0),
 	language("English"),
+	use_custom_cursor(true),
 	milestones(0),
 	num_milestones(0),
 	depth_buffer_enabled(false),
@@ -221,6 +222,7 @@ bool Engine::start(int argc, char **argv)
 #endif
 	use_hires_font = check_args(argc, argv, "+hires-font") > 0;
 	show_fps = check_args(argc, argv, "+fps") > 0;
+	use_custom_cursor = check_args(argc, argv, "-custom-cursor") < 0;
 
 	int flags = SDL_INIT_JOYSTICK | SDL_INIT_TIMER | SDL_INIT_VIDEO;
 	if (mute == false) {
@@ -255,7 +257,10 @@ bool Engine::start(int argc, char **argv)
 
 	init_video();
 
-	set_mouse_cursor();
+	if (use_custom_cursor) {
+		set_mouse_cursor();
+	}
+
 	set_window_icon();
 
 	if (TTF_Init() == -1) {
@@ -396,14 +401,16 @@ void Engine::end()
 	destroy_fonts();
 	TTF_Quit();
 
+	if (use_custom_cursor) {
 #if defined NOOSKEWL_ENGINE_WINDOWS
-	DestroyIcon(mouse_cursor);
+		DestroyIcon(mouse_cursor);
 #elif defined __linux__
-	X11::XUndefineCursor(x_display, x_window);
-	X11::XFreeCursor(x_display, mouse_cursor);
+		X11::XUndefineCursor(x_display, x_window);
+		X11::XFreeCursor(x_display, mouse_cursor);
 #elif defined __APPLE__
-	macosx_destroy_custom_cursor();
+		macosx_destroy_custom_cursor();
 #endif
+	}
 
 	shutdown_video();
 	shutdown_audio();
@@ -761,7 +768,7 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 		mouse_pos = Point<int>((int)event.mouse.x, (int)event.mouse.y);
 	}
 
-	if (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP) {
+	if (use_custom_cursor && (event.type == TGUI_MOUSE_AXIS || event.type == TGUI_MOUSE_DOWN || event.type == TGUI_MOUSE_UP)) {
 #if defined NOOSKEWL_ENGINE_WINDOWS
 		SetCursor(mouse_cursor);
 #elif defined __linux__
