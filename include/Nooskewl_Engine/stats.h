@@ -107,8 +107,8 @@ public:
 	Inventory *inventory;
 
 	// indices into inventory
-	std::vector<int> weapon_indices;
-	std::vector<int> armour_indices;
+	int weapon_index;
+	int armour_index;
 
 	Stats();
 	Stats(std::string name);

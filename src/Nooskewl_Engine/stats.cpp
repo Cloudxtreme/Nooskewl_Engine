@@ -84,6 +84,9 @@ void Stats::defaults()
 	used_time = current_time;
 
 	inventory = new Inventory();
+
+	weapon_index = -1;
+	armour_index = -1;
 }
 
 bool Stats::load(std::string name)
@@ -162,22 +165,10 @@ void Stats::handle_tag(XML *xml)
 			}
 		}
 		else if (tag == "weapon") {
-			Tokenizer t(xml->get_value(), ':');
-
-			std::string s;
-
-			while ((s = t.next()) != "") {
-				weapon_indices.push_back(atoi(s.c_str()));
-			}
+			weapon_index = atoi(xml->get_value().c_str());
 		}
 		else if (tag == "armour") {
-			Tokenizer t(xml->get_value(), ':');
-
-			std::string s;
-
-			while ((s = t.next()) != "") {
-				armour_indices.push_back(atoi(s.c_str()));
-			}
+			armour_index = atoi(xml->get_value().c_str());
 		}
 		else if (tag == "hp") {
 			hp = XML_Helpers::handle_numeric_tag(xml);
@@ -253,7 +244,7 @@ Stats::Characteristics::Characteristics(const Characteristics &o)
 	this->speed = o.speed;
 	this->strength = o.strength;
 }
-	
+
 uint16_t Stats::Characteristics::get_max_hp()
 {
 	return max_hp;
@@ -373,7 +364,7 @@ void Stats::Characteristics::set_strength(uint16_t value)
 {
 	strength = value;
 }
-	
+
 Stats::Characteristics Stats::combine_equipment_modifiers()
 {
 	Characteristics c;
@@ -387,9 +378,8 @@ Stats::Characteristics Stats::combine_equipment_modifiers()
 	c.set_speed(0xffff/2);
 	c.set_strength(0xffff/2);
 
-	for (size_t i = 0; i < weapon_indices.size(); i++) {
-		Item *item = inventory->items[weapon_indices[i]][0];
-
+	if (weapon_index >= 0) {
+		Item *item = inventory->items[weapon_index][0];
 		c.set_max_hp(MIN(0xffff, MAX(0, ((c.get_max_hp()-0xffff/2) + (item->modifiers.get_max_hp()-0xffff/2)) + (0xffff/2))));
 		c.set_max_mp(MIN(0xffff, MAX(0, ((c.get_max_mp()-0xffff/2) + (item->modifiers.get_max_mp()-0xffff/2)) + (0xffff/2))));
 		c.set_attack(MIN(0xffff, MAX(0, ((c.get_attack()-0xffff/2) + (item->modifiers.get_attack()-0xffff/2)) + (0xffff/2))));
@@ -400,9 +390,8 @@ Stats::Characteristics Stats::combine_equipment_modifiers()
 		c.set_strength(MIN(0xffff, MAX(0, ((c.get_strength()-0xffff/2) + (item->modifiers.get_strength()-0xffff/2)) + (0xffff/2))));
 	}
 
-	for (size_t i = 0; i < armour_indices.size(); i++) {
-		Item *item = inventory->items[armour_indices[i]][0];
-
+	if (armour_index >= 0) {
+		Item *item = inventory->items[armour_index][0];
 		c.set_max_hp(MIN(0xffff, MAX(0, ((c.get_max_hp()-0xffff/2) + (item->modifiers.get_max_hp()-0xffff/2)) + (0xffff/2))));
 		c.set_max_mp(MIN(0xffff, MAX(0, ((c.get_max_mp()-0xffff/2) + (item->modifiers.get_max_mp()-0xffff/2)) + (0xffff/2))));
 		c.set_attack(MIN(0xffff, MAX(0, ((c.get_attack()-0xffff/2) + (item->modifiers.get_attack()-0xffff/2)) + (0xffff/2))));
