@@ -638,6 +638,8 @@ void Image::release_target()
 
 		internal->render_target->Release();
 
+		internal->render_target = 0;
+
 		if (noo.d3d_device->SetRenderTarget(0, noo.render_target) != D3D_OK) {
 			infomsg("Image::release_target: Unable to set render target to backbuffer\n");
 		}
@@ -699,10 +701,17 @@ void Image::Internal::release()
 	}
 #ifdef NOOSKEWL_ENGINE_WINDOWS
 	else {
+		if (render_target) {
+			render_target->Release();
+			render_target = 0;
+		}
+
 		video_texture->Release();
+		video_texture = 0;
 
 		if (has_render_to_texture) {
 			system_texture->Release();
+			system_texture = 0;
 		}
 	}
 #endif

@@ -671,7 +671,6 @@ bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 	}
 	else if (sdl_event->type == SDL_WINDOWEVENT &&
 		(sdl_event->window.event == SDL_WINDOWEVENT_RESIZED ||
-		 sdl_event->window.event == SDL_WINDOWEVENT_MINIMIZED ||
 		 sdl_event->window.event == SDL_WINDOWEVENT_MAXIMIZED ||
 		 sdl_event->window.event == SDL_WINDOWEVENT_RESTORED)
 	) {
@@ -1393,21 +1392,23 @@ void Engine::flip()
 		if (d3d_lost) {
 			HRESULT hr = d3d_device->TestCooperativeLevel();
 			if (hr == D3DERR_DEVICENOTRESET) {
+				destroy_fonts();
+
+				delete work_image;
+				work_image = 0;
+
+				render_target->Release();
+
+				Image::release_all();
+
+				Shader::release_all();
+
 				hr = d3d_device->Reset(&d3d_pp);
 				if (hr != D3D_OK) {
 					infomsg("Device couldn't be reset!\n");
 				}
 				else {
 					d3d_lost = false;
-
-					// Everything's gone!
-					destroy_fonts();
-					delete work_image;
-					work_image = 0;
-					render_target->Release();
-					Image::release_all();
-					Shader::release_all();
-
 					set_initial_d3d_state();
 
 					// So reload it!
