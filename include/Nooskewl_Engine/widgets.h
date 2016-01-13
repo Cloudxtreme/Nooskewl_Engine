@@ -153,6 +153,7 @@ public:
 	int get_selected();
 	void set_selected(int selected);
 	void set_selected_colour(SDL_Colour colour);
+	int get_size();
 
 	void set_hilight(int index, bool onoff);
 	bool is_hilighted(int index);
