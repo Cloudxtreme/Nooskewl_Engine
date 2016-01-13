@@ -656,6 +656,11 @@ void Widget_List::set_selected(int selected)
 	this->selected = selected;
 }
 
+void Widget_List::set_selected_colour(SDL_Colour colour)
+{
+	selected_colour = colour;
+}
+
 void Widget_List::set_hilight(int index, bool onoff)
 {
 	std::vector<int>::iterator it = std::find(hilight.begin(), hilight.end(), index);
