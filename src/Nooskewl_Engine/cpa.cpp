@@ -49,7 +49,7 @@ std::vector<std::string> CPA::get_all_filenames()
 		std::vector< std::vector<std::string> > stack;
 		std::vector<std::string> name_stack;
 		std::vector<std::string> curr;
-		List_Directory l("data/*");
+		List_Directory l(std::string(SDL_GetBasePath()) + "data/*");
 		std::string s;
 
 		while ((s = l.next()) != "") {
@@ -72,7 +72,7 @@ std::vector<std::string> CPA::get_all_filenames()
 					dir_name += name_stack[i] + "/";
 				}
 
-				List_Directory l(dir_name + s + "/*");
+				List_Directory l(std::string(SDL_GetBasePath()) + dir_name + s + "/*");
 
 				std::string s2;
 
