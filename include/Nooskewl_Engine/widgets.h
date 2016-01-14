@@ -52,10 +52,13 @@ public:
 
 	bool pressed();
 
+	void set_sound_enabled(bool enabled);
+
 protected:
 	bool _pressed;
 	bool _released;
 	bool _hover;
+	bool sound_enabled;
 };
 
 class NOOSKEWL_ENGINE_EXPORT Widget_Text_Button : public Widget_Button

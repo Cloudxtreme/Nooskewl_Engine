@@ -190,7 +190,9 @@ void Widget_Button::handle_event(TGUI_Event *event)
 			if (_pressed && (event->keyboard.code == TGUIK_RETURN || event->keyboard.code == noo.key_b1)) {
 				_released = true;
 				_hover = false;
-				noo.button_mml->play(false);
+				if (sound_enabled) {
+					noo.button_mml->play(false);
+				}
 			}
 			else {
 				_pressed = false;
@@ -201,7 +203,9 @@ void Widget_Button::handle_event(TGUI_Event *event)
 			if (_pressed && (event->joystick.button == noo.joy_b1)) {
 				_released = true;
 				_hover = false;
-				noo.button_mml->play(false);
+				if (sound_enabled) {
+					noo.button_mml->play(false);
+				}
 			}
 			else {
 				_pressed = false;
@@ -211,7 +215,9 @@ void Widget_Button::handle_event(TGUI_Event *event)
 		else if (event->type == TGUI_MOUSE_UP) {
 			if (_pressed && (event->mouse.button == 1)) {
 				_released = true;
-				noo.button_mml->play(false);
+				if (sound_enabled) {
+					noo.button_mml->play(false);
+				}
 			}
 			else {
 				_pressed = false;
@@ -241,6 +247,11 @@ bool Widget_Button::pressed()
 		_pressed = _released = _hover = false;
 	}
 	return r;
+}
+
+void Widget_Button::set_sound_enabled(bool enabled)
+{
+	sound_enabled = enabled;
 }
 
 // --
