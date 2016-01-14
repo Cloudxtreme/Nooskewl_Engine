@@ -42,7 +42,7 @@ void Widget::enable_focus_shader(bool enable)
 		if (add >= 1.0f) {
 			add = 1.0f - (add - 1.0f);
 		}
-		add *= 0.333f;
+		add *= 0.5f;
 		bak = noo.current_shader;
 		noo.current_shader = noo.brighten_shader;
 		noo.current_shader->use();
@@ -334,11 +334,7 @@ void Widget_Text_Button::draw()
 		noo.draw_9patch(button_image, Point<int>(calculated_x+offset.x, calculated_y+offset.y), Size<int>(calculated_w, calculated_h));
 	}
 	if (_pressed && _hover) {
-		SDL_Colour colour = text_colour;
-		colour.r = Uint8(colour.r * 0.75f);
-		colour.g = Uint8(colour.g * 0.75f);
-		colour.b = Uint8(colour.b * 0.75f);
-		noo.font->draw(colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
+		noo.font->draw(noo.white, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
 	}
 	else {
 		noo.font->draw(text_colour, text, Point<float>(calculated_x+calculated_w/2.0f-noo.font->get_text_width(text)/2.0f+offset.x, calculated_y+padding+offset.y-1.0f));
@@ -709,7 +705,7 @@ void Widget_List::init()
 	selected = -1;
 	row_h = (int)noo.font->get_height() + 3;
 
-	selected_colour = noo.colours[6]; // light grey
+	selected_colour = noo.colours[13]; // light blue
 	highlight_colour = noo.colours[40]; // bright green
 
 	pressed_item = -1;
