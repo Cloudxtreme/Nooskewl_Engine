@@ -8,6 +8,7 @@
 #include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/shader.h"
+#include "Nooskewl_Engine/spell.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tilemap.h"
@@ -1099,6 +1100,12 @@ bool Map_Entity::save(std::string &out)
 			(int)stats->status,
 			stats->status_start
 		);
+
+		out += itos(stats->spells.size()) + "\n";
+
+		for (size_t i = 0; i <  stats->spells.size(); i++) {
+			out += stats->spells[i]->to_string() + "\n";
+		}
 
 		if (stats->inventory != 0) {
 			out += stats->inventory->to_string();

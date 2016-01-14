@@ -178,6 +178,7 @@ private:
 	Map_Entity *load_entity(SDL_RWops *file, int version, int time);
 	Brain *load_brain(SDL_RWops *file, int version);
 	Stats *load_stats(SDL_RWops *file, int version);
+	bool load_spells(SDL_RWops *file, Stats *stats, int version);
 	bool load_inventory(SDL_RWops *file, Stats *stats, int version);
 
 	SDL_Window *window;

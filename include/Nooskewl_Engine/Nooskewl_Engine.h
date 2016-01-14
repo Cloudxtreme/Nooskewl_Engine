@@ -21,6 +21,7 @@
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/speech.h"
+#include "Nooskewl_Engine/spell.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tilemap.h"

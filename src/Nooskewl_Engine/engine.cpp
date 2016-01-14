@@ -16,6 +16,7 @@
 #include "Nooskewl_Engine/sample.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/speech.h"
+#include "Nooskewl_Engine/spell.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/stats.h"
 #include "Nooskewl_Engine/tokenizer.h"
@@ -2405,6 +2406,8 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 
 		entity->set_stats(stats);
 
+		load_spells(file, stats, version);
+
 		if (has_inventory) {
 			load_inventory(file, stats, version);
 		}
@@ -2554,6 +2557,24 @@ Stats *Engine::load_stats(SDL_RWops *file, int version)
 	}
 
 	return stats;
+}
+
+bool Engine::load_spells(SDL_RWops *file, Stats *stats, int version)
+{
+	char line[1000];
+
+	SDL_fgets(file, line, 1000); // number of spells
+
+	int count = atoi(line);
+
+	for (int i = 0; i < count; i++) {
+		SDL_fgets(file, line, 1000);
+		Spell *spell = new Spell();
+		spell->from_string(line);
+		stats->spells.push_back(spell);
+	}
+
+	return true;
 }
 
 bool Engine::load_inventory(SDL_RWops *file, Stats *stats, int version)

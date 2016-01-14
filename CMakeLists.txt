@@ -30,6 +30,7 @@ set(LIB_SRC
 	src/Nooskewl_Engine/sample.cpp
 	src/Nooskewl_Engine/shader.cpp
 	src/Nooskewl_Engine/speech.cpp
+	src/Nooskewl_Engine/spell.cpp
 	src/Nooskewl_Engine/sprite.cpp
 	src/Nooskewl_Engine/stats.cpp
 	src/Nooskewl_Engine/tilemap.cpp

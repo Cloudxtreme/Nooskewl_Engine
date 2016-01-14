@@ -184,6 +184,7 @@ Item *Item::clone()
 	item->max_defense = max_defense;
 	item->min_value = min_value;
 	item->max_value = max_value;
+	item->modifiers = modifiers;
 
 	return item;
 }

@@ -111,7 +111,8 @@ Widget_Button::Widget_Button(int w, int h) :
 	Widget(w, h),
 	_pressed(false),
 	_released(false),
-	_hover(false)
+	_hover(false),
+	sound_enabled(true)
 {
 	accepts_focus = true;
 }
@@ -120,7 +121,8 @@ Widget_Button::Widget_Button(float w, float h) :
 	Widget(w, h),
 	_pressed(false),
 	_released(false),
-	_hover(false)
+	_hover(false),
+	sound_enabled(true)
 {
 	accepts_focus = true;
 }
@@ -129,7 +131,8 @@ Widget_Button::Widget_Button(int w, float h) :
 	Widget(w, h),
 	_pressed(false),
 	_released(false),
-	_hover(false)
+	_hover(false),
+	sound_enabled(true)
 {
 	accepts_focus = true;
 }
@@ -138,7 +141,8 @@ Widget_Button::Widget_Button(float w, int h) :
 	Widget(w, h),
 	_pressed(false),
 	_released(false),
-	_hover(false)
+	_hover(false),
+	sound_enabled(true)
 {
 	accepts_focus = true;
 }

@@ -10,6 +10,7 @@ namespace Nooskewl_Engine {
 
 class Image;
 class Inventory;
+class Spell;
 class XML;
 
 class NOOSKEWL_ENGINE_EXPORT Stats {
@@ -109,6 +110,8 @@ public:
 	// indices into inventory
 	int weapon_index;
 	int armour_index;
+
+	std::vector<Spell *> spells;
 
 	Stats();
 	Stats(std::string name);
