@@ -195,7 +195,7 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 			cache_glyph(ch);
 			Image *g = glyphs[ch];
 			this_w += g->size.w;
-			if (ch == '^' || this_w >= (w * noo.scale / noo.font_scale)) {
+			if (ch == '^' || ch == '$' || this_w >= (w * noo.scale / noo.font_scale)) {
 				if (count == 0) {
 					done = true;
 				}
@@ -205,6 +205,9 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 						if (set_full) {
 							full = true;
 						}
+					}
+					else if (ch == '$') {
+						max = count;
 					}
 					else if (this_w > (w * noo.scale / noo.font_scale)) {
 						count--;
@@ -246,10 +249,14 @@ int Font::draw_wrapped(SDL_Colour colour, std::string text, Point<float> dest_po
 				total_position++;
 				p = utf8_substr(text, total_position);
 			}
-			else if (ch == '^') {
+			else if (ch == '^') { // new window
 				total_position++;
 				done = true;
 				// Don't include in printed string
+			}
+			else if (ch == '$') { // newline
+				total_position++;
+				p = utf8_substr(text, total_position);
 			}
 			chars_drawn = total_position;
 			curr_y += line_height;
