@@ -49,7 +49,7 @@ std::vector<std::string> CPA::get_all_filenames()
 		std::vector< std::vector<std::string> > stack;
 		std::vector<std::string> name_stack;
 		std::vector<std::string> curr;
-		List_Directory l(std::string(SDL_GetBasePath()) + "data/*");
+		List_Directory l(std::string(SDL_GetBasePath()) + "/data/*");
 		std::string s;
 
 		while ((s = l.next()) != "") {
@@ -59,12 +59,17 @@ std::vector<std::string> CPA::get_all_filenames()
 		}
 
 		stack.push_back(curr);
-		name_stack.push_back("data");
+		name_stack.push_back(std::string(SDL_GetBasePath()) + "/data");
 
 		while (stack.size() > 0) {
 			while (stack[0].size() > 0) {
 				s = stack[0][0];
 				stack[0].erase(stack[0].begin());
+
+				// we only want the filename
+				if (s.rfind("/") != std::string::npos) {
+					s = s.substr(s.rfind("/") + 1);
+				}
 
 				std::string dir_name;
 
@@ -72,7 +77,7 @@ std::vector<std::string> CPA::get_all_filenames()
 					dir_name += name_stack[i] + "/";
 				}
 
-				List_Directory l(std::string(SDL_GetBasePath()) + dir_name + s + "/*");
+				List_Directory l(dir_name + s + "/*");
 
 				std::string s2;
 
@@ -90,7 +95,7 @@ std::vector<std::string> CPA::get_all_filenames()
 				}
 				else {
 					std::string filename = dir_name + s;
-					filename = filename.substr(5); // chop data/
+					filename = filename.substr(filename.rfind("data/") + 5); // chop path leading up to and including data/
 					v.push_back(filename);
 				}
 			}
