@@ -11,6 +11,8 @@
 #else
 #define NOOSKEWL_ENGINE_EXPORT __declspec(dllimport)
 #endif
+
+#define GLEW_STATIC
 #else
 #define NOOSKEWL_ENGINE_EXPORT
 #endif
