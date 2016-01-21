@@ -54,9 +54,7 @@ public:
 
 	// Following functions vertices ordered 0,0, 1,0, 1,1, 0,1 in screen coordinates
 
-	void get_tile_corners_3d(Point<int> tile_position, Vec3D<float> out[4]);
-
-	void get_tile_lighting(Point<int> tile_position, SDL_Colour out[4]);
+	void get_tile_lighting(Point<int> tile_position, SDL_Colour &out);
 
 private:
 	float get_z(int layer, int x, int y);

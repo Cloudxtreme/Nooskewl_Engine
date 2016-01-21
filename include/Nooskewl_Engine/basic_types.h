@@ -610,6 +610,18 @@ public:
 		s.z = -this->z;
 		return s;
 	}
+
+	inline T dot(Vec3D<T> v2) {
+		return x * v2.x + y * v2.y + z * v2.z;
+	}
+
+	inline Vec3D<T> cross(Vec3D<T> v2) {
+		Vec3D<T> v;
+		v.x = y * v2.z - v2.y * z;
+		v.y = z * v2.x - v2.z * x;
+		v.z = x * v2.y - v2.x * y;
+		return v;
+	}
 };
 
 } // End namespace Nooskewl_Engine

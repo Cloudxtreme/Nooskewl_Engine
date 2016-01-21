@@ -7,6 +7,15 @@
 
 using namespace Nooskewl_Engine;
 
+// FIXME
+	struct Light {
+		Vec3D<float> position;
+		SDL_Colour colour;
+		float brightness;
+	};
+#include "Nooskewl_Engine/map_entity.h"
+
+
 Tilemap::Tilemap(std::string map_filename)
 {
 	map_filename = "maps/" + map_filename;
@@ -87,12 +96,15 @@ Tilemap::Tilemap(std::string map_filename)
 
 	for (int i = 0; i < num_walls; i++) {
 		Wall *w = new Wall;
+
 		w->position.x = SDL_ReadLE16(f);
 		w->position.y = SDL_ReadLE16(f);
 		w->position.z = SDL_ReadLE16(f);
+
 		w->size.x = SDL_ReadLE16(f);
 		w->size.y = SDL_ReadLE16(f);
 		w->size.z = SDL_ReadLE16(f);
+
 		walls.push_back(w);
 	}
 
@@ -216,11 +228,14 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 						continue;
 					}
 
-					SDL_Colour light[4];
+					SDL_Colour light;
 
 					get_tile_lighting(Point<int>(col, row), light);
 
-					sheets[s]->draw_region_lit_z(
+					// FIXME:
+					light = noo.white;
+
+					sheets[s]->draw_region_tinted_z(
 						light,
 						Point<int>(sx, sy),
 						Size<int>(dw, dh),
@@ -252,66 +267,131 @@ std::vector<Tilemap::Group *> Tilemap::get_groups(int layer)
 	return g;
 }
 
-void Tilemap::get_tile_corners_3d(Point<int> tile_position, Vec3D<float> out[4])
+// NOTE: code found here: http://forums.create.msdn.com/forums/t/280.aspx
+static bool checkcoll_line_line(const Point<float> a1, const Point<float> a2, const Point<float> b1, const Point<float> b2, Point<float> *result)
 {
-	Wall *w = get_tile_wall(tile_position);
+	double Ua, Ub;
 
-	if (w) {
-		out[0].x = tile_position.x;
-		out[1].x = tile_position.x+1;
-		out[2].x = tile_position.x+1;
-		out[3].x = tile_position.x;
+	Ua = ((b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x)) / ((b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y));
 
-		int end_y = w->position.y - w->position.z + w->size.y;
+	Ub = ((a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x)) / ((b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y));
 
-		// Check if it's on the top of the wall or the face
-
-		int z_top = end_y - tile_position.y;
-
-		if (z_top <= w->size.z) {
-			// face
-			out[0].y = end_y;
-			out[1].y = end_y;
-			out[2].y = end_y;
-			out[3].y = end_y;
-
-			out[0].z = z_top;
-			out[1].z = z_top;
-			out[2].z = z_top - 1;
-			out[3].z = z_top - 1;
+	if (Ua >= 0.0f && Ua <= 1.0f && Ub >= 0.0f && Ub <= 1.0f)
+	{
+		if (result) {
+			result->x = a1.x + Ua * (a2.x - a1.x);
+			result->y = a1.y + Ua * (a2.y - a1.y);
 		}
-		else {
-			int y_start = tile_position.y + w->size.z;
 
-			out[0].y = y_start;
-			out[1].y = y_start;
-			out[2].y = y_start + 1;
-			out[3].y = y_start + 1;
-
-			out[0].z = w->position.z + w->size.z;
-			out[1].z = w->position.z + w->size.z;
-			out[2].z = w->position.z + w->size.z;
-			out[3].z = w->position.z + w->size.z;
-		}
+		return true;
 	}
-	else {
-		out[0].x = tile_position.x;
-		out[0].y = tile_position.y;
-		out[0].z = 0;
-		out[1].x = tile_position.x+1;
-		out[1].y = tile_position.y;
-		out[1].z = 0;
-		out[2].x = tile_position.x+1;
-		out[2].y = tile_position.y+1;
-		out[2].z = 0;
-		out[3].x = tile_position.x;
-		out[3].y = tile_position.y+1;
-		out[3].z = 0;
+	else
+	{
+		return false;
 	}
 }
 
-void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour out[4])
+static bool checkcoll_line_box(Point<float> a, Point<float> b, Point<float> topleft, Point<float> bottomright, Point<float> *result)
 {
+	Point<float> topright(
+		bottomright.x,
+		topleft.y
+	);
+	Point<float> bottomleft(
+		topleft.x,
+		bottomright.y
+	);
+
+	if (
+		checkcoll_line_line(a, b, topleft, topright, result) ||
+		checkcoll_line_line(a, b, topright, bottomright, result) ||
+		checkcoll_line_line(a, b, bottomright, bottomleft, result) ||
+		checkcoll_line_line(a, b, bottomleft, topleft, result))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
+{
+	std::vector<Light> lights;
+
+	Light l;
+	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 1);
+	l.colour = noo.white;
+	l.brightness = 2;
+	lights.push_back(l);
+
+	int out_colour[3] = { 128, 128, 128 }; // FIXME: ambient lighting
+
+	Wall *tile_wall = get_tile_wall(tile_position);
+
+	float tile_z = 0;
+
+	if (tile_wall) {
+		int top_z = (tile_wall->position.y - tile_wall->position.z + tile_wall->size.y) - tile_wall->size.z;
+		if (tile_position.y >= top_z) {
+			tile_z = top_z - tile_position.y + 1;
+		}
+		else {
+			tile_z = tile_wall->size.z + tile_wall->position.z;
+		}
+	}
+
+	for (size_t i = 0; i < lights.size(); i++) {
+		Light *l = &lights[i];
+
+		bool hits_wall = false;
+
+		Wall *light_wall = get_tile_wall(Point<int>(l->position.x, l->position.y));
+
+		for (size_t j = 0; j < walls.size(); j++) {
+			Wall *w = walls[j];
+
+			Point<float> line1 = tile_position;
+			Point<float> line2(l->position.x, l->position.y);
+			Point<float> wall_pos1(w->position.x, w->position.y - w->position.z - w->size.z);
+			Point<float> wall_pos2(wall_pos1.x + w->size.x - 1, w->position.y + w->size.y - 1);
+
+			wall_pos2.y -= tile_z;
+
+			Point<float> result;
+
+			if (checkcoll_line_box(line1, line2, wall_pos1, wall_pos2, &result)) {
+				if (tile_wall == w) {
+					if (tile_position.y > l->position.y) {
+						hits_wall = true;
+						break;
+					}
+				}
+				else {
+					if (w != light_wall || result.y > l->position.y) {
+						hits_wall = true;
+						break;
+					}
+				}
+			}
+		}
+
+		if (hits_wall) {
+			continue;
+		}
+
+		float distance_light_to_tile = (Vec3D<float>(tile_position.x, tile_position.y, 0) - l->position).length();
+
+		float mul = distance_light_to_tile <= 0 ? 1.0f : MIN(1.0f, l->brightness / distance_light_to_tile);
+
+		out_colour[0] += l->colour.r * mul;
+		out_colour[1] += l->colour.g * mul;
+		out_colour[2] += l->colour.b * mul;
+	}
+
+	out.r = MIN(255, out_colour[0] / lights.size());
+	out.g = MIN(255, out_colour[1] / lights.size());
+	out.b = MIN(255, out_colour[2] / lights.size());
+	out.a = 255;
 }
 
 float Tilemap::get_z(int layer, int x, int y)
