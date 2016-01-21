@@ -216,7 +216,12 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 						continue;
 					}
 
-					sheets[s]->draw_region_z(
+					SDL_Colour light[4];
+
+					get_tile_lighting(Point<int>(col, row), light);
+
+					sheets[s]->draw_region_lit_z(
+						light,
 						Point<int>(sx, sy),
 						Size<int>(dw, dh),
 						Point<float>(dx, dy),
@@ -303,6 +308,10 @@ void Tilemap::get_tile_corners_3d(Point<int> tile_position, Vec3D<float> out[4])
 		out[3].y = tile_position.y+1;
 		out[3].z = 0;
 	}
+}
+
+void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour out[4])
+{
 }
 
 float Tilemap::get_z(int layer, int x, int y)

@@ -484,6 +484,18 @@ void Image::stretch_region(Point<float> source_position, Size<int> source_size, 
 	m.vertex_cache->cache(noo.four_whites, source_position, source_size, dest_position, dest_size, flags);
 }
 
+void Image::draw_region_lit_z(SDL_Colour colours[4], Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
+{
+	m.vertex_cache->cache_z(colours, source_position, source_size, dest_position, z, source_size, flags);
+}
+
+void Image::draw_region_tinted_z(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
+{
+	SDL_Colour colours[4];
+	colours[0] = colours[1] = colours[2] = colours[3] = tint;
+	draw_region_lit_z(colours, source_position, source_size, dest_position, z, flags);
+}
+
 void Image::draw_region_tinted(SDL_Colour tint, Point<float> source_position, Size<int> source_size, Point<float> dest_position, int flags)
 {
 	SDL_Colour colours[4];
