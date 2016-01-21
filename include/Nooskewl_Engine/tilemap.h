@@ -52,8 +52,11 @@ public:
 
 	std::vector<Group *> get_groups(int layer);
 
+	void get_tile_corners_3d(Point<int> tile_position, Vec3D<float> out[4]);
+
 private:
 	float get_z(int layer, int x, int y);
+	Wall *get_tile_wall(Point<int> tile_position);
 
 	struct Layer
 	{

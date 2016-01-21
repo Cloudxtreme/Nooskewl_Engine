@@ -247,6 +247,64 @@ std::vector<Tilemap::Group *> Tilemap::get_groups(int layer)
 	return g;
 }
 
+void Tilemap::get_tile_corners_3d(Point<int> tile_position, Vec3D<float> out[4])
+{
+	Wall *w = get_tile_wall(tile_position);
+
+	if (w) {
+		out[0].x = tile_position.x;
+		out[1].x = tile_position.x+1;
+		out[2].x = tile_position.x+1;
+		out[3].x = tile_position.x;
+
+		int end_y = w->position.y - w->position.z + w->size.y;
+
+		// Check if it's on the top of the wall or the face
+
+		int z_top = end_y - tile_position.y;
+
+		if (z_top <= w->size.z) {
+			// face
+			out[0].y = end_y;
+			out[1].y = end_y;
+			out[2].y = end_y;
+			out[3].y = end_y;
+
+			out[0].z = z_top;
+			out[1].z = z_top;
+			out[2].z = z_top - 1;
+			out[3].z = z_top - 1;
+		}
+		else {
+			int y_start = tile_position.y + w->size.z;
+
+			out[0].y = y_start;
+			out[1].y = y_start;
+			out[2].y = y_start + 1;
+			out[3].y = y_start + 1;
+
+			out[0].z = w->position.z + w->size.z;
+			out[1].z = w->position.z + w->size.z;
+			out[2].z = w->position.z + w->size.z;
+			out[3].z = w->position.z + w->size.z;
+		}
+	}
+	else {
+		out[0].x = tile_position.x;
+		out[0].y = tile_position.y;
+		out[0].z = 0;
+		out[1].x = tile_position.x+1;
+		out[1].y = tile_position.y;
+		out[1].z = 0;
+		out[2].x = tile_position.x+1;
+		out[2].y = tile_position.y+1;
+		out[2].z = 0;
+		out[3].x = tile_position.x;
+		out[3].y = tile_position.y+1;
+		out[3].z = 0;
+	}
+}
+
 float Tilemap::get_z(int layer, int x, int y)
 {
 	Layer l = layers[layer];
@@ -262,4 +320,18 @@ float Tilemap::get_z(int layer, int x, int y)
 		}
 	}
 	return -(1.0f - ((float)(y * noo.tile_size) / (float)(size.h * noo.tile_size))) * 0.01f;
+}
+
+Tilemap::Wall *Tilemap::get_tile_wall(Point<int> tile_position)
+{
+	for (size_t i = 0; i < walls.size(); i++) {
+		Wall *w = walls[i];
+		Point<int> start(w->position.x, w->position.y - w->position.z - w->size.z);
+		Point<int> end(start.x + w->size.x, w->position.y + w->size.y);
+		if (tile_position.x >= start.x && tile_position.y >= start.y && tile_position.x < end.x && tile_position.y < end.y) {
+			return w;
+		}
+	}
+
+	return 0;
 }
