@@ -83,6 +83,19 @@ Tilemap::Tilemap(std::string map_filename)
 		layers[g->layer].groups.push_back(g);
 	}
 
+	int num_walls = SDL_ReadLE16(f);
+
+	for (int i = 0; i < num_walls; i++) {
+		Wall *w = new Wall;
+		w->position.x = SDL_ReadLE16(f);
+		w->position.y = SDL_ReadLE16(f);
+		w->position.z = SDL_ReadLE16(f);
+		w->size.x = SDL_ReadLE16(f);
+		w->size.y = SDL_ReadLE16(f);
+		w->size.z = SDL_ReadLE16(f);
+		walls.push_back(w);
+	}
+
 	SDL_RWclose(f);
 
 	for (int layer = 0; layer < num_layers; layer++) {

@@ -32,6 +32,11 @@ public:
 		Size<int> size;
 	};
 
+	struct Wall {
+		Vec3D<float> position;
+		Vec3D<float> size;
+	};
+
 	Tilemap(std::string map_filename);
 	~Tilemap();
 
@@ -66,6 +71,8 @@ private:
 	int num_layers;
 
 	Layer *layers;
+
+	std::vector<Wall *> walls;
 };
 
 } // End namespace Nooskewl_Engine
