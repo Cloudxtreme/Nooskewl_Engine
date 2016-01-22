@@ -395,6 +395,11 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *map_entity = entities[i];
+
+		if (indoors && map_entity == noo.player) {
+			continue;
+		}
+
 		Brain *brain = map_entity->get_brain();
 
 		if (brain == 0) {
