@@ -351,7 +351,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 	std::vector<Light> lights;
 
 	Light l;
-	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 2);
+	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 1);
 	l.colour = noo.white;
 	l.brightness = 2;
 	lights.push_back(l);
@@ -391,7 +391,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 
 		float distance_light_to_tile = (Vec3D<float>(tile_position.x, tile_position.y, 0) - l->position).length();
 
-		float mul = distance_light_to_tile <= 0 ? 1.0f : MIN(1.0f, l->brightness / distance_light_to_tile);
+		float mul = distance_light_to_tile <= 0 ? 1.0f : l->brightness / distance_light_to_tile;
 
 		out_colour[0] += l->colour.r * mul;
 		out_colour[1] += l->colour.g * mul;
