@@ -336,7 +336,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 	std::vector<Light> lights;
 
 	Light l;
-	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 1);
+	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 2);
 	l.colour = noo.white;
 	l.brightness = 2;
 	lights.push_back(l);
@@ -357,6 +357,10 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 
 		for (size_t j = 0; j < walls.size(); j++) {
 			Wall *w = walls[j];
+
+			if (w->position.z + w->size.z < l->position.z) {
+				continue;
+			}
 
 			if (checkcoll_line_wall(tile_position, light_pos, w, tile_wall)) {
 				hits_wall = true;
