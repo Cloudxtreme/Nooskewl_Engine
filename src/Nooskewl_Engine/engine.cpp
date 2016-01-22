@@ -202,7 +202,7 @@ Engine::Engine() :
 	fullscreen_window(false),
 	target_image(0),
 	work_image(0),
-	story_start_hour(21),
+	story_start_hour(7),
 	seconds_per_hour(60)
 {
 }
