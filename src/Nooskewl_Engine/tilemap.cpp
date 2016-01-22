@@ -113,25 +113,25 @@ Tilemap::Tilemap(std::string map_filename) :
 	p.percent = 30;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[7];
-	p.percent = 8;
+	p.percent = 4;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[6];
-	p.percent = 8;
+	p.percent = 4;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[5];
-	p.percent = 15;
+	p.percent = 25;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[5];
-	p.percent = 15;
+	p.percent = 25;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[32];
-	p.percent = 8;
+	p.percent = 4;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[24];
-	p.percent = 8;
+	p.percent = 4;
 	day_night_splits.push_back(p);
 	p.colour = noo.colours[22];
-	p.percent = 8;
+	p.percent = 4;
 	day_night_splits.push_back(p);
 }
 
