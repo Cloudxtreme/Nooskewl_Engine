@@ -201,7 +201,9 @@ Engine::Engine() :
 	escape_triangle_size(8.0f),
 	fullscreen_window(false),
 	target_image(0),
-	work_image(0)
+	work_image(0),
+	story_start_hour(21),
+	seconds_per_hour(60)
 {
 }
 
@@ -2159,6 +2161,14 @@ int Engine::get_play_time()
 		play_time -= int(time(0) - pause_start);
 	}
 	return play_time;
+}
+
+float Engine::get_day_time()
+{
+	int play_time = get_play_time();
+	play_time += story_start_hour * seconds_per_hour;
+	play_time %= seconds_per_hour * 24;
+	return (float)play_time / (seconds_per_hour * 24);
 }
 
 bool Engine::load_milestones(SDL_RWops *file, int version)

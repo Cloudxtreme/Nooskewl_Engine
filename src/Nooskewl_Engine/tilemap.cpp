@@ -107,6 +107,32 @@ Tilemap::Tilemap(std::string map_filename) :
 	for (int layer = 0; layer < num_layers; layer++) {
 		std::sort(layers[layer].sheets_used.begin(), layers[layer].sheets_used.end());
 	}
+
+	Day_Night_Portion p;
+	p.colour = noo.colours[15];
+	p.percent = 30;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[7];
+	p.percent = 8;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[6];
+	p.percent = 8;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[5];
+	p.percent = 15;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[5];
+	p.percent = 15;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[32];
+	p.percent = 8;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[25];
+	p.percent = 8;
+	day_night_splits.push_back(p);
+	p.colour = noo.colours[23];
+	p.percent = 8;
+	day_night_splits.push_back(p);
 }
 
 Tilemap::~Tilemap()
@@ -345,9 +371,18 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 	Point<int> orig_tile_pos = tile_position;
 
 	int out_colour[3];
-	out_colour[0] = ambient_light.r;
-	out_colour[1] = ambient_light.g;
-	out_colour[2] = ambient_light.b;
+	SDL_Colour day_time_colour = get_day_time_colour();
+
+	if (indoors) {
+		out_colour[0] = ambient_light.r;
+		out_colour[1] = ambient_light.g;
+		out_colour[2] = ambient_light.b;
+	}
+	else {
+		out_colour[0] = day_time_colour.r;
+		out_colour[1] = day_time_colour.g;
+		out_colour[2] = day_time_colour.b;
+	}
 
 	Wall *tile_wall = get_tile_wall(tile_position);
 
@@ -421,10 +456,20 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 		out_colour[2] += lcolour.b * mul;
 	}
 
-	out.r = MIN(255, out_colour[0] / num_lights);
-	out.g = MIN(255, out_colour[1] / num_lights);
-	out.b = MIN(255, out_colour[2] / num_lights);
+	out.r = MIN(255, out_colour[0]);
+	out.g = MIN(255, out_colour[1]);
+	out.b = MIN(255, out_colour[2]);
 	out.a = 255;
+
+	if (indoors) {
+		float outdoor_percent = outdoor_effect / 100.0f;
+		out.r *= 1.0f - outdoor_percent;
+		out.g *= 1.0f - outdoor_percent;
+		out.b *= 1.0f - outdoor_percent;
+		out.r += outdoor_percent * day_time_colour.r;
+		out.g += outdoor_percent * day_time_colour.g;
+		out.b += outdoor_percent * day_time_colour.b;
+	}
 }
 
 void Tilemap::enable_lighting(bool enabled)
@@ -468,4 +513,35 @@ Tilemap::Wall *Tilemap::get_tile_wall(Point<int> tile_position)
 	}
 
 	return 0;
+}
+
+SDL_Colour Tilemap::get_day_time_colour()
+{
+	float day_time = noo.get_day_time();
+	int day_time_i = day_time * 100;
+
+	int split;
+	int count = 0;
+
+	for (split = 0; split < day_night_splits.size(); split++) {
+		if (day_time_i <= count + day_night_splits[split].percent) {
+			break;
+		}
+		count += day_night_splits[split].percent;
+	}
+
+	int remain = day_time_i - count;
+	float p = (float)remain / day_night_splits[split].percent;
+	float inv_p = 1.0f - p;
+
+	SDL_Colour result;
+	SDL_Colour a = day_night_splits[split].colour;
+	SDL_Colour b = day_night_splits[split+1].colour;
+
+	result.r = (a.r * inv_p) + (b.r * p);
+	result.g = (a.g * inv_p) + (b.g * p);
+	result.b = (a.b * inv_p) + (b.b * p);
+	result.a = 255;
+
+	return result;
 }

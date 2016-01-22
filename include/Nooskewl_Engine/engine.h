@@ -146,6 +146,7 @@ public:
 	void game_paused();
 	void game_unpaused();
 	int get_play_time();
+	float get_day_time(); // 0.0f - 1.0f (midnight AM to midnight PM)
 
 	bool save_map(Map *map, bool save_player);
 
@@ -266,6 +267,9 @@ private:
 	};
 	int find_joy_repeat(bool is_button, int button_or_axis);
 	std::vector<Joy_Repeat> joystick_repeats;
+
+	const int story_start_hour; // time of day the game starts
+	const int seconds_per_hour; // seconds of play time per game world hour
 };
 
 NOOSKEWL_ENGINE_EXPORT extern Engine noo;

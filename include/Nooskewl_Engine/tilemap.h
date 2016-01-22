@@ -62,6 +62,7 @@ public:
 private:
 	float get_z(int layer, int x, int y);
 	Wall *get_tile_wall(Point<int> tile_position);
+	SDL_Colour get_day_time_colour();
 
 	struct Layer
 	{
@@ -83,10 +84,16 @@ private:
 	std::vector<Wall *> walls;
 
 	// Lighting parameters
+	struct Day_Night_Portion {
+		SDL_Colour colour;
+		int percent;
+	};
+
 	bool lighting_enabled;
 	bool indoors;
 	int outdoor_effect; // % of total lighting effect to take from outdoors (0-100)
 	SDL_Colour ambient_light;
+	std::vector<Day_Night_Portion> day_night_splits;
 };
 
 } // End namespace Nooskewl_Engine
