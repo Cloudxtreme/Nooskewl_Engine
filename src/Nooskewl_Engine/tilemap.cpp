@@ -311,6 +311,23 @@ static bool checkcoll_line_box(Point<float> a, Point<float> b, Point<float> topl
 		return true;
 	}
 
+ 	return false;
+}
+
+static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> light_pos, Tilemap::Wall *w, Tilemap::Wall *tile_wall)
+{
+	bool is_face = tile_wall && (tile_pos.y >= tile_wall->position.y + tile_wall->size.y - tile_wall->size.z);
+	if (w == tile_wall && is_face && tile_pos.y <= light_pos.y) {
+		return false;
+	}
+
+	Point<int> topleft(w->position.x, w->position.y);
+	Point<int> bottomright(w->position.x + w->size.x - 1, w->position.y + w->size.y - 1);
+
+	if (checkcoll_line_box(tile_pos, light_pos, topleft, bottomright, 0)) {
+		return true;
+	}
+
 	return false;
 }
 
@@ -328,50 +345,22 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 
 	Wall *tile_wall = get_tile_wall(tile_position);
 
-	float tile_z = 0;
-
 	if (tile_wall) {
-		int top_z = (tile_wall->position.y - tile_wall->position.z + tile_wall->size.y) - tile_wall->size.z;
-		if (tile_position.y >= top_z) {
-			tile_z = top_z - tile_position.y + 1;
-		}
-		else {
-			tile_z = tile_wall->size.z + tile_wall->position.z;
-		}
+		tile_position.y = tile_wall->position.y + tile_wall->size.y - 1;
 	}
 
 	for (size_t i = 0; i < lights.size(); i++) {
 		Light *l = &lights[i];
+		Point<float> light_pos(l->position.x, l->position.y);
 
 		bool hits_wall = false;
-
-		Wall *light_wall = get_tile_wall(Point<int>(l->position.x, l->position.y));
 
 		for (size_t j = 0; j < walls.size(); j++) {
 			Wall *w = walls[j];
 
-			Point<float> line1 = tile_position;
-			Point<float> line2(l->position.x, l->position.y);
-			Point<float> wall_pos1(w->position.x, w->position.y - w->position.z - w->size.z);
-			Point<float> wall_pos2(wall_pos1.x + w->size.x - 1, w->position.y + w->size.y - 1);
-
-			wall_pos2.y -= tile_z;
-
-			Point<float> result;
-
-			if (checkcoll_line_box(line1, line2, wall_pos1, wall_pos2, &result)) {
-				if (tile_wall == w) {
-					if (tile_position.y > l->position.y) {
-						hits_wall = true;
-						break;
-					}
-				}
-				else {
-					if (w != light_wall || result.y > l->position.y) {
-						hits_wall = true;
-						break;
-					}
-				}
+			if (checkcoll_line_wall(tile_position, light_pos, w, tile_wall)) {
+				hits_wall = true;
+				break;
 			}
 		}
 
