@@ -314,15 +314,28 @@ static bool checkcoll_line_box(Point<float> a, Point<float> b, Point<float> topl
  	return false;
 }
 
-static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall)
+static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> orig_tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall, Tilemap::Wall *light_wall)
 {
-	bool is_face = tile_wall && (tile_pos.y >= tile_wall->position.y + tile_wall->size.y - tile_wall->size.z);
-	if (w == tile_wall && is_face && tile_pos.y <= light_pos.y && w->position.z + w->size.z < light_z) {
+	bool is_face = tile_wall && (orig_tile_pos.y >= tile_wall->position.y + tile_wall->size.y - tile_wall->size.z);
+
+	if (!is_face && tile_wall && light_z <= tile_wall->position.z + tile_wall->size.z) {
+		return true;
+	}
+
+	if (w == tile_wall && tile_pos.y <= light_pos.y) {
+		return false;
+	}
+
+	if (w == light_wall && light_pos.y == light_wall->position.y + light_wall->size.y - 1 && orig_tile_pos.y >= light_wall->position.y + light_wall->size.y - 1) {
 		return false;
 	}
 
 	Point<int> topleft(w->position.x, w->position.y);
 	Point<int> bottomright(w->position.x + w->size.x - 1, w->position.y + w->size.y - 1);
+
+	if (light_pos.x >= topleft.x && light_pos.y >= topleft.y && light_pos.x <= bottomright.x && light_pos.y <= bottomright.y && tile_pos.y <= light_pos.y) {
+		return true;
+	}
 
 	if (checkcoll_line_box(tile_pos, light_pos, topleft, bottomright, 0)) {
 		return true;
@@ -333,10 +346,12 @@ static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> light_pos, f
 
 void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 {
+	Point<int> orig_tile_pos = tile_position;
+
 	std::vector<Light> lights;
 
 	Light l;
-	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 1);
+	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 2);
 	l.colour = noo.white;
 	l.brightness = 2;
 	lights.push_back(l);
@@ -352,6 +367,8 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 	for (size_t i = 0; i < lights.size(); i++) {
 		Light *l = &lights[i];
 		Point<float> light_pos(l->position.x, l->position.y);
+		float light_z = l->position.z;
+		Wall *light_wall = get_tile_wall(light_pos);
 
 		bool hits_wall = false;
 
@@ -362,7 +379,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 				continue;
 			}
 
-			if (checkcoll_line_wall(tile_position, light_pos, l->position.z, w, tile_wall)) {
+			if (checkcoll_line_wall(tile_position, orig_tile_pos, light_pos, light_z, w, tile_wall, light_wall)) {
 				hits_wall = true;
 				break;
 			}
