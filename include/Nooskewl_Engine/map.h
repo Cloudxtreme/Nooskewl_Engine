@@ -55,6 +55,7 @@ public:
 	std::list<A_Star::Node *> find_path(Point<int> start, Point<int> goal, bool check_solids = true);
 	bool is_speech_active();
 	Map_Logic *get_map_logic();
+	std::vector<Map_Entity *> &get_entities();
 
 	bool save(std::string &out, bool save_player);
 

@@ -61,3 +61,64 @@ bool Brain::killme()
 {
 	return false;
 }
+
+//--
+
+Light_Brain::Light_Brain(Vec3D<float> position, SDL_Colour colour, float reach, float falloff) :
+	position(position),
+	colour(colour),
+	reach(reach),
+	falloff(falloff)
+{
+}
+
+Light_Brain::~Light_Brain()
+{
+}
+
+Vec3D<float> Light_Brain::get_position()
+{
+	return position;
+}
+
+SDL_Colour Light_Brain::get_colour()
+{
+	return colour;
+}
+
+float Light_Brain::get_reach()
+{
+	return reach;
+}
+
+float Light_Brain::get_falloff()
+{
+	return falloff;
+}
+
+void Light_Brain::set_position(Vec3D<float> position)
+{
+	this->position = position;
+}
+
+void Light_Brain::set_colour(SDL_Colour colour)
+{
+	this->colour = colour;
+}
+
+void Light_Brain::set_reach(float reach)
+{
+	this->reach = reach;
+}
+
+void Light_Brain::set_falloff(float falloff)
+{
+	this->falloff = falloff;
+}
+
+bool Light_Brain::save(std::string &out)
+{
+	out += string_printf("brain=light_brain,1\n%f,%f,%f,%d,%d,%d,%f,%f\n", position.x, position.y, position.z, colour.r, colour.g, colour.b, reach, falloff);
+	return true;
+}
+

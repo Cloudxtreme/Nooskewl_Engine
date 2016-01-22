@@ -301,6 +301,11 @@ Map_Logic *Map::get_map_logic()
 	return ml;
 }
 
+std::vector<Map_Entity *> &Map::get_entities()
+{
+	return entities;
+}
+
 void Map::handle_event(TGUI_Event *event)
 {
 	if (speech) {

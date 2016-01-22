@@ -2,21 +2,15 @@
 #include "Nooskewl_Engine/error.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
+#include "Nooskewl_Engine/map.h"
+#include "Nooskewl_Engine/map_entity.h"
 #include "Nooskewl_Engine/shader.h"
 #include "Nooskewl_Engine/tilemap.h"
 
 using namespace Nooskewl_Engine;
 
-// FIXME
-	struct Light {
-		Vec3D<float> position;
-		SDL_Colour colour;
-		float brightness;
-	};
-#include "Nooskewl_Engine/map_entity.h"
-
-
-Tilemap::Tilemap(std::string map_filename)
+Tilemap::Tilemap(std::string map_filename) :
+	lighting_enabled(false)
 {
 	map_filename = "maps/" + map_filename;
 
@@ -230,10 +224,12 @@ void Tilemap::draw(int layer, Point<float> position, bool use_depth_buffer)
 
 					SDL_Colour light;
 
-					get_tile_lighting(Point<int>(col, row), light);
-
-					// FIXME:
-					light = noo.white;
+					if (lighting_enabled) {
+						get_tile_lighting(Point<int>(col, row), light);
+					}
+					else {
+						light = noo.white;
+					}
 
 					sheets[s]->draw_region_tinted_z(
 						light,
@@ -348,15 +344,10 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 {
 	Point<int> orig_tile_pos = tile_position;
 
-	std::vector<Light> lights;
-
-	Light l;
-	l.position = Vec3D<int>(noo.player->get_position().x, noo.player->get_position().y, 1);
-	l.colour = noo.white;
-	l.brightness = 2;
-	lights.push_back(l);
-
-	int out_colour[3] = { 128, 128, 128 }; // FIXME: ambient lighting
+	int out_colour[3];
+	out_colour[0] = ambient_light.r;
+	out_colour[1] = ambient_light.g;
+	out_colour[2] = ambient_light.b;
 
 	Wall *tile_wall = get_tile_wall(tile_position);
 
@@ -364,10 +355,32 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 		tile_position.y = tile_wall->position.y + tile_wall->size.y - 1;
 	}
 
-	for (size_t i = 0; i < lights.size(); i++) {
-		Light *l = &lights[i];
-		Point<float> light_pos(l->position.x, l->position.y);
-		float light_z = l->position.z;
+	std::vector<Map_Entity *> &entities = noo.map->get_entities();
+	int num_lights = 1;
+
+	for (size_t i = 0; i < entities.size(); i++) {
+		Map_Entity *map_entity = entities[i];
+		Brain *brain = map_entity->get_brain();
+
+		if (brain == 0) {
+			continue;
+		}
+
+		Light_Brain *light_brain = dynamic_cast<Light_Brain *>(brain);
+
+		if (light_brain == 0) {
+			continue;
+		}
+
+		num_lights++;
+
+		Vec3D<float> lposition = light_brain->get_position();
+		SDL_Colour lcolour = light_brain->get_colour();
+		float lreach = light_brain->get_reach();
+		float lfalloff = light_brain->get_falloff();
+
+		Point<float> light_pos(lposition.x, lposition.y);
+		float light_z = lposition.z;
 		Wall *light_wall = get_tile_wall(light_pos);
 
 		bool hits_wall = false;
@@ -375,7 +388,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 		for (size_t j = 0; j < walls.size(); j++) {
 			Wall *w = walls[j];
 
-			if (w->position.z + w->size.z < l->position.z) {
+			if (w->position.z + w->size.z < light_z) {
 				continue;
 			}
 
@@ -389,19 +402,41 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 			continue;
 		}
 
-		float distance_light_to_tile = (Vec3D<float>(tile_position.x, tile_position.y, 0) - l->position).length();
+		float distance_light_to_tile = (Vec3D<float>(tile_position.x, tile_position.y, 0) - lposition).length();
 
-		float mul = distance_light_to_tile <= 0 ? 1.0f : l->brightness / distance_light_to_tile;
+		float mul;
 
-		out_colour[0] += l->colour.r * mul;
-		out_colour[1] += l->colour.g * mul;
-		out_colour[2] += l->colour.b * mul;
+		if (distance_light_to_tile <= lreach) {
+			mul = 1.0f;
+		}
+		else if (distance_light_to_tile - lreach <= lfalloff) {
+			mul = 1.0f - ((distance_light_to_tile - lreach) / lfalloff);
+		}
+		else {
+			mul = 0.0f;
+		}
+
+		out_colour[0] += lcolour.r * mul;
+		out_colour[1] += lcolour.g * mul;
+		out_colour[2] += lcolour.b * mul;
 	}
 
-	out.r = MIN(255, out_colour[0] / lights.size());
-	out.g = MIN(255, out_colour[1] / lights.size());
-	out.b = MIN(255, out_colour[2] / lights.size());
+	out.r = MIN(255, out_colour[0] / num_lights);
+	out.g = MIN(255, out_colour[1] / num_lights);
+	out.b = MIN(255, out_colour[2] / num_lights);
 	out.a = 255;
+}
+
+void Tilemap::enable_lighting(bool enabled)
+{
+	lighting_enabled = enabled;
+}
+
+void Tilemap::set_lighting_parameters(bool indoors, int outdoor_effect, SDL_Colour ambient_light)
+{
+	this->indoors = indoors;
+	this->outdoor_effect = outdoor_effect;
+	this->ambient_light = ambient_light;
 }
 
 float Tilemap::get_z(int layer, int x, int y)

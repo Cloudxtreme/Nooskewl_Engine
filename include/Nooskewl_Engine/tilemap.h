@@ -56,6 +56,9 @@ public:
 
 	void get_tile_lighting(Point<int> tile_position, SDL_Colour &out);
 
+	void enable_lighting(bool enabled);
+	void set_lighting_parameters(bool indoors, int outdoor_effect, SDL_Colour ambient_light);
+
 private:
 	float get_z(int layer, int x, int y);
 	Wall *get_tile_wall(Point<int> tile_position);
@@ -78,6 +81,12 @@ private:
 	Layer *layers;
 
 	std::vector<Wall *> walls;
+
+	// Lighting parameters
+	bool lighting_enabled;
+	bool indoors;
+	int outdoor_effect; // % of total lighting effect to take from outdoors (0-100)
+	SDL_Colour ambient_light;
 };
 
 } // End namespace Nooskewl_Engine

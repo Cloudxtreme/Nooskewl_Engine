@@ -6,13 +6,16 @@
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/tilemap.h"
 
+static SDL_Colour white = { 255, 255, 255, 255 };
+
 using namespace Nooskewl_Engine;
 
 Player_Brain::Player_Brain() :
-	pressed(false),
-	pressed2(false),
-	dragged(false)
+	Light_Brain(Vec3D<float>(0.0f, 0.0f, 1.0f), white, 3, 3)
 {
+	pressed = false;
+	pressed2 = false;
+	dragged = false;
 	reset();
 }
 
@@ -297,4 +300,12 @@ bool Player_Brain::save(std::string &out)
 {
 	out += string_printf("brain=player_brain,0\n");
 	return true;
+}
+
+void Player_Brain::update()
+{
+	// Set light position
+	Point<int> pos = noo.player->get_position();
+	position.x = pos.x;
+	position.y = pos.y;
 }

@@ -7,7 +7,7 @@
 
 namespace Nooskewl_Engine {
 
-class Player_Brain : public Brain {
+class Player_Brain : public Light_Brain {
 public:
 	Player_Brain();
 	~Player_Brain();
@@ -15,6 +15,7 @@ public:
 	void handle_event(TGUI_Event *event);
 	void reset();
 	bool save(std::string &out);
+	void update();
 
 private:
 	static const int TOLERANCE = 5;
