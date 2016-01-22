@@ -314,10 +314,10 @@ static bool checkcoll_line_box(Point<float> a, Point<float> b, Point<float> topl
  	return false;
 }
 
-static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> light_pos, Tilemap::Wall *w, Tilemap::Wall *tile_wall)
+static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall)
 {
 	bool is_face = tile_wall && (tile_pos.y >= tile_wall->position.y + tile_wall->size.y - tile_wall->size.z);
-	if (w == tile_wall && is_face && tile_pos.y <= light_pos.y) {
+	if (w == tile_wall && is_face && tile_pos.y <= light_pos.y && w->position.z + w->size.z < light_z) {
 		return false;
 	}
 
@@ -362,7 +362,7 @@ void Tilemap::get_tile_lighting(Point<int> tile_position, SDL_Colour &out)
 				continue;
 			}
 
-			if (checkcoll_line_wall(tile_position, light_pos, w, tile_wall)) {
+			if (checkcoll_line_wall(tile_position, light_pos, l->position.z, w, tile_wall)) {
 				hits_wall = true;
 				break;
 			}
