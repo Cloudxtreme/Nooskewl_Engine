@@ -27,8 +27,8 @@ void close_dll();
 
 #define snprintf c99_snprintf
 
-int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
-int c99_snprintf(char* str, int size, const char* format, ...);
+NOOSKEWL_ENGINE_EXPORT int c99_vsnprintf(char* str, int size, const char* format, va_list ap);
+NOOSKEWL_ENGINE_EXPORT int c99_snprintf(char* str, int size, const char* format, ...);
 
 #endif
 
