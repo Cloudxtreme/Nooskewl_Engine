@@ -289,54 +289,45 @@ std::vector<Tilemap::Group *> Tilemap::get_groups(int layer)
 	return g;
 }
 
-// NOTE: code found here: http://forums.create.msdn.com/forums/t/280.aspx
-static bool checkcoll_line_line(const Point<float> a1, const Point<float> a2, const Point<float> b1, const Point<float> b2, Point<float> *result)
+bool Tilemap::checkcoll_bresenhams_box(Point<float> a, Point<float> b, Point<float> topleft, Point<float> bottomright, Point<int> &result)
 {
-	double Ua, Ub;
+	int dx = b.x - a.x;
+	int dy = b.y - a.y;
 
-	Ua = ((b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x)) / ((b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y));
+	float step_x, step_y;
 
-	Ub = ((a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x)) / ((b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y));
+	#define SIGN(n) (n < 0 ? -1 : (n > 0 ? 1 : 0))
 
-	if (Ua >= 0.0f && Ua <= 1.0f && Ub >= 0.0f && Ub <= 1.0f)
-	{
-		if (result) {
-			result->x = a1.x + Ua * (a2.x - a1.x);
-			result->y = a1.y + Ua * (a2.y - a1.y);
+	if (abs(dx) >= abs(dy)) {
+		step_x = SIGN(dx);
+		step_y = fabs((float)dy / dx) * SIGN(dy);
+	}
+	else {
+		step_y = SIGN(dy);
+		step_x = fabs((float)dx / dy) * SIGN(dx);
+	}
+
+	#undef SIGN
+
+	a += 0.5f;
+
+	while (true) {
+		if  ((int)a.x >= (int)topleft.x && (int)a.y >= (int)topleft.y && (int)a.x < (int)bottomright.x && (int)a.y < (int)bottomright.y) {
+			result.x = (int)a.x;
+			result.y = (int)a.y;
+			return true;
 		}
+		if ((int)a.x == (int)b.x && (int)a.y == (int)b.y) {
+			break;
+		}
+		a.x += step_x;
+		a.y += step_y;
+	}
 
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
-static bool checkcoll_line_box(Point<float> a, Point<float> b, Point<float> topleft, Point<float> bottomright, Point<float> *result)
-{
-	Point<float> topright(
-		bottomright.x,
-		topleft.y
-	);
-	Point<float> bottomleft(
-		topleft.x,
-		bottomright.y
-	);
-
-	if (
-		checkcoll_line_line(a, b, topleft, topright, result) ||
-		checkcoll_line_line(a, b, topright, bottomright, result) ||
-		checkcoll_line_line(a, b, bottomright, bottomleft, result) ||
-		checkcoll_line_line(a, b, bottomleft, topleft, result))
-	{
-		return true;
-	}
-
- 	return false;
-}
-
-static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> orig_tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall, Tilemap::Wall *light_wall)
+bool Tilemap::checkcoll_line_wall(Point<float> tile_pos, Point<float> orig_tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall, Tilemap::Wall *light_wall)
 {
 	bool is_face = tile_wall && (orig_tile_pos.y >= tile_wall->position.y + tile_wall->size.y - tile_wall->size.z);
 
@@ -353,13 +344,20 @@ static bool checkcoll_line_wall(Point<float> tile_pos, Point<float> orig_tile_po
 	}
 
 	Point<int> topleft(w->position.x, w->position.y);
-	Point<int> bottomright(w->position.x + w->size.x - 1, w->position.y + w->size.y - 1);
+	Point<int> bottomright(w->position.x + w->size.x, w->position.y + w->size.y);
 
-	if (light_pos.x >= topleft.x && light_pos.y >= topleft.y && light_pos.x <= bottomright.x && light_pos.y <= bottomright.y && tile_pos.y <= light_pos.y) {
+	if (light_pos.x >= topleft.x && light_pos.y >= topleft.y && light_pos.x <= (bottomright.x-1) && light_pos.y <= (bottomright.y-1) && tile_pos.y <= light_pos.y) {
 		return true;
 	}
 
-	if (checkcoll_line_box(tile_pos, light_pos, topleft, bottomright, 0)) {
+	Point<int> result;
+
+	if (checkcoll_bresenhams_box(light_pos, tile_pos, topleft, bottomright, result)) {
+		Wall *result_wall = get_tile_wall(result);
+		if (tile_pos.y < light_pos.y && tile_pos.y == result.y && abs(tile_pos.x - result.x) == 1 && tile_wall != 0 && result_wall != 0 && result_wall->position.y + result_wall->size.y <= tile_wall->position.y + tile_wall->size.y) {
+			return false;
+		}
+
 		return true;
 	}
 

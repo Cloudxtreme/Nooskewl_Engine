@@ -63,6 +63,8 @@ private:
 	float get_z(int layer, int x, int y);
 	Wall *get_tile_wall(Point<int> tile_position);
 	SDL_Colour get_day_time_colour();
+	bool checkcoll_line_wall(Point<float> tile_pos, Point<float> orig_tile_pos, Point<float> light_pos, float light_z, Tilemap::Wall *w, Tilemap::Wall *tile_wall, Tilemap::Wall *light_wall);
+	bool checkcoll_bresenhams_box(Point<float> a, Point<float> b, Point<float> topleft, Point<float> bottomright, Point<int> &result);
 
 	struct Layer
 	{
