@@ -462,7 +462,7 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		if (e->is_low()) {
+		if (e->is_low() && e->get_sprite() != 0) {
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
 	}
@@ -471,7 +471,7 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		if (!e->is_high() && !e->is_low()) {
+		if (!e->is_high() && !e->is_low() && e->get_sprite() != 0) {
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
 	}
@@ -488,10 +488,10 @@ void Map::draw(bool use_depth_buffer)
 
 	for (size_t i = 0; i < entities.size(); i++) {
 		Map_Entity *e = entities[i];
-		if (e->is_high()) {
+		if (e->is_high() && e->get_sprite() != 0) {
 			e->draw(e->get_draw_position() + offset, use_depth_buffer);
 		}
-		else if (e->is_sitting() && e->get_direction() == N) {
+		else if (e->is_sitting() && e->get_direction() == N && e->get_sprite() != 0) {
 			e->draw(e->get_draw_position() + offset, use_depth_buffer, true);
 		}
 	}
