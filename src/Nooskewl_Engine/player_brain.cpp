@@ -304,6 +304,10 @@ bool Player_Brain::save(std::string &out)
 
 void Player_Brain::update()
 {
+	if (noo.player == 0) {
+		return;
+	}
+
 	// Set light position
 	Point<int> pos = noo.player->get_position();
 	position.x = pos.x;

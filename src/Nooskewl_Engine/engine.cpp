@@ -187,6 +187,7 @@ Engine::Engine() :
 	key_b3(TGUIK_TAB),
 	key_b4(TGUIK_t),
 	map(0),
+	player(0),
 	last_map_name(""),
 	tile_size(16),
 	joy(0),
