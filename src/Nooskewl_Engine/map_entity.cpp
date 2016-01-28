@@ -906,7 +906,10 @@ void Map_Entity::draw(Point<float> draw_pos, bool use_depth_buffer, bool sitting
 
 		int flags = 0;
 
-		image->draw_region_z_single(source_position, source_size, draw_pos, draw_z, flags);
+		SDL_Colour tint;
+		noo.map->get_tilemap()->get_tile_lighting(position, tint);
+
+		image->draw_region_tinted_z_single(tint, source_position, source_size, draw_pos, draw_z, flags);
 
 		if (has_blink) {
 			noo.current_shader->set_bool("substitute_yellow", false);

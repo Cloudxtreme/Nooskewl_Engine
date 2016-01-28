@@ -556,6 +556,13 @@ void Image::draw_region_tinted_single(SDL_Colour tint, Point<float> source_posit
 	end();
 }
 
+void Image::draw_region_tinted_z_single(SDL_Colour colour, Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
+{
+	start();
+	draw_region_tinted_z(colour, source_position, source_size, dest_position, z, flags);
+	end();
+}
+
 void Image::draw_region_z_single(Point<float> source_position, Size<int> source_size, Point<float> dest_position, float z, int flags)
 {
 	start();
