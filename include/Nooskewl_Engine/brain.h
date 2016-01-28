@@ -37,23 +37,47 @@ public:
 	Light_Brain(Vec3D<float> position, SDL_Colour colour, float reach, float falloff);
 	virtual ~Light_Brain();
 
-	Vec3D<float> get_position();
-	SDL_Colour get_colour();
-	float get_reach();
-	float get_falloff();
+	virtual Vec3D<float> get_position();
+	virtual SDL_Colour get_colour();
+	virtual float get_reach();
+	virtual float get_falloff();
 
 	void set_position(Vec3D<float> position);
 	void set_colour(SDL_Colour colour);
 	void set_reach(float reach);
 	void set_falloff(float falloff);
 
-	bool save(std::string &out);
+	virtual bool save(std::string &out);
 
 protected:
 	Vec3D<float> position;
 	SDL_Colour colour;
 	float reach; // tiles of max power
 	float falloff; // tiles till falloff completely
+};
+
+class NOOSKEWL_ENGINE_EXPORT Flickering_Light_Brain : public Light_Brain {
+public:
+	// delaymin and delaymax in ticks (60 ticks per second)
+	Flickering_Light_Brain(Vec3D<float> position, SDL_Colour colour1, SDL_Colour colour2, int delaymin, int delaymax, float reach, float falloff);
+	virtual ~Flickering_Light_Brain();
+
+	SDL_Colour get_colour();
+	SDL_Colour get_colour1();
+	SDL_Colour get_colour2();
+	void set_colour2(SDL_Colour colour2);
+
+	void update();
+	bool save(std::string &out);
+
+protected:
+	void swap();
+
+	SDL_Colour *current_colour;
+	SDL_Colour colour2;
+	int delaymin;
+	int delaymax;
+	int count;
 };
 
 } // End namespace Nooskewl_Engine

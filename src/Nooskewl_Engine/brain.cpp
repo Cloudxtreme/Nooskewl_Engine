@@ -122,3 +122,73 @@ bool Light_Brain::save(std::string &out)
 	return true;
 }
 
+//--
+
+Flickering_Light_Brain::Flickering_Light_Brain(Vec3D<float> position, SDL_Colour colour1, SDL_Colour colour2, int delaymin, int delaymax, float reach, float falloff) :
+	Light_Brain(position, colour1, reach, falloff),
+	current_colour(&colour),
+	colour2(colour2),
+	delaymin(delaymin),
+	delaymax(delaymax),
+	count(0)
+{
+}
+
+Flickering_Light_Brain::~Flickering_Light_Brain()
+{
+}
+
+SDL_Colour Flickering_Light_Brain::get_colour()
+{
+	return *current_colour;
+}
+
+SDL_Colour Flickering_Light_Brain::get_colour1()
+{
+	return colour;
+}
+
+SDL_Colour Flickering_Light_Brain::get_colour2()
+{
+	return colour2;
+}
+
+void Flickering_Light_Brain::set_colour2(SDL_Colour colour2)
+{
+	this->colour2 = colour2;
+}
+
+void Flickering_Light_Brain::update()
+{
+	count++;
+
+	if (count >= delaymax) {
+		count = 0;
+		swap();
+	}
+	else if (count >= delaymin) {
+		int r = count - delaymin;
+		if ((rand() % (delaymax-delaymin)) <= r) {
+			count = 0;
+			swap();
+		}
+	}
+}
+
+bool Flickering_Light_Brain::save(std::string &out)
+{
+	out += string_printf("brain=flickering_light_brain,1\n%f,%f,%f,%d,%d,%d,%f,%f,%d,%d,%d,%d,%d\n", position.x, position.y, position.z, colour.r, colour.g, colour.b, reach, falloff, colour2.r, colour2.g, colour2.b, delaymin, delaymax);
+	return true;
+}
+
+void Flickering_Light_Brain::swap()
+{
+	if (current_colour == &colour) {
+		current_colour = &colour2;
+		falloff++;
+	}
+	else {
+		current_colour = &colour;
+		falloff--;
+	}
+}

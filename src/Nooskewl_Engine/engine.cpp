@@ -2471,7 +2471,57 @@ Brain *Engine::load_brain(SDL_RWops *file, int version)
 			brain_s += line;
 		}
 
-		return m.dll_get_brain(type, brain_s);
+		if (type == "light_brain") {
+			Tokenizer t2(brain_s, ',');
+
+			float x = atof(t2.next().c_str());
+			float y = atof(t2.next().c_str());
+			float z = atof(t2.next().c_str());
+
+			SDL_Colour colour;
+
+			colour.r = atoi(t2.next().c_str());
+			colour.g = atoi(t2.next().c_str());
+			colour.b = atoi(t2.next().c_str());
+			colour.a = 255;
+
+			int reach = atoi(t2.next().c_str());
+			int falloff = atoi(t2.next().c_str());
+
+			brain = new Light_Brain(Vec3D<float>(x, y, z), colour, reach, falloff);
+		}
+		else if (type == "flickering_light_brain") {
+			Tokenizer t2(brain_s, ',');
+
+			float x = atof(t2.next().c_str());
+			float y = atof(t2.next().c_str());
+			float z = atof(t2.next().c_str());
+
+			SDL_Colour colour;
+
+			colour.r = atoi(t2.next().c_str());
+			colour.g = atoi(t2.next().c_str());
+			colour.b = atoi(t2.next().c_str());
+			colour.a = 255;
+
+			int reach = atoi(t2.next().c_str());
+			int falloff = atoi(t2.next().c_str());
+
+			SDL_Colour colour2;
+
+			colour2.r = atoi(t2.next().c_str());
+			colour2.g = atoi(t2.next().c_str());
+			colour2.b = atoi(t2.next().c_str());
+			colour2.a = 255;
+
+			int delaymin = atoi(t2.next().c_str());
+			int delaymax = atoi(t2.next().c_str());
+
+			brain = new Flickering_Light_Brain(Vec3D<float>(x, y, z), colour, colour2, delaymin, delaymax, reach, falloff);
+		}
+		else {
+			return m.dll_get_brain(type, brain_s);
+		}
 	}
 
 	return brain;
