@@ -811,7 +811,7 @@ void Widget_Slider::handle_event(TGUI_Event *event)
 	else if (event->type == TGUI_MOUSE_DOWN || (mouse_down && event->type == TGUI_MOUSE_AXIS)) {
 		int old_value = value;
 		if (mouse_down) {
-			value = int(((event->mouse.x-calculated_x) / calculated_w) * stops);
+			value = int(((event->mouse.x - slider_image->size.w / 2 - calculated_x) / (calculated_w - slider_image->size.w)) * stops);
 			if (value < 0) {
 				value = 0;
 			}
@@ -823,7 +823,13 @@ void Widget_Slider::handle_event(TGUI_Event *event)
 			TGUI_Event e = tgui_get_relative_event(this, event);
 			if (e.mouse.x >= 0) {
 				mouse_down = true;
-				value = int((e.mouse.x / calculated_w) * stops);
+				value = int(((e.mouse.x - slider_image->size.w / 2) / (calculated_w - slider_image->size.w)) * stops);
+				if (value < 0) {
+					value = 0;
+				}
+				else if (value >= stops) {
+					value = stops-1;
+				}
 			}
 		}
 		if (value != old_value) {
@@ -837,9 +843,9 @@ void Widget_Slider::handle_event(TGUI_Event *event)
 
 void Widget_Slider::draw()
 {
-	noo.draw_line(noo.black, Point<float>((float)calculated_x, calculated_y+2.5f), Point<float>(float(calculated_x+calculated_w-1), calculated_y+2.5f));
+	noo.draw_line(noo.black, Point<float>((float)calculated_x + slider_image->size.w / 2, calculated_y+2.5f), Point<float>(float(calculated_x+calculated_w-slider_image->size.w/2-1), calculated_y+2.5f));
 
-	int x = int((float)value / (stops-1) * (calculated_w-1) - slider_image->size.w / 2);
+	int x = int((float)value / (stops-1) * (calculated_w - slider_image->size.w - 1));
 
 	bool focussed = gui->get_focus() == this;
 
