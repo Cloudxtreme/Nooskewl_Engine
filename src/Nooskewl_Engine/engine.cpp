@@ -155,10 +155,15 @@ void Engine::wait_callback(void *data)
 		return;
 	}
 
+	// Some stuff needs to know that we're waiting in this function
+	noo.is_waiting = true;
+
 	for (int i = 0; i < v*60; i++) {
 		noo.loaded_time++;
 		noo.update();
 	}
+
+	noo.is_waiting = false;
 
 	noo.game_unpaused();
 }
@@ -203,6 +208,7 @@ Engine::Engine() :
 	fullscreen_window(false),
 	target_image(0),
 	work_image(0),
+	is_waiting(false),
 	story_start_hour(7),
 	seconds_per_hour(60)
 {

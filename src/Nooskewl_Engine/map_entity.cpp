@@ -661,7 +661,7 @@ void Map_Entity::update_stats()
 	/* Don't do this if there's a GUI up. Some GUIs mess around with equipment (buy and sell, etc)
 	 * which can make get_modified_* access stuff out of bounds.
 	 */
-	if (stats && noo.guis.size() == 0) {
+	if (stats && (noo.is_waiting || noo.guis.size() == 0)) {
 		int current_time = noo.get_play_time();
 		if (stats->ate_time < current_time) {
 			stats->ate_time = current_time;
@@ -722,7 +722,7 @@ void Map_Entity::update_stats()
 		}
 		if (stats->used_time < current_time) {
 			stats->used_time = current_time;
-			int step = MIN(300, 0xffff - stats->sobriety); // sobering up completely takes about 3.5 minutes
+			int step = MIN(300, 0xffff - stats->sobriety);
 			stats->sobriety += step;
 		}
 		if (stats->status == Stats::SICK) {

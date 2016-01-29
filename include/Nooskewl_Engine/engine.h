@@ -86,6 +86,7 @@ public:
 	XML *miscellaneous_xml;
 	Image *target_image;
 	Image *work_image; // screen size
+	bool is_waiting;
 
 	Engine();
 	~Engine();
