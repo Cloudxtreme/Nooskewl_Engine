@@ -272,7 +272,9 @@ void Map_Entity::set_direction(Direction direction)
 		}
 	}
 
-	sprite->set_animation(animation_name);
+	if (sprite) {
+		sprite->set_animation(animation_name);
+	}
 }
 
 void Map_Entity::set_solid(bool solid)
