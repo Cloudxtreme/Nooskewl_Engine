@@ -18,6 +18,7 @@ typedef void (*DLL_Pause)();
 typedef Map_Logic *(*Map_Logic_Getter)(std::string map_name, int last_visited_time);
 typedef Brain *(*Brain_Getter)(std::string type, std::string data);
 typedef bool (*Action_Chooser)(Map_Entity *entity);
+typedef bool (*Event_Handler)(SDL_Event *event);
 
 void load_dll();
 void close_dll();
@@ -45,6 +46,7 @@ struct Module {
 	Map_Logic_Getter dll_get_map_logic;
 	Brain_Getter dll_get_brain;
 	Action_Chooser dll_choose_action;
+	Event_Handler dll_handle_event;
 
 	// audio
 	SDL_mutex *mixer_mutex;

@@ -35,6 +35,7 @@ void load_dll()
 	m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 	m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
 	m.dll_choose_action = (Action_Chooser)dlsym(so_handle, "dll_choose_action");
+	m.dll_handle_event = (Event_Handler)dlsym(so_handle, "dll_handle_event");
 
 	if (
 	m.dll_start != 0 &&
@@ -43,7 +44,8 @@ void load_dll()
 	m.dll_pause != 0 &&
 	m.dll_get_map_logic != 0 &&
 	m.dll_get_brain != 0 &&
-	m.dll_choose_action != 0
+	m.dll_choose_action != 0 &&
+	m.dll_handle_event != 0
 	) {
 		infomsg("Using %s\n", filename.c_str());
 		return;
@@ -71,6 +73,7 @@ void load_dll()
 		m.dll_get_map_logic = (Map_Logic_Getter)GetProcAddress(dll_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)GetProcAddress(dll_handle, "dll_get_brain");
 		m.dll_choose_action = (Action_Chooser)GetProcAddress(dll_handle, "dll_choose_action");
+		m.dll_handle_event = (Event_Handler)GetProcAddress(dll_handle, "dll_handle_event");
 
 		if (
 		m.dll_start != 0 &&
@@ -79,7 +82,8 @@ void load_dll()
 		m.dll_pause != 0 &&
 		m.dll_get_map_logic != 0 &&
 		m.dll_get_brain != 0 &&
-		m.dll_choose_action != 0
+		m.dll_choose_action != 0 &&
+		m.dll_handle_event != 0
 		) {
 			infomsg("Using %s\n", filename.c_str());
 			return;
@@ -98,6 +102,7 @@ void load_dll()
 		m.dll_get_map_logic = (Map_Logic_Getter)dlsym(so_handle, "dll_get_map_logic");
 		m.dll_get_brain = (Brain_Getter)dlsym(so_handle, "dll_get_brain");
 		m.dll_choose_action = (Action_Chooser)dlsym(so_handle, "dll_choose_action");
+		m.dll_handle_event = (Event_Handler)dlsym(so_handle, "dll_handle_event");
 
 		if (
 		m.dll_start != 0 &&
@@ -106,7 +111,8 @@ void load_dll()
 		m.dll_pause != 0 &&
 		m.dll_get_map_logic != 0 &&
 		m.dll_get_brain != 0 &&
-		m.dll_choose_action != 0
+		m.dll_choose_action != 0 &&
+		m.dll_handle_event != 0
 		) {
 			infomsg("Using %s\n", filename.c_str());
 			return;

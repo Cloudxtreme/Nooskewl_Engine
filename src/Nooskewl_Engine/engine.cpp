@@ -682,6 +682,10 @@ void Engine::shutdown_audio()
 
 bool Engine::handle_event(SDL_Event *sdl_event, bool is_joystick_repeat)
 {
+	if (m.dll_handle_event(sdl_event)) {
+		return true;
+	}
+
 	if (sdl_event->type == SDL_QUIT) {
 		return false;
 
