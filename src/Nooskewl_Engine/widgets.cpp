@@ -556,9 +556,11 @@ void Widget_List::handle_event(TGUI_Event *event)
 		}
 		int height = used_height();
 		if (top_arrow && mx >= calculated_x+calculated_w-8 && mx <= calculated_x+calculated_w && my >= calculated_y && my <= calculated_y+8) {
+			noo.widget_mml->play(false);
 			change_top(-1);
 		}
 		else if (bottom_arrow && mx >= calculated_x+calculated_w-8 && mx <= calculated_x+calculated_w && my >= calculated_y+height-8 && my <= calculated_y+height) {
+			noo.widget_mml->play(false);
 			change_top(1);
 		}
 		else if (mx >= calculated_x && mx < calculated_x+calculated_w-8 && my >= calculated_y && my < calculated_y+calculated_h) {
