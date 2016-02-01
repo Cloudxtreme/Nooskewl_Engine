@@ -169,6 +169,30 @@ private:
 	Widget_Text_Button *ok_button;
 };
 
+class Multiple_Choice_GUI : public GUI {
+public:
+	struct Callback_Data {
+		int choice;
+		void *userdata;
+	};
+
+	Multiple_Choice_GUI(std::string caption, std::vector<std::string> choices, int escape_choice, Callback callback, void *callback_data);
+
+	void handle_event(TGUI_Event *event);
+	void update();
+
+private:
+	Widget_Label *caption_label;
+	Widget_List *list;
+
+	Callback callback;
+	void *callback_data;
+
+	bool exit_menu;
+
+	int escape_choice; // escape activates this choice. If it's -1, escape does nothing. If it's -2, escape dismisses the dialog with no action.
+};
+
 } // End namespace Nooskewl_Engine
 
 #endif // GUI_H

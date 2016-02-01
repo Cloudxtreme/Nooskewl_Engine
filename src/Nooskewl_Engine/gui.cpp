@@ -715,3 +715,92 @@ void Save_Load_GUI::update()
 		exit();
 	}
 }
+
+//--
+
+Multiple_Choice_GUI::Multiple_Choice_GUI(std::string caption, std::vector<std::string> choices, int escape_choice, Callback callback, void *callback_data) :
+	callback(callback),
+	callback_data(callback_data),
+	exit_menu(false),
+	escape_choice(escape_choice)
+{
+	int w = 150;
+	int h;
+
+	bool full;
+	int num_lines;
+	int width;
+
+	// Get caption # lines
+	if (caption == "") {
+		num_lines = -1;
+		h = int((noo.font->get_height() + 3) * 3);
+	}
+	else {
+		noo.font->draw_wrapped(noo.white, caption, Point<float>(0, 0), w, (int)noo.font->get_height() + 3, -1, 0, 0, true, full, num_lines, width);
+		h = int((noo.font->get_height() + 3) * (3 + num_lines + 1));
+	}
+
+	TGUI_Widget *modal_main_widget = new TGUI_Widget(1.0f, 1.0f);
+
+	Widget_Window *window = new Widget_Window(w + 10, h + 10);
+	window->set_9patch_image(noo.speech_window_image);
+	window->set_float_right(true);
+	window->set_float_bottom(true);
+	window->set_padding_right(10);
+	window->set_padding_bottom(10);
+	window->set_parent(modal_main_widget);
+
+	TGUI_Widget *pad = new TGUI_Widget(1.0f, 1.0f);
+	pad->set_padding(5);
+	pad->set_parent(window);
+
+	if (caption != "") {
+		caption_label = new Widget_Label(caption, w);
+		caption_label->set_center_x(true);
+		caption_label->set_parent(pad);
+	}
+
+	list = new Widget_List(1.0f, int(h - (num_lines + 1) * (noo.font->get_height() + 3)));
+	list->set_selected_colour(noo.colours[13]); // blue
+	list->set_items(choices);
+	list->set_padding_top(int(h - (3 * (3 + noo.font->get_height()))));
+	list->set_parent(pad);
+
+	gui = new TGUI(modal_main_widget, noo.screen_size.w, noo.screen_size.h);
+
+	gui->set_focus(list);
+}
+
+void Multiple_Choice_GUI::update()
+{
+	int pressed;
+	if ((pressed = list->pressed()) >= 0) {
+		Callback_Data data;
+		data.choice = pressed;
+		data.userdata = callback_data;
+		callback((void *)&data);
+		exit();
+	}
+}
+
+void Multiple_Choice_GUI::handle_event(TGUI_Event *event)
+{
+	if (escape_choice >= 0 && ((event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b2) ||
+		(event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b2))) {
+		noo.button_mml->play(false);
+		Callback_Data data;
+		data.choice = escape_choice;
+		data.userdata = callback_data;
+		callback((void *)&data);
+		exit();
+	}
+	if (escape_choice == -2 && ((event->type == TGUI_KEY_DOWN && event->keyboard.code == noo.key_b2) ||
+		(event->type== TGUI_JOY_DOWN && event->joystick.button == noo.joy_b2))) {
+		noo.button_mml->play(false);
+		exit();
+	}
+	else {
+		GUI::handle_event(event);
+	}
+}
