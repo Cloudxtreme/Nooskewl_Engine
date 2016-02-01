@@ -9,6 +9,8 @@ class Sprite;
 
 class Speech {
 public:
+	static void multiple_choice_callback(void *data);
+
 	static const int TEXT_DELAY = 50; // millisecond
 
 	static void static_start();
@@ -24,6 +26,10 @@ public:
 	void draw();
 
 private:
+	struct Multiple_Choice_Data {
+		std::vector<Speech *> paths;
+	};
+
 	static Sprite *speech_advance;
 
 	void token(std::string s);
@@ -43,6 +49,11 @@ private:
 
 	int milestone;
 	bool milestone_on_off;
+
+	// for when speech has a multiple choice
+	std::string multiple_choice_caption;
+	std::vector<std::string> multiple_choice_options;
+	Multiple_Choice_Data *multiple_choice_data;
 };
 
 } // End namespace Nooskewl_Engine

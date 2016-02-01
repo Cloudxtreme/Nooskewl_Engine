@@ -150,13 +150,18 @@ void Map::add_entity(Map_Entity *entity)
 	entities.push_back(entity);
 }
 
-void Map::add_speech(std::string text, Callback callback, void *callback_data)
+void Map::add_speech(Speech *s)
 {
-	speeches.push_back(new Map_Speech(text, callback, callback_data));
+	speeches.push_back(s);
 	if (speech == 0) {
-		speech = new Speech(speeches[0]->text, speeches[0]->callback, callback_data);
+		speech = speeches[0];
 		speech->start();
 	}
+}
+
+void Map::add_speech(std::string text, Callback callback, void *callback_data)
+{
+	add_speech(new Speech(text, callback, callback_data));
 }
 
 void Map::change_map(std::string map_name, Point<int> position, Direction direction)
@@ -311,11 +316,9 @@ void Map::handle_event(TGUI_Event *event)
 	if (speech) {
 		if (speech->handle_event(event) == false) {
 			delete speech;
-			Map_Speech *ms = speeches[0];
-			delete ms;
 			speeches.erase(speeches.begin());
 			if (speeches.size() > 0) {
-				speech = new Speech(speeches[0]->text, speeches[0]->callback, speeches[0]->callback_data);
+				speech = speeches[0];
 				speech->start();
 			}
 			else {

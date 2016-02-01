@@ -1,13 +1,34 @@
 #include "Nooskewl_Engine/basic_types.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/font.h"
+#include "Nooskewl_Engine/gui.h"
 #include "Nooskewl_Engine/image.h"
+#include "Nooskewl_Engine/map.h"
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/speech.h"
 #include "Nooskewl_Engine/sprite.h"
 #include "Nooskewl_Engine/tokenizer.h"
 
 using namespace Nooskewl_Engine;
+
+void Speech::multiple_choice_callback(void *data)
+{
+	Multiple_Choice_GUI::Callback_Data *d = static_cast<Multiple_Choice_GUI::Callback_Data *>(data);
+
+	Speech::Multiple_Choice_Data *mc_data = static_cast<Speech::Multiple_Choice_Data *>(d->userdata);
+
+	noo.map->add_speech(mc_data->paths[d->choice]);
+
+	for (size_t i = 0; i < mc_data->paths.size(); i++) {
+		if (i != d->choice) {
+			delete mc_data->paths[i];
+		}
+	}
+
+	//mc_data->callback(mc_data->callback_data);
+
+	delete mc_data;
+}
 
 Sprite *Speech::speech_advance;
 
@@ -30,8 +51,26 @@ Speech::Speech(std::string text, Callback callback, void *callback_data) :
 	right(false),
 	callback(callback),
 	callback_data(callback_data),
-	milestone(-1)
+	milestone(-1),
+	multiple_choice_data(0)
 {
+	Tokenizer t(this->text, '>');
+	std::vector<std::string> parts;
+	std::string part;
+	while ((part = t.next()) != "") {
+		parts.push_back(part);
+	}
+
+	if (parts.size() > 1) {
+		this->text = parts[0];
+
+		multiple_choice_data = new Multiple_Choice_Data;
+
+		for (size_t i = 1; i < parts.size(); i++) {
+			multiple_choice_data->paths.push_back(new Speech(parts[i], callback, callback_data));
+		}
+	}
+
 	size_t pipe = this->text.find('|');
 	if (pipe != std::string::npos) {
 		std::string options = this->text.substr(0, pipe);
@@ -61,9 +100,16 @@ bool Speech::handle_event(TGUI_Event *event)
 			if (milestone >= 0) {
 				noo.set_milestone(milestone, milestone_on_off);
 			}
-			if (callback != 0) {
-				callback(callback_data);
-				callback = 0;
+			if (multiple_choice_data != 0) {
+				Multiple_Choice_GUI *gui = new Multiple_Choice_GUI(multiple_choice_caption, multiple_choice_options, -1, multiple_choice_callback, multiple_choice_data);
+				gui->start();
+				noo.guis.push_back(gui);
+			}
+			else {
+				if (callback != 0) {
+					callback(callback_data);
+					callback = 0;
+				}
 			}
 			return false;
 		}
@@ -148,5 +194,11 @@ void Speech::token(std::string s)
 	}
 	else if (s == "right") {
 		right = true;
+	}
+	else if (s.substr(0, 11) == "mc_caption=") {
+		multiple_choice_caption = s.substr(11);
+	}
+	else if (s.substr(0, 10) == "mc_option=") {
+		multiple_choice_options.push_back(s.substr(10));
 	}
 }

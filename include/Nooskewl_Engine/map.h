@@ -37,6 +37,7 @@ public:
 	void schedule_destroy(Map_Entity *entity);
 
 	void add_entity(Map_Entity *entity);
+	void add_speech(Speech *speech);
 	void add_speech(std::string text, Callback callback = NULL, void *callback_data = NULL);
 	void change_map(std::string map_name, Point<int> position, Direction direction);
 	void set_panning(bool panning);
@@ -60,19 +61,6 @@ public:
 	bool save(std::string &out, bool save_player);
 
 private:
-	struct Map_Speech {
-		std::string text;
-		Callback callback;
-		void *callback_data;
-
-		Map_Speech(std::string text, Callback callback, void *callback_data) :
-			text(text),
-			callback(callback),
-			callback_data(callback_data)
-		{
-		}
-	};
-
 	Tilemap *tilemap;
 	Point<float> offset;
 	bool panning;
@@ -80,7 +68,7 @@ private:
 	float pan_angle;
 	std::vector<Map_Entity *> entities;
 
-	std::vector<Map_Speech *> speeches;
+	std::vector<Speech *> speeches;
 	Speech *speech;
 
 	std::string map_name;
