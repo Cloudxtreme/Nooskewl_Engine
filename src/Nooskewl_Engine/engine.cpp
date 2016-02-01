@@ -259,7 +259,7 @@ bool Engine::start(int argc, char **argv)
 	if ((play_mml = check_args(argc, argv, "+play-mml")) > 0) {
 		MML *mml = new MML(argv[play_mml+1], true);
 		mml->play(false);
-		while (mml->is_done()) {
+		while (mml->is_done() == false) {
 			SDL_Delay(1);
 		}
 		exit(0);
