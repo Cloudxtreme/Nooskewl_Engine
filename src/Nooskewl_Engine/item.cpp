@@ -26,10 +26,11 @@ void Item::use(Stats *stats)
 
 std::string Item::to_string()
 {
-	return string_printf("%s,%s,%s,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d,mod_max_hp:%d,mod_max_mp:%d,mod_attack:%d,mod_defense:%d,mod_agility:%d,mod_luck:%d,mod_speed:%d,mod_strength:%d",
+	return string_printf("%s,%s,%s,can_disassemble:%d,type:%d,condition:%d,weight:%d,min_attack:%d,max_attack:%d,min_defense:%d,max_defense:%d,min_value:%d,max_value:%d,mod_max_hp:%d,mod_max_mp:%d,mod_attack:%d,mod_defense:%d,mod_agility:%d,mod_luck:%d,mod_speed:%d,mod_strength:%d",
 		id.c_str(),
 		name.c_str(),
 		components.c_str(),
+		can_disassemble,
 		(int)type,
 		condition,
 		weight,
@@ -59,6 +60,8 @@ void Item::from_string(std::string s)
 	name = t.next();
 
 	components = t.next();
+
+	can_disassemble = atoi(t.next().c_str()) == 0 ? false : true;
 
 	std::string option;
 
@@ -119,6 +122,9 @@ void Item::from_string(std::string s)
 		else if (key == "mod_strength") {
 			modifiers.set_strength(atoi(value.c_str()));
 		}
+		else if (key == "can_disassemble") {
+			can_disassemble = atoi(value.c_str()) != 0;
+		}
 	}
 }
 
@@ -127,6 +133,7 @@ void Item::defaults()
 	type = OTHER;
 	name =  "Unknown";
 	components = "";
+	can_disassemble = true;
 
 	condition = 0xffff;
 	weight = 0;
@@ -220,6 +227,9 @@ void Item::handle_tag(XML *xml)
 		else if (tag == "components") {
 			components = xml->get_value();
 			trim(components);
+		}
+		else if (tag == "can_disassemble") {
+			can_disassemble = xml->get_value() == "false" ? false : true;
 		}
 		else if (tag == "condition") {
 			condition = XML_Helpers::handle_numeric_tag(xml);

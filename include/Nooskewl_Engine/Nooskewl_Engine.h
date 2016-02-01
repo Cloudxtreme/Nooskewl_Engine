@@ -20,6 +20,7 @@
 #include "Nooskewl_Engine/mml.h"
 #include "Nooskewl_Engine/player_brain.h"
 #include "Nooskewl_Engine/sample.h"
+#include "Nooskewl_Engine/sound.h"
 #include "Nooskewl_Engine/speech.h"
 #include "Nooskewl_Engine/spell.h"
 #include "Nooskewl_Engine/sprite.h"

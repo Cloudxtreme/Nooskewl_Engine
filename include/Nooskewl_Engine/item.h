@@ -19,6 +19,7 @@ public:
 	std::string id;
 
 	std::string components; // ids separated by :
+	bool can_disassemble;
 
 	Type type;
 	std::string name;
