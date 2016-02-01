@@ -2,6 +2,7 @@
 #define SPEECH_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/callback_data.h"
 
 namespace Nooskewl_Engine {
 
@@ -9,6 +10,11 @@ class Sprite;
 
 class Speech {
 public:
+	struct Callback_Data : public Generic_Callback_Data {
+		bool was_multiple_choice;
+		int choice;
+	};
+
 	static void multiple_choice_callback(void *data);
 
 	static const int TEXT_DELAY = 50; // millisecond
@@ -28,6 +34,8 @@ public:
 private:
 	struct Multiple_Choice_Data {
 		std::vector<Speech *> paths;
+		Callback callback;
+		void *callback_data;
 	};
 
 	static Sprite *speech_advance;

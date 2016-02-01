@@ -25,7 +25,14 @@ void Speech::multiple_choice_callback(void *data)
 		}
 	}
 
-	//mc_data->callback(mc_data->callback_data);
+	if (mc_data->callback != 0) {
+		Callback_Data cbd;
+		cbd.was_multiple_choice = true;
+		cbd.choice = d->choice;
+		cbd.userdata = mc_data->callback_data;
+
+		mc_data->callback(&cbd);
+	}
 
 	delete mc_data;
 }
@@ -66,8 +73,11 @@ Speech::Speech(std::string text, Callback callback, void *callback_data) :
 
 		multiple_choice_data = new Multiple_Choice_Data;
 
+		multiple_choice_data->callback = callback;
+		multiple_choice_data->callback_data = callback_data;
+
 		for (size_t i = 1; i < parts.size(); i++) {
-			multiple_choice_data->paths.push_back(new Speech(parts[i], callback, callback_data));
+			multiple_choice_data->paths.push_back(new Speech(parts[i], 0, 0));
 		}
 	}
 
@@ -107,7 +117,10 @@ bool Speech::handle_event(TGUI_Event *event)
 			}
 			else {
 				if (callback != 0) {
-					callback(callback_data);
+					Callback_Data cbd;
+					cbd.was_multiple_choice = false;
+					cbd.userdata = callback_data;
+					callback(&cbd);
 					callback = 0;
 				}
 			}

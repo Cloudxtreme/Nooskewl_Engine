@@ -32,7 +32,9 @@ static bool sort_by_distance(const Map_Entity_Distance &a, const Map_Entity_Dist
 
 static void sit_sleep_handler(void *data)
 {
-	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)data;
+	Generic_Callback_Data *gcbd = static_cast<Generic_Callback_Data *>(data);
+
+	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)gcbd->userdata;
 
 	sit_sleep_data->entity->set_direction(sit_sleep_data->direction);
 
@@ -81,7 +83,9 @@ void Map::new_game_started()
 
 void Map::sit_sleep_callback(void *data)
 {
-	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)data;
+	Generic_Callback_Data *gcbd = static_cast<Generic_Callback_Data *>(data);
+
+	Sit_Sleep_Data *sit_sleep_data = (Sit_Sleep_Data *)gcbd->userdata;
 
 	if (sit_sleep_data->is_chair == false) {
 		walk_close_to_bed(sit_sleep_data);

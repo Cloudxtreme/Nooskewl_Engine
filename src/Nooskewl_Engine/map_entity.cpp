@@ -1,5 +1,6 @@
 #include "Nooskewl_Engine/a_star.h"
 #include "Nooskewl_Engine/brain.h"
+#include "Nooskewl_Engine/callback_data.h"
 #include "Nooskewl_Engine/engine.h"
 #include "Nooskewl_Engine/image.h"
 #include "Nooskewl_Engine/internal.h"
@@ -18,7 +19,9 @@ using namespace Nooskewl_Engine;
 
 static void make_solid_callback(void *data)
 {
-	Map_Entity *entity = static_cast<Map_Entity *>(data);
+	Generic_Callback_Data *gcbd = static_cast<Generic_Callback_Data *>(data);
+
+	Map_Entity *entity = static_cast<Map_Entity *>(gcbd->userdata);
 
 	entity->set_solid(true);
 }
@@ -32,7 +35,10 @@ void Map_Entity::new_game_started()
 
 void Map_Entity::end_sleep_callback(void *data)
 {
-	Map_Entity *entity = static_cast<Map_Entity *>(data);
+	Generic_Callback_Data *gcbd = static_cast<Generic_Callback_Data *>(data);
+
+	Map_Entity *entity = static_cast<Map_Entity *>(gcbd->userdata);
+
 	entity->set_draw_offset(Point<int>(0, 0));
 	entity->get_sprite()->set_reverse(false);
 	entity->sleeping = false;
@@ -943,7 +949,9 @@ void Map_Entity::follow_path()
 	if (path.size() == 0) {
 		int old_path_count = path_count;
 		if (path_callback) {
-			path_callback(path_callback_data);
+			Generic_Callback_Data gcbd;
+			gcbd.userdata = path_callback_data;
+			path_callback(&gcbd);
 		}
 		// If an A* was fired in the callback, don't cancel it
 		if (old_path_count == path_count) {
