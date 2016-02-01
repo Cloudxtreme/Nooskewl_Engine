@@ -1066,6 +1066,13 @@ bool Engine::update()
 
 				player->get_brain()->reset();
 				map->add_entity(player);
+
+				for (size_t i = 0; i < party.size(); i++) {
+					party[i]->get_brain()->reset();
+					party[i]->set_position(player->get_position());
+					map->add_entity(party[i]);
+				}
+
 				map->start();
 				map->update_camera();
 
@@ -2411,6 +2418,9 @@ Map_Entity *Engine::load_entity(SDL_RWops *file, int version, int time)
 			std::string x_s = t.next();
 			std::string y_s = t.next();
 			entity->set_draw_offset(Point<int>(atoi(x_s.c_str()), atoi(y_s.c_str())));
+		}
+		else if (key == "party") {
+			party.push_back(entity);
 		}
 		else {
 			infomsg("Unknown token in entity in save state '%s'\n", key.c_str());

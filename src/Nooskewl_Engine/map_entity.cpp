@@ -1007,45 +1007,49 @@ bool Map_Entity::save(std::string &out)
 
 	out += string_printf("%s=", name.c_str());
 
+	if (std::find(noo.party.begin(), noo.party.end(), this) != noo.party.end()) {
+		out += "party,";
+	}
+
 	if (sprite) {
 		std::string xml_filename;
 		std::string image_directory;
 		sprite->get_filenames(xml_filename, image_directory);
 		std::string animation = sprite->get_animation();
 		int started = sprite->is_started() ? 1 : 0;
-		out += string_printf("sprite=%s:%s:%s:%d", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
+		out += string_printf("sprite=%s:%s:%s:%d,", xml_filename.c_str(), image_directory.c_str(), animation.c_str(), started);
 	}
 
-	out += string_printf(",position=%d:%d", position.x, position.y);
+	out += string_printf("position=%d:%d,", position.x, position.y);
 
-	out += string_printf(",direction=%d", (int)direction);
+	out += string_printf("direction=%d,", (int)direction);
 
-	out += string_printf(",speed=%f", speed);
+	out += string_printf("speed=%f,", speed);
 
 	if (sitting) {
-		out += string_printf(",sitting=%d", (int)sitting);
-		out += string_printf(",pre_sit_sleep_direction=%d", (int)pre_sit_sleep_direction);
+		out += string_printf("sitting=%d,", (int)sitting);
+		out += string_printf("pre_sit_sleep_direction=%d,", (int)pre_sit_sleep_direction);
 	}
 
 	if (sleeping) {
-		out += string_printf(",sleeping=%d", (int)sleeping);
-		out += string_printf(",pre_sit_sleep_direction=%d", (int)pre_sit_sleep_direction);
+		out += string_printf("sleeping=%d,", (int)sleeping);
+		out += string_printf("pre_sit_sleep_direction=%d,", (int)pre_sit_sleep_direction);
 	}
 
 	if (z != 0) {
-		out += string_printf(",z=%d", z);
+		out += string_printf("z=%d,", z);
 	}
 
 	if (solid == false) {
-		out += string_printf(",solid=%d", solid ? 1 : 0);
+		out += string_printf("solid=%d,", solid ? 1 : 0);
 	}
 
 	if (low == true) {
-		out += string_printf(",low=%d", low ? 1 : 0);
+		out += string_printf("low=%d,", low ? 1 : 0);
 	}
 
 	if (high == true) {
-		out += string_printf(",high=%d", high ? 1 : 0);
+		out += string_printf("high=%d,", high ? 1 : 0);
 	}
 
 	if (z_add != 0) {
@@ -1053,26 +1057,30 @@ bool Map_Entity::save(std::string &out)
 		if (sitting && direction == N) {
 			z += 1;
 		}
-		out += string_printf(",z_add=%d", z);
+		out += string_printf("z_add=%d,", z);
 	}
 
 	if (should_face != true) {
-		out += string_printf(",should_face=%d", should_face ? 1 : 0);
+		out += string_printf("should_face=%d,", should_face ? 1 : 0);
 	}
 
 	if (size.w != 1 || size.h != 1) {
-		out += string_printf(",size=%d:%d", size.w, size.h);
+		out += string_printf("size=%d:%d,", size.w, size.h);
 	}
 
 	if (draw_offset.x != 0 || draw_offset.y != 0) {
-		out += string_printf(",draw_offset=%d:%d", draw_offset.x, draw_offset.y);
+		out += string_printf("draw_offset=%d:%d,", draw_offset.x, draw_offset.y);
 	}
 
 	if (stats != 0) {
-		out += string_printf(",stats", stats != 0 ? 1 : 0);
+		out += string_printf("stats,", stats != 0 ? 1 : 0);
 		if (stats->inventory != 0) {
-			out += string_printf(",inventory", stats->inventory != 0 ? 1 : 0);
+			out += string_printf("inventory,", stats->inventory != 0 ? 1 : 0);
 		}
+	}
+
+	if (out[out.length()-1] == ',') {
+		out = out.substr(0, out.length()-1);
 	}
 
 	out += string_printf("\n");

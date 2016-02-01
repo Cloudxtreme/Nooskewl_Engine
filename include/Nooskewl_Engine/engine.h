@@ -82,6 +82,7 @@ public:
 	Map *map;
 	std::string last_map_name;
 	Map_Entity *player;
+	std::vector<Map_Entity *> party;
 	std::vector<GUI *> guis;
 	XML *miscellaneous_xml;
 	Image *target_image;

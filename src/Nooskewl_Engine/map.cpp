@@ -114,7 +114,7 @@ Map::~Map()
 	delete a_star;
 
 	for (size_t i = 0; i < entities.size(); i++) {
-		if (entities[i]->get_id() != 0) {
+		if (entities[i] != noo.player && std::find(noo.party.begin(), noo.party.end(), entities[i]) == noo.party.end()) {
 			delete entities[i];
 		}
 	}
