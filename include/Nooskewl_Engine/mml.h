@@ -2,12 +2,13 @@
 #define MML_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/sound.h"
 
 namespace Nooskewl_Engine {
 
 class Sample;
 
-class NOOSKEWL_ENGINE_EXPORT MML {
+class NOOSKEWL_ENGINE_EXPORT MML : public Sound {
 public:
 	static Sample *bass_drum;
 	static Sample *hihat;
@@ -19,7 +20,7 @@ public:
 	static void mix(int32_t *buf, int stream_length);
 
 	MML(std::string filename, bool load_from_filesystem = false);
-	~MML();
+	virtual ~MML();
 
 	void play(bool loop);
 	void stop();

@@ -2,17 +2,20 @@
 #define SAMPLE_H
 
 #include "Nooskewl_Engine/main.h"
+#include "Nooskewl_Engine/sound.h"
 
 namespace Nooskewl_Engine {
 
-class NOOSKEWL_ENGINE_EXPORT Sample {
+class NOOSKEWL_ENGINE_EXPORT Sample : public Sound {
 public:
 	Sample(std::string filename);
-	~Sample();
+	virtual ~Sample();
 
 	static void update();
 
 	Uint32 get_length();
+
+	void play(bool loop); // Sound interface
 
 	bool play(float volume, bool loop);
 	bool play(float volume, Uint32 silence, Uint32 play_length);

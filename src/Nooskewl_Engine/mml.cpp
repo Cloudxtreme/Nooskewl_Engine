@@ -139,6 +139,8 @@ MML::Internal::Track::~Track()
 
 void MML::Internal::Track::play(bool loop)
 {
+	done = false;
+
 	paused = false;
 
 	playing = true;
@@ -208,11 +210,12 @@ bool MML::Internal::Track::update(short *buf, int length)
 					}
 					else {
 						memset(buf, m.device_spec.silence, sizeof(short) * length);
-						done = true;
 						if (loop == false) {
 							stop();
 							reset();
 						}
+						// reset above sets done to false
+						done = true;
 						return true;
 					}
 				}
@@ -866,9 +869,9 @@ bool MML::is_done()
 {
 	for (size_t i = 0; i < internal->tracks.size(); i++) {
 		if (internal->tracks[i]->is_done() == false) {
-			return true;
+			return false;
 		}
 	}
 
-	return false;
+	return true;
 }

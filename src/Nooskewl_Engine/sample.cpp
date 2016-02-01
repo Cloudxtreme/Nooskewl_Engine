@@ -39,6 +39,11 @@ Uint32 Sample::get_length()
 	return length / 2; // length is in bytes, function returns samples
 }
 
+void Sample::play(bool loop)
+{
+	play(1.0f, loop);
+}
+
 bool Sample::play(float volume, bool loop)
 {
 	if (noo.mute) {
